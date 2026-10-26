@@ -1,0 +1,5 @@
+{
+  "code": "LLM_INVALID_OUTPUT",
+  "message": "narrative failed schema validation after retry",
+  "request_id": "8f1c2a9b4d6e7f01"
+}

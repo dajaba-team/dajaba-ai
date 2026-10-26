@@ -1,0 +1,13 @@
+# 맥·윈도우 섞어 쓸 때 줄바꿈 때문에 스크립트가 깨지는 걸 막는다.
+# 리포에는 항상 LF로 저장하고, 윈도우 전용 파일만 CRLF로 꺼낸다.
+* text=auto eol=lf
+
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+
+# 바이너리
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.gif  binary

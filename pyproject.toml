@@ -1,0 +1,68 @@
+[project]
+name = "aml-ai"
+version = "0.1.0"
+description = "다자바 AML — AI 서버 (점수 파이프라인 + STR 초안·검증 파이프라인)"
+requires-python = ">=3.12,<3.13"
+readme = "README.md"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.8,<3",
+    "pydantic-settings>=2.4",
+    "sqlalchemy>=2.0,<3",
+    "psycopg[binary]>=3.2",
+    "alembic>=1.13",
+    "pgvector>=0.3",
+    "httpx>=0.27",
+    "python-json-logger>=2.0",
+    # aml-ml: 준영 리포가 tag 를 내면 아래 한 줄을 연다 (docs/shared/02_ml_package.md)
+    # "aml-ml @ git+https://github.com/<org>/aml-ml.git@v0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov",
+    "httpx",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "testcontainers[postgres]>=4",
+]
+corpus = [
+    "pymupdf>=1.24",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aml_ai"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "deterministic: LLM 없이 도는 오류 주입 (CI)",
+    "live: 실제 LLM 호출 (CI 제외, W4 수동)",
+    "db: PostgreSQL 필요 (Testcontainers 또는 compose db)",
+]
+addopts = "-m 'not live'"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "SIM"]
+ignore = ["E501", "N818"]  # N818: 예외 이름은 규약 에러 코드를 따른다 (InvalidRequest = INVALID_REQUEST)
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Header", "fastapi.Query"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src/aml_ai/shared", "src/aml_ai/str/domain"]
+plugins = ["pydantic.mypy"]

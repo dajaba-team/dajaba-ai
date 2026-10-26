@@ -1,0 +1,26 @@
+# 환경변수 — 노션 「다자바 환경변수」에서 관리. 커밋 금지
+.env
+.env.*
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# RAG 원문 (저작권·용량). manifest.json 만 커밋
+corpus/pdf/
+corpus/text/
+
+# LLM 녹화 응답은 커밋한다 (tests/str/recorded/). 임시 녹화만 제외
+tests/str/recorded/_tmp/
+
+# IDE
+.idea/
+.vscode/
+.DS_Store

@@ -1,0 +1,37 @@
+{
+  "batch_run_id": 7,
+  "scores": [
+    {
+      "alert_id": 1001,
+      "prediction_id": "p-9f3a",
+      "score": 0.91,
+      "threshold": 0.7,
+      "reasons": [
+        {
+          "name": "distinct_senders_24h",
+          "value": 0.42,
+          "method": "SHAP",
+          "baseline": 3.4
+        },
+        {
+          "name": "outflow_ratio_2h",
+          "value": 0.21,
+          "method": "SHAP",
+          "baseline": 0.3
+        }
+      ],
+      "data_quality_status": "OK",
+      "evidence_transaction_ids": [
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "scoring_meta": {
+    "model_version": "xgb-2026-11-05",
+    "feature_version": "f1",
+    "server_version": "a1b2c3d",
+    "latency_ms": 1840
+  }
+}

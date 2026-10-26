@@ -1,0 +1,12 @@
+{
+  "_doc": "RAG 코퍼스 목록 (docs/str/10). PDF 는 corpus/pdf/ 에 두되 커밋하지 않는다. sha256·pages 는 받은 뒤 채운다.",
+  "documents": [
+    {"id": "fincen-sar-narrative-2003", "title": "Guidance on Preparing a Complete & Sufficient Suspicious Activity Report Narrative", "publisher": "FinCEN", "year": 2003, "lang": "en", "url": "https://www.fincen.gov/sites/default/files/shared/sarnarrcompletguidfinal_112003.pdf", "sha256": null, "pages": null, "typologies": []},
+    {"id": "fatf-tbml-2020", "title": "Trade-Based Money Laundering: Trends and Developments", "publisher": "FATF/Egmont", "year": 2020, "lang": "en", "url": "https://www.fatf-gafi.org/en/publications/Methodsandtrends/Trade-based-money-laundering-trends-and-developments.html", "sha256": null, "pages": null, "typologies": ["PASS_THROUGH", "STACK", "STRUCTURING"]},
+    {"id": "fatf-tbml-2006", "title": "Trade Based Money Laundering", "publisher": "FATF", "year": 2006, "lang": "en", "url": "https://www.fincen.gov/sites/default/files/shared/fatf_typologies.pdf", "sha256": null, "pages": 38, "typologies": ["PASS_THROUGH", "STRUCTURING"]},
+    {"id": "fatf-pml-2018", "title": "Professional Money Laundering", "publisher": "FATF", "year": 2018, "lang": "en", "url": "https://www.fatf-gafi.org/en/publications/methodsandtrends/documents/professional-money-laundering.html", "sha256": null, "pages": null, "typologies": ["PASS_THROUGH", "STACK", "CYCLE"]},
+    {"id": "fincen-funnel-2014", "title": "Update on U.S. Currency Restrictions in Mexico: Funnel Accounts and TBML (FIN-2014-A005)", "publisher": "FinCEN", "year": 2014, "lang": "en", "url": "https://fincen.gov/sites/default/files/shared/FIN-2014-A005.pdf", "sha256": null, "pages": 6, "typologies": ["FAN_IN", "STRUCTURING"]},
+    {"id": "ffiec-redflags", "title": "BSA/AML Manual Appendix F: Money Laundering and Terrorist Financing Red Flags", "publisher": "FFIEC", "year": null, "lang": "en", "url": "https://bsaaml.ffiec.gov/manual/Appendices/07", "sha256": null, "pages": null, "typologies": []},
+    {"id": "fincen-msb-ko-2007", "title": "금전 서비스 업체 지침", "publisher": "FinCEN", "year": 2007, "lang": "ko", "url": "https://www.fincen.gov/sites/default/files/shared/mlp_ko_prevention_guide.pdf", "sha256": null, "pages": 44, "typologies": ["STRUCTURING"]}
+  ]
+}

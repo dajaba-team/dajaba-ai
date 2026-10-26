@@ -1,0 +1,64 @@
+{
+  "verification_id": "v-7c1d",
+  "passed": true,
+  "status": "PASSED",
+  "code_checks": [
+    {
+      "check": "AMOUNT_MATCH",
+      "section": "SUMMARY",
+      "draft_value": "320000000.00",
+      "source_value": "320000000.00",
+      "match": true
+    },
+    {
+      "check": "DATE_MATCH",
+      "section": "WHAT_WHEN_WHERE",
+      "draft_value": "2022-09-02",
+      "source_value": "2022-09-02..2022-09-02",
+      "match": true
+    },
+    {
+      "check": "COUNTERPARTY_COUNT",
+      "section": "WHAT_WHEN_WHERE",
+      "draft_value": "31",
+      "source_value": "31",
+      "match": true
+    },
+    {
+      "check": "EVIDENCE_IN_SCOPE",
+      "section": null,
+      "draft_value": null,
+      "source_value": null,
+      "match": true
+    }
+  ],
+  "llm_checks": [
+    {
+      "check": "FIVE_W_ONE_H_COMPLETE",
+      "comment": "적절함",
+      "score": 5
+    },
+    {
+      "check": "TYPOLOGY_CONSISTENT",
+      "comment": "적절함",
+      "score": 5
+    },
+    {
+      "check": "NO_UNSUPPORTED_CLAIM",
+      "comment": "적절함",
+      "score": 5
+    },
+    {
+      "check": "NO_SPECULATION",
+      "comment": "적절함",
+      "score": 5
+    },
+    {
+      "check": "NO_INSTRUCTION_TEXT",
+      "comment": "적절함",
+      "score": 5
+    }
+  ],
+  "verifier_version": "verify-2026.11+judge_v1",
+  "produced_at": "2026-11-05T14:02:11"
+}

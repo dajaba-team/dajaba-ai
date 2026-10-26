@@ -1,0 +1,56 @@
+# PR이 올라오거나 develop/main에 머지될 때마다 깨끗한 리눅스에서 린트·테스트를 돌린다.
+# 맥·윈도우 누구 PC에서 만들었든 여기서 통과해야 머지 기준을 채운 것으로 본다.
+# 완료 기준(CLAUDE.md): uv run pytest 녹색 + uv run ruff check 통과
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: lint & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      # uv + Python 3.12 (.python-version), 의존성 캐시
+      - name: uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: 의존성 설치 (uv.lock 그대로)
+        run: uv sync --frozen --extra dev
+
+      - name: ruff check
+        run: uv run --frozen ruff check .
+
+      - name: ruff format --check
+        run: uv run --frozen ruff format --check .
+
+      # 기본 addopts = -m 'not live' → 실제 LLM 호출 테스트는 CI에서 돌지 않는다
+      - name: pytest
+        run: uv run --frozen pytest
+
+  docker:
+    name: docker build
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      # 이미지가 빌드되는지만 확인한다 (배포 대상이 생기면 여기에 push 단계를 붙인다)
+      - name: Build image
+        run: docker build --build-arg SERVER_VERSION=${GITHUB_SHA::7} -t dajaba-ai:ci .

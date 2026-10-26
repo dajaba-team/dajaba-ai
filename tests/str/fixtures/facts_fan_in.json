@@ -1,0 +1,33 @@
+{
+  "reporting_institution": "Portugal Bank #4507",
+  "subject_entity_id": "80062E240",
+  "subject_entity_name": "Sole Proprietorship #50438",
+  "subject_account_keys": [
+    "010_8000EBD30"
+  ],
+  "period_start": "2022-09-02T00:14:00",
+  "period_end": "2022-09-02T22:51:00",
+  "transaction_count": 47,
+  "total_amount": "320000000.00",
+  "currency": "US Dollar",
+  "mixed_currency": false,
+  "direction": "INBOUND",
+  "counterparty_count": 31,
+  "payment_formats": [
+    "ACH"
+  ],
+  "typology": "FAN_IN",
+  "typology_source": "RULE",
+  "customer": {
+    "industry": "RETAIL",
+    "risk_level": "LOW",
+    "account_purpose": "SALES_DEPOSIT",
+    "onboarded_at": "2021-03-14",
+    "country_code": "PT"
+  },
+  "prior_alert_count": 1,
+  "top_reasons": [
+    "distinct_senders_24h = 31 (평소 3.4)",
+    "outflow_ratio_2h = 0.95"
+  ]
+}

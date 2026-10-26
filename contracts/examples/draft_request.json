@@ -1,0 +1,32 @@
+{
+  "draft_id": "d-2026-0001",
+  "case_no": "C-2026-0001",
+  "alert": {
+    "alert_id": 1001,
+    "rule_id": "R02_FAN_IN_24H",
+    "account_key": "010_8000EBD30",
+    "reference_ts": "2022-09-03T00:00:00",
+    "window_start": "2022-09-02T00:00:00",
+    "evidence_transaction_ids": [
+      1,
+      2,
+      3
+    ],
+    "typology": "FAN_IN",
+    "typology_source": "RULE"
+  },
+  "transaction_ids": [
+    1,
+    2,
+    3
+  ],
+  "prior_alerts": [
+    {
+      "alert_id": 880,
+      "rule_id": "R07_STRUCTURING",
+      "outcome": "CLOSED"
+    }
+  ],
+  "investigator_notes": "업종 대비 상대 수 과다. 입금 사유 미확인.",
+  "reporting_institution": "Portugal Bank #4507"
+}
