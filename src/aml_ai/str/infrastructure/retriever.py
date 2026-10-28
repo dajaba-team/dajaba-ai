@@ -27,10 +27,11 @@ TYPOLOGY_KO = {
 
 
 def build_query(facts: Facts) -> str:
-    """'{유형 한국어} {유형 영문 코드} {top_reasons 이름 3개} {industry}' — 코퍼스가 영문이라 코드도 넣는다."""
-    reasons = " ".join(r.split("=")[0].strip() for r in facts.top_reasons)
+    """'{유형 한국어} {유형 영문 코드} {model_signals 이름} {industry}' — 코퍼스가 영문이라 코드도 넣는다."""
+    code = facts.typology.value if facts.typology else ""
+    signals = " ".join(facts.model_signals)
     industry = facts.customer.industry if facts.customer and facts.customer.industry else ""
-    return f"{TYPOLOGY_KO.get(facts.typology.value, '')} {facts.typology.value} {reasons} {industry}".strip()
+    return " ".join(p for p in (TYPOLOGY_KO.get(code, ""), code, signals, industry) if p)
 
 
 class Retriever:
@@ -46,7 +47,7 @@ class Retriever:
         if not self._enabled:
             return []
         vec = self._embed.embed([build_query(facts)])[0]  # RetrievalUnavailable 은 호출자가 잡아 [] 로
-        return self._search(vec, facts.typology.value)
+        return self._search(vec, facts.typology.value if facts.typology else None)
 
-    def _search(self, vec: list[float], typology: str) -> list[Reference]:
+    def _search(self, vec: list[float], typology: str | None) -> list[Reference]:
         raise NotImplementedError("W4 — typologies @> ARRAY[:t] 필터 + cosine top-k, 부족하면 필터 없이 채움")

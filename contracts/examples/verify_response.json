@@ -1,64 +1,30 @@
 {
-  "verification_id": "v-7c1d",
-  "passed": true,
-  "status": "PASSED",
+  "verification_id": "v-9c1d44",
+  "generation_id": "g-7c1d44e2",
+  "revision_no": 2,
+  "narrative_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "passed": false,
+  "status": "CODE_FAILED",
   "code_checks": [
     {
       "check": "AMOUNT_MATCH",
       "section": "SUMMARY",
-      "draft_value": "320000000.00",
-      "source_value": "320000000.00",
-      "match": true
+      "draft_value": "42,750.50 US Dollar",
+      "source_value": "inbound.amount.USD=42750.50",
+      "match": true,
+      "reason": null
     },
     {
       "check": "DATE_MATCH",
       "section": "WHAT_WHEN_WHERE",
-      "draft_value": "2022-09-02",
-      "source_value": "2022-09-02..2022-09-02",
-      "match": true
-    },
-    {
-      "check": "COUNTERPARTY_COUNT",
-      "section": "WHAT_WHEN_WHERE",
-      "draft_value": "31",
-      "source_value": "31",
-      "match": true
-    },
-    {
-      "check": "EVIDENCE_IN_SCOPE",
-      "section": null,
-      "draft_value": null,
-      "source_value": null,
-      "match": true
+      "draft_value": "9월 3일",
+      "source_value": "period 2022-09-02..2022-09-02",
+      "match": false,
+      "reason": "MISMATCH"
     }
   ],
-  "llm_checks": [
-    {
-      "check": "FIVE_W_ONE_H_COMPLETE",
-      "comment": "적절함",
-      "score": 5
-    },
-    {
-      "check": "TYPOLOGY_CONSISTENT",
-      "comment": "적절함",
-      "score": 5
-    },
-    {
-      "check": "NO_UNSUPPORTED_CLAIM",
-      "comment": "적절함",
-      "score": 5
-    },
-    {
-      "check": "NO_SPECULATION",
-      "comment": "적절함",
-      "score": 5
-    },
-    {
-      "check": "NO_INSTRUCTION_TEXT",
-      "comment": "적절함",
-      "score": 5
-    }
-  ],
+  "llm_checks": null,
+  "narrative_refs": null,
   "verifier_version": "verify-2026.11+judge_v1",
-  "produced_at": "2026-11-05T14:02:11"
+  "produced_at": "2026-11-05T14:02:14"
 }

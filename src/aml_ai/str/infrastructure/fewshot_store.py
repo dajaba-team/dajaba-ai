@@ -31,7 +31,7 @@ class FewshotStore:
             )
         return self._cache
 
-    def pick_examples(self, typology: Typology) -> list[Example]:
+    def pick_examples(self, typology: Typology | None) -> list[Example]:
         same = [e for e in self.all() if e.typology == typology][:FEWSHOT_SAME_TYPOLOGY]
         other = [e for e in self.all() if e.typology != typology][:FEWSHOT_OTHER_TYPOLOGY]
         return same + other

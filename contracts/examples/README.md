@@ -13,4 +13,8 @@
 | `verify_response.json` | `str.VerifyResponse` |
 | `error.json` | `errors.ErrorBody` |
 
-10/27 회의 뒤 규약 v0.2 로 바뀌면 여기와 schemas 를 같은 PR 에서.
+규약 v0.2 (10/27·10/28) 반영 — SCRUM-12. 바꿀 때는 여기와 schemas 를 같은 PR 에서.
+
+- `verify_response.json` 의 `narrative_sha256` 은 자리값(`0`×64). 실제 값은 SCRUM-16 `narrative_hash.json` 테스트 벡터에서 나온다.
+- facts 금액은 문자열, 통화는 ISO 코드(`USD`) — 노션 규약 5.2 예시의 `US Dollar` 는 옛 표기라 맞춰야 함(docs/str/04 가 정본).
+- `score_response.json` 에 FAILED 항목 하나를 일부러 넣었다(실패 항목 모양 확인용).

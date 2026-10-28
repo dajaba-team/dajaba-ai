@@ -54,7 +54,7 @@
 | 5차 설계 검토 반영 — `path` 최소화(인용·LLM 전달 없음), evidence = alert.transaction_ids 확인, `ON CONFLICT` 선점, 펜싱 범위, 범위 표현 날짜 `UNPARSED` | 완료 | 10/27 | 문서만. 다음 확인은 리뷰 대신 W2 수 코드 + DB 테스트 5가지 |
 | 준혁 답 반영(10/28) — 경로형 경보 `rule_facts.paths` 확인 → `paths` fact(VERIFIED일 때만 인용), `path` → `indirect`, 규칙 10, COUNT_MATCH 경로 수·계좌 수, 오류 주입 26개 | 완료 | 10/28 | 문서만. `shared/01`, `str/03·04·05·06·08·09`. SCRUM-28 |
 | 준영 답·안건 23 세부 반영(10/28) — 안건 3·5·6 확정(`reasons` 구조, `feature_version`, 필드 매핑·`alert_id` 문자열), 입력 범위 24h·coverage·품질 판정, 관측값 표기 규칙 11, 수정본 `narrative_refs`(a) | 완료 | 10/28 | 문서만. `shared/01·02`, `scoring/README`, `str/04·05·06·08·09`. 점수 항목별 실패·`failure_code`·503은 준혁 대기. SCRUM-28 |
-| **코드 반영 — schemas** (`DataQualityStatus` 4값, `DraftRequest`/`DraftResponse`/`VerifyRequest`/`VerifyResponse`, `GenerationInProgress`, `Facts` 새 구조, `examples/` 갱신) | 미착수 | | W2 수 |
+| **코드 반영 — schemas** (`DataQualityStatus` 4값, `Reason` 3단, `alert_id` 문자열·`rule_facts.paths`, `DraftRequest`/`DraftResponse`/`VerifyRequest`/`VerifyResponse`, 코드 검사 5종·`reason`, `GenerationInProgress`·`ModelUnavailable`, `Facts` 새 구조, `examples/` 갱신) | 완료 | 10/28 | SCRUM-12. 마스킹(dict 반환)·서비스 필드명·점수 목업도 맞춤. `facts.py`·`hashing.py`는 자리만(SCRUM-13·16). 점수 `failure_code`는 준혁 대기 |
 | 코드 반영 — `facts.py` 재작성(inbound/outbound/internal, 통화별 `transaction_ids`, 통화 코드 변환, fact_keys, attach_evidence) + 단위 테스트 | 미착수 | | W2 수 |
 | 코드 반영 — `draft_service` 선점(해시 비교·STALE 정리)·generation_id·예산·FAILED, `llm_client` 연결 재시도 삭제, `0001` status·request_hash·UNIQUE | 미착수 | | W2 수~목 |
 | 코드 반영 — `shared/hashing.py` + `narrative_hash.json` 테스트 벡터 | 미착수 | | W2 목 (Java 쪽은 W3) |

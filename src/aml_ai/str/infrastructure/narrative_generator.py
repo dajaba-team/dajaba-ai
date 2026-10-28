@@ -5,13 +5,14 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 from pydantic import ValidationError
 
 from aml_ai.shared.config import Settings
 from aml_ai.shared.errors import LlmInvalidOutput
 from aml_ai.shared.infrastructure.llm_client import LlmClient
-from aml_ai.shared.schemas.str import Facts, NarrativeOut, Reference
+from aml_ai.shared.schemas.str import NarrativeOut, Reference
 from aml_ai.str.domain.constants import NARRATIVE_MAX_TOKENS, NARRATIVE_PROMPT, SCHEMA_RETRY
 from aml_ai.str.domain.models import Example, GenerationResult
 
@@ -31,8 +32,7 @@ def load_prompt(name: str) -> tuple[str, str]:
 def render_user(
     template: str,
     *,
-    facts_masked: Facts,
-    transaction_ids: list[int],
+    facts_masked: dict[str, Any],
     notes: str | None,
     references: list[Reference],
     examples: list[Example],
@@ -46,10 +46,7 @@ def render_user(
         for e in examples
     )
     return (
-        template.replace(
-            "{{facts_json}}", json.dumps(facts_masked.model_dump(mode="json"), ensure_ascii=False, indent=2)
-        )
-        .replace("{{transaction_ids}}", ", ".join(map(str, transaction_ids)))
+        template.replace("{{facts_json}}", json.dumps(facts_masked, ensure_ascii=False, indent=2))
         .replace("{{investigator_notes}}", notes or "(없음)")
         .replace("{{references}}", refs)
         .replace("{{few_shot}}", shots)
@@ -65,16 +62,14 @@ class NarrativeGenerator:
 
     def generate(
         self,
-        facts_masked: Facts,
+        facts_masked: dict[str, Any],
         examples: list[Example],
         references: list[Reference],
         notes: str | None,
-        transaction_ids: list[int] | None = None,
     ) -> GenerationResult:
         user = render_user(
             self._user_tpl,
             facts_masked=facts_masked,
-            transaction_ids=transaction_ids or [],
             notes=notes,
             references=references,
             examples=examples,

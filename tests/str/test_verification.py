@@ -33,5 +33,5 @@ def test_all_empty_evidence_fails() -> None:  # 오류 주입 6
     assert any(not c.match and c.section is None for c in checks)
 
 
-@pytest.mark.skip(reason="W3 — docs/str/06 AMOUNT_MATCH·DATE_MATCH·COUNTERPARTY_COUNT 구현 뒤 오류 주입 1~4")
+@pytest.mark.skip(reason="W3 — docs/str/06 AMOUNT·DATE·COUNT·ACCOUNT_ID 구현 뒤 오류 주입 1~4")
 def test_other_code_checks() -> None: ...

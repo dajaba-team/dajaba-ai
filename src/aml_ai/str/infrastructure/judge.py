@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 from pydantic import ValidationError
 
 from aml_ai.shared.config import Settings
 from aml_ai.shared.errors import LlmInvalidOutput
 from aml_ai.shared.infrastructure.llm_client import LlmClient
-from aml_ai.shared.schemas.str import Facts, JudgeOut, LlmCheck, NarrativeSection
+from aml_ai.shared.schemas.str import JudgeOut, LlmCheck, NarrativeSection
 from aml_ai.str.domain.constants import JUDGE_MAX_TOKENS, JUDGE_PROMPT
 from aml_ai.str.infrastructure.narrative_generator import load_prompt
 
@@ -21,9 +22,10 @@ class Judge:
         self.prompt_version = prompt_name
         self._system, self._user_tpl = load_prompt(prompt_name)
 
-    def run(self, facts: Facts, narrative: list[NarrativeSection]) -> list[LlmCheck]:
+    def run(self, facts_masked: dict[str, Any], narrative: list[NarrativeSection]) -> list[LlmCheck]:
+        """평가자도 마스킹본 facts 를 본다 — 숫자 대조는 코드 몫 (docs/str/04 마스킹)."""
         user = self._user_tpl.replace(
-            "{{facts_json}}", json.dumps(facts.model_dump(mode="json"), ensure_ascii=False, indent=2)
+            "{{facts_json}}", json.dumps(facts_masked, ensure_ascii=False, indent=2)
         ).replace(
             "{{narrative_json}}",
             json.dumps({"narrative": [s.model_dump() for s in narrative]}, ensure_ascii=False, indent=2),

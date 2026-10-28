@@ -27,7 +27,10 @@ class GenerationRepository:
             draft_id=req.draft_id,
             case_no=req.case_no,
             facts=facts.model_dump(mode="json"),
-            request={"transaction_ids": req.transaction_ids, "prompt_vars": gen.request_payload},
+            request={
+                "evidence_transaction_ids": req.evidence_transaction_ids,
+                "prompt_vars": gen.request_payload,
+            },
             response={"narrative": [s.model_dump() for s in gen.narrative], "raw": gen.raw_response},
             llm_model=gen.llm_model,
             prompt_version=gen.prompt_version,
@@ -44,20 +47,16 @@ class GenerationRepository:
         self._s.commit()
         return gid
 
-    def load_latest_draft(self, draft_id: str) -> StoredDraft | None:
-        stmt = (
-            select(Generation)
-            .where(Generation.draft_id == draft_id, Generation.kind == "DRAFT")
-            .order_by(Generation.created_at.desc())
-            .limit(1)
-        )
+    def load_draft(self, generation_id: str) -> StoredDraft | None:
+        """검증 요청의 generation_id → 생성 당시 facts. TODO(SCRUM-14): status=SUCCEEDED 조건."""
+        stmt = select(Generation).where(Generation.generation_id == generation_id, Generation.kind == "DRAFT")
         row = self._s.execute(stmt).scalar_one_or_none()
         if row is None or row.facts is None:
             return None
         return StoredDraft(
             generation_id=row.generation_id,
-            draft_id=draft_id,
+            draft_id=row.draft_id,
             facts=Facts.model_validate(row.facts),
-            transaction_ids=list(row.request.get("transaction_ids", [])),
+            evidence_transaction_ids=list(row.request.get("evidence_transaction_ids", [])),
             references=[Reference.model_validate(r) for r in (row.references or [])],
         )

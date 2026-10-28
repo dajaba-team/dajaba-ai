@@ -78,6 +78,9 @@
 | 10/28 (준영 답) | ML 입력 범위 = 대상 계좌 `[reference_ts−24h, reference_ts)` + 경보 근거 거래 전체, 이웃 확장 없음. `account_aliases` 인자 삭제, coverage는 내부 메타데이터(`COMPLETE/PARTIAL/UNKNOWN`) | 24h 중심 모델이면 7일 이력이 필요 없고, 데이터가 HI-Small 하나라 별칭 표가 없음 | 7일 이력 / 이웃 조회 |
 | 10/28 (준영 답) | 품질 판정: `SHORT_HISTORY`·`MISSING_INPUT`은 모델이 지원·검증한 경우 **점수 있음**, 필수 입력 누락·미지원 이력 부족·`UNKNOWN`·계산 실패는 `FAILED`. 설명만 실패 → 점수 유지 + `reasons=[]`. baseline만 없음 → null, 점수 안 막음 | "이력 부족 = 점수 null"이면 HI-Small 앞부분 경보 대부분이 점수 없이 끝남 | 이력 부족 일괄 null / 일괄 점수 |
 | 10/28 (안건 23 세부) | 수정본 검증 때 `cites`·`evidence_ids` 재계산 (a): `judge_v2`가 섹션별 cites, 코드가 `attach_evidence`, 응답 `narrative_refs`, 평가자 안 돌면 null. 백엔드가 수정본 저장에 반영 | 채영 "반영 가능" — 근거 번호는 서버 관리라 해시 규칙과 충돌 없음 | (b) 생성 때 값 유지 |
+| 10/28 (SCRUM-12) | `Typology`는 규약 2절 패턴 8종 + 룰 전용 5종(PASS_THROUGH·STRUCTURING·NEW_ACCOUNT_LARGE·HIGH_VALUE·DORMANT_BURST)의 합집합, `typology_hint`·`facts.typology`는 null 허용 | 규약은 "pattern_type과 같은 열거값"인데 R07·교체 후보 룰은 패턴 라벨이 없음. 좁게 잡으면 백엔드 경보가 400 | 패턴 8종만 / 자유 문자열 |
+| 10/28 (SCRUM-12) | LLM 출력 섹션(`LlmNarrativeSection`: section·text·cites)과 응답·검증 섹션(`NarrativeSection`: + evidence_ids)을 다른 모델로. LLM 출력에 `evidence_ids`가 있으면 스키마 실패 | 거래 ID는 LLM이 고르지 않는다(05) — 같은 모델이면 LLM이 써 넣은 ID가 그대로 통과 | 한 모델 + evidence_ids 무시 |
+| 10/28 (SCRUM-12) | `mask_for_llm`은 `Facts`가 아니라 프롬프트용 dict를 돌려준다 | transaction_ids·indirect를 빼면 `Facts` 스키마를 만족하지 않음(04 마스킹 표) | ID를 빈 배열로 채운 Facts |
 
 ## 미결 (회의·측정 뒤)
 
