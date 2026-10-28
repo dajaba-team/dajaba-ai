@@ -1,6 +1,6 @@
 """POST /v1/str/drafts 처리 순서 (docs/str/03).
 
-1 요청 검증(라우터) → 2 loader → 3 facts → 4 masking → 5 fewshot → 6 retrieval(실패→[])
+0 요청 검증(라우터 스키마 + request_problem) → 2 loader(+has_reportable) → 3 facts → 4 masking → 5 fewshot → 6 retrieval(실패→[])
 → 7 generate(스키마 실패 1회 재생성) → 8 [안건 17: MVP 는 verification=None] → 9 저장 → 10 응답
 """
 
@@ -12,11 +12,12 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from aml_ai.shared.config import Settings
-from aml_ai.shared.errors import RetrievalUnavailable
+from aml_ai.shared.errors import InvalidRequest, RetrievalUnavailable
 from aml_ai.shared.infrastructure.embedding_client import make_embedding_client
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
 from aml_ai.shared.schemas.str import DraftRequest, DraftResponse, Reference
 from aml_ai.shared.versioning import generation_meta
+from aml_ai.str.domain import fact_keys as fact_keys_domain
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain import masking
 from aml_ai.str.infrastructure.fewshot_store import FewshotStore
@@ -51,8 +52,13 @@ class DraftService:
 
     def create(self, req: DraftRequest) -> DraftResponse:
         # 2
+        problem = facts_domain.request_problem(req)
+        if problem:
+            raise InvalidRequest(problem)
         txs = self.reader.load_transactions(req.evidence_transaction_ids)
-        subject = self.reader.load_subject(req.alert)
+        if not facts_domain.has_reportable(txs):
+            raise InvalidRequest("no reportable transactions")
+        subject = self.reader.load_subject(req.alert, txs)
         # 3·4 — 순수
         facts = facts_domain.build_facts(req, txs, subject)
         facts_masked = masking.mask_for_llm(facts)
@@ -67,7 +73,7 @@ class DraftService:
         # 7
         gen = self.generator.generate(facts_masked, examples, references, req.investigator_notes)
         # 8 — 순수: cites 의 fact 키 → evidence_ids
-        narrative = facts_domain.attach_evidence(gen.narrative, facts)
+        narrative = fact_keys_domain.attach_evidence(gen.narrative, facts)
         # 9
         meta = generation_meta(
             self.settings,
