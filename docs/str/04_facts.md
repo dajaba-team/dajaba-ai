@@ -28,7 +28,7 @@
   "typology_source": "RULE",
   "customer": { "industry": "RETAIL", "risk_level": "LOW", "account_purpose": "SALES_DEPOSIT", "onboarded_at": "2021-03-14", "country_code": "PT" },
   "prior_alert_count": 1,
-  "observations": [ { "name": "distinct_senders_24h", "value": 31, "unit": "개", "window": "24h", "baseline": 3.4 } ],
+  "observations": [ { "name": "account_in_counterparties_24h", "value": 31, "unit": "count", "window_start": "2022-09-02T00:00:00", "window_end": "2022-09-03T00:00:00", "basis": "distinct_inbound_counterparties", "baseline": null } ],
   "model_signals": ["distinct_senders_24h", "outflow_ratio_2h"]
 }
 ```
@@ -57,7 +57,7 @@
 | `typology` / `typology_source` | 요청 `alert.typology_hint` 그대로. `typology_source`는 `RULE` 고정(안건 8) |
 | `customer` | `customer_attributes` 행. 없으면 `null`. `onboarded_at`은 날짜(검증 `DATE_MATCH`가 "개설일"로 허용) |
 | `prior_alert_count` | 요청 그대로. 내용은 오지도 않는다 |
-| `observations[]` | 요청 `reasons`에서 **관측값만** 뽑은 것: `{name, value, unit, window, baseline}`. **매핑은 준영 안건 3 구조가 오면 확정** — 그 전까지 `[]`. 기여값(SHAP)·기여 척도는 **넣지 않는다** |
+| `observations[]` | 요청 `reasons`(안건 3 확정 구조)에서 **관측값만**: `{name, value, unit, window_start, window_end, basis, baseline}` ← `reasons[].name`, `observation.*`, `baseline.value`. `observation.value`가 `null`인 항목은 넣지 않는다. `contribution`(기여값·방법·척도)은 **넣지 않는다**. 관측 기간이 경보 창보다 넓어도 쓸 수 있지만 근거 거래는 붙이지 않고(인용 키 → `evidence_ids` 없음), 본문에는 "모델 관측값(24시간 기준)"처럼 기간을 밝혀 쓴다(05 규칙 11, 10/28 준영). `context_transaction_ids`는 facts에 넣지 않는다 |
 | `model_signals[]` | 요청 `reasons` 상위 3개의 피처 **이름만**. "모델이 주목한 점" 한 줄의 재료. 숫자 없음 |
 | 없는 값 | `null`. LLM에는 "확인되지 않음"으로 전달, 모르는 걸 지어내지 말라는 규칙(05)이 받는다 |
 

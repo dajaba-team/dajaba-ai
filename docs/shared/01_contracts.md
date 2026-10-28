@@ -36,10 +36,14 @@
 | 필드 | 상태 | 코드 |
 |---|---|---|
 | `score: float \| None`, `threshold: float` | 확정 (안건 2) — `score_band` 삭제. 등급은 백엔드 `CasePolicy` | `ScoreItem` |
-| `data_quality_status` | 확정 (안건 4) — **`OK` / `SHORT_HISTORY` / `MISSING_INPUT` / `FAILED`**. `FAILED`면 `score=None`, `prediction_id=None`. 현재 코드의 `PARTIAL/INSUFFICIENT`는 틀림 → 교체 | `DataQualityStatus` |
+| `data_quality_status` | 확정 (안건 4, 판정 10/28 준영) — **`OK` / `SHORT_HISTORY` / `MISSING_INPUT` / `FAILED`**. `SHORT_HISTORY`(모델이 지원·검증한 이력 부족)와 `MISSING_INPUT`(모델이 지원·검증한 입력 결측)은 **점수가 있는 정상 결과**. 필수 입력 누락·지원 안 되는 이력 부족·계산 실패는 `FAILED` → `score=None`, `prediction_id=None`. 판정표는 `shared/02` "품질 판정". 현재 코드의 `PARTIAL/INSUFFICIENT`는 틀림 → 교체 | `DataQualityStatus` |
 | `evidence_transaction_ids: list[int]` ⊆ `alert.transaction_ids`, `context_transaction_ids: list[int]` | 확정 (안건 7) | `ScoreItem` |
-| `reasons: list[dict]` | **준영 작성 대기 (안건 3)** — 구조가 오기 전까지 `list[dict[str, Any]]`로 통과시키고 검증하지 않는다. 오면 `Reason` 모델 + facts `observations` 매핑(`str/04`) | `ScoreItem.reasons` |
-| `scoring_meta.feature_version` | **준영 작성 대기 (안건 5)** — 문자열로 받기만 | `ScoringMeta` |
+| `reasons: list[Reason]` | **확정 (안건 3, 10/28)** — 항목마다 `name: str` + `observation{value: float\|None, unit, window_start, window_end, basis}` + `baseline{value: float\|None, definition}` + `contribution{method, value: float\|None, scale}`(문자열은 전부 `str\|None`). 확인 못 한 값은 `null`, 0은 실제 0을 확인했을 때만. 상위 3개가 기본, 설명만 실패하면 `[]`(점수·품질 상태는 유지). 정렬·동률·기여 척도는 모델 검증 뒤 고정 → 그때까지 순서는 받은 그대로. facts `observations` 매핑은 `str/04` | `Reason`, `Observation`, `Baseline`, `Contribution` |
+| `scoring_meta.feature_version` | **확정 (안건 5, 10/28)** — 응답은 문자열 하나. 피처 정의·전처리 파일(SHA-256)·입력 열 순서·모델 버전 묶음 관리는 `aml_ml` 내부(`shared/02`). 실제 이름은 구현·검증 뒤 고정 | `ScoringMeta` |
+| `alert_id: str` | **확정 (안건 6)** — 규약 2절 `ALT-{YYYYMMDD}-{6자리}` 문자열, 요청값 그대로 반환. 뼈대 `schemas/alerts.py`의 `int`는 틀림 → 교체(SCRUM-12) | `Alert`, `ScoreItem` |
+| 응답 최상위 `produced_at` | 규약 0절 "AI 응답에 produced_at" — 점수 응답에도 최상위에(3절 예시에 빠져 있던 것, 준영) | `ScoreResponse` |
+| 실패 항목 | `score=None`, `prediction_id=None`, `reasons=[]`, `evidence/context_transaction_ids=[]`, `threshold`는 로드된 모델 값 유지. 모델 미로드는 요청 전체 503 `MODEL_UNAVAILABLE` | `ScoreItem` |
+| (준혁 확인 대기) | 없는 거래 ID → 그 경보만 `FAILED`(6.3 예외), 응답 항목 `failure_code`(재시도 판단), DB 장애 → 요청 전체 503. 답 오면 반영 | — |
 
 ### 경보 `rule_facts.paths` (규약 2절, 10/28 준혁 답)
 
@@ -72,6 +76,7 @@
 | 응답 `generation_id`, `revision_no`, `narrative_sha256` | 추가 — 백엔드 `ApprovalGate`가 `generation_id` + 해시로 "이 생성본·이 본문의 검증이 passed"를 확인(채영 V009, 세 조건은 `str/03`) |
 | 응답 `code_checks[].reason` | 추가 — `UNPARSED` 등. `match=false`일 때만 |
 | `status` | `PASSED / CODE_FAILED / LLM_FAILED / VERIFY_UNAVAILABLE` 유지 (안건 9) |
+| 응답 `narrative_refs: list[{section, cites, evidence_ids}] \| None` | **추가 (안건 23 세부 (a), 10/28)** — 검증한 본문 기준으로 다시 계산한 섹션별 근거. 평가자(`judge_v2`)가 섹션별 `cites`를 내고 코드가 `attach_evidence`로 `evidence_ids`를 만든다. 평가자를 안 돌린 경우(`CODE_FAILED`·`VERIFY_UNAVAILABLE`)는 `null` → 백엔드는 기존 값 유지. 백엔드(채영)는 값이 오면 수정본 저장에 반영. 본문 해시는 section·text만 보므로 영향 없음 |
 
 ### 에러 `schemas/errors.py` (규약 6.3)
 

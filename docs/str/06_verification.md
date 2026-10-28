@@ -57,9 +57,16 @@ else:                      status = LLM_FAILED,         passed = False
 
 생성 모델과 같은 모델이면 너그럽다. 대책: ① `LLM_MODEL_JUDGE`를 다른 모델로 ② 같은 모델이면 system 첫 줄 "당신은 이 초안을 쓴 사람이 아니라 검수자입니다" ③ comment 먼저 쓰게 하기. W4에 사람 평가 5건과 비교해 "대체로 일치"를 확인하는 게 MVP 정의서 4절 6번의 "됐다".
 
-## 수정본의 cites·evidence_ids (W3 결정, 안건 23 세부)
+## 수정본의 cites·evidence_ids — (a) 확정 (안건 23 세부, 채영 "반영 가능", 10/28 문서 반영)
 
-조사역이 본문을 고치면 생성 때의 `cites`는 더 맞지 않을 수 있다. 두 안: (a) 검증 응답에 재산출한 `cites`·`evidence_ids`를 넣고 백엔드가 수정본 저장에 반영 — 평가자 출력에 섹션별 cites를 받아(`judge_v2`) `attach_evidence`를 다시 돌린다. (b) MVP는 생성 때 값 유지, 화면에 "근거는 AI 초안 기준" 표기. **채영 답 뒤 결정**, 그 전까지 (b).
+조사역이 본문을 고치면 생성 때의 `cites`는 더 맞지 않을 수 있다. 그래서 검증할 때 근거를 **다시 계산해 돌려준다**.
+
+1. 평가자 `judge_v2`가 루브릭 5개와 함께 섹션별 `cites`(검사한 본문이 실제로 쓴 fact 키)를 낸다(`05`).
+2. 코드가 `FACT_KEYS` 밖 키를 버리고 `attach_evidence(cites, facts)`로 `evidence_ids`를 만든다 — 생성 때와 같은 함수.
+3. 검증 응답 `narrative_refs: [{section, cites, evidence_ids}]`(6개)에 담는다. 평가자를 안 돌린 경우(`CODE_FAILED` — 코드 검사에서 멈춤, `VERIFY_UNAVAILABLE` — 평가자 호출 실패)는 `null`.
+4. 백엔드(채영)는 `narrative_refs`가 오면 그 값을 수정본 저장에 반영하고, `null`이면 기존 값을 유지한다. 조사역은 문장만 고치고 근거 번호는 서버가 관리한다.
+
+본문 해시는 section·text만 보므로 `cites`가 바뀌어도 `ApprovalGate`에는 영향이 없다. `EVIDENCE_IN_SCOPE` 코드 검사는 그대로 요청에 담긴 수정본의 `cites`·`evidence_ids`를 본다(재계산 전 값). 테스트: 재계산 결과가 범위 안인지, 목록 밖 키가 버려지는지, `CODE_FAILED`면 `null`인지(`08` 단위).
 
 ## RAG와의 관계
 

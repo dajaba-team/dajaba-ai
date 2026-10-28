@@ -16,7 +16,7 @@
 |---|---|---|
 | `shared/00_server_rules.md` | 폴더 경계·schemas 한 벌·버전 표기·.env·에러 JSON·내부 인증 — 세 줄 규칙 | 안건 17 문구 |
 | `shared/01_contracts.md` | 규약 v0.2 ↔ `schemas/` ↔ `contracts/examples/`, 바뀐 필드 전부, **narrative 해시 규칙·테스트 벡터** | 개정 |
-| `shared/02_ml_package.md` | `aml-ml` 패키지 계약 — `score()` 시그니처, 상태값 4종, **준영 작성 칸(3·5·6)**, ML 입력 범위 질문 | 개정 |
+| `shared/02_ml_package.md` | `aml-ml` 패키지 계약 — `score()` 시그니처, 상태값 4종, **안건 3·5·6 확정**, ML 입력 범위·coverage·품질 판정 | 개정 |
 | `shared/03_ai_schema.md` | `ai` 스키마 8테이블, `generations` 선점·상태, `verification_runs` 해시, **pgvector superuser 절차**, Alembic 번호 계획 | 개정 |
 | `shared/04_versioning_logging.md` | 응답에 붙는 버전, 프롬프트 동결, `ai_call_logs`, request_id | 동결 규칙 |
 | `shared/05_dev_setup.md` | 로컬 실행, `.env` 변수 이름, compose, 테스트 명령 | pgvector 수동 명령 추가 예정 |
@@ -53,6 +53,7 @@
 | 4차 설계 검토 반영 — 선점 advisory lock·해시 재확인·finish 펜싱, 경로 거래 `path`, DATE 가까운 날짜 규칙, 예시 축약 표시, 오류 주입 22개 | 완료 | 10/27 | 문서만. `shared/03`, `str/03·04·06·08·09`. path 세부는 준혁 확인 대기 |
 | 5차 설계 검토 반영 — `path` 최소화(인용·LLM 전달 없음), evidence = alert.transaction_ids 확인, `ON CONFLICT` 선점, 펜싱 범위, 범위 표현 날짜 `UNPARSED` | 완료 | 10/27 | 문서만. 다음 확인은 리뷰 대신 W2 수 코드 + DB 테스트 5가지 |
 | 준혁 답 반영(10/28) — 경로형 경보 `rule_facts.paths` 확인 → `paths` fact(VERIFIED일 때만 인용), `path` → `indirect`, 규칙 10, COUNT_MATCH 경로 수·계좌 수, 오류 주입 26개 | 완료 | 10/28 | 문서만. `shared/01`, `str/03·04·05·06·08·09`. SCRUM-28 |
+| 준영 답·안건 23 세부 반영(10/28) — 안건 3·5·6 확정(`reasons` 구조, `feature_version`, 필드 매핑·`alert_id` 문자열), 입력 범위 24h·coverage·품질 판정, 관측값 표기 규칙 11, 수정본 `narrative_refs`(a) | 완료 | 10/28 | 문서만. `shared/01·02`, `scoring/README`, `str/04·05·06·08·09`. 점수 항목별 실패·`failure_code`·503은 준혁 대기. SCRUM-28 |
 | **코드 반영 — schemas** (`DataQualityStatus` 4값, `DraftRequest`/`DraftResponse`/`VerifyRequest`/`VerifyResponse`, `GenerationInProgress`, `Facts` 새 구조, `examples/` 갱신) | 미착수 | | W2 수 |
 | 코드 반영 — `facts.py` 재작성(inbound/outbound/internal, 통화별 `transaction_ids`, 통화 코드 변환, fact_keys, attach_evidence) + 단위 테스트 | 미착수 | | W2 수 |
 | 코드 반영 — `draft_service` 선점(해시 비교·STALE 정리)·generation_id·예산·FAILED, `llm_client` 연결 재시도 삭제, `0001` status·request_hash·UNIQUE | 미착수 | | W2 수~목 |
@@ -63,7 +64,7 @@
 | `POST /v1/str/drafts` 백엔드 ↔ AI 왕복 ("됐다") | 미착수 | | W2 금 |
 | `POST /v1/str/verify` (유형별 코드 검사 5 + 평가자 5 + 해시) | 미착수 | | W3 |
 | 오류 주입 1~6·15~22 CI | 미착수 | | W3 |
-| 준영 안건 3·5·6 반영 (`Reason` 모델, `observations` 매핑, `AlertInput`) | 대기 | | 준영 주말 전 |
+| 준영 안건 3·5·6 반영 (`Reason` 모델, `observations` 매핑, `AlertInput`) | 문서 완료 | 10/28 | 코드는 SCRUM-12(schemas)·13(facts) |
 | Alembic — `reference_chunks` (+pgvector superuser 절차) | 미착수 | | W4 |
 | RAG — 코퍼스 적재 → retrieval(0~3건) → REFERENCES → hit@3 표 | 미착수 | | W4 전반, 11/11 기준 |
 | 오류 주입 7~14·23 수동 표 | 미착수 | | W4 |

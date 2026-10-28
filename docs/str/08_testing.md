@@ -6,7 +6,7 @@
 
 | 층 | 무엇 | 돌리는 때 |
 |---|---|---|
-| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verify.py`(유형별 추출·정규화·판정·UNPARSED), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
+| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verify.py`(유형별 추출·정규화·판정·UNPARSED, 수정본 `narrative_refs` 재계산·목록 밖 키 제거·`CODE_FAILED`면 null), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
 | 계약 | `tests/contract/` — `examples/*.json` ↔ `schemas/`, `narrative_hash.json` ↔ `shared/hashing.py` | 매 커밋, CI |
 | 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~26 | 매 커밋, CI |
 | 오류 주입 (LLM) | `test_injection.py -m live` — 7~12, 14, 23 | W4 손으로, 표로 남김 |
