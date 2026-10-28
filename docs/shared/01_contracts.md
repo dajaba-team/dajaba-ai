@@ -41,6 +41,13 @@
 | `reasons: list[dict]` | **준영 작성 대기 (안건 3)** — 구조가 오기 전까지 `list[dict[str, Any]]`로 통과시키고 검증하지 않는다. 오면 `Reason` 모델 + facts `observations` 매핑(`str/04`) | `ScoreItem.reasons` |
 | `scoring_meta.feature_version` | **준영 작성 대기 (안건 5)** — 문자열로 받기만 | `ScoringMeta` |
 
+### 경보 `rule_facts.paths` (규약 2절, 10/28 준혁 답)
+
+| 필드 | 내용 |
+|---|---|
+| `alert.rule_facts.paths: list[list[int]] \| None` | R04_CYCLE·R05_STACK만. 배열 하나 = 경로 하나, 안은 **시간순 거래 ID**. 모든 ID는 `alert.transaction_ids` 안(아니면 초안 요청 400). `transaction_ids`는 그대로 전체 근거 목록. 홉 = 경로의 거래 개수(A→B→C→A = 3홉). CYCLE 대상 계좌 = 첫 거래 송금 계좌, STACK = 시작 계좌. 다른 룰은 키 없음 |
+| 코드 | 지금 뼈대 `schemas/alerts.py` `Alert`에는 `rule_facts`가 아직 없다. schemas 규약 v0.2 반영(SCRUM-12) 때 `rule_facts`와 그 안의 `paths: list[list[int]] \| None = None`을 같이 넣는다 — `StrictModel`(`extra="forbid"`)이라 빠뜨리면 백엔드가 보낸 경보가 400. 점수 쪽(`aml_ml`)은 받기만 하고 쓰지 않아도 됨 — 피처로 쓸지는 준영 선택 |
+
 ### 초안 요청·응답 `schemas/str.py` (규약 5.1·5.2)
 
 | 필드 | 변경 |
@@ -50,7 +57,7 @@
 | 요청 `prior_alert_count: int` | `prior_alerts[]` 대신 **건수만** |
 | 요청 `draft_id` | 백엔드가 **호출 전 시퀀스로 발급**. 재전송은 같은 id, 재생성은 새 id. AI 중복 방지 키(`str/03`) |
 | 응답 `generation_id: str` | 추가. 백엔드 `str_drafts`에 저장(채영 V008). 검증 요청이 이걸 가리킨다 |
-| 응답 `facts` | **구조 전면 교체** — 대상 계좌 관점 `inbound/outbound/internal` 통화별 집계 + `observations[]` + `model_signals[]`. 정본 `str/04` |
+| 응답 `facts` | **구조 전면 교체** — 대상 계좌 관점 `inbound/outbound/internal` 통화별 집계 + `indirect`(대상 계좌 미참여 거래) + `paths`(경로형 경보, 10/28) + `observations[]` + `model_signals[]`. 정본 `str/04` |
 | 응답 `narrative[].cites: list[str]` | 추가 — LLM이 쓴 **fact 키**. `evidence_ids`는 코드가 cites에서 합친 것 |
 | 응답 `verification` | 항상 `null` (안건 17) — 타입은 `None` 고정 |
 | `facts.typology_source` | `RULE`만 (안건 8) |

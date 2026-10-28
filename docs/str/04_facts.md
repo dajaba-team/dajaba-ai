@@ -6,6 +6,8 @@
 
 10/27에 바뀐 것 — 1차 검토 지적 반영: ① "기준 통화 1개 + 총액" → **대상 계좌 관점 `inbound/outbound/internal`, 통화별 집계, 환산 없음**. ② `top_reasons` 문자열(SHAP 값을 관측값처럼 쓰던 것) → **`observations[]`(관측값) + `model_signals[]`(이름만)** 분리. ③ 각 집계에 `transaction_ids`를 붙이고 **fact 키 → 거래 ID**를 코드가 연결. ④ 뼈대 `facts.py`는 전부 다시 쓴다(W2 수).
 
+10/28에 바뀐 것 — 준혁 답(경로형 경보): ⑤ 대상 계좌가 안 낀 거래 묶음 `path` → **`indirect`**로 이름 변경(새 `paths`와 헷갈리지 않게). ⑥ R04_CYCLE·R05_STACK 경보가 주는 `rule_facts.paths`(경로별 거래 ID, 시간순)를 AI가 **확인만** 해서 **`paths`** fact로. 확인되면 인용 가능, 아니면 인용·LLM 전달 없음(아래 "경로" 절).
+
 ## 정본 JSON (응답 `facts`와 같다, 규약 5.2)
 
 ```json
@@ -16,7 +18,8 @@
   "inbound":  { "count": 47, "by_currency": [ { "currency": "USD", "total": "320000000.00", "count": 47, "transaction_ids": [104221, 104233, 104301] } ], "transaction_ids": [104221, 104233, 104301] },
   "outbound": { "count": 0,  "by_currency": [], "transaction_ids": [] },
   "internal": { "count": 0,  "transaction_ids": [] },
-  "path":     { "count": 0,  "transaction_ids": [] },
+  "indirect": { "count": 0,  "transaction_ids": [] },
+  "paths":    null,
   "excluded_self_transfer_count": 0,
   "direction": "INBOUND",
   "counterparties": { "count": 31, "transaction_ids": [104221, 104233, 104301] },
@@ -43,11 +46,12 @@
 | `inbound` | `to_account_key = S`인 행. 금액은 **받은 쪽** `amount_received`·`currency_received`. `by_currency`는 통화별 `{currency, total, count, transaction_ids}`, 통화 코드 정렬. 바깥 `transaction_ids`는 그 행 전부, 항목 안 `transaction_ids`는 그 통화 행만 |
 | `outbound` | `from_account_key = S`인 행. 금액은 **보낸 쪽** `amount_paid`·`currency_paid` |
 | `internal` | from·to가 둘 다 같은 `entity_id`의 계좌(S의 법인이 가진 다른 계좌와의 이동). inbound/outbound에 **넣지 않는다**. 금액 집계 없음(법인 안 이동이라 "입금"도 "출금"도 아님) — 건수와 ID만 |
-| `path` | **대상 계좌가 직접 참여하지 않은 경보 거래**(S가 from·to 어디에도 없음). 예: R04_CYCLE A→B→C→A, 대상 A일 때 B→C. `count`와 `transaction_ids`만 남긴다 — 버리지도 400으로 막지도 않고, 대상 계좌 관점 집계(inbound/outbound/counterparties/direction)에는 **섞지 않는다**. 금액 집계 없음. **"경로"라는 보장은 없다** — 이름은 경로형 경보에서 나와서 붙였을 뿐, 이 행들이 실제로 이어진 경로인지는 확인하지 않는다. 그래서 (5차 검토) ① 인용 키가 없고 ② LLM에 보내지 않는다(마스킹에서 제거). 값을 안 주는 건 **1차 방어**일 뿐이다 — LLM이 고리 길이 같은 숫자를 지어낼 수는 있고, 그 숫자가 `COUNT_MATCH`에서 상대 수와 우연히 맞아 통과할 수도 있다. 그건 평가자 `NO_UNSUPPORTED_CLAIM`과 사람이 잡는다(오류 주입 23). 쓰임은 `period` 계산과 근거 범위뿐. 고리 사실(길이·순서·시작 계좌로 돌아오는지)은 준혁 답 뒤 **별도 fact**로: AI가 from→to가 앞뒤로 이어지는지 직접 확인하고, 순서는 DB 조회 순서가 아니라 받은 ID 순서·연결 관계로 맞춘다(`09` 미결) |
+| `indirect` | **대상 계좌가 직접 참여하지 않은 경보 거래**(S가 from·to 어디에도 없음). 예: R04_CYCLE A→B→C→A, 대상 A일 때 B→C. `count`와 `transaction_ids`만 남긴다 — 버리지도 400으로 막지도 않고, 대상 계좌 관점 집계(inbound/outbound/counterparties/direction)에는 **섞지 않는다**. 금액 집계 없음. 인용 키 없음, LLM에 보내지 않음(마스킹에서 제거). 쓰임은 `period` 계산과 근거 범위뿐. **이 거래들이 어떤 순서로 이어진 경로인지는 여기서 다루지 않는다** — 그건 `paths`(아래 "경로" 절). (10/27 이름 `path`, 10/28 `indirect`로 변경) |
+| `paths` | `alert.rule_facts.paths`가 있을 때만. 확인 규칙·값은 아래 "경로" 절. 없거나 빈 배열이면 `null` |
 | `by_currency[].total` | Decimal 합, **문자열**, 소수 2자리 고정, 천 단위 구분 없음. 통화 간 **환산 없음**. (0절 "금액은 숫자"의 유일한 예외 — LLM·백엔드가 다르게 반올림하지 않도록) |
 | `currency` | ISO 4217 코드(`USD`, `EUR`, …). IBM 원천은 이름(`US Dollar`, `Euro`, …)이라 **`transaction_reader`가 읽을 때** 고정 표 `domain/constants.CURRENCY_CODES`로 바꾼다 — domain은 코드만 본다. HI-Small 15종(가정, 축소본 만들 때 `SELECT DISTINCT`로 확인): US Dollar→USD, Euro→EUR, Yuan→CNY, Shekel→ILS, Canadian Dollar→CAD, UK Pound→GBP, Ruble→RUB, Australian Dollar→AUD, Swiss Franc→CHF, Yen→JPY, Mexican Peso→MXN, Rupee→INR, Brazil Real→BRL, Saudi Riyal→SAR, **Bitcoin→BTC**(ISO 4217에 없음 — 규약 0절 예외). **표에 없는 이름은 `UnknownCurrency`(500)** — 원문을 그대로 흘리면 검증의 통화 대조가 깨진다 |
 | `direction` | `inbound.count ≥ 2 × outbound.count` → `INBOUND`, 반대 → `OUTBOUND`, 그 밖 → `MIXED`. 둘 다 0이면(internal만) `INTERNAL` |
-| `period` | 제외 후 대상 거래 `ts`의 min / max(**path 포함** — 경로 전체가 일어난 기간). ISO 8601 초 단위. 룰 창이 아니라 **실제 거래 범위** |
+| `period` | 제외 후 대상 거래 `ts`의 min / max(**indirect 포함** — 경로 전체가 일어난 기간). ISO 8601 초 단위. 룰 창이 아니라 **실제 거래 범위** |
 | `counterparties` | 상대 `account_key` distinct 수(internal 제외). `transaction_ids` = inbound ∪ outbound |
 | `payment_formats` | distinct, 원본 문자열 그대로(ACH, Wire, Cash, …), 정렬 |
 | `typology` / `typology_source` | 요청 `alert.typology_hint` 그대로. `typology_source`는 `RULE` 고정(안건 8) |
@@ -65,6 +69,36 @@
 - 거래 행 원본은 LLM에 안 준다. facts 요약만. 거래 ID 목록도 안 준다(아래 fact 키).
 - `direction` 2배 규칙은 진희 가정값 — 축소본 경보로 분포를 본 뒤(W2) 바꿀 수 있다. 축소본에서 볼 경계: 입금만 · 출금만 · 정확히 2:1(`≥`라 `INBOUND`) · internal만(`INTERNAL`) · self-transfer만(위 0건 → 400).
 - 통화는 코드로(`USD`). 원천 이름 → 코드 변환은 로더 한 곳, 본문 표기(`달러`, `US Dollar`, `$`) 인식은 검증의 `CURRENCY_ALIASES`(06).
+- 경로는 detection이 준 순서 그대로 **확인만** 한다. 하나라도 어긋나면 전체 `UNVERIFIED` — AI가 경로를 다시 정렬하거나 이어 붙이지 않는다(10/28).
+
+## 경로 (`paths`) — 경로형 경보 R04·R05 (10/28 준혁 답)
+
+입력은 `alert.rule_facts.paths`(규약 2절): **거래 ID 배열의 배열**. 배열 하나가 경로 하나이고, 안의 ID는 **시간순**. `alert.transaction_ids`는 그대로 전체 근거 목록(경로 거래 포함). 준혁 확정 사항:
+
+- R04_CYCLE: 대상 계좌 = 고리의 **시간상 첫 거래 송금 계좌**. 같은 룰·계좌·시간창의 고리 여러 개는 경보 하나로 묶이고, **묶인 고리에는 모두 대상 계좌가 있다**. 최대 3홉.
+- R05_STACK: 대상 계좌 = 경로의 **시작 계좌**(A→B→C→D면 A).
+- **홉 = 경로의 거래 개수.** A→B→C→A는 3홉(마지막 복귀 거래 포함). 룰의 최대 홉은 detection 기준이라 AI는 길이를 제한하지 않고 값만 보고한다.
+
+```json
+"paths": { "kind": "CYCLE", "status": "VERIFIED", "count": 2, "max_hops": 3, "max_accounts": 3, "transaction_ids": [101, 102, 103, 201, 202, 203] }
+```
+
+**확인 규칙** (`build_facts` 안, 순수 함수 — 거래 행은 이미 읽어 둔 것)
+
+| # | 확인 | 어기면 |
+|---|---|---|
+| 1 | 경로의 모든 ID ∈ `alert.transaction_ids` | 400 `INVALID_REQUEST`("paths id not in transaction_ids") — 요청 안의 두 목록이 어긋난 것(위 "범위 확인"과 같은 성격) |
+| 2 | `kind` = `rule_id`로 정한다: `R04_CYCLE` → `CYCLE`, `R05_STACK` → `STACK` | 그 밖 룰에 `paths`가 오면 `kind: null`, `UNVERIFIED` |
+| 3 | 경로마다 거래 2개 이상, 경로 안 ID 중복 없음, self-transfer 없음 | `UNVERIFIED` |
+| 4 | 시간순: 앞 거래 `ts` ≤ 다음 거래 `ts`(같은 분 허용) | `UNVERIFIED` |
+| 5 | 연결: 앞 거래 `to_account_key` = 다음 거래 `from_account_key` | `UNVERIFIED` |
+| 6 | 시작: 첫 거래 `from_account_key` = S | `UNVERIFIED` |
+| 7 | CYCLE이면 닫힘: 마지막 거래 `to_account_key` = S | `UNVERIFIED` |
+
+- **전부 통과해야 `VERIFIED`**, 한 경로라도 어긋나면 전체 `UNVERIFIED` — 경로 일부만 골라 쓰는 문장이 나오지 않게. 어긋난 이유(경로 번호·규칙 번호)는 `generations` 내부 기록에만, facts에는 `status`만.
+- 배열 순서를 **그대로** 확인한다. 순서가 틀리면 고쳐 주지 않고 `UNVERIFIED` — 순서를 추측하지 않는다(준혁님께 말한 "모르면 미확인으로 두고 보고서에 안 쓴다").
+- 값: `count` = 경로 수, `max_hops` = 가장 긴 경로의 거래 수, `max_accounts` = 경로 하나에 나오는 서로 다른 계좌 수의 최대(CYCLE A→B→C→A = 3, STACK A→B→C→D = 4), `transaction_ids` = 모든 경로 ID 합집합. `UNVERIFIED`여도 응답 facts에는 남긴다(감사·디버깅용).
+- `period`·`indirect`는 그대로 — 경로 ID는 이미 `alert.transaction_ids` 안이라 기간에 들어가 있다.
 
 ## fact 키 — LLM이 인용하고 코드가 거래 ID로 바꾼다
 
@@ -73,7 +107,7 @@ LLM은 섹션마다 `cites`에 **fact 키**를 쓴다(05). 코드 `attach_eviden
 | 키 (`fact_keys(facts)`가 만든다) | 가리키는 값 | → `evidence_ids` |
 |---|---|---|
 | `subject`, `subject.entity_name`, `subject.account_key` | 대상 | 없음 |
-| `period` | 기간 | inbound ∪ outbound ∪ internal ∪ path |
+| `period` | 기간 | inbound ∪ outbound ∪ internal ∪ indirect |
 | `inbound.count` | 입금 건수 | `inbound.transaction_ids` |
 | `inbound.amount.{currency}` (통화 코드별 1개씩, 예 `inbound.amount.USD`) | 그 통화 입금 합계 | **그 통화 항목의** `by_currency[].transaction_ids`만 — 달러 합계에 유로 거래가 붙지 않게 |
 | `outbound.count` | 출금 건수 | `outbound.transaction_ids` |
@@ -85,6 +119,7 @@ LLM은 섹션마다 `cites`에 **fact 키**를 쓴다(05). 코드 `attach_eviden
 | `prior_alert_count` | 과거 경보 수 | 없음 |
 | `observations.{name}` | 관측값 1개 | 없음 (거래가 아니라 피처) |
 | `model_signals` | 모델 주목 피처 이름들 | 없음 |
+| `paths.count`, `paths.max_hops`, `paths.max_accounts`, `paths.kind` | 경로 수·가장 긴 경로의 거래 수·거친 계좌 수·유형 — **`paths.status = VERIFIED`일 때만 키가 생긴다** | `paths.transaction_ids` |
 
 - 존재하는 키 목록을 프롬프트 `FACT_KEYS`에 그대로 넣는다. 목록 밖 키는 `NarrativeOut` 검증에서 걸러 재생성(05).
 - `null`인 fact(예: `customer`가 없음)의 키는 목록에 **넣지 않는다** — 인용할 게 없다.
@@ -101,7 +136,8 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 | `subject.entity_name` (고객명) | 그대로 — IBM 합성 데이터라 실명이 아님. 실데이터 전환 시 여기서 가명화(MVP 정의서 8절 "한계" 4번) |
 | `subject.entity_id` | 그대로 (합성) |
 | `*.transaction_ids` | **제거** — LLM은 거래 ID를 보지 않는다 |
-| `path` | **통째로 제거** — 인용 키가 없는 사실을 LLM이 문장에 쓰면 검증이 대조할 곳이 없다 |
+| `indirect` | **통째로 제거** — 인용 키가 없는 사실을 LLM이 문장에 쓰면 검증이 대조할 곳이 없다 |
+| `paths` | `VERIFIED`면 `{kind, count, max_hops, max_accounts}`만 남기고 ID·`status` 제거. `UNVERIFIED`·`null`이면 **통째로 제거** — LLM은 확인된 경로만 본다 |
 | 그 밖 | 그대로 |
 
 마스킹은 **검증에 영향이 없다** — 코드 검증은 원본 facts와 narrative를 대조하고, narrative에는 계좌가 뒤 4자리로만 나오므로 `ACCOUNT_ID_MATCH`는 마스킹 표현(`****BD30`)과 원본 끝 4자리를 같은 것으로 본다(06).
@@ -109,10 +145,10 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 ## 입력 (transaction_reader)
 
 - `transactions`: 요청 `evidence_transaction_ids`로 `ops.transactions` 1 쿼리. 컬럼 `transaction_id, ts, from_account_key, to_account_key, amount_paid, currency_paid, amount_received, currency_received, payment_format, is_self_transfer`. `is_laundering`·`pattern_*` 컬럼은 **SELECT 목록에 없다** — 정답 라벨이 서빙에 새면 안 된다.
-- **범위 확인**: 요청 `evidence_transaction_ids`가 요청 `alert.transaction_ids`와 **집합으로 같아야** 한다(규약 5.1 "목록 전체"). 다르면 400 `INVALID_REQUEST`("evidence must equal alert.transaction_ids") — 요청 안의 두 목록이 어긋난 경우를 막는다. `alert.transaction_ids` **자체에** 무관한 거래가 묶였는지는 증명하지 못한다 — 경보의 거래 구성은 detection(룰) 책임이고, 경로 연결 확인은 준혁 답 뒤(`09` 미결).
+- **범위 확인**: 요청 `evidence_transaction_ids`가 요청 `alert.transaction_ids`와 **집합으로 같아야** 한다(규약 5.1 "목록 전체"). 다르면 400 `INVALID_REQUEST`("evidence must equal alert.transaction_ids") — 요청 안의 두 목록이 어긋난 경우를 막는다. `alert.transaction_ids` **자체에** 무관한 거래가 묶였는지는 증명하지 못한다 — 경보의 거래 구성은 detection(룰) 책임이다. 경로형 경보의 연결·순서는 위 "경로" 절이 확인한다.
 - `accounts`(`S` + 상대 계좌들의 `entity_id` — internal 판정용) / `entities` / `customer_attributes`: 대상 계좌 키로.
 - 요청의 ID가 DB에 없으면 400 `INVALID_REQUEST`에 없는 ID(최대 10개)와 개수 포함.
 
 ## 단위 테스트 (`tests/str/test_facts.py`) — 규칙 표 한 줄 = 테스트 하나
 
-inbound/outbound/internal 분류 · self_transfer 제외 · self_transfer만 → 400 · 통화 이름 → 코드(표 밖 이름 에러) · 통화 2종 합계 문자열과 통화별 `transaction_ids` · `inbound.amount.USD` → USD 거래 ID만 · direction 네 값 · period min/max · counterparties distinct · S 없는 거래 → `path`(400 아님, 집계에 안 섞임) · R04 고리 A→B→C→A 픽스처(path 1건, LLM용 facts에 path 없음) · evidence ≠ alert.transaction_ids → 400 · period에 path 포함 · `fact_keys` 목록(null customer 제외) · `attach_evidence` 합집합과 `[]`.
+inbound/outbound/internal 분류 · self_transfer 제외 · self_transfer만 → 400 · 통화 이름 → 코드(표 밖 이름 에러) · 통화 2종 합계 문자열과 통화별 `transaction_ids` · `inbound.amount.USD` → USD 거래 ID만 · direction 네 값 · period min/max · counterparties distinct · S 없는 거래 → `indirect`(400 아님, 집계에 안 섞임) · R04 고리 A→B→C→A 픽스처(indirect 1건, LLM용 facts에 indirect 없음) · evidence ≠ alert.transaction_ids → 400 · period에 indirect 포함 · **paths**(10/28): 고리 2개 정상 → `VERIFIED`(count 2·max_hops 3·max_accounts 3) · STACK A→B→C→D → `VERIFIED`(max_accounts 4) · 끊긴 경로(to ≠ 다음 from) → `UNVERIFIED` · 시간 역순 → `UNVERIFIED` · CYCLE인데 S로 안 돌아옴 → `UNVERIFIED` · paths에만 있는 ID → 400 · R04·R05 밖 룰의 paths → `UNVERIFIED` · `UNVERIFIED`면 fact 키·LLM용 facts에 paths 없음 · `fact_keys` 목록(null customer 제외) · `attach_evidence` 합집합과 `[]`.

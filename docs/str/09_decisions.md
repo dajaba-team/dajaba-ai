@@ -73,6 +73,7 @@
 | 10/27 (5차 검토) | 선점 INSERT는 `ON CONFLICT … DO NOTHING RETURNING`. 펜싱은 "중복 저장 방지"이지 "LLM 1회 보장" 아님(겹치는 호출 비용은 감수) | unique 오류를 잡으면 트랜잭션이 aborted | 오류 잡기 / savepoint |
 | 10/27 (5차 검토) | 범위 표현(`A와 B 사이`)에 걸린 개설 단어는 `UNPARSED` | 4차의 테스트 22 예시가 "거리가 같은 경우"가 아니었음 | 거리 규칙만 |
 | 10/27 (안건 24 확정, 지윤·채영) | 반려 두 갈래: NEED_REVISION → DRAFTED, NOT_REPORTABLE → CLOSED. 보완 요청 뒤 같은 본문 재요청은 409 `NARRATIVE_UNCHANGED`(백엔드 `ApprovalGate`, 반려 당시 해시 = `approvals.narrative_sha256`). 반려 요청 형식 오류는 400 `INVALID_REQUEST`. AI 서버 변경 없음 | 반려 판단이 글에만 남고, 고치지 않은 본문이 예전 검증으로 다시 통과하던 구멍 | 반려 버튼 하나 |
+| 10/28 (준혁 답) | 경로형 경보: `rule_facts.paths`(경로별 거래 ID, 시간순, R04·R05)를 AI가 **확인만** 해서 `paths` fact로. 시작·연결·시간순·(CYCLE) 닫힘을 전부 통과해야 `VERIFIED`, 하나라도 어긋나면 전체 `UNVERIFIED`(인용·LLM 전달 없음). `VERIFIED`일 때만 `paths.count·max_hops·max_accounts`를 인용 가능, `COUNT_MATCH` 대조 집합에 추가. 기존 `path`는 `indirect`로 이름 변경. 홉 = 거래 개수(복귀 포함) | 5차에서 버린 "COUNT_MATCH 확장"은 순서·연결 보장이 없어서였는데, 이제 detection이 순서를 주고 AI가 연결을 확인하므로 확인된 경우에만 연다 | 경로 사실 없이 계속 막기 / AI가 순서 재구성 |
 
 ## 미결 (회의·측정 뒤)
 
@@ -88,7 +89,7 @@
 | `aml-ml` 시그니처 세부(`ScoreResult` 필드, 실패 처리, polars) | 준영 첫 tag |
 | KoFIU 서식 항목명 ↔ 섹션 6개 대응 확정 | W3, 특금법 시행규칙 별지 확인 |
 | 안건 19·20·21 (금액 정밀도, 룰 표 "정할 것" 칸, 재시도·409·UNIQUE) | 회의 제외 — **현값 유지**, 준영 매핑 표 뒤 재확인 |
-| 경로형 경보 — ① R04 외에 대상 계좌 없는 거래가 경보에 들어오는 룰(STACK·BIPARTITE 유지 시) ② CYCLE 경보의 `account_key`·고리당 경보 수 ③ 고리 순서를 줄 수 있는지. 답이 오면 고리 사실(길이·순서·닫힘)을 별도 fact로 설계(AI가 연결 확인), 그때 규약 5.2에 `path`와 함께 반영 | **준혁** (진희 DM) |
+| R06_BIPARTITE 대체 룰 (안건 20) — 정해지면 규약 2절 룰 표·`rule_facts`, 준영 학습 룰을 같이 맞춤 | **준혁** |
 | 수정 저장 ↔ 승인 요청이 동시에 올 때(승인 트랜잭션 안에서 현재 해시 재확인) | 채영, 백엔드 V009 |
 | 통화 표 15줄 확인(HI-Small `DISTINCT currency_*`) | 진희, 축소본 만들 때 |
 | self-transfer만 남는 경보 400 유지 여부, `STALE_PROCESSING_S` 110초 | 축소본 분포·W2 실측 뒤 |

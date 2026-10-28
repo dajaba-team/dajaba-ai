@@ -19,7 +19,7 @@
         기존 행 SUCCEEDED  → 해시 같음 확인 후 저장된 response 그대로 반환 (LLM 호출 없음, 2xx)
         기존 행 PROCESSING → 409 GENERATION_IN_PROGRESS (백엔드는 재시도 안 함, "생성 중")
       충돌 없음 (처음, 또는 이전 시도가 전부 FAILED) → 새 generation_id로 계속
-2  transaction_reader.load_transactions(evidence_transaction_ids)   ops.transactions WHERE transaction_id = any(...) — 1 쿼리. 대상 계좌가 없는 거래(경로형 경보의 중간 거래)도 그대로 읽는다 → facts path (04)
+2  transaction_reader.load_transactions(evidence_transaction_ids)   ops.transactions WHERE transaction_id = any(...) — 1 쿼리. 대상 계좌가 없는 거래(경로형 경보의 중간 거래)도 그대로 읽는다 → facts indirect, 경로 확인은 rule_facts.paths로 (04)
    transaction_reader.load_subject(alert.account_key)               accounts / entities / customer_attributes — 1~3 쿼리
    없는 ID가 있으면 400 INVALID_REQUEST (message에 없는 ID 최대 10개 + 개수) → 행 FAILED
 3  facts = domain.facts.build_facts(req, txs, subject)                       순수 (04) — observations는 req.reasons에서

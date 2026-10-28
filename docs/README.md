@@ -32,7 +32,7 @@
 | `str/05_prompts.md` | `prompts/*.md`, `narrative_generator.py`, `fewshot_store.py` — **cites·FACT_KEYS, v1 동결 규칙**, 새 v1 전문 | 개정 |
 | `str/06_verification.md` | `domain/verification.py`, `judge.py`, `shared/hashing.py` — **유형별 대조 5종·UNPARSED·경계 문구, 4점 기준** | 개정 |
 | `str/07_llm_strategy.md` | 기법 선택과 이유(코드 아님, 발표 자료) — 관측/모델 설명 분리, 시간 가정값 | 보강 |
-| `str/08_testing.md` | `tests/str/` — 오류 주입 23개, 해시 벡터, 선점 동시성 | 보강 |
+| `str/08_testing.md` | `tests/str/` — 오류 주입 26개, 해시 벡터, 선점 동시성 | 보강 |
 | `str/09_decisions.md` | 결정 기록 — 10/27 회의·검토 줄 추가, 미결 표 | 개정 |
 | `str/10_rag.md` | `retriever.py`, `ingest_corpus.py`, `manifest.json` — **0~3건, 청크 단위 평가, pgvector** | 개정 |
 
@@ -52,6 +52,7 @@
 | 3차 설계 검토 반영 — 중복 방지 해시 비교·STALE 정리, ApprovalGate 세 조건, 통화별 근거·통화 코드, DATE 용도 분리, 한글 수사 UNPARSED, RAG 켬/끔 비교, 오류 주입 20개 | 완료 | 10/27 | 문서만(코드는 W2 수~목 반영 때). `shared/01·03`, `str/03·04·05·06·08·09·10` + 규약 Claude Docs 4절 전이·5.1 근거 범위·5.3 코드 5종·ApprovalGate·미결 표 통화 |
 | 4차 설계 검토 반영 — 선점 advisory lock·해시 재확인·finish 펜싱, 경로 거래 `path`, DATE 가까운 날짜 규칙, 예시 축약 표시, 오류 주입 22개 | 완료 | 10/27 | 문서만. `shared/03`, `str/03·04·06·08·09`. path 세부는 준혁 확인 대기 |
 | 5차 설계 검토 반영 — `path` 최소화(인용·LLM 전달 없음), evidence = alert.transaction_ids 확인, `ON CONFLICT` 선점, 펜싱 범위, 범위 표현 날짜 `UNPARSED` | 완료 | 10/27 | 문서만. 다음 확인은 리뷰 대신 W2 수 코드 + DB 테스트 5가지 |
+| 준혁 답 반영(10/28) — 경로형 경보 `rule_facts.paths` 확인 → `paths` fact(VERIFIED일 때만 인용), `path` → `indirect`, 규칙 10, COUNT_MATCH 경로 수·계좌 수, 오류 주입 26개 | 완료 | 10/28 | 문서만. `shared/01`, `str/03·04·05·06·08·09`. SCRUM-28 |
 | **코드 반영 — schemas** (`DataQualityStatus` 4값, `DraftRequest`/`DraftResponse`/`VerifyRequest`/`VerifyResponse`, `GenerationInProgress`, `Facts` 새 구조, `examples/` 갱신) | 미착수 | | W2 수 |
 | 코드 반영 — `facts.py` 재작성(inbound/outbound/internal, 통화별 `transaction_ids`, 통화 코드 변환, fact_keys, attach_evidence) + 단위 테스트 | 미착수 | | W2 수 |
 | 코드 반영 — `draft_service` 선점(해시 비교·STALE 정리)·generation_id·예산·FAILED, `llm_client` 연결 재시도 삭제, `0001` status·request_hash·UNIQUE | 미착수 | | W2 수~목 |
