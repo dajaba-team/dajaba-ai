@@ -13,10 +13,14 @@ FEATURE_VERSION: str  # 응답 feature_version. 피처 정의·전처리(SHA-256
 THRESHOLD: float  # 추천 임계값 (안건 2 확정: 응답에 score와 threshold 둘 다, 등급은 백엔드 CasePolicy)
 
 
-def score(alerts: list[AlertInput], transactions: pd.DataFrame, *, coverage: list[Coverage]) -> list[ScoreResult]: ...
+def score(
+    alerts: list[AlertInput], transactions: pd.DataFrame, *, coverage: list[Coverage]
+) -> list[ScoreResult]: ...
 def features(
     alerts: list[AlertInput], transactions: pd.DataFrame, *, coverage: list[Coverage]
 ) -> pd.DataFrame: ...  # alert_features 기록용 (선택)
+
+
 # account_aliases 인자는 없다(10/28) — 서비스는 HI-Small 하나라 account_key로 통일. 학습용 원본 계좌 대응은 패키지 안에서 따로
 ```
 
