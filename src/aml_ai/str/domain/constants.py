@@ -5,6 +5,31 @@ from __future__ import annotations
 import re
 from decimal import Decimal
 
+# ---- facts (docs/str/04)
+# IBM 원천 통화 이름 → ISO 4217 코드. Bitcoin→BTC 는 규약 0절 예외. 표에 없는 이름은 UnknownCurrency.
+CURRENCY_CODES: dict[str, str] = {
+    "US Dollar": "USD",
+    "Euro": "EUR",
+    "Yuan": "CNY",
+    "Shekel": "ILS",
+    "Canadian Dollar": "CAD",
+    "UK Pound": "GBP",
+    "Ruble": "RUB",
+    "Australian Dollar": "AUD",
+    "Swiss Franc": "CHF",
+    "Yen": "JPY",
+    "Mexican Peso": "MXN",
+    "Rupee": "INR",
+    "Brazil Real": "BRL",
+    "Saudi Riyal": "SAR",
+    "Bitcoin": "BTC",
+}
+DIRECTION_RATIO = 2  # inbound ≥ 2 × outbound → INBOUND (진희 가정값, 축소본 분포 뒤 조정)
+MONEY_QUANT = Decimal("0.01")
+PATH_RULE_KIND: dict[str, str] = {"R04_CYCLE": "CYCLE", "R05_STACK": "STACK"}  # rule_id → paths.kind
+PATH_MIN_TRANSACTIONS = 2
+MODEL_SIGNALS_TOP = 3  # reasons 상위 N개의 이름만 model_signals 로
+
 # ---- 프롬프트 (docs/str/05)
 NARRATIVE_PROMPT = "narrative_v1"
 JUDGE_PROMPT = "judge_v1"

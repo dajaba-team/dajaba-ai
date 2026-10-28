@@ -1,0 +1,693 @@
+{
+  "_note": "test_facts.py 입력·기대값. 계좌 S = 보고 대상, S2 = S 와 같은 법인. 금액은 문자열(Decimal).",
+  "subject": {
+    "account_key": "010_S0000001",
+    "entity_id": "E-S",
+    "entity_name": "Sole Proprietorship #1",
+    "bank_name": "Portugal Bank #4507",
+    "account_entities": {
+      "010_S0000001": "E-S",
+      "010_S0000002": "E-S",
+      "020_A0000001": "E-A",
+      "030_B0000001": "E-B",
+      "040_C0000001": "E-C",
+      "050_D0000001": "E-D"
+    }
+  },
+  "mixed": {
+    "transactions": [
+      {
+        "transaction_id": 1,
+        "ts": "2022-09-02T10:00:00",
+        "from_account_key": "020_A0000001",
+        "to_account_key": "010_S0000001",
+        "amount_paid": "100.00",
+        "currency_paid": "USD",
+        "amount_received": "100.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 2,
+        "ts": "2022-09-02T11:00:00",
+        "from_account_key": "030_B0000001",
+        "to_account_key": "010_S0000001",
+        "amount_paid": "48.00",
+        "currency_paid": "USD",
+        "amount_received": "50.25",
+        "currency_received": "EUR",
+        "payment_format": "Wire",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 3,
+        "ts": "2022-09-02T12:00:00",
+        "from_account_key": "010_S0000001",
+        "to_account_key": "040_C0000001",
+        "amount_paid": "30.00",
+        "currency_paid": "USD",
+        "amount_received": "27.00",
+        "currency_received": "EUR",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 4,
+        "ts": "2022-09-02T13:00:00",
+        "from_account_key": "010_S0000001",
+        "to_account_key": "010_S0000002",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 5,
+        "ts": "2022-09-02T09:00:00",
+        "from_account_key": "010_S0000001",
+        "to_account_key": "010_S0000001",
+        "amount_paid": "999.00",
+        "currency_paid": "USD",
+        "amount_received": "999.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": true
+      },
+      {
+        "transaction_id": 6,
+        "ts": "2022-09-02T14:00:00",
+        "from_account_key": "020_A0000001",
+        "to_account_key": "030_B0000001",
+        "amount_paid": "5.00",
+        "currency_paid": "USD",
+        "amount_received": "5.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      }
+    ],
+    "expect": {
+      "inbound": {
+        "count": 2,
+        "by_currency": [
+          {
+            "currency": "EUR",
+            "total": "50.25",
+            "count": 1,
+            "transaction_ids": [
+              2
+            ]
+          },
+          {
+            "currency": "USD",
+            "total": "100.00",
+            "count": 1,
+            "transaction_ids": [
+              1
+            ]
+          }
+        ],
+        "transaction_ids": [
+          1,
+          2
+        ]
+      },
+      "outbound": {
+        "count": 1,
+        "by_currency": [
+          {
+            "currency": "USD",
+            "total": "30.00",
+            "count": 1,
+            "transaction_ids": [
+              3
+            ]
+          }
+        ],
+        "transaction_ids": [
+          3
+        ]
+      },
+      "internal": {
+        "count": 1,
+        "transaction_ids": [
+          4
+        ]
+      },
+      "indirect": {
+        "count": 1,
+        "transaction_ids": [
+          6
+        ]
+      },
+      "excluded_self_transfer_count": 1,
+      "period": {
+        "start": "2022-09-02T10:00:00",
+        "end": "2022-09-02T14:00:00"
+      },
+      "counterparties": {
+        "count": 3,
+        "transaction_ids": [
+          1,
+          2,
+          3
+        ]
+      },
+      "direction": "INBOUND",
+      "payment_formats": [
+        "ACH",
+        "Wire"
+      ]
+    }
+  },
+  "direction_table": [
+    {
+      "inbound": 3,
+      "outbound": 0,
+      "expect": "INBOUND"
+    },
+    {
+      "inbound": 0,
+      "outbound": 2,
+      "expect": "OUTBOUND"
+    },
+    {
+      "inbound": 1,
+      "outbound": 1,
+      "expect": "MIXED"
+    },
+    {
+      "inbound": 2,
+      "outbound": 1,
+      "expect": "INBOUND"
+    },
+    {
+      "inbound": 1,
+      "outbound": 2,
+      "expect": "OUTBOUND"
+    },
+    {
+      "inbound": 3,
+      "outbound": 2,
+      "expect": "MIXED"
+    },
+    {
+      "inbound": 0,
+      "outbound": 0,
+      "expect": "INTERNAL"
+    }
+  ],
+  "cycle": {
+    "rule_id": "R04_CYCLE",
+    "transactions": [
+      {
+        "transaction_id": 1,
+        "ts": "2022-09-02T10:00:00",
+        "from_account_key": "010_S0000001",
+        "to_account_key": "020_A0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 2,
+        "ts": "2022-09-02T11:00:00",
+        "from_account_key": "020_A0000001",
+        "to_account_key": "030_B0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 3,
+        "ts": "2022-09-02T12:00:00",
+        "from_account_key": "030_B0000001",
+        "to_account_key": "010_S0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 4,
+        "ts": "2022-09-02T13:00:00",
+        "from_account_key": "010_S0000001",
+        "to_account_key": "040_C0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 5,
+        "ts": "2022-09-02T14:00:00",
+        "from_account_key": "040_C0000001",
+        "to_account_key": "050_D0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 6,
+        "ts": "2022-09-02T15:00:00",
+        "from_account_key": "050_D0000001",
+        "to_account_key": "010_S0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      }
+    ],
+    "paths": [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        4,
+        5,
+        6
+      ]
+    ],
+    "expect": {
+      "kind": "CYCLE",
+      "status": "VERIFIED",
+      "count": 2,
+      "max_hops": 3,
+      "max_accounts": 3,
+      "transaction_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "indirect_ids": [
+        2,
+        5
+      ]
+    }
+  },
+  "stack": {
+    "rule_id": "R05_STACK",
+    "transactions": [
+      {
+        "transaction_id": 1,
+        "ts": "2022-09-02T10:00:00",
+        "from_account_key": "010_S0000001",
+        "to_account_key": "020_A0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 2,
+        "ts": "2022-09-02T11:00:00",
+        "from_account_key": "020_A0000001",
+        "to_account_key": "030_B0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      },
+      {
+        "transaction_id": 3,
+        "ts": "2022-09-02T12:00:00",
+        "from_account_key": "030_B0000001",
+        "to_account_key": "040_C0000001",
+        "amount_paid": "10.00",
+        "currency_paid": "USD",
+        "amount_received": "10.00",
+        "currency_received": "USD",
+        "payment_format": "ACH",
+        "is_self_transfer": false
+      }
+    ],
+    "paths": [
+      [
+        1,
+        2,
+        3
+      ]
+    ],
+    "expect": {
+      "kind": "STACK",
+      "status": "VERIFIED",
+      "count": 1,
+      "max_hops": 3,
+      "max_accounts": 4
+    }
+  },
+  "unverified_cases": {
+    "broken_link": {
+      "rule_id": "R04_CYCLE",
+      "transactions": [
+        {
+          "transaction_id": 1,
+          "ts": "2022-09-02T10:00:00",
+          "from_account_key": "010_S0000001",
+          "to_account_key": "020_A0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 2,
+          "ts": "2022-09-02T11:00:00",
+          "from_account_key": "030_B0000001",
+          "to_account_key": "040_C0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 3,
+          "ts": "2022-09-02T12:00:00",
+          "from_account_key": "040_C0000001",
+          "to_account_key": "010_S0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        }
+      ],
+      "paths": [
+        [
+          1,
+          2,
+          3
+        ]
+      ]
+    },
+    "reversed_time": {
+      "rule_id": "R04_CYCLE",
+      "transactions": [
+        {
+          "transaction_id": 1,
+          "ts": "2022-09-02T12:00:00",
+          "from_account_key": "010_S0000001",
+          "to_account_key": "020_A0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 2,
+          "ts": "2022-09-02T11:00:00",
+          "from_account_key": "020_A0000001",
+          "to_account_key": "030_B0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 3,
+          "ts": "2022-09-02T13:00:00",
+          "from_account_key": "030_B0000001",
+          "to_account_key": "010_S0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        }
+      ],
+      "paths": [
+        [
+          1,
+          2,
+          3
+        ]
+      ]
+    },
+    "cycle_not_closed": {
+      "rule_id": "R04_CYCLE",
+      "transactions": [
+        {
+          "transaction_id": 1,
+          "ts": "2022-09-02T10:00:00",
+          "from_account_key": "010_S0000001",
+          "to_account_key": "020_A0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 2,
+          "ts": "2022-09-02T11:00:00",
+          "from_account_key": "020_A0000001",
+          "to_account_key": "030_B0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 3,
+          "ts": "2022-09-02T12:00:00",
+          "from_account_key": "030_B0000001",
+          "to_account_key": "040_C0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        }
+      ],
+      "paths": [
+        [
+          1,
+          2,
+          3
+        ]
+      ]
+    },
+    "not_from_subject": {
+      "rule_id": "R05_STACK",
+      "transactions": [
+        {
+          "transaction_id": 1,
+          "ts": "2022-09-02T10:00:00",
+          "from_account_key": "020_A0000001",
+          "to_account_key": "030_B0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 2,
+          "ts": "2022-09-02T11:00:00",
+          "from_account_key": "030_B0000001",
+          "to_account_key": "010_S0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        }
+      ],
+      "paths": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "single_hop": {
+      "rule_id": "R05_STACK",
+      "transactions": [
+        {
+          "transaction_id": 1,
+          "ts": "2022-09-02T10:00:00",
+          "from_account_key": "010_S0000001",
+          "to_account_key": "020_A0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        }
+      ],
+      "paths": [
+        [
+          1
+        ]
+      ]
+    },
+    "other_rule": {
+      "rule_id": "R02_FAN_IN_24H",
+      "transactions": [
+        {
+          "transaction_id": 1,
+          "ts": "2022-09-02T10:00:00",
+          "from_account_key": "010_S0000001",
+          "to_account_key": "020_A0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 2,
+          "ts": "2022-09-02T11:00:00",
+          "from_account_key": "020_A0000001",
+          "to_account_key": "030_B0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        },
+        {
+          "transaction_id": 3,
+          "ts": "2022-09-02T12:00:00",
+          "from_account_key": "030_B0000001",
+          "to_account_key": "010_S0000001",
+          "amount_paid": "1.00",
+          "currency_paid": "USD",
+          "amount_received": "1.00",
+          "currency_received": "USD",
+          "payment_format": "ACH",
+          "is_self_transfer": false
+        }
+      ],
+      "paths": [
+        [
+          1,
+          2,
+          3
+        ]
+      ]
+    }
+  },
+  "self_transfer_only": [
+    {
+      "transaction_id": 1,
+      "ts": "2022-09-02T10:00:00",
+      "from_account_key": "010_S0000001",
+      "to_account_key": "010_S0000001",
+      "amount_paid": "1.00",
+      "currency_paid": "USD",
+      "amount_received": "1.00",
+      "currency_received": "USD",
+      "payment_format": "ACH",
+      "is_self_transfer": true
+    }
+  ],
+  "currency_names": {
+    "US Dollar": "USD",
+    "Bitcoin": "BTC",
+    "UK Pound": "GBP",
+    "USD": "USD",
+    "Dogecoin": null
+  },
+  "reasons": [
+    {
+      "name": "account_in_counterparties_24h",
+      "observation": {
+        "value": 3,
+        "unit": "count",
+        "window_start": "2022-09-02T00:00:00",
+        "window_end": "2022-09-03T00:00:00",
+        "basis": "distinct_inbound_counterparties"
+      },
+      "baseline": {
+        "value": 1.5,
+        "definition": "other days mean"
+      },
+      "contribution": {
+        "method": "SHAP",
+        "value": 0.42,
+        "scale": "raw_margin"
+      }
+    },
+    {
+      "name": "outflow_ratio_2h",
+      "observation": {
+        "value": null,
+        "unit": null,
+        "window_start": null,
+        "window_end": null,
+        "basis": null
+      },
+      "baseline": {
+        "value": null,
+        "definition": null
+      },
+      "contribution": {
+        "method": "SHAP",
+        "value": 0.2,
+        "scale": "raw_margin"
+      }
+    }
+  ],
+  "expect_observations": [
+    {
+      "name": "account_in_counterparties_24h",
+      "value": 3,
+      "unit": "count",
+      "window_start": "2022-09-02T00:00:00",
+      "window_end": "2022-09-03T00:00:00",
+      "basis": "distinct_inbound_counterparties",
+      "baseline": 1.5
+    }
+  ],
+  "expect_model_signals": [
+    "account_in_counterparties_24h",
+    "outflow_ratio_2h"
+  ]
+}

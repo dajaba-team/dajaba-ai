@@ -81,6 +81,9 @@
 | 10/28 (SCRUM-12) | `Typology`는 규약 2절 패턴 8종 + 룰 전용 5종(PASS_THROUGH·STRUCTURING·NEW_ACCOUNT_LARGE·HIGH_VALUE·DORMANT_BURST)의 합집합, `typology_hint`·`facts.typology`는 null 허용 | 규약은 "pattern_type과 같은 열거값"인데 R07·교체 후보 룰은 패턴 라벨이 없음. 좁게 잡으면 백엔드 경보가 400 | 패턴 8종만 / 자유 문자열 |
 | 10/28 (SCRUM-12) | LLM 출력 섹션(`LlmNarrativeSection`: section·text·cites)과 응답·검증 섹션(`NarrativeSection`: + evidence_ids)을 다른 모델로. LLM 출력에 `evidence_ids`가 있으면 스키마 실패 | 거래 ID는 LLM이 고르지 않는다(05) — 같은 모델이면 LLM이 써 넣은 ID가 그대로 통과 | 한 모델 + evidence_ids 무시 |
 | 10/28 (SCRUM-12) | `mask_for_llm`은 `Facts`가 아니라 프롬프트용 dict를 돌려준다 | transaction_ids·indirect를 빼면 `Facts` 스키마를 만족하지 않음(04 마스킹 표) | ID를 빈 배열로 채운 Facts |
+| 10/28 (SCRUM-13) | `internal`은 S가 낀 거래 중 상대 계좌가 S와 같은 법인인 것만. S 없는 같은 법인 계좌끼리는 `indirect` | 대상 계좌 관점 집계라 S가 안 낀 거래를 "법인 안 이동"으로 세면 경로 중간 거래와 섞인다 | from·to 법인만 비교 |
+| 10/28 (SCRUM-13) | 요청 안 목록 확인(`evidence` = `alert.transaction_ids`, paths ID ⊆)은 domain 순수 함수가 메시지를 내고 `draft_service`가 400으로. 라우터·스키마 validator에 두지 않음 | 규칙이 04에 있고 테스트도 domain 단위로. Pydantic validator면 422 모양이 섞이고 `shared/schemas`에 업무 규칙이 들어간다 | `DraftRequest` model_validator |
+| 10/28 (SCRUM-13) | `facts.py`를 `facts.py`·`fact_paths.py`·`fact_keys.py` 셋으로 | 한 파일 200줄 규칙, 경로 확인·인용 키는 각자 바뀌는 이유가 다름 | 한 파일 |
 
 ## 미결 (회의·측정 뒤)
 

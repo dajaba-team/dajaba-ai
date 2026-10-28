@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
@@ -11,7 +12,10 @@ from aml_ai.shared.schemas.str import Facts, LlmNarrativeSection, NarrativeSecti
 
 @dataclass(frozen=True)
 class Transaction:
-    """ops.transactions 한 행. is_laundering·pattern_* 는 없다 — 정답 라벨이 서빙에 새면 안 된다 (docs/str/04)."""
+    """ops.transactions 한 행. is_laundering·pattern_* 는 없다 — 정답 라벨이 서빙에 새면 안 된다 (docs/str/04).
+
+    currency_* 는 ISO 코드(USD) — 원천 이름(US Dollar)은 transaction_reader 가 읽을 때 바꾼다.
+    """
 
     transaction_id: int
     ts: datetime
@@ -26,18 +30,30 @@ class Transaction:
 
 
 @dataclass(frozen=True)
-class Subject:
-    """대상 계좌·엔티티·고객 속성. 없는 값은 None."""
+class Customer:
+    """ops.customer_attributes 한 행 (합성 속성 — 규약 1.4). 없는 값은 None."""
 
-    account_keys: tuple[str, ...]
+    industry: str | None
+    risk_level: str | None
+    account_purpose: str | None
+    onboarded_at: date | None
+    country_code: str | None
+
+
+@dataclass(frozen=True)
+class Subject:
+    """보고 대상 계좌 S(= alert.account_key)와 그 법인. 없는 값은 None (docs/str/04 "입력").
+
+    account_entities: 경보 거래에 나오는 계좌 → entity_id. internal(같은 법인 계좌끼리) 판정용.
+    accounts 에 없는 계좌는 키가 없다.
+    """
+
+    account_key: str
     entity_id: str | None
     entity_name: str | None
     bank_name: str | None
-    industry: str | None = None
-    risk_level: str | None = None
-    account_purpose: str | None = None
-    onboarded_at: date | None = None
-    country_code: str | None = None
+    customer: Customer | None = None
+    account_entities: Mapping[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

@@ -7,7 +7,7 @@
 요청(규약 5.1): `draft_id`(백엔드 시퀀스 선발급), `case_no`, `alert`(2절 경보), `evidence_transaction_ids`(**= `alert.transaction_ids` 전체** — 점수의 근거 부분집합 아님, `str/04`), `reasons`(3절 그대로), `prior_alert_count`, `investigator_notes`, `reporting_institution`.
 
 ```
-0  요청 검증                 schemas.str.DraftRequest — 실패 400 INVALID_REQUEST. evidence_transaction_ids == alert.transaction_ids(집합)도 여기서 (04)
+0  요청 검증                 schemas.str.DraftRequest — 실패 400 INVALID_REQUEST. 이어서 draft_service 가 domain.facts.request_problem: evidence == alert.transaction_ids(집합), paths ID ⊆ alert.transaction_ids → 400 (04)
 1  선점  generation_repository.claim(draft_id, request_hash)        규칙 정본 shared/03 "같은 draft_id 재요청"
    ── 짧은 트랜잭션 하나 (a~d), LLM 호출 전에 커밋 ──
    a  잠금                     pg_advisory_xact_lock(hashtext('draft:' || draft_id)) — 같은 draft_id는 한 번에 하나
@@ -20,8 +20,9 @@
         기존 행 PROCESSING → 409 GENERATION_IN_PROGRESS (백엔드는 재시도 안 함, "생성 중")
       충돌 없음 (처음, 또는 이전 시도가 전부 FAILED) → 새 generation_id로 계속
 2  transaction_reader.load_transactions(evidence_transaction_ids)   ops.transactions WHERE transaction_id = any(...) — 1 쿼리. 대상 계좌가 없는 거래(경로형 경보의 중간 거래)도 그대로 읽는다 → facts indirect, 경로 확인은 rule_facts.paths로 (04)
-   transaction_reader.load_subject(alert.account_key)               accounts / entities / customer_attributes — 1~3 쿼리
+   transaction_reader.load_subject(alert, txs)                      accounts / entities / customer_attributes — 1~3 쿼리 (관련 계좌 entity_id 포함, internal 판정용)
    없는 ID가 있으면 400 INVALID_REQUEST (message에 없는 ID 최대 10개 + 개수) → 행 FAILED
+   self-transfer만 남으면(domain.facts.has_reportable) 400 INVALID_REQUEST "no reportable transactions" · 표에 없는 통화 이름 → 500 UnknownCurrency
 3  facts = domain.facts.build_facts(req, txs, subject)                       순수 (04) — observations는 req.reasons에서
 4  facts_llm = domain.masking.mask_for_llm(facts)                            순수 (04) — 생성·평가자 공용
 5  examples = fewshot_store.pick_examples(facts.typology)                    (05) 같은 유형 1 + 다른 유형 2

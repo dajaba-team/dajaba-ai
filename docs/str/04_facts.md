@@ -45,7 +45,7 @@
 | 제외 | `is_self_transfer = true`(from = to = S) 행은 **모든 집계에서 제외**, 건수만 `excluded_self_transfer_count`. 제외 후 남은 거래가 **0건**(self-transfer만)이면 facts를 만들지 않고 400 `INVALID_REQUEST`("no reportable transactions") — 기간·금액이 전부 비는 초안은 쓸 게 없다(가정, 축소본 확인) |
 | `inbound` | `to_account_key = S`인 행. 금액은 **받은 쪽** `amount_received`·`currency_received`. `by_currency`는 통화별 `{currency, total, count, transaction_ids}`, 통화 코드 정렬. 바깥 `transaction_ids`는 그 행 전부, 항목 안 `transaction_ids`는 그 통화 행만 |
 | `outbound` | `from_account_key = S`인 행. 금액은 **보낸 쪽** `amount_paid`·`currency_paid` |
-| `internal` | from·to가 둘 다 같은 `entity_id`의 계좌(S의 법인이 가진 다른 계좌와의 이동). inbound/outbound에 **넣지 않는다**. 금액 집계 없음(법인 안 이동이라 "입금"도 "출금"도 아님) — 건수와 ID만 |
+| `internal` | **S가 낀 거래** 중 상대 계좌의 `entity_id`가 S의 `entity_id`와 같은 것(S의 법인이 가진 다른 계좌와의 이동). S 없이 같은 법인 계좌끼리 오간 거래는 `indirect`. S의 `entity_id`가 없으면 internal 0건. inbound/outbound에 **넣지 않는다**. 금액 집계 없음(법인 안 이동이라 "입금"도 "출금"도 아님) — 건수와 ID만 |
 | `indirect` | **대상 계좌가 직접 참여하지 않은 경보 거래**(S가 from·to 어디에도 없음). 예: R04_CYCLE A→B→C→A, 대상 A일 때 B→C. `count`와 `transaction_ids`만 남긴다 — 버리지도 400으로 막지도 않고, 대상 계좌 관점 집계(inbound/outbound/counterparties/direction)에는 **섞지 않는다**. 금액 집계 없음. 인용 키 없음, LLM에 보내지 않음(마스킹에서 제거). 쓰임은 `period` 계산과 근거 범위뿐. **이 거래들이 어떤 순서로 이어진 경로인지는 여기서 다루지 않는다** — 그건 `paths`(아래 "경로" 절). (10/27 이름 `path`, 10/28 `indirect`로 변경) |
 | `paths` | `alert.rule_facts.paths`가 있을 때만. 확인 규칙·값은 아래 "경로" 절. 없거나 빈 배열이면 `null` |
 | `by_currency[].total` | Decimal 합, **문자열**, 소수 2자리 고정, 천 단위 구분 없음. 통화 간 **환산 없음**. (0절 "금액은 숫자"의 유일한 예외 — LLM·백엔드가 다르게 반올림하지 않도록) |
@@ -142,6 +142,17 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 
 마스킹은 **검증에 영향이 없다** — 코드 검증은 원본 facts와 narrative를 대조하고, narrative에는 계좌가 뒤 4자리로만 나오므로 `ACCOUNT_ID_MATCH`는 마스킹 표현(`****BD30`)과 원본 끝 4자리를 같은 것으로 본다(06).
 
+## 코드 위치 (10/28 SCRUM-13)
+
+| 파일 | 하는 일 |
+|---|---|
+| `domain/facts.py` | `build_facts` — 위 계산 규칙 표. `request_problem`(요청 안 목록 확인)·`has_reportable`(self-transfer만인지)·`currency_code` |
+| `domain/fact_paths.py` | `paths_problem`(경로 규칙 1) · `build_paths`(규칙 2~7 → `VERIFIED`/`UNVERIFIED`) |
+| `domain/fact_keys.py` | `fact_keys`(아래 표) · `attach_evidence`(cites → evidence_ids) |
+| `infrastructure/transaction_reader.py` | `load_transactions`(통화 이름 → 코드, 없는 ID 400) · `load_subject`(대상 + 관련 계좌들의 `entity_id`) |
+
+400 판정은 **domain 순수 함수가 메시지를 돌려주고 `application/draft_service`가 `InvalidRequest`로 올린다** — 라우터는 스키마만 본다. 순서: `request_problem`(DB 전) → `load_transactions` → `has_reportable` → `load_subject` → `build_facts`.
+
 ## 입력 (transaction_reader)
 
 - `transactions`: 요청 `evidence_transaction_ids`로 `ops.transactions` 1 쿼리. 컬럼 `transaction_id, ts, from_account_key, to_account_key, amount_paid, currency_paid, amount_received, currency_received, payment_format, is_self_transfer`. `is_laundering`·`pattern_*` 컬럼은 **SELECT 목록에 없다** — 정답 라벨이 서빙에 새면 안 된다.
@@ -149,6 +160,8 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 - `accounts`(`S` + 상대 계좌들의 `entity_id` — internal 판정용) / `entities` / `customer_attributes`: 대상 계좌 키로.
 - 요청의 ID가 DB에 없으면 400 `INVALID_REQUEST`에 없는 ID(최대 10개)와 개수 포함.
 
-## 단위 테스트 (`tests/str/test_facts.py`) — 규칙 표 한 줄 = 테스트 하나
+## 단위 테스트 (`tests/str/test_facts.py` 분류·집계·입력, `test_fact_paths.py` 경로·fact 키) — 규칙 표 한 줄 = 테스트 하나
+
+입력·기대값은 `tests/str/fixtures/facts_cases.json` 한 파일(공용 변환은 `tests/str/facts_support.py`).
 
 inbound/outbound/internal 분류 · self_transfer 제외 · self_transfer만 → 400 · 통화 이름 → 코드(표 밖 이름 에러) · 통화 2종 합계 문자열과 통화별 `transaction_ids` · `inbound.amount.USD` → USD 거래 ID만 · direction 네 값 · period min/max · counterparties distinct · S 없는 거래 → `indirect`(400 아님, 집계에 안 섞임) · R04 고리 A→B→C→A 픽스처(indirect 1건, LLM용 facts에 indirect 없음) · evidence ≠ alert.transaction_ids → 400 · period에 indirect 포함 · **paths**(10/28): 고리 2개 정상 → `VERIFIED`(count 2·max_hops 3·max_accounts 3) · STACK A→B→C→D → `VERIFIED`(max_accounts 4) · 끊긴 경로(to ≠ 다음 from) → `UNVERIFIED` · 시간 역순 → `UNVERIFIED` · CYCLE인데 S로 안 돌아옴 → `UNVERIFIED` · paths에만 있는 ID → 400 · R04·R05 밖 룰의 paths → `UNVERIFIED` · `UNVERIFIED`면 fact 키·LLM용 facts에 paths 없음 · `fact_keys` 목록(null customer 제외) · `attach_evidence` 합집합과 `[]`.

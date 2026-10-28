@@ -34,7 +34,7 @@ dajaba-AI/
 │  ├─ str/                             진희
 │  │  ├─ api/router.py                 POST /str/drafts, /str/verify, /cases/summary
 │  │  ├─ application/                  draft_service · verify_service · summary_service      (03)
-│  │  ├─ domain/                       models · constants · facts · masking · verification    (04, 06)
+│  │  ├─ domain/                       models · constants · facts · fact_paths · fact_keys · masking · verification    (04, 06)
 │  │  ├─ infrastructure/               orm · transaction_reader · generation_repository · verification_repository
 │  │  │                                · fewshot_store · narrative_generator · judge · retriever · prompt_index
 │  │  ├─ prompts/                      narrative_v1.md · judge_v1.md — 쓰고 나면 수정 금지 (05)
@@ -65,7 +65,7 @@ scoring/application → aml_ml         (패키지, 리포 밖)
 
 | 파일 | 정본 |
 |---|---|
-| `domain/facts.py`, `domain/masking.py`, `infrastructure/transaction_reader.py` | `04_facts.md` |
+| `domain/facts.py`, `domain/fact_paths.py`, `domain/fact_keys.py`, `domain/masking.py`, `infrastructure/transaction_reader.py` | `04_facts.md` |
 | `prompts/*`, `infrastructure/narrative_generator.py`, `fewshot_store.py` | `05_prompts.md` |
 | `domain/verification.py`, `infrastructure/judge.py` | `06_verification.md` |
 | `application/*_service.py`, `api/router.py`, `*_repository.py` | `03_pipeline.md` |
