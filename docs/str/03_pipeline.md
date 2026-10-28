@@ -46,7 +46,7 @@
 요청(규약 5.3): `generation_id`, `revision_no`, `narrative`(조사역 수정본, 섹션 6개 각 1회 — 생성본과 같은 스키마).
 
 ```
-0  요청 검증                  NarrativeOut 과 같은 제약 (섹션 중복·누락 → 400)
+0  요청 검증                  NarrativeOut 과 같은 섹션 제약 (섹션 중복·누락 → 400). 길이 상한은 노션 미결 24 — 수정본 5,000자 분리 권장
 1  gen = generation_repository.load(generation_id)        kind=DRAFT, status=SUCCEEDED — 없으면 404 DRAFT_NOT_FOUND
    facts, evidence_scope = gen.facts, gen.request.evidence_transaction_ids
 2  sha = shared.hashing.narrative_sha256(narrative)      규약 5.3 해시 규칙 (shared/01)
@@ -58,14 +58,16 @@
        llm_checks=None, status=CODE_FAILED        ※ 코드가 틀렸으면 평가자를 부르지 않는다 (비용, 어차피 fail)
 5  passed = all(code match) AND llm_checks is not None AND all(score >= JUDGE_PASS_SCORE=4)    (안건 9)
    status = PASSED | LLM_FAILED | CODE_FAILED | VERIFY_UNAVAILABLE
-6  verification_repository.save(generation_id, draft_id, revision_no, sha, code_checks, llm_checks, passed, status, verifier_version)
+5b narrative_refs = llm_checks 가 있으면 섹션별 judge cites → FACT_KEYS 밖 키 버림 → attach_evidence(cites, facts)   (06 "수정본의 cites")
+   CODE_FAILED · VERIFY_UNAVAILABLE 이면 narrative_refs = None  → 백엔드는 기존 cites·evidence_ids 유지
+6  verification_repository.save(generation_id, draft_id, revision_no, sha, code_checks, llm_checks, narrative_refs, passed, status, verifier_version)
    judge 호출 메타는 generations(kind=VERIFY) 한 행 (W3)
-7  응답 VerifyResponse: {verification_id, generation_id, revision_no, narrative_sha256, passed, status, code_checks, llm_checks, verifier_version, produced_at}
+7  응답 VerifyResponse: {verification_id, generation_id, revision_no, narrative_sha256, passed, status, code_checks, llm_checks, narrative_refs, verifier_version, produced_at}
 ```
 
 - `VERIFY_UNAVAILABLE`은 검증 실패가 아니다 — 백엔드는 한 줄로 저장해 "검증 못 함"이 보이게 하고 "다시 검증" 버튼(채영). 승인 불가.
 - 백엔드 `ApprovalGate`: 승인 요청은 **이 생성본·이 본문의 passed 검증**이 있을 때만(규약 4절 DRAFTED → PENDING_APPROVAL 조건과 같은 말). 세 조건: ① 검증의 `generation_id` == 현재 활성 초안의 `generation_id` ② 검증의 `narrative_sha256` == 현재 본문 해시 ③ `passed = true`. 해시만 보면 다른 생성본(다른 facts)에서 같은 문장이 나온 검증이 통할 수 있어서 ①을 둔다. `revision_no`는 **맞추지 않는다** — 같은 생성본에 본문이 같으면 대조한 facts도 같으니, 되돌린 수정본(rev 3 본문 = rev 1 본문)은 rev 1 검증으로 승인할 수 있다. **단 보완 요청(NEED_REVISION) 반려 뒤에는** 본문 해시가 반려 당시 해시와 같으면 백엔드가 409 `NARRATIVE_UNCHANGED`로 막는다(안건 24) — AI 서버는 할 일 없음. 수정 저장과 승인 요청이 동시에 오는 경우는 백엔드가 승인 트랜잭션 안에서 현재 본문 해시를 다시 읽어 비교(채영 V009에서 정함 — 미결 `09`). "최신 검증"이 아니라 "이 본문의 검증".
-- 수정본에서 `cites`·`evidence_ids`를 다시 계산해 응답에 넣을지는 **W3 결정**(채영 답). 들어가면 평가자 출력에 섹션별 cites를 받아 코드가 `attach_evidence`를 다시 돌리는 자리.
+- 수정본의 `cites`·`evidence_ids`는 **다시 계산해 응답 `narrative_refs`로 돌려준다**(안건 23 세부 (a), 10/28 확정 — 위 5b). 평가자가 섹션별 cites를 내고 코드가 `attach_evidence`를 다시 돌린다. `CODE_FAILED`·`VERIFY_UNAVAILABLE`이면 `null` → 백엔드는 기존 값 유지. 백엔드는 현재 `draft_id`·`generation_id`·본문 해시가 검증 요청과 모두 같을 때만 반영(백엔드 docs `06_features/str.md`).
 
 ## `POST /v1/cases/summary` (W4 말)
 

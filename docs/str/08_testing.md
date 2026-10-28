@@ -10,7 +10,7 @@
 | 계약 | `tests/contract/` — `examples/*.json` ↔ `schemas/`, `narrative_hash.json` ↔ `shared/hashing.py` | 매 커밋, CI |
 | 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~26 | 매 커밋, CI |
 | 오류 주입 (LLM) | `test_injection.py -m live` — 7~12, 14, 23 | W4 손으로, 표로 남김 |
-| 검색 평가 | `retrieval_eval.json` → hit@3·precision@3 (청크 단위) | W4, 11/11 전 |
+| 검색 평가 | `retrieval_eval.json` → hit@3(주)·precision@3·recall@3 (청크 단위, `10`) | W4, 11/11 전 |
 | RAG 켬/끔 비교 | 같은 facts 5건 × `RAG_ENABLED` true/false 생성 → 코드·평가자 점수·사람 선호 표 (`10`) | W4, 11/11 전 |
 | DB | Alembic + repository 저장·조회, **`draft_id` 선점 5가지**(`shared/03`): ① 같은 요청 동시 진입(두 스레드 → 하나 409) ② FAILED 뒤 같은 요청(새 `generation_id`, 옛 행 그대로) ③ 내용이 다른 두 요청 동시 시작 — 먼저 잡은 쪽이 성공하든 실패하든 다른 쪽은 400(결과를 받아 가지도, 새로 생성하지도 않음) ④ `STALE_PROCESSING_S` 지난 PROCESSING(FAILED로 닫고 재생성) ⑤ STALE로 닫힌 뒤 늦게 끝난 옛 작업의 finish → 0행, 결과 버림 | `-m db`, CI |
 | 녹화 | `recorded/*.json` — 실제 LLM 응답을 저장해 `AI_LLM_MOCK=true`에서 재생 | 백엔드 로컬 연동, CI |
@@ -59,7 +59,7 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 ```json
 [{"query_facts": "fixtures/facts_fan_in.json", "expect_chunk_ids": ["fincen-funnel-2014#p2-c1", "fincen-funnel-2014#p3-c0"], "note": "펀넬 계정 정의·적색신호"}, ...]
 ```
-질의 10개(유형 8 + 혼합 2), 기대는 **청크**. `hit@3` = 기대 청크 중 하나라도 top-3에 든 질의 비율(목표 0.7), `precision@3` = top-3 중 기대 청크·같은 문서 같은 절 비율. 미달이면 태깅·청크 크기·`MIN_SIMILARITY` 조정(`10`). **11/11까지 표가 없으면 안건 22 되돌림 조건.**
+질의 10개(유형 8 + 혼합 2), 기대는 **청크**. `hit@3` = 기대 청크 중 하나라도 top-3에 든 질의 비율(목표 0.7), `precision@3` = top-3 중 기대 청크·같은 문서 같은 절 비율, `recall@3` = 질의별 찾은 기대 청크 ÷ 전체 기대 청크의 평균(보조, 계산식은 `10`). 미달이면 태깅·청크 크기·`MIN_SIMILARITY` 조정(`10`). **11/11까지 표가 없으면 안건 22 되돌림 조건.**
 
 ## CI
 
