@@ -27,6 +27,7 @@ dajaba-AI/
 │  │  ├─ logging.py                    JSON 로그, request_id 미들웨어
 │  │  ├─ auth.py                       X-Internal-Key
 │  │  ├─ versioning.py                 응답 버전 (docs/shared/04)
+│  │  ├─ hashing.py                    narrative sha256 — 백엔드 NarrativeHash.java 와 같은 값 (docs/shared/01)
 │  │  ├─ db.py                         SQLAlchemy 엔진·세션·Base
 │  │  ├─ schemas/                      common · alerts · scores · str · errors
 │  │  └─ infrastructure/               llm_client(녹화 모드 포함) · embedding_client
