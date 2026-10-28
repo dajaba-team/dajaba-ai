@@ -5,17 +5,17 @@
 | 날짜 | 결정 | 이유 | 버린 대안 |
 |---|---|---|---|
 | 10/14 | AI 서버 FastAPI 한 대, `scoring/`·`str/` 폴더 분리 | 두 명이 두 서버 운영 못 함 | 서버 둘 |
-| 10/14 | STR 검증 = 코드 4종 + LLM 평가자 | 숫자는 코드가, 서술은 LLM이. 코드가 잡은 건 LLM이 뭐라 해도 fail | LLM 단독 검증 |
+| 10/14 | STR 검증 = 코드 + LLM 평가자 | 숫자는 코드가, 서술은 LLM이. 코드가 잡은 건 LLM이 뭐라 해도 fail | LLM 단독 검증 |
 | 10/14 | RAG는 MVP 제외, 2차 1번 | 코퍼스가 몇 페이지라 프롬프트에 넣으면 같음 | — |
 | 10/22 | 평가자 항목 4 → 5 (`NO_INSTRUCTION_TEXT` 추가) | 메모 주입 방어를 채점에도 | — |
 | 10/23 | 에스컬레이션·초안 생성 별도 버튼(방식 B) | 지윤 질문. 초안 생성은 ESCALATED에서만 | 에스컬레이션 시 자동 생성 |
 | 10/23 | AI 호출 재시도 1회 | 규약 6.2·레퍼런스 8.5 동일. 10/23에 잠깐 2회로 잘못 적었다가 바로잡음 | 2회 |
-| 10/26 | facts 기준 통화 = 건수 최다 `currency_paid` | 소수 고액 외화 1건이 보고서 통화를 바꾸면 안 됨 | 금액 최다 |
-| 10/26 | `total_amount`는 문자열(소수 2자리) | JSON number는 백엔드·LLM이 다르게 반올림 | number |
+| 10/26 | ~~facts 기준 통화 = 건수 최다 `currency_paid`~~ → 10/27 폐기 | — | — |
+| 10/26 | facts 금액은 문자열(소수 2자리) | JSON number는 백엔드·LLM이 다르게 반올림 | number |
 | 10/26 | 코드 검증 허용 오차 0, 거짓 양성 감수 | 지어낸 금액 통과가 훨씬 비쌈. "약 3억"은 fail | ±1% |
 | 10/26 | `prior_alerts` 내용은 LLM에 안 줌, 건수만 | "전에도 걸렸다"가 추측의 근거가 됨 | 과거 룰 ID 전달 |
 | 10/26 | 코드 검증 실패 시 평가자 안 부름 | 비용·시간, 어차피 fail | 항상 둘 다 |
-| 10/26 | 평가자 호출 실패 = `VERIFY_UNAVAILABLE`(passed=false 아님) | 백엔드가 "다시 검증" 띄우게. 안건 9 권장안 | passed=false |
+| 10/26 | 평가자 호출 실패 = `VERIFY_UNAVAILABLE`(passed=false 아님) | 백엔드가 "다시 검증" 띄우게 | passed=false |
 | 10/26 | 생성기에 CoT 안 씀, 평가자만 comment-first | 추론 문제가 아니라 제약 문제. 토큰·JSON 오염 | 생성기 CoT |
 | 10/26 | Generate→Check→Revise 루프 보류 | 흐름 단순 유지, 재생성이 숫자를 또 바꿀 위험 | 1회 자동 재생성 |
 | 10/26 | LangChain·LangGraph 안 씀 | LLM 호출 2번의 직선 파이프라인, 추상화 비용만 | LangChain |
@@ -23,21 +23,72 @@
 | 10/26 | RAG 코퍼스 = 공개 FATF·FinCEN 문서(`10`) | KoFIU 참고유형 사례집은 비공개(2025.12 금융위) | KoFIU 목록 |
 | 10/26 | RAG 저장 = pgvector, 같은 PostgreSQL | 인프라 안 늘림 | Chroma·Pinecone |
 | 10/26 | 검색 실패·0건이면 `references=[]`, 초안은 만듦 | RAG는 품질용, 가용성에 영향 주지 않음 | 502 |
-| 10/26 | RAG 되돌림 조건: 11/11까지 recall@3 표 없으면 2차로 | W4 압박 시 탈출구 | — |
+| 10/26 | RAG 되돌림 조건: 11/11까지 평가 표 없으면 2차로 | W4 압박 시 탈출구 | — |
 | 10/26 | ML 리포 분리, `aml-ml` 패키지로 연결 (준영 동의) | 피처 코드 한 벌 → train/serve skew 방지 | 모델 파일만 넘김 / 서버 분리 |
 | 10/26 | AI 서버는 **별도 리포 `dajaba-AI`** (백엔드 `dajaba`와 다른 폴더·git) | 서버가 다르고 담당이 다르다 — 진희 결정. DB·네트워크는 백엔드 compose 것을 쓴다 | 백엔드 하위 폴더(잠깐 그렇게 적었다가 바로잡음) |
-| 10/26 | 폴더는 기능 우선 × 4계층 `api/application/domain/infrastructure` + `src/` 레이아웃 | 백엔드와 같은 모양, 두 명이 폴더 나눠 맡기, `domain` 순수 함수 테스트 | 계층 우선(`routers/ services/ repositories/`) |
+| 10/26 | 폴더는 기능 우선 × 4계층 `api/application/domain/infrastructure` + `src/` 레이아웃 | 백엔드와 같은 모양, 두 명이 폴더 나눠 맡기, `domain` 순수 함수 테스트 | 계층 우선 |
 | 10/26 | uv, SDK 직접, pydantic v2, SQLAlchemy 동기 | 단순함 | poetry, async |
-| 10/26 | **Python 3.12 고정** (`requires-python >=3.12,<3.13`, `.python-version`) | 3.11은 보안 패치만, 3.13은 shap·numba 호환 위험. 준영 `aml-ml`과 같은 인터프리터여야 함 | 3.11(AI 설계 문서 초안), 3.13 |
+| 10/26 | **Python 3.12 고정** (`requires-python >=3.12,<3.13`) | 3.11은 보안 패치만, 3.13은 shap·numba 호환 위험. 준영 `aml-ml`과 같은 인터프리터 | 3.11, 3.13 |
 | 10/26 | 평가자 모델은 가능하면 생성 모델과 다른 것 | 자기 글에 너그러움 | 같은 모델 |
+| **10/27 회의** | `transaction_id` bigint, JSON 숫자 (안건 1) | 적재 시 부여하는 순번. 원본 추적은 준혁 `source_files` | 문자열 |
+| 10/27 회의 | 점수 응답 `score`+`threshold`, 등급은 백엔드 `CasePolicy` (안건 2) | 모델 버전과 정책 버전을 따로 기록 | AI가 `score_band` |
+| 10/27 회의 | `data_quality_status` = OK/SHORT_HISTORY/MISSING_INPUT/FAILED, FAILED는 score null·케이스 안 만듦·저위험 아님 (안건 4) | 실패와 저위험을 구분. 판정 조건은 준영 | PARTIAL/INSUFFICIENT |
+| 10/27 회의 | 근거 거래 `evidence`(경보 안) / `context`(경보 밖) 분리, STR은 evidence만 (안건 7) | 참고 거래 등장만으로 상대방을 혐의자로 쓰지 않게 | 한 배열 |
+| 10/27 회의 | `typology_source` RULE만 (안건 8) | 라벨은 서빙에 없음 | PATTERN_LABEL |
+| 10/27 회의 | `passed` = 코드 전부 ∧ 평가자 전부 ≥4, VERIFY_UNAVAILABLE도 한 줄 저장 (안건 9) | "검증 못 함"이 보여야 함 | — |
+| 10/27 회의 | 점수 500건 동기, 배치 크기는 설정값 (안건 10) | W4 실측 뒤 조정 | 비동기·큐 |
+| 10/27 회의 | ESCALATED·DRAFTED·REJECTED → CLOSED, 사유 필수 (안건 11) | "보고 안 하기로" 결론이 가능해야 | — |
+| 10/27 회의 | 축소본 적재는 백엔드 A안 (안건 13) | — | AI 적재 |
+| 10/27 회의 | 초안·검증 **별도 버튼·별도 호출**, 초안 응답 `verification: null` (안건 17) | 90초 안에 둘 다 빠듯. 조사역이 고친 뒤 검증이 자연스러움 | 초안 직후 자동 검증 |
+| 10/27 회의 | **facts는 AI가 계산** (안건 23 A안) — 백엔드 `flows/03` "백엔드가 facts 계산" 폐기 | 원천을 읽는 쪽이 계산해야 검증과 같은 기준. 백엔드는 경보·근거·이유·메모만 보냄 | 백엔드 계산 |
+| 10/27 회의 | `draft_id` 백엔드 시퀀스 선발급, `generation_id` AI 발급 → `str_drafts` 저장(V008), 검증은 `generation_id`로 (안건 23 세부, 채영) | 재전송·검증이 한 생성본을 정확히 가리킴 | AI가 draft_id |
+| 10/27 회의 | 검증 응답 `narrative_sha256`, `verification_results`에 `revision_no`·해시(V009), `ApprovalGate`는 "이 본문의 passed 검증" | "최신 검증 passed"는 본문을 고친 뒤에도 승인되는 구멍 | 최신 검증 |
+| 10/27 회의 | 409 `GENERATION_IN_PROGRESS`, 백엔드 재시도 없음 | 같은 draft_id 재진입 | 대기·폴링 |
+| 10/27 (2차 검토) | **facts 대상 계좌 관점 `inbound/outbound/internal`, 통화별 집계, 환산 없음** | 15종 통화에서 기준 통화 1개는 사실을 지움 | 기준 통화 + 총액(10/26) |
+| 10/27 (1차 검토) | facts `observations[]`(관측값) + `model_signals[]`(이름만), SHAP 기여값은 facts에 안 넣음 | 기여값을 관측값처럼 쓰던 `top_reasons`는 설계 오류 | `top_reasons` 문자열 |
+| 10/27 (1차 검토) | LLM은 `cites`(fact 키)만, `evidence_ids`는 코드가 cites에서 연결. 거래 ID 목록을 LLM에 안 줌 | ID 목록을 주면 아무 ID나 옮겨 적음 | LLM이 evidence_ids |
+| 10/27 (1차 검토) | 코드 검사는 **유형별 대조** 5종(금액+통화, 날짜↔기간·개설일, 건수·상대 수, 계좌 식별자, 근거 범위), 못 읽은 표현은 `UNPARSED` fail | "금액이냐 아니냐"로 숫자를 나누면 개설일·건수에서 오탐·누락 | 금액 정규식 1종 + 날짜 |
+| 10/27 (2차 검토) | 코드 검사 경계 문구: "지원하는 표현에서 추출한 사실값을 해당 유형의 facts와 대조" — "모든 숫자 검증"이라 말하지 않음 | 과장은 발표에서 바로 찔림 | — |
+| 10/27 (1차 검토) | 생성기·평가자 모두 **마스킹 facts** | 평가자는 숫자 대조를 안 함. 입력 한 벌 | 평가자만 원본 |
+| 10/27 (2차 검토) | 평가자 루브릭에 **4점 기준** 추가 | 통과선이 4점인데 4의 뜻이 없었음 | 5·3·1만 |
+| 10/27 (2차 검토) | AI 안 LLM 연결 재시도 **삭제**, 재시도는 백엔드 1회만. 예산 80초/호출 35초/재생성은 남은 40초↑ (가정값) | 백엔드 1회 × AI 1회 = 실질 4회, 90초 초과 | AI 1회 + 백엔드 1회 |
+| 10/27 (2차 검토) | `generations` PROCESSING 선점 + `UNIQUE(draft_id)`, FAILED 행 보존, 재생성은 **새 draft_id** | 중복 생성 방지의 키는 draft_id 하나. "같은 draft_id에 새 generation_id" 안은 철회 | AI가 재생성 판단 |
+| 10/27 (2차 검토) | 프롬프트 v1 동결 = 첫 녹화 커밋 시점. 그 전엔 자유 수정 | "쓰고 나면 수정 금지"는 녹화 전엔 뜻이 없음 | 작성 즉시 동결 |
+| 10/27 (2차 검토) | pgvector 확장은 superuser — 새 DB는 `db/init`, 기존 DB는 수동 1회, Alembic 0004는 확인만 | `app_migrate`로 `CREATE EXTENSION` 안 됨 | Alembic이 확장 생성 |
+| 10/27 (2차 검토) | RAG 평가는 **청크 단위**, 참고 사례 **0~3건**(유형 일치 + 최소 유사도) — 3건 채우기 안 함 | 문서 단위 recall은 "맞는 문서의 엉뚱한 쪽"을 정답으로 침. 억지 3건은 규칙 8 위반을 유도 | 문서 단위 recall@3, 항상 3건 |
+| 10/27 (3차 검토) | 중복 방지 = 선점 전 `request_hash` 비교(상태 무관) + 부분 UNIQUE(`status<>'FAILED'`) + 110초 넘은 PROCESSING은 FAILED로 정리 — 위 2차 줄의 `UNIQUE(draft_id)`를 대신함 | 부분 UNIQUE만으론 FAILED 뒤 다른 내용이 통과, 서버가 죽으면 영원히 409 | UNIQUE 하나로 전부 |
+| 10/27 (3차 검토) | `ApprovalGate` = `generation_id` 일치 + 본문 해시 일치 + passed. `revision_no`는 비교 안 함. 규약 4절 "검증이 승인 요청을 막지 않음" 문구 폐기 | 해시만이면 다른 생성본 검증이 통함. revision_no까지면 같은 본문도 재검증 강요 | 해시만 / 해시+revision_no |
+| 10/27 (3차 검토) | 초안 요청 `evidence_transaction_ids` = `alert.transaction_ids` 전체 | 근거 부분집합으로 facts를 내면 건수·금액이 경보와 다름 | 점수의 근거 부분집합 |
+| 10/27 (3차 검토) | fact 키 `*.amount.{currency}` → 그 통화 거래 ID만(`by_currency[].transaction_ids`) | 달러 합계에 유로 거래가 근거로 붙던 것 | 방향 전체 ID |
+| 10/27 (3차 검토) | 통화는 ISO 코드, 로더가 고정 표로 변환, Bitcoin→`BTC` 예외, 표 밖 이름은 에러 | 계약(ISO)과 원천(`US Dollar`)이 달랐음 | 원천 문자열 그대로 |
+| 10/27 (3차 검토) | `DATE_MATCH` 용도 분리(개설 단어 문맥 → onboarded_at, 그 밖 → 기간) | 합집합이면 개설일을 거래 날짜로 써도 통과 | 기간 ∪ 개설일 |
+| 10/27 (3차 검토) | 한글 수사 + 단위는 `UNPARSED`("한" 제외), 그 밖 표현은 평가자·사람 범위라고 명시 | "표현이 없으면 통과"가 "숨기지 않는다" 원칙과 충돌 | 조용히 통과 |
+| 10/27 (3차 검토) | self-transfer만 남는 경보 → 400 (가정) | 기간·금액이 빈 초안은 쓸 게 없음 | 빈 facts로 생성 |
+| 10/27 (3차 검토) | RAG 켬/끔 비교 표 추가(W4) | hit@3는 초안 품질을 말해 주지 않음 | hit@3만 |
+| 10/27 (4차 검토) | 선점 1~3을 짧은 트랜잭션 하나 + `pg_advisory_xact_lock(draft_id)`, SUCCEEDED 반환 전 해시 재확인, finish는 `status='PROCESSING'` 조건(펜싱) | 해시 비교와 INSERT 사이에 끼어든 다른 내용 요청이 남의 결과를 받거나 새로 생성할 수 있었음. 110초 뒤 늦게 끝난 작업이 결과를 덮어쓸 수 있었음 | `draft_requests` PK 테이블(테이블 9개가 됨) |
+| 10/27 (4차 검토) | 대상 계좌가 없는 경보 거래는 400이 아니라 facts `path`로 보존, 대상 계좌 관점 집계에는 안 섞음. `period`는 path 포함 | R04_CYCLE의 중간 거래(B→C)가 400이 되던 것 | 400 유지 / path 거래를 inbound·outbound에 섞기 |
+| 10/27 (4차 검토) | `DATE_MATCH` 개설 단어는 가장 가까운 날짜 하나에만, 거리가 같으면 `UNPARSED` | 한 문장에 두 날짜가 있으면 둘 다 개설일로 분류됨 | ±10자 안 날짜 전부 |
+| 10/27 (5차 검토) | `path`는 최소로: `count`·`transaction_ids`만, 인용 키 없음, LLM에 안 보냄. 고리 사실은 준혁 답 뒤 별도 fact(AI가 연결 직접 확인) | 인용 키를 먼저 열면 검증 대조 규칙이 없고, `account_count`는 고리 계좌 수로 오해됨. 경로라는 보장도 없음 | path 인용 키 + COUNT_MATCH 확장 |
+| 10/27 (5차 검토) | 초안 요청 `evidence_transaction_ids` ≠ `alert.transaction_ids`(집합)면 400 | 무관한 거래가 path로 섞여 드는 걸 막음 | 확인 없음 |
+| 10/27 (5차 검토) | 선점 INSERT는 `ON CONFLICT … DO NOTHING RETURNING`. 펜싱은 "중복 저장 방지"이지 "LLM 1회 보장" 아님(겹치는 호출 비용은 감수) | unique 오류를 잡으면 트랜잭션이 aborted | 오류 잡기 / savepoint |
+| 10/27 (5차 검토) | 범위 표현(`A와 B 사이`)에 걸린 개설 단어는 `UNPARSED` | 4차의 테스트 22 예시가 "거리가 같은 경우"가 아니었음 | 거리 규칙만 |
+| 10/27 (안건 24 확정, 지윤·채영) | 반려 두 갈래: NEED_REVISION → DRAFTED, NOT_REPORTABLE → CLOSED. 보완 요청 뒤 같은 본문 재요청은 409 `NARRATIVE_UNCHANGED`(백엔드 `ApprovalGate`, 반려 당시 해시 = `approvals.narrative_sha256`). 반려 요청 형식 오류는 400 `INVALID_REQUEST`. AI 서버 변경 없음 | 반려 판단이 글에만 남고, 고치지 않은 본문이 예전 검증으로 다시 통과하던 구멍 | 반려 버튼 하나 |
 
 ## 미결 (회의·측정 뒤)
 
 | 항목 | 누가·언제 |
 |---|---|
-| 초안 직후 자동 검증 1회 (안건 17) | 10/27 |
-| 근거 거래 두 필드 분리 `evidence/context` (안건 7) | 10/27 |
+| 점수 `reasons` 구조 → `observations` 매핑, `feature_version` 관리, 학습 입력 ↔ 서비스 JSON 매핑 (안건 3·5·6) | **준영, 주말 전** → 진희가 `shared/01`·`02`, `str/04` 반영 |
+| ML 입력 범위(경보 안 거래만? 과거 조회 기간? 이웃?) | 준영, 안건 6과 함께 (`shared/02`) |
+| 상태 전이 추가 `PENDING_APPROVAL→CLOSED`, `REJECTED→DRAFTED` 외 (안건 15) | 지윤·채영 |
+| 수정본 검증 뒤 `cites`·`evidence_ids` 재산출을 응답에 넣을지 (안건 23 세부) | 채영 답 → W3. 그 전까지 생성 때 값 유지 |
+| 시간 예산 80/35/40초, `direction` 2배 규칙 | W2 수 첫 실측·축소본 분포 뒤 |
 | 평가자 통과 기준 4점 유지 여부 | W4 오류 주입 7~12 표 뒤 |
-| 유사도 임계값(top-3 고정 → 임계값) | W4 recall@3 뒤 |
+| RAG 최소 유사도 상수 초기값 | W4 청크 평가 표 뒤 |
 | `aml-ml` 시그니처 세부(`ScoreResult` 필드, 실패 처리, polars) | 준영 첫 tag |
 | KoFIU 서식 항목명 ↔ 섹션 6개 대응 확정 | W3, 특금법 시행규칙 별지 확인 |
+| 안건 19·20·21 (금액 정밀도, 룰 표 "정할 것" 칸, 재시도·409·UNIQUE) | 회의 제외 — **현값 유지**, 준영 매핑 표 뒤 재확인 |
+| 경로형 경보 — ① R04 외에 대상 계좌 없는 거래가 경보에 들어오는 룰(STACK·BIPARTITE 유지 시) ② CYCLE 경보의 `account_key`·고리당 경보 수 ③ 고리 순서를 줄 수 있는지. 답이 오면 고리 사실(길이·순서·닫힘)을 별도 fact로 설계(AI가 연결 확인), 그때 규약 5.2에 `path`와 함께 반영 | **준혁** (진희 DM) |
+| 수정 저장 ↔ 승인 요청이 동시에 올 때(승인 트랜잭션 안에서 현재 해시 재확인) | 채영, 백엔드 V009 |
+| 통화 표 15줄 확인(HI-Small `DISTINCT currency_*`) | 진희, 축소본 만들 때 |
+| self-transfer만 남는 경보 400 유지 여부, `STALE_PROCESSING_S` 110초 | 축소본 분포·W2 실측 뒤 |

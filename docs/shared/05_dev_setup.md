@@ -26,6 +26,14 @@ open http://localhost:8000/docs
 
 `GET /v1/health` → `{status, server_version, model_version|null, llm: ok|missing_key, db: ok}`. 백엔드는 기동 시 이걸 한 번 부른다(`AiHealthCheck`).
 
+pgvector(W4, RAG 전): 확장 생성은 superuser만 된다(`shared/03`). 백엔드 compose db 이미지가 `pgvector/pgvector:pg16`으로 바뀐 뒤, **이미 만들어 둔 DB 볼륨**에는 손으로 1회:
+
+```bash
+cd ../dajaba && docker compose exec db psql -U postgres -d aml -c "CREATE EXTENSION IF NOT EXISTS vector;"
+```
+
+새로 만드는 DB는 `db/init/00_extensions.sql`이 해 준다. `alembic upgrade head`가 "pgvector 확장 없음"으로 멈추면 이 명령.
+
 compose로: 이 리포의 `compose.yaml`은 `ai` 서비스 하나이고 백엔드 compose의 네트워크(`dajaba_default`, external)에 붙는다. 백엔드에서 `docker compose up db` → 여기서 `docker compose up --build`. 백엔드 `.env`의 `AI_BASE_URL=http://ai:8000`.
 
 ## `.env` 변수 (값은 노션)
@@ -36,7 +44,7 @@ compose로: 이 리포의 `compose.yaml`은 `ai` 서비스 하나이고 백엔�
 | `DATABASE_URL` | `postgresql+psycopg://app_ai:${APP_AI_PASSWORD}@localhost:5432/aml` (compose 안에서는 host `db`) |
 | `AI_INTERNAL_KEY` | 백엔드와 같은 값. `X-Internal-Key` 검사 |
 | `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL_GENERATE`, `LLM_MODEL_JUDGE` | 생성·평가자 모델. 평가자는 다른 모델이면 좋고, 같으면 프롬프트에서 역할 분리 |
-| `LLM_TIMEOUT_S` (기본 60), `LLM_DAILY_TOKEN_BUDGET` | |
+| `LLM_TIMEOUT_S` (기본 **35**), `DRAFT_BUDGET_S` (기본 80), `REGEN_MIN_REMAINING_S` (기본 40), `LLM_DAILY_TOKEN_BUDGET` | 시간 예산(`str/03`) — W2 수 실측 전 가정값 |
 | `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_DIM` | RAG(W4). 멀티링구얼 1종 |
 | `AI_SCORING_MOCK` | `true`면 `aml_ml` 없이 고정 점수(W2~W3) |
 | `AI_LLM_MOCK` | `true`면 LLM 호출 대신 녹화된 응답(`tests/str/recorded/`). 백엔드 로컬 연동용 |
@@ -53,7 +61,7 @@ uv run pytest -m db                # Alembic + 저장 (Docker 필요)
 uv run pytest tests/str/test_injection.py -m deterministic   # 오류 주입 1~6, 13
 ```
 
-LLM을 실제로 부르는 테스트(7~12, 14, recall@3)는 `-m live`로만, CI에서는 안 돈다.
+LLM을 실제로 부르는 테스트(7~12, 14)와 검색 평가(hit@3)는 `-m live`로만, CI에서는 안 돈다.
 
 ## 코드 스타일
 
