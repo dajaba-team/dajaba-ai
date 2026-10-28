@@ -1,18 +1,58 @@
 {
   "reporting_institution": "Portugal Bank #4507",
-  "subject_entity_id": "80062E240",
-  "subject_entity_name": "Sole Proprietorship #50438",
-  "subject_account_keys": [
-    "010_8000EBD30"
-  ],
-  "period_start": "2022-09-02T00:14:00",
-  "period_end": "2022-09-02T22:51:00",
-  "transaction_count": 47,
-  "total_amount": "320000000.00",
-  "currency": "US Dollar",
-  "mixed_currency": false,
+  "subject": {
+    "entity_id": "80062E240",
+    "entity_name": "Sole Proprietorship #50438",
+    "account_key": "010_8000EBD30"
+  },
+  "period": {
+    "start": "2022-09-02T00:14:00",
+    "end": "2022-09-02T22:51:00"
+  },
+  "inbound": {
+    "count": 3,
+    "by_currency": [
+      {
+        "currency": "USD",
+        "total": "42750.50",
+        "count": 3,
+        "transaction_ids": [
+          1,
+          2,
+          3
+        ]
+      }
+    ],
+    "transaction_ids": [
+      1,
+      2,
+      3
+    ]
+  },
+  "outbound": {
+    "count": 0,
+    "by_currency": [],
+    "transaction_ids": []
+  },
+  "internal": {
+    "count": 0,
+    "transaction_ids": []
+  },
+  "indirect": {
+    "count": 0,
+    "transaction_ids": []
+  },
+  "paths": null,
+  "excluded_self_transfer_count": 0,
   "direction": "INBOUND",
-  "counterparty_count": 31,
+  "counterparties": {
+    "count": 3,
+    "transaction_ids": [
+      1,
+      2,
+      3
+    ]
+  },
   "payment_formats": [
     "ACH"
   ],
@@ -26,8 +66,18 @@
     "country_code": "PT"
   },
   "prior_alert_count": 1,
-  "top_reasons": [
-    "distinct_senders_24h = 31 (평소 3.4)",
-    "outflow_ratio_2h = 0.95"
+  "observations": [
+    {
+      "name": "account_in_counterparties_24h",
+      "value": 3,
+      "unit": "count",
+      "window_start": "2022-09-02T00:00:00",
+      "window_end": "2022-09-03T00:00:00",
+      "basis": "distinct_inbound_counterparties",
+      "baseline": null
+    }
+  ],
+  "model_signals": [
+    "account_in_counterparties_24h"
   ]
 }

@@ -51,7 +51,7 @@ class DraftService:
 
     def create(self, req: DraftRequest) -> DraftResponse:
         # 2
-        txs = self.reader.load_transactions(req.transaction_ids)
+        txs = self.reader.load_transactions(req.evidence_transaction_ids)
         subject = self.reader.load_subject(req.alert)
         # 3·4 — 순수
         facts = facts_domain.build_facts(req, txs, subject)
@@ -66,6 +66,8 @@ class DraftService:
             references = []
         # 7
         gen = self.generator.generate(facts_masked, examples, references, req.investigator_notes)
+        # 8 — 순수: cites 의 fact 키 → evidence_ids
+        narrative = facts_domain.attach_evidence(gen.narrative, facts)
         # 9
         meta = generation_meta(
             self.settings,
@@ -77,12 +79,14 @@ class DraftService:
             tokens_out=gen.tokens_out,
             latency_ms=gen.latency_ms,
         )
-        self.generations.save_draft(req, facts, gen, meta)
-        # 10 — 원본 facts 로 응답. verification 은 안건 17 (MVP None)
+        # TODO(SCRUM-14): 선점(PROCESSING) → finish 펜싱. 지금은 생성 뒤 한 번에 저장
+        generation_id = self.generations.save_draft(req, facts, gen, meta)
+        # 10 — 원본 facts 로 응답. verification 은 안건 17 (항상 None)
         return DraftResponse(
             draft_id=req.draft_id,
+            generation_id=generation_id,
             facts=facts,
-            narrative=gen.narrative,
+            narrative=narrative,
             generation_meta=meta,
             verification=None,
         )

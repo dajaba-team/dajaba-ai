@@ -1,12 +1,13 @@
-"""run_code_checks — 정본 docs/str/06 코드 검증 표. 순수 함수, 정규식 + Decimal.
+"""run_code_checks — 정본 docs/str/06 코드 검증 표(유형별 대조 5종). 순수 함수, 정규식 + Decimal.
 
-원칙: 거짓 양성 감수, 허용 오차 0. 코드가 잡은 건 LLM 이 뭐라 해도 fail.
-TODO(W3): 네 함수 구현. 오류 주입 1~6 (tests/str/test_injection.py -m deterministic) 이 곧 테스트.
+원칙: 거짓 양성 감수, 허용 오차 0. 코드가 잡은 건 LLM 이 뭐라 해도 fail. 못 읽은 표현은 UNPARSED.
+TODO(W3): AMOUNT·DATE·COUNT·ACCOUNT_ID 구현, EVIDENCE_IN_SCOPE 의 cites ⊆ fact_keys (SCRUM-13 fact_keys 뒤).
+오류 주입 (tests/str/test_injection.py -m deterministic) 이 곧 테스트.
 """
 
 from __future__ import annotations
 
-from aml_ai.shared.schemas.str import CodeCheck, CodeCheckName, Facts, NarrativeSection, Section
+from aml_ai.shared.schemas.str import CheckReason, CodeCheck, CodeCheckName, Facts, NarrativeSection, Section
 
 
 def run_code_checks(
@@ -15,28 +16,37 @@ def run_code_checks(
     checks: list[CodeCheck] = []
     checks += amount_match(facts, narrative)
     checks += date_match(facts, narrative)
-    checks += counterparty_count(facts, narrative)
+    checks += count_match(facts, narrative)
+    checks += account_id_match(facts, narrative)
     checks += evidence_in_scope(narrative, transaction_ids)
     return checks
 
 
 def amount_match(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
-    """본문의 금액(쉼표·만/억 정규화) ⊆ {total_amount} ∪ 허용 소수. 통화 단어 ±10자 문맥만 금액으로 본다."""
+    """금액+통화 쌍 ↔ 같은 통화의 inbound/outbound.amount. 통화 없는 숫자는 금액으로 보지 않는다."""
     raise NotImplementedError("W3 — docs/str/06 AMOUNT_MATCH")
 
 
 def date_match(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
-    """모든 날짜가 [period_start.date, period_end.date] 안. WHAT_WHEN_WHERE 에 날짜가 없으면 fail."""
+    """거래 날짜 ↔ period, 개설일 ↔ customer.onboarded_at. WHAT_WHEN_WHERE 에 거래 날짜가 없으면 MISSING."""
     raise NotImplementedError("W3 — docs/str/06 DATE_MATCH")
 
 
-def counterparty_count(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
-    """'N개 계좌/상대/거래처' 가 있으면 전부 counterparty_count 와 같아야 함."""
-    raise NotImplementedError("W3 — docs/str/06 COUNTERPARTY_COUNT")
+def count_match(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
+    """건수·상대 수·경로 수 ↔ 해당 집합 (paths 는 VERIFIED 일 때만)."""
+    raise NotImplementedError("W3 — docs/str/06 COUNT_MATCH")
+
+
+def account_id_match(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
+    """계좌 식별자 표현은 subject.account_key 끝 4자리만 통과."""
+    raise NotImplementedError("W3 — docs/str/06 ACCOUNT_ID_MATCH")
 
 
 def evidence_in_scope(narrative: list[NarrativeSection], transaction_ids: list[int]) -> list[CodeCheck]:
-    """evidence_ids 전부 transaction_ids 안. 6개 섹션 전부 빈 배열이면 fail."""
+    """evidence_ids ⊆ 요청 evidence_transaction_ids (밖이면 OUT_OF_SCOPE). 6개 섹션 전부 근거가 없으면 MISSING.
+
+    TODO(W3): docs/str/06 은 cites 기준(cites ⊆ fact_keys, 전부 빈 cites → MISSING). fact_keys 가 생기면 바꾼다.
+    """
     allowed = set(transaction_ids)
     out: list[CodeCheck] = []
     for s in narrative:
@@ -48,6 +58,7 @@ def evidence_in_scope(narrative: list[NarrativeSection], transaction_ids: list[i
                 draft_value=",".join(map(str, bad)) or None,
                 source_value=None,
                 match=not bad,
+                reason=CheckReason.OUT_OF_SCOPE if bad else None,
             )
         )
     if all(not s.evidence_ids for s in narrative):
@@ -58,6 +69,7 @@ def evidence_in_scope(narrative: list[NarrativeSection], transaction_ids: list[i
                 draft_value="no evidence in any section",
                 source_value=None,
                 match=False,
+                reason=CheckReason.MISSING,
             )
         )
     return out
@@ -67,7 +79,8 @@ __all__ = [
     "run_code_checks",
     "amount_match",
     "date_match",
-    "counterparty_count",
+    "count_match",
+    "account_id_match",
     "evidence_in_scope",
     "Section",
 ]

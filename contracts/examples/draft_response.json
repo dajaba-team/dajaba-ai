@@ -1,20 +1,61 @@
 {
-  "draft_id": "d-2026-0001",
+  "draft_id": "DRF-000312",
+  "generation_id": "g-7c1d44e2",
   "facts": {
     "reporting_institution": "Portugal Bank #4507",
-    "subject_entity_id": "80062E240",
-    "subject_entity_name": "Sole Proprietorship #50438",
-    "subject_account_keys": [
-      "010_8000EBD30"
-    ],
-    "period_start": "2022-09-02T00:14:00",
-    "period_end": "2022-09-02T22:51:00",
-    "transaction_count": 47,
-    "total_amount": "320000000.00",
-    "currency": "US Dollar",
-    "mixed_currency": false,
+    "subject": {
+      "entity_id": "80062E240",
+      "entity_name": "Sole Proprietorship #50438",
+      "account_key": "010_8000EBD30"
+    },
+    "period": {
+      "start": "2022-09-02T00:14:00",
+      "end": "2022-09-02T22:51:00"
+    },
+    "inbound": {
+      "count": 3,
+      "by_currency": [
+        {
+          "currency": "USD",
+          "total": "42750.50",
+          "count": 3,
+          "transaction_ids": [
+            104221,
+            104233,
+            104301
+          ]
+        }
+      ],
+      "transaction_ids": [
+        104221,
+        104233,
+        104301
+      ]
+    },
+    "outbound": {
+      "count": 0,
+      "by_currency": [],
+      "transaction_ids": []
+    },
+    "internal": {
+      "count": 0,
+      "transaction_ids": []
+    },
+    "indirect": {
+      "count": 0,
+      "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
     "direction": "INBOUND",
-    "counterparty_count": 31,
+    "counterparties": {
+      "count": 3,
+      "transaction_ids": [
+        104221,
+        104233,
+        104301
+      ]
+    },
     "payment_formats": [
       "ACH"
     ],
@@ -28,71 +69,101 @@
       "country_code": "PT"
     },
     "prior_alert_count": 1,
-    "top_reasons": [
-      "distinct_senders_24h = 31 (평소 3.4)",
-      "outflow_ratio_2h = 0.95"
+    "observations": [
+      {
+        "name": "account_in_counterparties_24h",
+        "value": 3,
+        "unit": "count",
+        "window_start": "2022-09-02T00:00:00",
+        "window_end": "2022-09-03T00:00:00",
+        "basis": "distinct_inbound_counterparties",
+        "baseline": null
+      }
+    ],
+    "model_signals": [
+      "account_in_counterparties_24h"
     ]
   },
   "narrative": [
     {
       "section": "SUMMARY",
-      "text": "2022-09-02 하루 동안 보고 대상 계좌(010_****BD30)로 서로 다른 31개 계좌에서 47건, 합계 320000000.00 US Dollar의 ACH 입금이 집중되었음. 소매업 개인사업자의 평소 거래 상대 수(3.4개)에 비해 현저히 많아 집중 입금(fan-in) 유형의 자금세탁이 의심됨. 조사역의 최종 판단이 필요함.",
-      "evidence_ids": []
+      "text": "2022-09-02 하루 동안 보고 대상 계좌(010_****BD30)로 서로 다른 3개 계좌에서 3건, 합계 42,750.50 US Dollar의 ACH 입금이 들어옴. 집중 입금 유형의 자금세탁이 의심됨.",
+      "cites": [
+        "period",
+        "inbound.count",
+        "inbound.amount.USD",
+        "counterparties.count"
+      ],
+      "evidence_ids": [
+        104221,
+        104233,
+        104301
+      ]
     },
     {
       "section": "WHO",
-      "text": "보고 대상자는 Sole Proprietorship #50438(엔티티 ID 80062E240), Portugal Bank #4507의 개인사업자 고객임. 업종은 소매업, 위험등급 LOW, 계좌 개설 목적은 매출 입금(SALES_DEPOSIT), 개설일 2021-03-14, 국가 PT. 과거 경보 이력 1건이 있음.",
+      "text": "보고 대상자는 Sole Proprietorship #50438(엔티티 ID 80062E240)이며, 업종은 소매업, 위험등급 LOW, 계좌 개설일 2021-03-14임. 과거 경보 이력 1건이 있음.",
+      "cites": [
+        "subject",
+        "customer.industry",
+        "customer.risk_level",
+        "customer.onboarded_at",
+        "prior_alert_count"
+      ],
       "evidence_ids": []
     },
     {
       "section": "WHAT_WHEN_WHERE",
-      "text": "2022-09-02 00:14부터 22:51 사이에 대상 계좌로 ACH 입금 47건이 발생하였고 합계는 320000000.00 US Dollar임. 입금 상대 계좌는 31개로 모두 상이함. 거래 통화는 단일 통화임.",
+      "text": "2022-09-02 00:14부터 22:51 사이 대상 계좌로 ACH 입금 3건, 합계 42,750.50 US Dollar가 발생함.",
+      "cites": [
+        "period",
+        "inbound.count",
+        "inbound.amount.USD",
+        "payment_formats"
+      ],
       "evidence_ids": [
-        1,
-        2,
-        3
+        104221,
+        104233,
+        104301
       ]
     },
     {
       "section": "HOW",
-      "text": "다수의 송금인이 같은 날 하나의 수취 계좌로 입금하는 집중 입금 방식임. 입금 후 2시간 내 출금 비율이 0.95로 나타나, 입금된 자금이 짧은 시간 안에 다시 빠져나간 것으로 보임.",
+      "text": "서로 다른 3개 계좌가 같은 날 하나의 계좌로 송금하는 집중 입금 방식임.",
+      "cites": [
+        "counterparties.count",
+        "direction"
+      ],
       "evidence_ids": [
-        1,
-        2
+        104221,
+        104233,
+        104301
       ]
     },
     {
       "section": "WHY_SUSPICIOUS",
-      "text": "소매업 매출 입금 계좌에서 하루에 31개의 상이한 상대로부터 입금이 집중된 것은 평소 거래 상대 수(3.4개)와 크게 다름. 입금 직후 대부분이 출금된 점은 자금을 모아 다른 곳으로 이전하는 경유 거래의 가능성을 시사함. 다만 입금의 상업적 사유는 확인되지 않음.",
-      "evidence_ids": [
-        1,
-        2,
-        3
-      ]
+      "text": "모델 관측값(24시간 기준) 입금 상대 계좌 수가 3개로, 소매업 매출 입금 계좌의 단일일 거래로는 상대가 많음. 입금의 상업적 사유는 확인되지 않음.",
+      "cites": [
+        "observations.account_in_counterparties_24h",
+        "customer.industry"
+      ],
+      "evidence_ids": []
     },
     {
       "section": "CONCLUSION",
-      "text": "거래 양상이 집중 입금 유형에 부합하여 자금세탁이 의심됨. 입금 사유와 자금 출처에 대한 확인이 필요하며, 조사역의 최종 판단이 필요함.",
+      "text": "거래 양상이 집중 입금 유형에 부합하여 자금세탁이 의심됨. 입금 사유와 자금 출처 확인이 필요하며 조사역의 최종 판단이 필요함.",
+      "cites": [],
       "evidence_ids": []
     }
   ],
   "generation_meta": {
-    "llm_model": "model-x-2026-06",
+    "llm_model": "(API가 돌려준 모델 ID)",
     "prompt_version": "narrative_v1",
     "few_shot_ids": [
-      1,
-      2,
-      3
+      1
     ],
-    "references": [
-      {
-        "doc_id": "fincen-funnel-2014",
-        "doc_title": "FinCEN Advisory FIN-2014-A005",
-        "page": 2,
-        "score": 0.81
-      }
-    ],
-    "retrieval_version": "embed-m@1f2e3d4c",
+    "references": [],
+    "retrieval_version": null,
     "server_version": "a1b2c3d",
     "tokens_in": 3800,
     "tokens_out": 950,

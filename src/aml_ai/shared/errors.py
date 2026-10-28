@@ -40,6 +40,12 @@ class DraftNotFound(AiError):
     status, code = 404, "DRAFT_NOT_FOUND"
 
 
+class GenerationInProgress(AiError):
+    """같은 draft_id 가 생성 중 (규약 5.1 중복 방지). 백엔드는 재시도하지 않고 "생성 중" 표시."""
+
+    status, code = 409, "GENERATION_IN_PROGRESS"
+
+
 class LlmInvalidOutput(AiError):
     """스키마 검증 실패 — 1회 재생성 뒤에도 실패했을 때. 백엔드 재시도 0회."""
 
@@ -47,13 +53,19 @@ class LlmInvalidOutput(AiError):
 
 
 class LlmUnavailable(AiError):
-    """연결 실패·타임아웃. 백엔드 AiClient 가 1회 재시도하는 유일한 코드 (안건 21)."""
+    """연결 실패·타임아웃. 백엔드 AiClient 가 1회 재시도하는 코드 (규약 6.2·6.3)."""
 
     status, code = 502, "LLM_UNAVAILABLE"
 
 
 class BudgetExceeded(AiError):
     status, code = 502, "LLM_BUDGET_EXCEEDED"
+
+
+class ModelUnavailable(AiError):
+    """점수 모델 미로드 — 요청 전체 503 (규약 3절 실패 항목·6.3)."""
+
+    status, code = 503, "MODEL_UNAVAILABLE"
 
 
 class RetrievalUnavailable(AiError):

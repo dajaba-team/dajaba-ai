@@ -15,6 +15,19 @@ def test_mock_scores_match_contract() -> None:
         )
     assert r.status_code == 200
     body = r.json()
-    assert body["scores"][0]["alert_id"] == 1001
-    assert 0 <= body["scores"][0]["score"] <= 1
+    item = body["scores"][0]
+    assert item["alert_id"] == "ALT-20220903-000142"
+    assert 0 <= item["score"] <= 1
+    assert item["data_quality_status"] == "OK"
+    assert item["evidence_transaction_ids"] == [104221, 104233, 104301]
     assert body["scoring_meta"]["model_version"] == "mock-0"
+    assert body["produced_at"]
+
+
+def test_scores_reject_numeric_alert_id() -> None:
+    req = load_json(EXAMPLES / "score_request.json")
+    req["alerts"][0]["alert_id"] = 1001
+    with TestClient(app) as c:
+        r = c.post("/v1/scores", headers={"X-Internal-Key": "test-key"}, json=req)
+    assert r.status_code == 400
+    assert r.json()["code"] == "INVALID_REQUEST"

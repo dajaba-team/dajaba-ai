@@ -1,32 +1,55 @@
 {
-  "draft_id": "d-2026-0001",
-  "case_no": "C-2026-0001",
+  "draft_id": "DRF-000312",
+  "case_no": "CASE-2022-000057",
   "alert": {
-    "alert_id": 1001,
-    "rule_id": "R02_FAN_IN_24H",
+    "alert_id": "ALT-20220903-000142",
     "account_key": "010_8000EBD30",
-    "reference_ts": "2022-09-03T00:00:00",
+    "entity_id": "80062E240",
+    "rule_id": "R02_FAN_IN_24H",
+    "rule_version": "1",
+    "typology_hint": "FAN_IN",
     "window_start": "2022-09-02T00:00:00",
-    "evidence_transaction_ids": [
-      1,
-      2,
-      3
+    "window_end": "2022-09-02T23:59:59",
+    "reference_ts": "2022-09-02T23:59:59",
+    "transaction_ids": [
+      104221,
+      104233,
+      104301
     ],
-    "typology": "FAN_IN",
-    "typology_source": "RULE"
+    "rule_facts": {
+      "distinct_senders": 3,
+      "total_amount_received": 42750.5,
+      "currency": "US Dollar"
+    },
+    "created_at": "2022-09-03T01:00:00"
   },
-  "transaction_ids": [
-    1,
-    2,
-    3
+  "evidence_transaction_ids": [
+    104221,
+    104233,
+    104301
   ],
-  "prior_alerts": [
+  "reasons": [
     {
-      "alert_id": 880,
-      "rule_id": "R07_STRUCTURING",
-      "outcome": "CLOSED"
+      "name": "account_in_counterparties_24h",
+      "observation": {
+        "value": 3,
+        "unit": "count",
+        "window_start": "2022-09-02T00:00:00",
+        "window_end": "2022-09-03T00:00:00",
+        "basis": "distinct_inbound_counterparties"
+      },
+      "baseline": {
+        "value": null,
+        "definition": null
+      },
+      "contribution": {
+        "method": "SHAP",
+        "value": 0.42,
+        "scale": "raw_margin"
+      }
     }
   ],
-  "investigator_notes": "업종 대비 상대 수 과다. 입금 사유 미확인.",
+  "prior_alert_count": 1,
+  "investigator_notes": "입금 직후 두 계좌로 분산. 매출 규모 대비 비정상.",
   "reporting_institution": "Portugal Bank #4507"
 }

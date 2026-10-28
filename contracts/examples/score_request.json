@@ -2,18 +2,26 @@
   "batch_run_id": 7,
   "alerts": [
     {
-      "alert_id": 1001,
-      "rule_id": "R02_FAN_IN_24H",
+      "alert_id": "ALT-20220903-000142",
       "account_key": "010_8000EBD30",
-      "reference_ts": "2022-09-03T00:00:00",
+      "entity_id": "80062E240",
+      "rule_id": "R02_FAN_IN_24H",
+      "rule_version": "1",
+      "typology_hint": "FAN_IN",
       "window_start": "2022-09-02T00:00:00",
-      "evidence_transaction_ids": [
-        1,
-        2,
-        3
+      "window_end": "2022-09-02T23:59:59",
+      "reference_ts": "2022-09-02T23:59:59",
+      "transaction_ids": [
+        104221,
+        104233,
+        104301
       ],
-      "typology": "FAN_IN",
-      "typology_source": "RULE"
+      "rule_facts": {
+        "distinct_senders": 3,
+        "total_amount_received": 42750.5,
+        "currency": "US Dollar"
+      },
+      "created_at": "2022-09-03T01:00:00"
     }
   ]
 }

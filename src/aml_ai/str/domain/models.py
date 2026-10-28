@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
 
-from aml_ai.shared.schemas.str import Facts, NarrativeSection, Reference
+from aml_ai.shared.schemas.str import Facts, LlmNarrativeSection, NarrativeSection, Reference
 
 
 @dataclass(frozen=True)
@@ -52,9 +52,9 @@ class Example:
 
 @dataclass(frozen=True)
 class GenerationResult:
-    """narrative_generator 가 돌려주는 것. 응답·저장에 그대로 쓰인다."""
+    """narrative_generator 가 돌려주는 것. evidence_ids 는 아직 없다 — attach_evidence 가 붙인다."""
 
-    narrative: list[NarrativeSection]
+    narrative: list[LlmNarrativeSection]
     llm_model: str
     prompt_version: str
     tokens_in: int
@@ -66,10 +66,10 @@ class GenerationResult:
 
 @dataclass(frozen=True)
 class StoredDraft:
-    """verify 가 generations 에서 꺼내는 것."""
+    """verify 가 generations 에서 꺼내는 것. 수정본도 생성 당시 facts 로 대조한다."""
 
     generation_id: str
     draft_id: str
     facts: Facts
-    transaction_ids: list[int]
+    evidence_transaction_ids: list[int]
     references: list[Reference]
