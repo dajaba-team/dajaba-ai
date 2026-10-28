@@ -73,22 +73,25 @@
 | 10/27 (5차 검토) | 선점 INSERT는 `ON CONFLICT … DO NOTHING RETURNING`. 펜싱은 "중복 저장 방지"이지 "LLM 1회 보장" 아님(겹치는 호출 비용은 감수) | unique 오류를 잡으면 트랜잭션이 aborted | 오류 잡기 / savepoint |
 | 10/27 (5차 검토) | 범위 표현(`A와 B 사이`)에 걸린 개설 단어는 `UNPARSED` | 4차의 테스트 22 예시가 "거리가 같은 경우"가 아니었음 | 거리 규칙만 |
 | 10/27 (안건 24 확정, 지윤·채영) | 반려 두 갈래: NEED_REVISION → DRAFTED, NOT_REPORTABLE → CLOSED. 보완 요청 뒤 같은 본문 재요청은 409 `NARRATIVE_UNCHANGED`(백엔드 `ApprovalGate`, 반려 당시 해시 = `approvals.narrative_sha256`). 반려 요청 형식 오류는 400 `INVALID_REQUEST`. AI 서버 변경 없음 | 반려 판단이 글에만 남고, 고치지 않은 본문이 예전 검증으로 다시 통과하던 구멍 | 반려 버튼 하나 |
+| 10/28 (준혁 답) | 경로형 경보: `rule_facts.paths`(경로별 거래 ID, 시간순, R04·R05)를 AI가 **확인만** 해서 `paths` fact로. 시작·연결·시간순·(CYCLE) 닫힘을 전부 통과해야 `VERIFIED`, 하나라도 어긋나면 전체 `UNVERIFIED`(인용·LLM 전달 없음). `VERIFIED`일 때만 `paths.count·max_hops·max_accounts`를 인용 가능, `COUNT_MATCH` 대조 집합에 추가. 기존 `path`는 `indirect`로 이름 변경. 홉 = 거래 개수(복귀 포함) | 5차에서 버린 "COUNT_MATCH 확장"은 순서·연결 보장이 없어서였는데, 이제 detection이 순서를 주고 AI가 연결을 확인하므로 확인된 경우에만 연다 | 경로 사실 없이 계속 막기 / AI가 순서 재구성 |
+| 10/28 (준영 답) | 안건 3·5·6 확정: `reasons` = `name` + `observation`/`baseline`/`contribution`(확인 못 한 값 null), `feature_version`은 응답 문자열 하나·묶음 관리는 패키지 내부, 서비스 필드명 유지(`reference_ts`=`as_of`, `account_key` 분해 안 함, `alert_id` 문자열) | 10/27 제안서 + 이력 부족·조회 범위 답으로 조건이 풀림 | 기여값 숫자를 관측값처럼 / `account_key` `_` 분해 |
+| 10/28 (준영 답) | ML 입력 범위 = 대상 계좌 `[reference_ts−24h, reference_ts)` + 경보 근거 거래 전체, 이웃 확장 없음. `account_aliases` 인자 삭제, coverage는 내부 메타데이터(`COMPLETE/PARTIAL/UNKNOWN`) | 24h 중심 모델이면 7일 이력이 필요 없고, 데이터가 HI-Small 하나라 별칭 표가 없음 | 7일 이력 / 이웃 조회 |
+| 10/28 (준영 답) | 품질 판정: `SHORT_HISTORY`·`MISSING_INPUT`은 모델이 지원·검증한 경우 **점수 있음**, 필수 입력 누락·미지원 이력 부족·`UNKNOWN`·계산 실패는 `FAILED`. 설명만 실패 → 점수 유지 + `reasons=[]`. baseline만 없음 → null, 점수 안 막음 | "이력 부족 = 점수 null"이면 HI-Small 앞부분 경보 대부분이 점수 없이 끝남 | 이력 부족 일괄 null / 일괄 점수 |
+| 10/28 (안건 23 세부) | 수정본 검증 때 `cites`·`evidence_ids` 재계산 (a): `judge_v2`가 섹션별 cites, 코드가 `attach_evidence`, 응답 `narrative_refs`, 평가자 안 돌면 null. 백엔드가 수정본 저장에 반영 | 채영 "반영 가능" — 근거 번호는 서버 관리라 해시 규칙과 충돌 없음 | (b) 생성 때 값 유지 |
 
 ## 미결 (회의·측정 뒤)
 
 | 항목 | 누가·언제 |
 |---|---|
-| 점수 `reasons` 구조 → `observations` 매핑, `feature_version` 관리, 학습 입력 ↔ 서비스 JSON 매핑 (안건 3·5·6) | **준영, 주말 전** → 진희가 `shared/01`·`02`, `str/04` 반영 |
-| ML 입력 범위(경보 안 거래만? 과거 조회 기간? 이웃?) | 준영, 안건 6과 함께 (`shared/02`) |
-| 상태 전이 추가 `PENDING_APPROVAL→CLOSED`, `REJECTED→DRAFTED` 외 (안건 15) | 지윤·채영 |
-| 수정본 검증 뒤 `cites`·`evidence_ids` 재산출을 응답에 넣을지 (안건 23 세부) | 채영 답 → W3. 그 전까지 생성 때 값 유지 |
+| 점수 항목별 실패 — 없는 거래 ID는 그 경보만 `FAILED`(규약 6.3 예외), 응답 `failure_code`(재시도 판단, 후보 `TRANSACTION_NOT_FOUND`·`HISTORY_NOT_SUPPORTED`·`REQUIRED_INPUT_MISSING`·`COMPUTE_ERROR`), DB 장애 = 요청 전체 503, `SHORT_HISTORY`·`MISSING_INPUT`도 `data_quality_status` 저장, 서비스 DB 적재 범위·첫 거래 시각, 점수 테이블 마이그레이션 번호 | **준혁** (진희 DM, 10/28) |
+| `reasons` 정렬·동률·기여 척도, `feature_version` 실제 이름 | 준영, 모델 검증 뒤 |
 | 시간 예산 80/35/40초, `direction` 2배 규칙 | W2 수 첫 실측·축소본 분포 뒤 |
 | 평가자 통과 기준 4점 유지 여부 | W4 오류 주입 7~12 표 뒤 |
 | RAG 최소 유사도 상수 초기값 | W4 청크 평가 표 뒤 |
 | `aml-ml` 시그니처 세부(`ScoreResult` 필드, 실패 처리, polars) | 준영 첫 tag |
 | KoFIU 서식 항목명 ↔ 섹션 6개 대응 확정 | W3, 특금법 시행규칙 별지 확인 |
 | 안건 19·20·21 (금액 정밀도, 룰 표 "정할 것" 칸, 재시도·409·UNIQUE) | 회의 제외 — **현값 유지**, 준영 매핑 표 뒤 재확인 |
-| 경로형 경보 — ① R04 외에 대상 계좌 없는 거래가 경보에 들어오는 룰(STACK·BIPARTITE 유지 시) ② CYCLE 경보의 `account_key`·고리당 경보 수 ③ 고리 순서를 줄 수 있는지. 답이 오면 고리 사실(길이·순서·닫힘)을 별도 fact로 설계(AI가 연결 확인), 그때 규약 5.2에 `path`와 함께 반영 | **준혁** (진희 DM) |
+| R06_BIPARTITE 대체 룰 (안건 20) — 정해지면 규약 2절 룰 표·`rule_facts`, 준영 학습 룰을 같이 맞춤 | **준혁** |
 | 수정 저장 ↔ 승인 요청이 동시에 올 때(승인 트랜잭션 안에서 현재 해시 재확인) | 채영, 백엔드 V009 |
 | 통화 표 15줄 확인(HI-Small `DISTINCT currency_*`) | 진희, 축소본 만들 때 |
 | self-transfer만 남는 경보 400 유지 여부, `STALE_PROCESSING_S` 110초 | 축소본 분포·W2 실측 뒤 |

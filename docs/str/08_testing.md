@@ -6,16 +6,16 @@
 
 | 층 | 무엇 | 돌리는 때 |
 |---|---|---|
-| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verify.py`(유형별 추출·정규화·판정·UNPARSED), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
+| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verify.py`(유형별 추출·정규화·판정·UNPARSED, 수정본 `narrative_refs` 재계산·목록 밖 키 제거·`CODE_FAILED`면 null), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
 | 계약 | `tests/contract/` — `examples/*.json` ↔ `schemas/`, `narrative_hash.json` ↔ `shared/hashing.py` | 매 커밋, CI |
-| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22 | 매 커밋, CI |
+| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~26 | 매 커밋, CI |
 | 오류 주입 (LLM) | `test_injection.py -m live` — 7~12, 14, 23 | W4 손으로, 표로 남김 |
 | 검색 평가 | `retrieval_eval.json` → hit@3·precision@3 (청크 단위) | W4, 11/11 전 |
 | RAG 켬/끔 비교 | 같은 facts 5건 × `RAG_ENABLED` true/false 생성 → 코드·평가자 점수·사람 선호 표 (`10`) | W4, 11/11 전 |
 | DB | Alembic + repository 저장·조회, **`draft_id` 선점 5가지**(`shared/03`): ① 같은 요청 동시 진입(두 스레드 → 하나 409) ② FAILED 뒤 같은 요청(새 `generation_id`, 옛 행 그대로) ③ 내용이 다른 두 요청 동시 시작 — 먼저 잡은 쪽이 성공하든 실패하든 다른 쪽은 400(결과를 받아 가지도, 새로 생성하지도 않음) ④ `STALE_PROCESSING_S` 지난 PROCESSING(FAILED로 닫고 재생성) ⑤ STALE로 닫힌 뒤 늦게 끝난 옛 작업의 finish → 0행, 결과 버림 | `-m db`, CI |
 | 녹화 | `recorded/*.json` — 실제 LLM 응답을 저장해 `AI_LLM_MOCK=true`에서 재생 | 백엔드 로컬 연동, CI |
 
-## 오류 주입 — 23개
+## 오류 주입 — 26개
 
 facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrative_ok.json`)를 고정하고, narrative나 입력에 오류를 일부러 넣어 검증이 잡는지 본다. 케이스마다 "잡혀야 하는 check"가 정답.
 
@@ -43,9 +43,12 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 | 20 | 상대 수를 한글 수사로 `서른한 개 계좌` | `COUNT_MATCH` UNPARSED | 결정적 |
 | 21 | 한 문장에 두 날짜 `2021년 3월 14일 개설, 2022년 9월 2일 47건 입금` | **통과해야 함** — 개설 단어는 가까운 첫 날짜에만 붙고 둘째는 거래 날짜 | 결정적 |
 | 22 | 범위 표현에 개설 단어 `2021년 3월 14일과 2022년 9월 2일 사이 개설` | `DATE_MATCH` UNPARSED (범위 표현 규칙 ①, `06`) | 결정적 |
-| 23 | CYCLE facts(R04 픽스처 A→B→C→A, path 1건)로 **생성** (W3) | 본문에 facts에 없는 고리 길이·경유 계좌 수(`3개 계좌를 거쳐 돌아옴`)가 없어야 함. 있으면 `NO_UNSUPPORTED_CLAIM` ≤ 3으로 잡혀야 함 | LLM |
+| 23 | CYCLE facts(R04 픽스처 A→B→C→A, **`paths` 없음** — indirect 1건)로 **생성** (W3) | 본문에 고리 길이·경유 계좌 수(`3개 계좌를 거쳐 돌아옴`)가 없어야 함(규칙 10). 있으면 `COUNT_MATCH` MISMATCH(상대 수 2와 다름) 또는 `NO_UNSUPPORTED_CLAIM` ≤ 3으로 잡혀야 함 | LLM |
+| 24 | `VERIFIED` 고리 2개 facts(`fixtures/facts_cycle.json`)에 "3개 계좌를 거쳐 원래 계좌로 돌아오는 순환 경로 2개" | **통과해야 함** — 거짓 양성 검사(10/28) | 결정적 |
+| 25 | 같은 facts에 "4개 계좌를 거쳐", "순환 경로 3개" | `COUNT_MATCH` MISMATCH | 결정적 |
+| 26 | 끊긴 경로 facts(`UNVERIFIED`)에 "순환 경로 2개" | `COUNT_MATCH` MISMATCH — 확인 안 된 경로 수 | 결정적 |
 
-12번이 안 나오면 프롬프트부터 고친다. 7~12·14·23은 손으로 돌려(23은 W3, 나머지 W4) **표로 남긴다** — 평가자 기준 4점을 조정하는 근거이고, MVP 정의서 9절 "검증 지표표"의 재료. 2·16·21은 **거짓 양성** 검사라 fail이 나면 검증 코드를 고치는 것이고, 조사역 문장을 탓하지 않는다.
+12번이 안 나오면 프롬프트부터 고친다. 7~12·14·23은 손으로 돌려(23은 W3, 나머지 W4) **표로 남긴다** — 평가자 기준 4점을 조정하는 근거이고, MVP 정의서 9절 "검증 지표표"의 재료. 2·16·21·24는 **거짓 양성** 검사라 fail이 나면 검증 코드를 고치는 것이고, 조사역 문장을 탓하지 않는다.
 
 ## 녹화 (`recorded/`)
 

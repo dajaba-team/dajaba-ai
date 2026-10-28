@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | `AMOUNT_MATCH` | **금액+통화 쌍**: 숫자(`\d{1,3}(,\d{3})+(\.\d+)?` 또는 `\d+(\.\d+)?`, 한국어 단위 `만·억·천만` 허용) 뒤 ±10자 안에 통화 표기(`domain/constants.CURRENCY_ALIASES` — 코드마다 `USD`·`US Dollar`·`달러`·`$` 같은 표기 목록. facts의 `currency`는 코드, `str/04`) | 쉼표 제거, 단위 ×10⁴/×10⁸/×10⁷, Decimal | `inbound.amount.{currency}`, `outbound.amount.{currency}` 중 **같은 통화**의 `total` | 값과 통화가 둘 다 맞으면 match. 통화는 맞는데 값이 다르면 `MISMATCH`, 통화가 facts에 없으면 `MISMATCH`, 숫자 뒤에 통화 단어가 있는데 숫자를 못 읽으면(`삼억`, `약 3억`) `UNPARSED`. **통화 없는 숫자는 금액으로 보지 않는다**(건수·날짜일 수 있어서 — 다른 check가 본다) |
 | `DATE_MATCH` | `YYYY-MM-DD`, `YYYY년 M월 D일`, `M월 D일`, `YYYY/MM/DD`, `YYYY.M.D` | 연도 없는 날짜는 `period.start`의 연도 | 날짜마다 **용도를 먼저 정한다**: 개설 단어(`개설`·`가입`·`신규`·`거래 시작` — `ONBOARD_WORDS`)는 **±10자(`DATE_CONTEXT_WINDOW`) 안에서 가장 가까운 날짜 하나에만** 붙는다 — 그 날짜는 **개설일** → `customer.onboarded_at`, 나머지는 **거래 날짜** → `[period.start.date, period.end.date]` | 용도별 대상과만 대조한다(합집합 아님). 개설일이 onboarded_at과 다르거나 거래 날짜가 기간 밖이면 `MISMATCH` — 개설일을 거래 날짜처럼 쓰면 기간 밖이라 잡힌다. `customer`가 null인데 개설일 표현이 있으면 `MISMATCH`. **애매하면 `UNPARSED`** — 추측해서 고르지 않는다: ① 두 날짜를 잇는 **범위 표현**(`A와 B 사이`, `A~B`, `A부터 B까지`)에 개설 단어가 걸린 경우("2021년 3월 14일과 2022년 9월 2일 사이 개설") ② 개설 단어에서 앞뒤 두 날짜까지 글자 거리가 같은 경우. 개설 단어가 없는 범위 표현("9월 2일부터 9월 10일까지 47건")은 평소대로 둘 다 거래 날짜. 한 문장에 개설일·거래 날짜가 같이 있는 경우("2021년 3월 14일 개설, 2022년 9월 2일 47건")는 가장 가까운 쪽 규칙으로 갈린다(오류 주입 21). 날짜 형태인데 못 읽으면(`9월 초`) `UNPARSED`. **WHAT_WHEN_WHERE에 거래 날짜가 하나도 없으면 그 섹션 `MISSING`**(기간 빠진 보고서) |
-| `COUNT_MATCH` | `(\d+)\s*건`, `(\d+)\s*회` → 거래 건수 · `(\d+)\s*(개|곳|명)의?\s*(계좌|상대|거래처|송금인|수취인)` → 상대 수 | int | 건수 ↔ {`inbound.count`, `outbound.count`, `internal.count`, `inbound.by_currency[].count`, `inbound+outbound`} · 상대 수 ↔ `counterparties.count` | 뽑힌 값이 해당 집합에 있으면 match. 없으면 `MISMATCH`. 숫자 표현이 없으면 검사 없음. 단 **한글 수사 + 단위**(`두`~`아홉`, `열`~`아흔` 조합 + `건·회·개·곳·명` — `KOREAN_NUMERAL_COUNT`)는 읽지 않고 `UNPARSED`(예: `서른한 개 계좌`). `한`(1)은 "한 계좌로", "한 곳에" 같은 관용 표현이 많아 감지에서 뺀다 |
+| `COUNT_MATCH` | `(\d+)\s*건`, `(\d+)\s*회` → 거래 건수 · `(\d+)\s*(개|곳|명)의?\s*(계좌|상대|거래처|송금인|수취인)` → 상대 수 · `(\d+)\s*개의?\s*(경로|고리|순환)` → 경로 수(10/28) | int | 건수 ↔ {`inbound.count`, `outbound.count`, `internal.count`, `inbound.by_currency[].count`, `inbound+outbound`, `paths.max_hops`\*} · 상대 수 ↔ {`counterparties.count`, `paths.max_accounts`\*} · 경로 수 ↔ {`paths.count`\*}. \* = `paths.status = VERIFIED`일 때만 집합에 들어간다(`str/04` "경로") — 확인 안 된 경로의 숫자("3개 계좌를 거쳐", "순환 경로 2개")는 맞출 값이 없어 `MISMATCH` | 뽑힌 값이 해당 집합에 있으면 match. 없으면 `MISMATCH`. 숫자 표현이 없으면 검사 없음. 단 **한글 수사 + 단위**(`두`~`아홉`, `열`~`아흔` 조합 + `건·회·개·곳·명` — `KOREAN_NUMERAL_COUNT`)는 읽지 않고 `UNPARSED`(예: `서른한 개 계좌`). `한`(1)은 "한 계좌로", "한 곳에" 같은 관용 표현이 많아 감지에서 뺀다 |
 | `ACCOUNT_ID_MATCH` | 계좌 식별자 표현: `\d{3}_[0-9A-F*]{9}`, `\*{4}[0-9A-F]{4}`, `끝자리 ([0-9A-F]{4})` | 마스킹 형태(`****BD30`)와 원본 끝 4자리를 같은 것으로 | `subject.account_key` 끝 4자리 | 대상 계좌만 통과. 그 밖의 계좌 식별자(상대 계좌 — facts에 없음)가 본문에 있으면 `MISMATCH` — 상대 계좌번호를 본문에 쓰지 않는 게 규칙 |
 | `EVIDENCE_IN_SCOPE` | 섹션마다 `cites`·`evidence_ids` | — | `cites ⊆ fact_keys(facts)`, `evidence_ids ⊆ evidence_scope`(요청의 `evidence_transaction_ids`) | 하나라도 밖이면 `OUT_OF_SCOPE`. **6개 섹션 전부 cites가 비면 `MISSING`**(근거 없는 초안). 생성본은 코드가 만들어 늘 통과하고, **조사역 수정본**(백엔드가 보낸 narrative)에서 의미가 있다 |
 
@@ -57,9 +57,16 @@ else:                      status = LLM_FAILED,         passed = False
 
 생성 모델과 같은 모델이면 너그럽다. 대책: ① `LLM_MODEL_JUDGE`를 다른 모델로 ② 같은 모델이면 system 첫 줄 "당신은 이 초안을 쓴 사람이 아니라 검수자입니다" ③ comment 먼저 쓰게 하기. W4에 사람 평가 5건과 비교해 "대체로 일치"를 확인하는 게 MVP 정의서 4절 6번의 "됐다".
 
-## 수정본의 cites·evidence_ids (W3 결정, 안건 23 세부)
+## 수정본의 cites·evidence_ids — (a) 확정 (안건 23 세부, 채영 "반영 가능", 10/28 문서 반영)
 
-조사역이 본문을 고치면 생성 때의 `cites`는 더 맞지 않을 수 있다. 두 안: (a) 검증 응답에 재산출한 `cites`·`evidence_ids`를 넣고 백엔드가 수정본 저장에 반영 — 평가자 출력에 섹션별 cites를 받아(`judge_v2`) `attach_evidence`를 다시 돌린다. (b) MVP는 생성 때 값 유지, 화면에 "근거는 AI 초안 기준" 표기. **채영 답 뒤 결정**, 그 전까지 (b).
+조사역이 본문을 고치면 생성 때의 `cites`는 더 맞지 않을 수 있다. 그래서 검증할 때 근거를 **다시 계산해 돌려준다**.
+
+1. 평가자 `judge_v2`가 루브릭 5개와 함께 섹션별 `cites`(검사한 본문이 실제로 쓴 fact 키)를 낸다(`05`).
+2. 코드가 `FACT_KEYS` 밖 키를 버리고 `attach_evidence(cites, facts)`로 `evidence_ids`를 만든다 — 생성 때와 같은 함수.
+3. 검증 응답 `narrative_refs: [{section, cites, evidence_ids}]`(6개)에 담는다. 평가자를 안 돌린 경우(`CODE_FAILED` — 코드 검사에서 멈춤, `VERIFY_UNAVAILABLE` — 평가자 호출 실패)는 `null`.
+4. 백엔드(채영)는 `narrative_refs`가 오면 그 값을 수정본 저장에 반영하고, `null`이면 기존 값을 유지한다. 조사역은 문장만 고치고 근거 번호는 서버가 관리한다.
+
+본문 해시는 section·text만 보므로 `cites`가 바뀌어도 `ApprovalGate`에는 영향이 없다. `EVIDENCE_IN_SCOPE` 코드 검사는 그대로 요청에 담긴 수정본의 `cites`·`evidence_ids`를 본다(재계산 전 값). 테스트: 재계산 결과가 범위 안인지, 목록 밖 키가 버려지는지, `CODE_FAILED`면 `null`인지(`08` 단위).
 
 ## RAG와의 관계
 
