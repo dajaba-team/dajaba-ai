@@ -94,6 +94,9 @@
 | 10/29 (준혁 확인, SCRUM-41) | 서비스 DB 적재 = HI-Small 전체 5,078,345건, 점수는 경보당 1건(`alert_id` UNIQUE) — 모델 버전별 이력은 `ai.predictions` | DB 안 24시간 조회 = 전체 이력이라는 전제가 필요. 백엔드는 최신 1건만 쓰고 이력은 AI에 이미 남음 | 일부 기간만 적재 / 백엔드에 버전별 점수 행 |
 | 10/29 (최종 점검 재확인) | RAG 평가에 `recall@3`(질의별 비율의 단순 평균, 0건은 0) 보조 지표로 추가 | MVP 정의서가 hit@3·recall@3를 가리키는데 `10`에 계산식이 없었음 | recall 없이 hit@3만 |
 | 2026-10-29 | claim/finish 설계 결정 — advisory lock·해시 비교·PROCESSING 펜싱, 테이블 추가 안 함 | 같은 draft_id 경합과 늦은 결과 저장을 차단 | draft_requests 별도 테이블 |
+| 2026-10-29 (SCRUM-16) | `narrative_sha256`은 섹션 6개가 각각 한 번씩이 아니면 ValueError, Java도 동일. 오류 메시지에 `text` 금지(섹션 이름·개수만) | 호출자가 스키마 검증을 거친 값만 넘긴다는 보장이 늘 있지는 않음. 뒤틀린 입력을 조용히 해시하면 ApprovalGate가 "같은 값"을 다른 본문에 붙여 승인할 수 있음 | 스키마 검증에만 맡김 / 있는 것만 해시 |
+| 2026-10-29 (SCRUM-16) | `LlmNarrativeSection.text`는 StrictModel의 자동 strip을 off(`StringConstraints(strip_whitespace=False)`), 대신 공백만 text는 field_validator로 거부. 길이 제한(1200)은 공백 포함으로 셈. Java도 trim 금지·공백만 거부 | 해시는 "앞뒤 공백 그대로"(shared/01). pydantic이 자르면 Java 바이트와 어긋나 ApprovalGate가 못 통과 | 양쪽 다 strip(docs 수정) / 해시에서만 strip |
+| 2026-10-29 (SCRUM-16) | `shared/schemas/str.py`는 이번 PR에서 1회 200줄 가이드 예외 — strip-off override는 쪼개도 피할 수 없음. 분리는 후속 이슈(SCRUM-<후속>)로 | SCRUM-16 범위는 해시 + 벡터. 스키마 쪼개기는 별도 설계·테스트가 필요 | 이번에 분리 |
 
 ## 미결 (회의·측정 뒤)
 
