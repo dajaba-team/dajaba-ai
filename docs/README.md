@@ -56,6 +56,7 @@
 | 준영 답·안건 23 세부 반영(10/28) — 안건 3·5·6 확정(`reasons` 구조, `feature_version`, 필드 매핑·`alert_id` 문자열), 입력 범위 24h·coverage·품질 판정, 관측값 표기 규칙 11, 수정본 `narrative_refs`(a) | 완료 | 10/28 | 문서만. `shared/01·02`, `scoring/README`, `str/04·05·06·08·09`. 점수 항목별 실패·`failure_code`·503은 준혁 대기. SCRUM-28 |
 | **코드 반영 — schemas** (`DataQualityStatus` 4값, `Reason` 3단, `alert_id` 문자열·`rule_facts.paths`, `DraftRequest`/`DraftResponse`/`VerifyRequest`/`VerifyResponse`, 코드 검사 5종·`reason`, `GenerationInProgress`·`ModelUnavailable`, `Facts` 새 구조, `examples/` 갱신) | 완료 | 10/28 | SCRUM-12. 마스킹(dict 반환)·서비스 필드명·점수 목업도 맞춤. `facts.py`·`hashing.py`는 자리만(SCRUM-13·16). 점수 `failure_code`는 준혁 대기 |
 | 코드 반영 — `facts.py` 재작성(inbound/outbound/internal, 통화별 `transaction_ids`, 통화 코드 변환, fact_keys, attach_evidence) + 단위 테스트 | 완료 | 10/28 | SCRUM-13. `fact_paths.py`·`fact_keys.py`로 나눔, `transaction_reader` 새 SQL, `UnknownCurrency`(500). 테스트 44개(`test_facts`·`test_fact_paths`). 생성기에 `fact_keys` 넘기기는 `narrative_v1` 교체 때 |
+| 10/29 최종 설계 점검 반영 — ML 입력 넘김/피처 계산 구분, `COUNT_MATCH` 숫자 종류별 대조, 검증 파이프라인 `narrative_refs` | 완료 | 10/29 | 문서만. `shared/02`, `str/03·06·08·09·10`(COUNT_MATCH 절 단위·방향, recall@3 계산식 포함). SCRUM-40. 노션 미결 23~26(HIGH 문구·수정본 길이·revision_no·paths)은 팀 결정 대기 |
 | 코드 반영 — `draft_service` 선점(해시 비교·STALE 정리)·generation_id·예산·FAILED, `llm_client` 연결 재시도 삭제, `0001` status·request_hash·UNIQUE | 미착수 | | W2 수~목 |
 | 코드 반영 — `shared/hashing.py` + `narrative_hash.json` 테스트 벡터 | 미착수 | | W2 목 (Java 쪽은 W3) |
 | `narrative_v1.md` 새 전문으로 교체, few-shot 예시 새 facts 구조로 | 미착수 | | W2 목 |
