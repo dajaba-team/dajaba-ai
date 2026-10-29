@@ -22,6 +22,7 @@ class Generation(Base):
     case_no: Mapped[str | None] = mapped_column(String(64))
     facts: Mapped[dict | None] = mapped_column(JSON)
     request: Mapped[dict] = mapped_column(JSON)
+    request_hash: Mapped[str] = mapped_column(String(64))
     response: Mapped[dict | None] = mapped_column(JSON)
     llm_model: Mapped[str | None] = mapped_column(String(128))
     prompt_version: Mapped[str | None] = mapped_column(String(64))
@@ -31,10 +32,13 @@ class Generation(Base):
     tokens_in: Mapped[int | None] = mapped_column(Integer)
     tokens_out: Mapped[int | None] = mapped_column(Integer)
     latency_ms: Mapped[int | None] = mapped_column(Integer)
-    status: Mapped[str] = mapped_column(String(16))  # OK / FAILED
+    status: Mapped[str] = mapped_column(
+        String(16), server_default="PROCESSING"
+    )  # PROCESSING / SUCCEEDED / FAILED
     error: Mapped[str | None] = mapped_column(Text)
     request_id: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime)
 
 
 class VerificationRun(Base):

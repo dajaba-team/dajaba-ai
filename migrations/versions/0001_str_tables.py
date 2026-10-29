@@ -19,6 +19,11 @@ SCHEMA = "ai"
 
 
 def upgrade() -> None:
+    _create_generations()
+    _create_support_tables()
+
+
+def _create_generations() -> None:
     op.create_table(
         "generations",
         sa.Column("generation_id", sa.String(32), primary_key=True),
@@ -26,6 +31,7 @@ def upgrade() -> None:
         sa.Column("draft_id", sa.String(64)),
         sa.Column("case_no", sa.String(64)),
         sa.Column("facts", postgresql.JSONB),
+        sa.Column("request_hash", sa.String(64), nullable=False),
         sa.Column("request", postgresql.JSONB, nullable=False),
         sa.Column("response", postgresql.JSONB),
         sa.Column("llm_model", sa.String(128)),
@@ -36,7 +42,8 @@ def upgrade() -> None:
         sa.Column("tokens_in", sa.Integer),
         sa.Column("tokens_out", sa.Integer),
         sa.Column("latency_ms", sa.Integer),
-        sa.Column("status", sa.String(16), nullable=False),
+        sa.Column("status", sa.String(16), server_default="PROCESSING", nullable=False),
+        sa.Column("finished_at", sa.DateTime),
         sa.Column("error", sa.Text),
         sa.Column("request_id", sa.String(64)),
         sa.Column("created_at", sa.DateTime, server_default=sa.func.now(), nullable=False),
@@ -44,6 +51,17 @@ def upgrade() -> None:
     )
     op.create_index("ix_generations_draft", "generations", ["draft_id", "kind", "created_at"], schema=SCHEMA)
 
+    op.create_index(
+        "uq_generations_active_draft",
+        "generations",
+        ["draft_id"],
+        unique=True,
+        schema=SCHEMA,
+        postgresql_where=sa.text("kind='DRAFT' AND status <> 'FAILED'"),
+    )
+
+
+def _create_support_tables() -> None:
     op.create_table(
         "prompt_versions",
         sa.Column("prompt_name", sa.String(64), primary_key=True),

@@ -45,6 +45,7 @@ compose로: 이 리포의 `compose.yaml`은 `ai` 서비스 하나이고 백엔�
 | `AI_INTERNAL_KEY` | 백엔드와 같은 값. `X-Internal-Key` 검사 |
 | `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL_GENERATE`, `LLM_MODEL_JUDGE` | 생성·평가자 모델. 평가자는 다른 모델이면 좋고, 같으면 프롬프트에서 역할 분리 |
 | `LLM_TIMEOUT_S` (기본 **35**), `DRAFT_BUDGET_S` (기본 80), `REGEN_MIN_REMAINING_S` (기본 40), `LLM_DAILY_TOKEN_BUDGET` | 시간 예산(`str/03`) — W2 수 실측 전 가정값 |
+| `STALE_PROCESSING_S` (기본 **110**) | 오래된 PROCESSING 정리 기준(초), `DRAFT_BUDGET_S + 30` (`shared/03`) |
 | `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_DIM` | RAG(W4). 멀티링구얼 1종 |
 | `AI_SCORING_MOCK` | `true`면 `aml_ml` 없이 고정 점수(W2~W3) |
 | `AI_LLM_MOCK` | `true`면 LLM 호출 대신 녹화된 응답(`tests/str/recorded/`). 백엔드 로컬 연동용 |
