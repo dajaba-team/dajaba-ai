@@ -1,4 +1,7 @@
-"""프롬프트 조립 → LLM → NarrativeOut 스키마 검증. 스키마 실패 1회 재생성 → 또 실패면 LlmInvalidOutput (docs/str/05)."""
+"""프롬프트 조립 → LLM → NarrativeOut 검증 + cites ⊆ fact_keys 검사.
+
+스키마 실패 또는 cites가 FACT_KEYS 밖이면 1회 재생성 → 또 실패면 LlmInvalidOutput (str/03 7단계, 05).
+"""
 
 from __future__ import annotations
 
@@ -33,6 +36,7 @@ def render_user(
     template: str,
     *,
     facts_masked: dict[str, Any],
+    fact_keys: list[str],
     notes: str | None,
     references: list[Reference],
     examples: list[Example],
@@ -42,11 +46,13 @@ def render_user(
         or "(없음)"
     )
     shots = "\n\n".join(
-        f"FACTS:\n{json.dumps(e.facts.model_dump(mode='json'), ensure_ascii=False, indent=2)}\nNARRATIVE:\n{json.dumps({'narrative': [s.model_dump() for s in e.narrative]}, ensure_ascii=False)}"
+        f"FACTS:\n{json.dumps(e.facts.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+        f"NARRATIVE:\n{json.dumps({'narrative': [s.model_dump() for s in e.narrative]}, ensure_ascii=False)}"
         for e in examples
     )
     return (
         template.replace("{{facts_json}}", json.dumps(facts_masked, ensure_ascii=False, indent=2))
+        .replace("{{fact_keys}}", "\n".join(fact_keys) or "(없음)")
         .replace("{{investigator_notes}}", notes or "(없음)")
         .replace("{{references}}", refs)
         .replace("{{few_shot}}", shots)
@@ -63,6 +69,7 @@ class NarrativeGenerator:
     def generate(
         self,
         facts_masked: dict[str, Any],
+        fact_keys: list[str],
         examples: list[Example],
         references: list[Reference],
         notes: str | None,
@@ -70,11 +77,11 @@ class NarrativeGenerator:
         user = render_user(
             self._user_tpl,
             facts_masked=facts_masked,
+            fact_keys=fact_keys,
             notes=notes,
             references=references,
             examples=examples,
         )
-        last_error = ""
         for attempt in range(1 + SCHEMA_RETRY):
             res = self._llm.complete_json(
                 system=self._system,
@@ -85,22 +92,50 @@ class NarrativeGenerator:
             )
             try:
                 out = NarrativeOut.model_validate_json(res.text)
+                _check_cites_in_scope(out, fact_keys)
             except (ValidationError, ValueError) as exc:
-                last_error = str(exc)[:300]
-                log.warning("narrative_schema_invalid", extra={"attempt": attempt + 1})
+                # 민감 입력 유출 방지(SCRUM-15 adversarial H2) — 유형·개수만 로그, str(exc) 는 쓰지 않음
+                errors = getattr(exc, "error_count", lambda: 1)()
+                log.warning(
+                    "narrative_schema_invalid",
+                    extra={"attempt": attempt + 1, "error_type": type(exc).__name__, "errors": errors},
+                )
                 continue
-            return GenerationResult(
-                narrative=out.narrative,
-                llm_model=res.model,
-                prompt_version=self.prompt_version,
-                tokens_in=res.tokens_in,
-                tokens_out=res.tokens_out,
-                latency_ms=res.latency_ms,
-                request_payload={
-                    "few_shot_ids": [e.example_id for e in examples],
-                    "reference_ids": [r.doc_id for r in references],
-                    "has_notes": bool(notes),
-                },
-                raw_response=res.text,
-            )
-        raise LlmInvalidOutput("narrative failed schema validation after retry", detail=last_error)
+            return self._build_result(out, res, examples, references, notes)
+        raise LlmInvalidOutput("narrative failed schema validation after retry")
+
+    def _build_result(
+        self,
+        out: NarrativeOut,
+        res,
+        examples: list[Example],
+        references: list[Reference],
+        notes: str | None,
+    ) -> GenerationResult:
+        return GenerationResult(
+            narrative=out.narrative,
+            llm_model=res.model,
+            prompt_version=self.prompt_version,
+            tokens_in=res.tokens_in,
+            tokens_out=res.tokens_out,
+            latency_ms=res.latency_ms,
+            request_payload={
+                "few_shot_ids": [e.example_id for e in examples],
+                "reference_ids": [r.doc_id for r in references],
+                "has_notes": bool(notes),
+            },
+            raw_response=res.text,
+        )
+
+
+def _check_cites_in_scope(out: NarrativeOut, fact_keys: list[str]) -> None:
+    """cites 는 모두 fact_keys 목록 안이어야 한다(str/03 7단계, 05 규칙 9).
+
+    예외 메시지는 섹션 이름·개수만 — fact_keys 는 LLM 이 지어낸 문자열이라 입력값은 아니지만
+    로그 금지 규칙에 맞춰 섹션만 노출.
+    """
+    scope = set(fact_keys)
+    for sec in out.narrative:
+        bad = sum(1 for c in sec.cites if c not in scope)
+        if bad:
+            raise ValueError(f"cites_out_of_scope section={sec.section.value} count={bad}")

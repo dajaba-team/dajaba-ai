@@ -19,13 +19,14 @@ from aml_ai.shared.errors import install_exception_handlers
 from aml_ai.shared.logging import RequestIdMiddleware, setup_logging
 from aml_ai.shared.versioning import health_versions
 from aml_ai.str.api.router import router as str_router
-from aml_ai.str.infrastructure.prompt_index import index_prompt_files
+from aml_ai.str.infrastructure.prompt_index import check_frozen_prompts, index_prompt_files
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     setup_logging(settings)
+    check_frozen_prompts()  # docs/str/05 동결 강제 — 파일 해시가 다르면 기동 실패
     if settings.index_prompts_on_startup:
         index_prompt_files(settings)
     yield

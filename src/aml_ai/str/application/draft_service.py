@@ -88,7 +88,13 @@ class DraftService:
         examples = self.fewshot.pick_examples(facts.typology)
         references = self._references(facts)
         # 7
-        gen = self.generator.generate(facts_masked, examples, references, req.investigator_notes)
+        gen = self.generator.generate(
+            facts_masked,
+            list(fact_keys_domain.fact_keys(facts).keys()),
+            examples,
+            references,
+            req.investigator_notes,
+        )
         # 8 — 순수: cites 의 fact 키 → evidence_ids
         narrative = fact_keys_domain.attach_evidence(gen.narrative, facts)
         # 9

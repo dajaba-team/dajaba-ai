@@ -41,6 +41,13 @@ FEWSHOT_SAME_TYPOLOGY = 1
 FEWSHOT_OTHER_TYPOLOGY = 2
 SCHEMA_RETRY = 1  # 스키마 실패 시 재생성 횟수 (재시도가 아니라 생성 절차의 일부)
 
+# ---- 동결 (docs/str/05 "버전·동결 규칙", docs/shared/04)
+# 녹화를 처음 커밋할 때 그 커밋에서 파일 sha256 을 여기에 박는다. 기동 때 파일 해시가
+# 이 값과 다르면 실패 — DB 없이도 걸림(SCRUM-15 10/29).
+FROZEN_PROMPTS: dict[str, str] = {
+    "narrative_v1": "d2cbb854386dd3c01dc0d71556878e1e1287cab540839c56ae7dc51281155424",
+}
+
 # ---- 검증 (docs/str/06)
 VERIFIER_VERSION = "verify-2026.11"  # 코드 검증 로직이 바뀌면 올린다
 JUDGE_PASS_SCORE = 4  # W4 오류 주입 7~12 표 뒤 조정
