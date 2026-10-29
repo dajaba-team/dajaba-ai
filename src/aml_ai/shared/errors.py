@@ -74,6 +74,15 @@ class ModelUnavailable(AiError):
     status, code = 503, "MODEL_UNAVAILABLE"
 
 
+class DbUnavailable(AiError):
+    """점수 요청 중 AI 서버 DB 조회·저장 실패 — 요청 전체 503, 일부만 저장하지 않는다 (10/29, docs/shared/02).
+
+    백엔드 AiClient 가 1회 재시도하는 코드. 모델 문제(MODEL_UNAVAILABLE)와 로그에서 구분하려고 따로 둔다.
+    """
+
+    status, code = 503, "DB_UNAVAILABLE"
+
+
 class RetrievalUnavailable(AiError):
     """검색 실패. 호출자(draft_service)는 이걸 잡아 references=[] 로 진행한다 — 밖으로 나가지 않는다."""
 

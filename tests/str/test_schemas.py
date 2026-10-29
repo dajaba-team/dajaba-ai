@@ -111,6 +111,25 @@ def test_score_failed_item_has_no_score() -> None:
         ScoreItem.model_validate({**failed, "score": 0.1, "prediction_id": "p-1"})
 
 
+def test_score_failed_item_needs_failure_code() -> None:
+    items = load_json(EXAMPLES / "score_response.json")["scores"]
+    failed = next(i for i in items if i["data_quality_status"] == "FAILED")
+    assert ScoreItem.model_validate(failed).failure_code == "TRANSACTION_NOT_FOUND"
+    with pytest.raises(ValidationError):
+        ScoreItem.model_validate({**failed, "failure_code": None})
+    with pytest.raises(ValidationError):
+        ScoreItem.model_validate({**failed, "failure_code": "TIMEOUT"})  # 4값 밖
+
+
+def test_score_ok_item_has_no_failure_code() -> None:
+    ok = load_json(EXAMPLES / "score_response.json")["scores"][0]
+    assert ScoreItem.model_validate(ok).failure_code is None
+    with pytest.raises(ValidationError):
+        ScoreItem.model_validate({**ok, "failure_code": "COMPUTE_ERROR"})
+    with pytest.raises(ValidationError):  # 키는 항상 보낸다
+        ScoreItem.model_validate({k: v for k, v in ok.items() if k != "failure_code"})
+
+
 def test_score_short_history_still_has_score() -> None:
     ok = load_json(EXAMPLES / "score_response.json")["scores"][0]
     ScoreItem.model_validate({**ok, "data_quality_status": "SHORT_HISTORY"})

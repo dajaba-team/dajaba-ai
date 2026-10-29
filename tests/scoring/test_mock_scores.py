@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 from aml_ai.main import app
+from aml_ai.scoring.application.score_service import ScoreService
+from aml_ai.shared.errors import DbUnavailable
 from tests.conftest import EXAMPLES, load_json
 
 
@@ -19,6 +22,7 @@ def test_mock_scores_match_contract() -> None:
     assert item["alert_id"] == "ALT-20220903-000142"
     assert 0 <= item["score"] <= 1
     assert item["data_quality_status"] == "OK"
+    assert item["failure_code"] is None
     assert item["evidence_transaction_ids"] == [104221, 104233, 104301]
     assert body["scoring_meta"]["model_version"] == "mock-0"
     assert body["produced_at"]
@@ -31,3 +35,18 @@ def test_scores_reject_numeric_alert_id() -> None:
         r = c.post("/v1/scores", headers={"X-Internal-Key": "test-key"}, json=req)
     assert r.status_code == 400
     assert r.json()["code"] == "INVALID_REQUEST"
+
+
+def test_scores_db_unavailable_is_whole_request_503(monkeypatch: pytest.MonkeyPatch) -> None:
+    def _boom(self: ScoreService, req: object) -> None:
+        raise DbUnavailable("transactions read failed")
+
+    monkeypatch.setattr(ScoreService, "score", _boom)
+    with TestClient(app) as c:
+        r = c.post(
+            "/v1/scores",
+            headers={"X-Internal-Key": "test-key"},
+            json=load_json(EXAMPLES / "score_request.json"),
+        )
+    assert r.status_code == 503
+    assert r.json()["code"] == "DB_UNAVAILABLE"

@@ -17,4 +17,4 @@
 
 - `verify_response.json` 의 `narrative_sha256` 은 자리값(`0`×64). 실제 값은 SCRUM-16 `narrative_hash.json` 테스트 벡터에서 나온다.
 - facts 금액은 문자열, 통화는 ISO 코드(`USD`) — 노션 규약 5.2 예시의 `US Dollar` 는 옛 표기라 맞춰야 함(docs/str/04 가 정본).
-- `score_response.json` 에 FAILED 항목 하나를 일부러 넣었다(실패 항목 모양 확인용).
+- `score_response.json` 에 FAILED 항목 하나를 일부러 넣었다(실패 항목 모양 확인용). `failure_code` 는 FAILED 면 값, 아니면 `null` (10/29, SCRUM-41).

@@ -43,7 +43,10 @@
 | `alert_id: str` | **확정 (안건 6)** — 규약 2절 `ALT-{YYYYMMDD}-{6자리}` 문자열, 요청값 그대로 반환. 뼈대 `schemas/alerts.py`의 `int`는 틀림 → 교체(SCRUM-12) | `Alert`, `ScoreItem` |
 | 응답 최상위 `produced_at` | 규약 0절 "AI 응답에 produced_at" — 점수 응답에도 최상위에(3절 예시에 빠져 있던 것, 준영) | `ScoreResponse` |
 | 실패 항목 | `score=None`, `prediction_id=None`, `reasons=[]`, `evidence/context_transaction_ids=[]`, `threshold`는 로드된 모델 값 유지. 모델 미로드는 요청 전체 503 `MODEL_UNAVAILABLE` | `ScoreItem` |
-| (준혁 확인 대기) | 없는 거래 ID → 그 경보만 `FAILED`(6.3 예외), 응답 항목 `failure_code`(재시도 판단), DB 장애 → 요청 전체 503. 답 오면 반영 | — |
+| `failure_code: FailureCode \| None` | **확정 (10/29 준혁)** — `FAILED`일 때만 채우고 그 밖엔 `null`(키는 항상 있음). `TRANSACTION_NOT_FOUND`(경보 `transaction_ids` 중 서비스 DB에 없는 ID — AI 서버 `transaction_reader`가 판정, 그 경보는 `aml_ml`에 넘기지 않음) · `HISTORY_NOT_SUPPORTED`(모델이 지원하지 않는 이력 부족) · `REQUIRED_INPUT_MISSING`(필수 입력 누락) · `COMPUTE_ERROR`(피처·추론 계산 오류). 뒤 셋은 `aml_ml`이 정한다. **다시 보내서 달라질 수 있는 건 `COMPUTE_ERROR`뿐** — 백엔드는 이걸로 재처리 대상을 거른다(아래) | `FailureCode`, `ScoreItem` |
+| 항목별 실패 (규약 6.3 예외) | `/v1/scores`만: 경보 하나의 문제(없는 거래 ID 등)는 400으로 요청 전체를 거절하지 않고 **그 경보만 `FAILED`**, 나머지는 정상 처리하고 HTTP 200. JSON 형식·필드 오류는 기존대로 요청 전체 400 `INVALID_REQUEST` | `score_service` |
+| 요청 전체 실패 | 모델 미로드 503 `MODEL_UNAVAILABLE`, **AI 서버 DB 조회 장애 503 `DB_UNAVAILABLE`**(10/29). 요청 하나 = 트랜잭션 하나라 일부만 저장되는 일 없음. 백엔드는 1회 재시도 후 그 묶음을 실패로 두고 배치 재실행 | `DbUnavailable` |
+| 백엔드 저장 (참고, 준혁) | 성공: `score_status=SCORED` + `alert_scores` 1행(`alert_id` UNIQUE — 경보당 점수 1건, 모델 버전별 이력은 AI `ai.predictions`). `data_quality_status`는 `alert_scores.payload` jsonb. 실패: `score_status=FAILED` + `alerts.score_failure_code`, `alert_scores` 행 없음. **재처리 대상 = `FAILED` 중 `score_failure_code`가 NULL(묶음 503 — 응답 자체가 없음)이거나 `COMPUTE_ERROR`** | — |
 
 ### 경보 `rule_facts.paths` (규약 2절, 10/28 준혁 답)
 
@@ -80,7 +83,7 @@
 
 ### 에러 `schemas/errors.py` (규약 6.3)
 
-추가 `409 GENERATION_IN_PROGRESS`(`GenerationInProgress`). 삭제 `TRANSACTION_NOT_FOUND`(→ 400 메시지에 없는 ID), `EVIDENCE_OUT_OF_SCOPE`(→ 검증 결과), `LLM_TIMEOUT`(→ `LLM_UNAVAILABLE`). 나머지 그대로.
+추가 `409 GENERATION_IN_PROGRESS`(`GenerationInProgress`), `503 DB_UNAVAILABLE`(`DbUnavailable`, 점수 요청 중 AI 서버 DB 조회 실패 — 백엔드 재시도 1회, 10/29). 삭제 `TRANSACTION_NOT_FOUND`(→ 400 메시지에 없는 ID), `EVIDENCE_OUT_OF_SCOPE`(→ 검증 결과), `LLM_TIMEOUT`(→ `LLM_UNAVAILABLE`). 나머지 그대로.
 
 ## narrative 해시 — 양쪽이 같은 값 (`shared/hashing.py`, 백엔드 `NarrativeHash.java`)
 

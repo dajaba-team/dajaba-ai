@@ -2,7 +2,7 @@
 
 **10/26 확정(진희 제안, 준영 동의)**: 학습 코드는 준영의 별도 리포. AI 서버는 그 리포를 `pip install`되는 패키지 `aml-ml`로 받아 `scoring/application/`에서 import만 한다. 이유 — 학습할 때 쓴 피처 코드와 서빙할 때 쓰는 피처 코드가 한 벌이어야 train/serve skew가 안 생긴다. 모델 파일만 넘기는 방식(A)이나 준영이 서버를 따로 띄우는 방식(C)은 쓰지 않는다.
 
-**10/28 상태**: 안건 2·4·7·10은 회의 확정. **안건 3·5·6은 준영 제안서(10/27, 「ML 입력·설명·피처 버전 AI 인터페이스 규약 설계 제안서」)와 10/28 답변(이력 부족·조회 범위·coverage)으로 확정** — 아래에 반영. 남은 것: 점수 항목별 실패·`failure_code`·503·적재 범위는 **준혁 확인 대기**, `reasons` 정렬·기여 척도·버전 이름은 모델 검증 뒤 고정.
+**10/28 상태**: 안건 2·4·7·10은 회의 확정. **안건 3·5·6은 준영 제안서(10/27, 「ML 입력·설명·피처 버전 AI 인터페이스 규약 설계 제안서」)와 10/28 답변(이력 부족·조회 범위·coverage)으로 확정** — 아래에 반영. **10/29**: 점수 항목별 실패·`failure_code`·DB 장애 503·적재 범위 **준혁 확인으로 확정**(SCRUM-41). 남은 것: 실제 첫 거래 시각(준혁 적재 후), `reasons` 정렬·기여 척도·버전 이름은 모델 검증 뒤 고정.
 
 ## 패키지가 내놓는 것
 
@@ -28,12 +28,13 @@ def features(
 |---|---|---|
 | `AlertInput` | 규약 2절 경보 JSON과 1:1 — `alert_id`, `rule_id`, `account_key`, `reference_ts`, `window_start`, `window_end`, `transaction_ids`, `rule_facts` | **확정(안건 6)**: 서비스 필드명 유지, 매핑은 패키지 안에서 — 아래 "학습 ↔ 서비스 필드". `alert_id`는 문자열 |
 | `transactions` | 요청 500건의 경보가 가리키는 거래를 AI 서버 `transaction_reader`가 `ops.transactions`에서 한 번에 SELECT해 DataFrame으로. 컬럼은 서비스 DB 그대로(`transaction_id, ts, from_account_key, to_account_key, amount_paid, currency_paid, amount_received, currency_received, payment_format, is_self_transfer`). `is_laundering`·`pattern_*`는 **없다** | **확정 — 아래 "입력 범위"**(대상 계좌 24h + 근거 거래) |
-| `ScoreResult` | `alert_id`, `score: float \| None`, `data_quality_status`, `reasons`, `evidence_transaction_ids`, `context_transaction_ids` | 아래 행별 |
+| `ScoreResult` | `alert_id`, `score: float \| None`, `data_quality_status`, `failure_code`, `reasons`, `evidence_transaction_ids`, `context_transaction_ids` | 아래 행별 |
+| `ScoreResult.failure_code` | **확정(10/29 준혁)**: `FAILED`일 때만 `HISTORY_NOT_SUPPORTED` / `REQUIRED_INPUT_MISSING` / `COMPUTE_ERROR` 중 하나, 그 밖엔 `None`. `TRANSACTION_NOT_FOUND`는 패키지가 아니라 AI 서버가 정한다(없는 ID가 있는 경보는 패키지에 안 넘김). 백엔드 재처리는 `COMPUTE_ERROR`만 — 다시 돌려도 같은 결과가 나올 실패는 나머지 둘로 | 준영: 패키지 안 사유 → 세 코드 대응표 |
 | `ScoreResult.data_quality_status` | **확정(안건 4)**: `OK` / `SHORT_HISTORY`(지원·검증된 이력 부족, 점수 있음) / `MISSING_INPUT`(지원·검증된 입력 결측, 점수 있음) / `FAILED`(점수 산출 불가). `FAILED`면 `score=None`. 백엔드는 FAILED 경보를 **저위험으로 취급하지 않고** 보존·재처리 | 판정은 아래 "품질 판정"(10/28 준영) |
 | `ScoreResult.evidence_transaction_ids` | **확정(안건 7)**: 경보 안 거래 ⊆ `AlertInput.transaction_ids`. STR이 쓰는 것 | — |
 | `ScoreResult.context_transaction_ids` | **확정(안건 7)**: 경보 밖 참고 거래(과거 이력·이웃). 대표만 제한 반환(상한은 상수), STR 본문에 쓰지 않음 | 상한 개수 준영 |
 | `ScoreResult.reasons` | **확정(안건 3)** — `name` + `observation{value, unit, window_start, window_end, basis}` + `baseline{value, definition}` + `contribution{method, value, scale}`. 기여값(SHAP)을 관측값처럼 쓰지 않는다. 확인 못 한 값은 `null`. 상위 3개, 설명만 실패하면 `[]`이고 점수·품질 상태는 그대로(새 상태값 없음) | 정렬·동률·척도는 모델 검증 뒤 |
-| 실패 | 경보 하나가 실패하면 그 경보만 `score=None, data_quality_status="FAILED"`, `reasons=[]`, `threshold`는 모델 값 유지. 예외를 던져 500건 전체를 죽이지 않는다. 모델 미로드만 요청 전체 503 | 확정(준영). 없는 거래 ID·`failure_code`·DB 장애 503은 준혁 확인 대기 |
+| 실패 | 경보 하나가 실패하면 그 경보만 `score=None, data_quality_status="FAILED"`, `failure_code`, `reasons=[]`, `threshold`는 모델 값 유지. 예외를 던져 500건 전체를 죽이지 않는다. 요청 전체 503은 모델 미로드(`MODEL_UNAVAILABLE`)와 AI 서버 DB 조회 장애(`DB_UNAVAILABLE`) 둘뿐 | 확정(준영 10/28, 준혁 10/29) |
 | 결정성 | 같은 입력 → 같은 출력. 난수 없음 | — |
 | 의존성 | pandas/polars, xgboost 또는 lightgbm, shap. **torch·GNN 없음**(MVP). **Python 3.12** (`requires-python >=3.12,<3.13` — AI 서버와 같은 인터프리터) | 준영: polars를 쓰면 AI 서버도 설치. 3.12 휠 확인 |
 
@@ -47,7 +48,7 @@ def features(
 2. 경보 `transaction_ids` **전체**(근거 거래). CYCLE·STACK의 중간 경로 거래도 포함하되 대상 계좌 입출금 집계와는 분리한다. 근거 창을 24시간 피처 창에 맞춰 자르지 않는다.
 3. 상대 계좌의 다른 거래로 넓혀 조회하지 **않는다**(초기 모델).
 
-**피처 계산은 `ts < reference_ts`인 거래만** 쓴다(누수 방지). 1번은 조회 단계에서 이미 이 조건이고, 2번 근거 거래 중 `reference_ts`와 같거나 늦은 거래는 **넘어와도 근거로만 보존하고 점수·그래프 피처에는 넣지 않는다**(보통 `reference_ts` = `window_end`라 드묾). 경계 테스트: 근거 거래 `ts = reference_ts − 1분`(피처 포함)·`= reference_ts`(제외)·`= reference_ts + 1분`(제외, 근거로는 보존). 500건·동기는 유지, 조회·피처·추론·설명·저장 시간은 W2~W4에 실측. 서비스 DB는 HI-Small 전체(508만 행) 적재 전제 — 실제 범위·첫 거래 시각은 준혁 확인 뒤 여기에 적는다.
+**피처 계산은 `ts < reference_ts`인 거래만** 쓴다(누수 방지). 1번은 조회 단계에서 이미 이 조건이고, 2번 근거 거래 중 `reference_ts`와 같거나 늦은 거래는 **넘어와도 근거로만 보존하고 점수·그래프 피처에는 넣지 않는다**(보통 `reference_ts` = `window_end`라 드묾). 경계 테스트: 근거 거래 `ts = reference_ts − 1분`(피처 포함)·`= reference_ts`(제외)·`= reference_ts + 1분`(제외, 근거로는 보존). 500건·동기는 유지, 조회·피처·추론·설명·저장 시간은 W2~W4에 실측. 서비스 DB는 **HI-Small 전체 5,078,345건 적재로 확정**(10/29 준혁) — DB 안의 24시간 조회 결과가 곧 전체 이력. 문서상 시작은 2022-09-01 00:00, **실제 첫 거래 시각은 준혁 적재 후** 여기에 적는다. 그 시각부터 24시간 안의 경보는 창이 잘려 coverage `PARTIAL`.
 
 ### coverage (패키지 내부 메타데이터, API 필드 아님)
 
@@ -63,7 +64,7 @@ def features(
 
 - 이력 부족 + 지원되는 결측이 같이 있고 점수가 나오면 대표 상태는 `MISSING_INPUT`, 이력 부족은 AI 내부 기록에.
 - baseline만 없으면 `baseline.value=null`, 그것만으로 점수를 막지 않는다.
-- 품질 사유(왜 FAILED인지)는 API가 아니라 `ai.predictions` 내부 기록에 — 단 재시도 판단용 `failure_code` 공개 여부는 준혁 확인 대기.
+- 품질 사유(왜 FAILED인지)의 자세한 내용은 `ai.predictions` 내부 기록에. API로는 재처리 판단용 `failure_code` 네 값만 공개(10/29 확정).
 
 ### 학습 ↔ 서비스 필드 (안건 6)
 
@@ -82,13 +83,14 @@ def features(
 
 ```
 api/router.py                      POST /v1/scores — 요청 검증(schemas.alerts) → service → 응답(schemas.scores)
-application/score_service.py       transaction_reader → aml_ml.score(alerts, df) → prediction_repository.save → 응답 조립 + 버전
+application/score_service.py       transaction_reader → (없는 ID 경보는 FAILED·TRANSACTION_NOT_FOUND로 빼고) aml_ml.score(alerts, df) → prediction_repository.save → 응답 조립 + 버전
 domain/                            비어 있음 — 피처·모델 로직은 aml_ml
 infrastructure/orm.py              model_versions · alert_features · predictions (Alembic 0002)
 infrastructure/prediction_repository.py
 ```
 
-- 응답 조립: `score`·`threshold`·`data_quality_status`·`reasons`·`evidence/context_transaction_ids`를 그대로, `prediction_id`는 서버가 발급(`FAILED`면 null). 500건 **동기**, 배치 크기는 W4 실측 뒤 설정값만 조정(안건 10).
+- 응답 조립: `score`·`threshold`·`data_quality_status`·`failure_code`·`reasons`·`evidence/context_transaction_ids`를 그대로, `prediction_id`는 서버가 발급(`FAILED`면 null).
+- 트랜잭션: 요청 하나 = DB 트랜잭션 하나. 조회·저장 중 DB 오류면 롤백하고 `DbUnavailable`(503) — 일부 경보만 저장된 채 응답하지 않는다. 백엔드는 1회 재시도 뒤 묶음 실패, 배치 재실행(`alert_scores.alert_id` UNIQUE로 중복 막힘). 500건 **동기**, 배치 크기는 W4 실측 뒤 설정값만 조정(안건 10).
 - `aml_ml`이 아직 없을 때(W2~W3)는 `score_service.py`가 `AI_SCORING_MOCK=true`면 고정 점수를 돌려준다(뼈대에 들어 있음, alert_id로 0.05~0.95 결정적, `data_quality_status="OK"`, `reasons=[]`) — 백엔드 연동 테스트용. 패키지가 들어오면 플래그를 끈다.
 
 ## 준영 리포 쪽에 바라는 것 (네 가지만)

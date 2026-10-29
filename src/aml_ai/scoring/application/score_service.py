@@ -58,6 +58,7 @@ class ScoreService:
             score=s,
             threshold=MOCK_THRESHOLD,
             data_quality_status=DataQualityStatus.OK,
+            failure_code=None,
             reasons=[
                 Reason(
                     name="mock_feature",
