@@ -52,7 +52,7 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 
 ## 녹화 (`recorded/`)
 
-`AI_LLM_MOCK=true`면 `shared/infrastructure/llm_client.RecordedLlmClient`가 호출 대신 `recorded/{prompt_version}/{sha256(system+user)[:16]}.json`을 읽는다. 없으면 에러(조용히 지어내지 않음). 녹화 갱신은 `uv run python -m tools.record --case fan_in` 식으로 실제 호출 1회 → 파일 저장 → 커밋. 백엔드가 로컬에서 AI를 붙여 볼 때 LLM 키 없이 돈다.
+`AI_LLM_MOCK=true`면 `shared/infrastructure/llm_client.RecordedLlmClient`가 호출 대신 `recorded/{prompt_version}/{key}.json`을 읽는다. **녹화 키**는 `shared/infrastructure/llm_client.recording_key(system, user)` = `sha256(stable_json({"s":system,"u":user}))[:16]` — 함수 하나, `record.py`와 `RecordedLlmClient`가 같은 걸 쓴다(이어 붙이기는 경계가 모호). 없으면 에러(조용히 지어내지 않음). 녹화 갱신은 `uv run python -m tools.record --case fan_in` 식으로 실제 호출 1회 → 파일 저장 → 커밋. 백엔드가 로컬에서 AI를 붙여 볼 때 LLM 키 없이 돈다.
 
 ## 검색 평가 (`retrieval_eval.json`)
 

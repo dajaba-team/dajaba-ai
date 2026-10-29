@@ -20,6 +20,7 @@
 
 - 파일 `str/prompts/narrative_v1.md`, `judge_v1.md`, `summary_v1.md`. **첫 녹화를 커밋한 순간 동결**(`prompt_versions.frozen_at`), 그 뒤 바꾸면 `_v2` — 동결 전(지금)은 자유롭게 고친다(`str/05`).
 - 기동 시 파일 해시를 계산해 `prompt_versions`에 없으면 insert. 응답에는 파일명, DB에 해시 — 동결된 버전의 파일이 바뀌어 있으면 기동 실패.
+- 동결 대조 기준은 **`str/domain/constants.FROZEN_PROMPTS`** 상수 dict(`{prompt_name: sha256}`). `check_frozen_prompts()`가 기동 때 파일 해시와 비교, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). 녹화 커밋에서 해시를 박는다(SCRUM-15 10/29).
 - few-shot은 `few_shot_ids`(`fewshot_examples.example_id`)로 어떤 예시가 쓰였는지 기록.
 
 ## 로그 (`shared/logging.py`)

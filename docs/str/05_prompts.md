@@ -20,6 +20,7 @@
 
 - 파일명이 버전: `narrative_v1.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 그 전(지금)에는 v1을 자유롭게 고친다. 동결 뒤 고치려면 `narrative_v2.md`를 만들고 `domain/constants.py`의 `NARRATIVE_PROMPT = "narrative_v2"`를 바꾼다(코드 변경 = 리뷰). `prompt_versions.frozen_at`에 동결 시각.
 - 기동 시 파일 sha256을 `ai.prompt_versions`에 색인. 동결된 버전의 해시가 파일과 다르면 **기동 실패**(경고가 아니라). 응답 `prompt_version`에 파일명.
+- **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29).
 - 바꾼 뒤엔 오류 주입 12번(정상 초안)과 7~11을 다시 돌려 표로 남긴다(`08`). 표 없이 v2를 서빙하지 않는다.
 - few-shot 예시(`fewshot/*.json`)도 같은 규칙: `example_id` 고정, 내용 바꾸면 새 id. `generations.few_shot_ids`로 추적. 예시의 `narrative`도 `cites` 형식으로.
 

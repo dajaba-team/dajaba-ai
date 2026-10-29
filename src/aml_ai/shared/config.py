@@ -22,9 +22,13 @@ class Settings(BaseSettings):
     # LLM
     llm_provider: str = Field(default="openai", alias="LLM_PROVIDER")
     llm_api_key: str = Field(default="", alias="LLM_API_KEY")
+    llm_api_base: str = Field(default="https://api.openai.com/v1", alias="LLM_API_BASE")
     llm_model_generate: str = Field(default="", alias="LLM_MODEL_GENERATE")
     llm_model_judge: str = Field(default="", alias="LLM_MODEL_JUDGE")
-    llm_timeout_s: float = Field(default=60.0, alias="LLM_TIMEOUT_S")
+    llm_timeout_s: float = Field(default=35.0, alias="LLM_TIMEOUT_S")  # docs/shared/05 가정값 (str/03)
+    # 결정성 — 설정 하나로 고정, 호출마다 폴백하지 않음(SCRUM-15 10/29)
+    llm_temperature_supported: bool = Field(default=False, alias="LLM_TEMPERATURE_SUPPORTED")
+    llm_reasoning_effort: str = Field(default="low", alias="LLM_REASONING_EFFORT")
     stale_processing_s: float = Field(default=110, gt=0, alias="STALE_PROCESSING_S")
     llm_daily_token_budget: int = Field(default=2_000_000, alias="LLM_DAILY_TOKEN_BUDGET")
 
