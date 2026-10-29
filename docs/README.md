@@ -62,7 +62,7 @@
 | 코드 반영 — `shared/hashing.py` + `narrative_hash.json` 테스트 벡터 | 완료 | 10/29 | SCRUM-16. Python 기준값 생성(sha256 `e36fac1…`), Java 맞추기는 W3 |
 | `narrative_v1.md` 새 전문으로 교체, few-shot 예시 새 facts 구조로 | 완료 | 10/29 | SCRUM-15. cites·FACT_KEYS·규칙 9~11, 생성기 `fact_keys` 전달 + cites ⊆ fact_keys 검사. few-shot 예시 교체는 SCRUM-20 |
 | `llm_client` provider 1종 구현 + `tools/record.py` 녹화 → **v1 동결** | 완료 | 10/29 | SCRUM-15. OpenAI Responses API(strict `json_schema`), `tools/record.py`, 녹화 커밋 = v1 동결(`FROZEN_PROMPTS` sha256 `d2cbb854…`) |
-| Alembic 0001 적용 확인 (`-m db`) | 미착수 | | W2 |
+| Alembic 0001 적용 확인 (`-m db`) | 완료 | 10/29 | SCRUM-14(PR #7) — 실 DB `aml-db`에 `alembic upgrade head`, `-m db` 9 passed |
 | `POST /v1/str/drafts` 백엔드 ↔ AI 왕복 ("됐다") | 미착수 | | W2 금 |
 | `POST /v1/str/verify` (유형별 코드 검사 5 + 평가자 5 + 해시) | 미착수 | | W3 |
 | 오류 주입 1~6·15~22 CI | 미착수 | | W3 |
