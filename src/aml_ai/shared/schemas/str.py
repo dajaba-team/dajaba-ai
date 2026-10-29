@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from datetime import date
 from enum import StrEnum
+from typing import Annotated
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, StringConstraints, field_validator, model_validator
 
 from aml_ai.shared.schemas.alerts import Alert
 from aml_ai.shared.schemas.common import (
@@ -175,11 +176,25 @@ def _each_section_once(sections: list[Section]) -> None:
 
 
 class LlmNarrativeSection(StrictModel):
-    """LLM 출력 한 섹션 — cites 는 fact 키. 거래 ID 는 LLM 이 고르지 않는다."""
+    """LLM 출력 한 섹션 — cites 는 fact 키. 거래 ID 는 LLM 이 고르지 않는다.
+
+    `text` 는 strip 하지 않는다 — 본문 해시(shared/01)가 "앞뒤 공백 그대로"라 Java 와 어긋나면 안 됨.
+    대신 공백만 있는 text 는 validator 로 거부(min_length=1 만으로는 "   " 통과).
+    """
 
     section: Section
-    text: str = Field(min_length=1, max_length=NARRATIVE_TEXT_MAX)
+    text: Annotated[
+        str,
+        StringConstraints(strip_whitespace=False, min_length=1, max_length=NARRATIVE_TEXT_MAX),
+    ]
     cites: list[str] = Field(default_factory=list)
+
+    @field_validator("text")
+    @classmethod
+    def _text_not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("text must not be whitespace-only")
+        return v
 
 
 class NarrativeOut(StrictModel):

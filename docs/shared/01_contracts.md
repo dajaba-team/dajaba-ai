@@ -91,6 +91,9 @@
 2. 각 섹션에서 `section`·`text`만 (cites·evidence_ids 제외). `text`는 **NFC 정규화**, 앞뒤 공백 그대로(자르지 않음).
 3. JSON 직렬화: 배열 안 객체, 키 순서 `section` → `text`, 구분자 `,`·`:` 공백 없음, non-ASCII 이스케이프 안 함(`ensure_ascii=False`). 예: `[{"section":"SUMMARY","text":"…"},…]`
 4. UTF-8 바이트 → sha256 → hex 소문자 64자.
+5. 섹션 6개가 각각 한 번씩이 아니면 해시하지 않고 오류(ValueError). 오류 메시지에 `text`를 넣지 않는다(섹션 이름·개수만). Java `NarrativeHash`도 같은 동작.
+
+`NarrativeSection`을 쓰는 스키마(`NarrativeOut`, `DraftResponse`, `VerifyRequest`)의 `text`는 자동 strip이 꺼져 있다 — pydantic이 자르면 Java와 바이트가 어긋난다. 길이 제한(`NARRATIVE_TEXT_MAX = 1200`)은 **앞뒤 공백 포함**해서 센다. 공백만 있는 `text`는 스키마가 거부(해시까지 가지 않음).
 
 테스트 벡터 `contracts/examples/narrative_hash.json`: `{"narrative": [...6섹션, 한글·조합형 자모·줄바꿈 포함...], "sha256": "..."}`. Python이 먼저 값을 만들고 Java가 같은 값을 내야 "됐다" (W3 ApprovalGate와 함께).
 

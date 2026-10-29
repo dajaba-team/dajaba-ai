@@ -1,0 +1,54 @@
+{
+  "narrative": [
+    {
+      "section": "HOW",
+      "text": "매주 월요일마다 50만 원씩 입금.\n자동이체로 보임.",
+      "cites": [
+        "inbound.by_currency.KRW"
+      ],
+      "evidence_ids": [
+        104221,
+        104233
+      ]
+    },
+    {
+      "section": "SUMMARY",
+      "text": "  대상 계좌에 24시간 내 3건 입금.  ",
+      "cites": [
+        "inbound.count"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "section": "CONCLUSION",
+      "text": "안녕하세요. 추가 확인 필요.",
+      "cites": [],
+      "evidence_ids": []
+    },
+    {
+      "section": "WHO",
+      "text": "개인 사업자 안녕.",
+      "cites": [
+        "subject.entity_name"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "section": "WHAT_WHEN_WHERE",
+      "text": "포르투갈 은행 #4507\n2022-09-02",
+      "cites": [
+        "period.start"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "section": "WHY_SUSPICIOUS",
+      "text": "매출 규모 대비 입금액 비정상.",
+      "cites": [
+        "observations.0"
+      ],
+      "evidence_ids": []
+    }
+  ],
+  "sha256": "e36fac13b844b43d4be14d15400045878794c7fe3ce93a5ca0c1e849e79dffcd"
+}

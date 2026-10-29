@@ -26,6 +26,9 @@ def test_example_parses(name: str, model: type) -> None:
     model.model_validate(load_json(EXAMPLES / name))
 
 
+UNMAPPED = {"narrative_hash.json"}  # 모델이 아니라 해시 테스트 벡터 — tests/str/test_hashing.py
+
+
 def test_examples_are_all_listed() -> None:
-    files = {p.name for p in EXAMPLES.glob("*.json")}
+    files = {p.name for p in EXAMPLES.glob("*.json")} - UNMAPPED
     assert files == {n for n, _ in CASES}, "examples 폴더와 CASES 가 다르다 — README 표도 같이"
