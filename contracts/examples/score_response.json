@@ -7,6 +7,7 @@
       "score": 0.91,
       "threshold": 0.7,
       "data_quality_status": "OK",
+      "failure_code": null,
       "reasons": [
         {
           "name": "account_in_counterparties_24h",
@@ -44,6 +45,7 @@
       "score": null,
       "threshold": 0.7,
       "data_quality_status": "FAILED",
+      "failure_code": "TRANSACTION_NOT_FOUND",
       "reasons": [],
       "evidence_transaction_ids": [],
       "context_transaction_ids": []
