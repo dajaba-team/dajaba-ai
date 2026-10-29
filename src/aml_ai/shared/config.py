@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     llm_model_generate: str = Field(default="", alias="LLM_MODEL_GENERATE")
     llm_model_judge: str = Field(default="", alias="LLM_MODEL_JUDGE")
     llm_timeout_s: float = Field(default=60.0, alias="LLM_TIMEOUT_S")
+    stale_processing_s: float = Field(default=110, gt=0, alias="STALE_PROCESSING_S")
     llm_daily_token_budget: int = Field(default=2_000_000, alias="LLM_DAILY_TOKEN_BUDGET")
 
     # 임베딩 (RAG, W4)

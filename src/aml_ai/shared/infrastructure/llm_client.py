@@ -1,4 +1,4 @@
-"""LLM 클라이언트 1종. JSON 모드, 온도 0, 연결 실패·타임아웃만 1회 재시도 (스키마 실패 재생성은 호출자 몫).
+"""LLM 클라이언트 1종. JSON 모드, 온도 0, 연결 재시도 없음 (스키마 실패 재생성은 호출자 몫).
 
 녹화 모드(AI_LLM_MOCK=true): 호출 대신 tests/str/recorded/{prompt_version}/{sha256(messages)[:16]}.json 을 읽는다.
 없으면 에러 — 조용히 지어내지 않는다 (docs/str/08).
@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,8 +17,6 @@ import httpx
 from aml_ai.shared.config import Settings
 from aml_ai.shared.errors import LlmUnavailable
 from aml_ai.shared.versioning import stable_json
-
-log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -68,14 +65,10 @@ class HttpLlmClient:
 
     def complete_json(self, *, system: str, user: str, model: str, max_tokens: int, tag: str) -> LlmResult:
         started = time.perf_counter()
-        for attempt in (1, 2):  # 연결 실패·타임아웃만 1회 재시도
-            try:
-                raw = self._call(system=system, user=user, model=model, max_tokens=max_tokens)
-                break
-            except (httpx.TimeoutException, httpx.ConnectError) as exc:
-                if attempt == 2:
-                    raise LlmUnavailable(f"llm unreachable: {type(exc).__name__}") from exc
-                log.warning("llm_retry", extra={"tag": tag, "reason": type(exc).__name__})
+        try:
+            raw = self._call(system=system, user=user, model=model, max_tokens=max_tokens)
+        except (httpx.TimeoutException, httpx.ConnectError) as exc:
+            raise LlmUnavailable(f"llm unreachable: {type(exc).__name__}") from exc
         latency = int((time.perf_counter() - started) * 1000)
         return LlmResult(
             text=raw["text"],

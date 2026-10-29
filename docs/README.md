@@ -58,7 +58,7 @@
 | 코드 반영 — `facts.py` 재작성(inbound/outbound/internal, 통화별 `transaction_ids`, 통화 코드 변환, fact_keys, attach_evidence) + 단위 테스트 | 완료 | 10/28 | SCRUM-13. `fact_paths.py`·`fact_keys.py`로 나눔, `transaction_reader` 새 SQL, `UnknownCurrency`(500). 테스트 44개(`test_facts`·`test_fact_paths`). 생성기에 `fact_keys` 넘기기는 `narrative_v1` 교체 때 |
 | 10/29 최종 설계 점검 반영 — ML 입력 넘김/피처 계산 구분, `COUNT_MATCH` 숫자 종류별 대조, 검증 파이프라인 `narrative_refs` | 완료 | 10/29 | 문서만. `shared/02`, `str/03·06·08·09·10`(COUNT_MATCH 절 단위·방향, recall@3 계산식 포함). SCRUM-40. 노션 미결 23~26(HIGH 문구·수정본 길이·revision_no·paths)은 팀 결정 대기 |
 | 준혁 확인 반영(10/29) — 점수 항목별 실패(없는 ID는 그 경보만 FAILED), `failure_code` 4값, DB 장애 503 `DB_UNAVAILABLE`, 적재 범위 전체, 경보당 점수 1건 | 완료 | 10/29 | 문서 `shared/01·02`, `scoring/README`, `str/09` + 코드 `schemas/scores.py` `FailureCode`, `errors.py` `DbUnavailable`, 목업·예시 JSON·테스트. SCRUM-41. 실제 판정은 `aml_ml` 연결 때, 규약은 변경 요청 |
-| 코드 반영 — `draft_service` 선점(해시 비교·STALE 정리)·generation_id·예산·FAILED, `llm_client` 연결 재시도 삭제, `0001` status·request_hash·UNIQUE | 미착수 | | W2 수~목 |
+| 코드 반영 — `draft_service` 선점(해시 비교·STALE 정리)·generation_id·예산·FAILED, `llm_client` 연결 재시도 삭제, `0001` status·request_hash·UNIQUE | 진행 | 10/29 | SCRUM-14 |
 | 코드 반영 — `shared/hashing.py` + `narrative_hash.json` 테스트 벡터 | 미착수 | | W2 목 (Java 쪽은 W3) |
 | `narrative_v1.md` 새 전문으로 교체, few-shot 예시 새 facts 구조로 | 미착수 | | W2 목 |
 | `llm_client` provider 1종 구현 + `tools/record.py` 녹화 → **v1 동결** | 미착수 | | W2 목 |

@@ -93,6 +93,7 @@
 | 10/29 (준혁 확인, SCRUM-41) | AI 서버 DB 조회 장애는 요청 전체 503 **`DB_UNAVAILABLE`**(새 코드), 요청 하나 = 트랜잭션 하나. 백엔드 재시도 1회 대상에 추가 | 일시 장애라 재시도로 풀릴 수 있고, 일부만 저장되면 재실행 때 중복·누락. `MODEL_UNAVAILABLE`을 같이 쓰면 "모델 문제"와 "DB 문제"가 로그에서 구분 안 됨 | `MODEL_UNAVAILABLE` 재사용 / 항목별 FAILED |
 | 10/29 (준혁 확인, SCRUM-41) | 서비스 DB 적재 = HI-Small 전체 5,078,345건, 점수는 경보당 1건(`alert_id` UNIQUE) — 모델 버전별 이력은 `ai.predictions` | DB 안 24시간 조회 = 전체 이력이라는 전제가 필요. 백엔드는 최신 1건만 쓰고 이력은 AI에 이미 남음 | 일부 기간만 적재 / 백엔드에 버전별 점수 행 |
 | 10/29 (최종 점검 재확인) | RAG 평가에 `recall@3`(질의별 비율의 단순 평균, 0건은 0) 보조 지표로 추가 | MVP 정의서가 hit@3·recall@3를 가리키는데 `10`에 계산식이 없었음 | recall 없이 hit@3만 |
+| 2026-10-29 | claim/finish 설계 결정 — advisory lock·해시 비교·PROCESSING 펜싱, 테이블 추가 안 함 | 같은 draft_id 경합과 늦은 결과 저장을 차단 | draft_requests 별도 테이블 |
 
 ## 미결 (회의·측정 뒤)
 

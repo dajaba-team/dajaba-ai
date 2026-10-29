@@ -89,6 +89,15 @@ class RetrievalUnavailable(AiError):
     status, code = 502, "RETRIEVAL_UNAVAILABLE"
 
 
+class FencedOut(AiError):
+    """늦게 돌아온 옛 작업의 finish/fail — WHERE status='PROCESSING' 이 0행 (shared/03 펜싱).
+
+    호출자(draft_service)는 이걸 로그만 남기고 500 INTERNAL 로 바꿔 던진다. 결과는 저장되지 않는다.
+    """
+
+    status, code = 500, "INTERNAL"
+
+
 def _body(code: str, message: str) -> dict[str, str]:
     return {"code": code, "message": message, "request_id": current_request_id()}
 
