@@ -49,6 +49,13 @@ else:                      status = LLM_FAILED,         passed = False
 
 평가자 기준 **4점**은 W4 오류 주입 7~12 표를 보고 조정한다(`08`). 바꾸면 `domain/constants.JUDGE_PASS_SCORE`와 이 문서, `09`.
 
+## 수정본 길이와 글자 수 (노션 백엔드 미결 24, 규약 §5.3 — 10/30 확정)
+
+- **생성**(`NarrativeOut`, LLM 출력)은 섹션당 1~1,200자 그대로. **검증 요청의 수정본**(조사역이 고친 본문)은 스키마를 따로 두고 섹션당 **최대 5,000자** — 백엔드가 5,000자까지 저장하므로 생성 스키마로 검증하면 1,201~5,000자 수정본이 400이 된다.
+- 글자 수는 **NFC로 정규화한 뒤 UTF-16 코드 단위**로 센다 — Java `String.length()`·JS `.length`와 같은 값. Python `len()`·Pydantic `max_length`는 코드포인트라 쓰지 않는다(예: `len(unicodedata.normalize("NFC", s).encode("utf-16-le")) // 2`). 한글·영문은 어느 방식이든 같고, 이모지처럼 BMP 밖 문자만 2로 세진다. 맥에서 NFD로 들어온 한글도 NFC로 바꾼 뒤 세므로 한 글자 = 1.
+- NFC는 **세기 위해서만** 쓴다. 해시는 원래대로 `shared/01` 규칙(NFC 포함)이고, 공백 strip은 하지 않는다(10/29 SCRUM-16).
+- 경계 테스트(양쪽 리포 같은 값): **5,000자 통과 · 5,001자 400 · "4,999자 + 이모지 1개" 400**(5,001로 셈). 구현은 SCRUM-46.
+
 ## 본문 해시 (`shared/hashing.py`)
 
 검증 응답의 `narrative_sha256`. 규칙은 `shared/01`(섹션 고정 순서, section·text만, NFC, 공백 없는 JSON, sha256 hex). 백엔드 `ApprovalGate`는 `generation_id` 일치 + 본문 해시 일치 + `passed` 세 조건일 때만 승인 요청 허용(`str/03`) — 해시만 같으면 다른 생성본(다른 facts)의 검증이 통할 수 있다. 테스트 벡터 `contracts/examples/narrative_hash.json`을 Python이 만들고 Java가 맞춘다(W3).

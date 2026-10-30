@@ -104,6 +104,10 @@
 | 2026-10-29 (SCRUM-15) | 온도 거부 자동 재시도 **삭제**, 결정성은 설정 하나로 고정 — `LLM_TEMPERATURE_SUPPORTED` + `LLM_REASONING_EFFORT`(기본 false·low). gpt-6.1-sol은 reasoning 모델이라 `temperature` 지원 안 함(녹화로 확인) | 호출마다 폴백하면 지원 안 하는 모델은 매번 400 → 재호출 (실질 2배). 설정으로 고정하면 1호출. 지원 모델로 바꾸면 `.env`에서만 토글 | 호출마다 폴백 유지 / 온도만 조정 |
 | 2026-10-29 (SCRUM-15) | 공급자 `insufficient_quota` 는 **LLM_BUDGET_EXCEEDED**(재시도 0), 그 외 429 rate_limit 은 **LLM_UNAVAILABLE**(재시도 1). 4xx 중 `insufficient_quota` 도 BudgetExceeded | 일 토큰 한도는 재시도 소용 없음, 짧은 간격 rate_limit 은 재시도 1회로 풀릴 수 있음. 규약 6.3 두 에러 코드의 재시도 열과 맞춤 | 429 전부 Budget / 429 전부 Unavailable |
 | 2026-10-30 | 위 10/27 회의 안건 11 줄(`ESCALATED·DRAFTED·REJECTED → CLOSED, 사유 필수`) 바로잡음 — **REJECTED → CLOSED는 `NOT_REPORTABLE` 반려일 때만**, `NEED_REVISION` 반려는 수정·재생성만. 어긋나면 백엔드가 409 `INVALID_CASE_TRANSITION`으로 막고 AI는 상태를 보지 않음 | 같은 날 오후 안건 24 확정(규약 v0.2 §4)이 더 최근 — 반려 두 갈래 분리와 맞춰야 함 | REJECTED 전부 종료 허용 |
+| 2026-10-30 (노션 백엔드 미결 23) | HIGH/MEDIUM/LOW는 백엔드 CasePolicy가 계산(HIGH = `medium_to_high` 이상). AI `threshold`는 모델별 **추천값**으로 응답에 담기만 하고 운영 판정에 쓰지 않음. 규약 §3 문구 변경 요청 반영 | 추천 0.7·정책 0.9·점수 0.8이면 규약 옛 문장대로는 HIGH, 정책대로는 MEDIUM — 판정 위치를 한 곳으로 | AI threshold로 HIGH 판정 |
+| 2026-10-30 (노션 백엔드 미결 24) | 생성 스키마(`NarrativeOut`)는 섹션당 1~1,200자 유지, **수정본 검증 요청은 섹션당 5,000자**로 스키마 분리. 글자 수는 **NFC 정규화 뒤 UTF-16 코드 단위**(규약 §5.3, Java `String.length()`·JS `.length`와 같음). 구현·경계 테스트는 SCRUM-46 | 백엔드는 5,000자까지 저장하는데 AI가 생성 스키마로 검증하면 1,201~5,000자 수정본이 400. Python `len()`은 코드포인트라 이모지 등에서 Java와 어긋남 | 양쪽 1,200자 / 코드포인트 기준 |
+| 2026-10-30 (노션 백엔드 미결 25) | `revision_no` 1 = AI 원문, 첫 수정 = 2. 원문·첫 수정·재수정 예시 JSON은 `contracts/examples/`에 | 규약 §5.3·AI 설계와 같음. `null`이면 요청 스키마(정수)에 걸림 | AI 원문 = null |
+| 2026-10-30 (노션 백엔드 미결 26) | `rule_facts.paths`: ① `transaction_ids` 밖 ID → **400** ② R04·R05인데 paths 누락·경로 ID 합집합 ≠ `transaction_ids`·R04 4홉 이상 → 초안은 만들되 `paths` **`UNVERIFIED`**(경로 숫자는 STR에 안 씀), 이런 경보는 detection 테스트에서 먼저 막음(준혁) ③ R05 홉 한도는 임의로 두지 않고 미결 15 룰 명세에서. ML은 기존 FAILED·null 규칙을 따로 적용(준영) | 400은 입력 계약 위반에만, 잘못된 경로는 보고서에서 빼는 쪽이 안전. 경로 재구성·삭제는 하지 않음(10/28 원칙) | 전부 400 / R05도 3홉 |
 
 ## 미결 (회의·측정 뒤)
 
@@ -121,5 +125,6 @@
 | R06_BIPARTITE 대체 룰 (안건 20) — 정해지면 규약 2절 룰 표·`rule_facts`, 준영 학습 룰을 같이 맞춤 | **준혁** |
 | 수정 저장 ↔ 승인 요청이 동시에 올 때(승인 트랜잭션 안에서 현재 해시 재확인) | 채영, 백엔드 V009 |
 | 통화 표 15줄 확인(HI-Small `DISTINCT currency_*`) | 진희, 축소본 만들 때 |
-| 노션 「백엔드 미결 · 팀 결정 필요」 23~26 — HIGH 판정 문구(규약 §3), 수정본 검증 길이 5,000자 분리·글자 수 기준, `revision_no` 1 = 원문, 경로 `paths` 400/UNVERIFIED 경계 | 팀 결정 뒤 SCRUM-40에서 반영 |
+| 노션 미결 23~26 후속 — 23·24·25·26은 10/30 확정(위 결정 표). 남은 것: 수정본 검증 스키마 5,000자·UTF-16 경계 테스트(**SCRUM-46**), `paths` 누락·합집합 불일치·R04 4홉 → `UNVERIFIED`·경로 숫자 미인용 테스트 고정, 규약 §2 `paths` 행 변경 요청(11/2 반영), 원문·수정 예시 JSON `contracts/examples/` | 진희 |
+| R05 홉 한도 (미결 26 ③) | **준혁**, 미결 15 룰 명세(W2) |
 | self-transfer만 남는 경보 400 유지 여부, `STALE_PROCESSING_S` 110초 | 축소본 분포·W2 실측 뒤 |

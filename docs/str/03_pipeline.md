@@ -46,7 +46,7 @@
 요청(규약 5.3): `generation_id`, `revision_no`, `narrative`(조사역 수정본, 섹션 6개 각 1회 — 생성본과 같은 스키마).
 
 ```
-0  요청 검증                  NarrativeOut 과 같은 섹션 제약 (섹션 중복·누락 → 400). 길이 상한은 노션 미결 24 — 수정본 5,000자 분리 권장
+0  요청 검증                  NarrativeOut 과 같은 섹션 제약 (섹션 중복·누락 → 400). 수정본은 섹션당 5,000자(NFC 뒤 UTF-16 — 06 "수정본 길이", 미결 24 확정 10/30)
 1  gen = generation_repository.load(generation_id)        kind=DRAFT, status=SUCCEEDED — 없으면 404 DRAFT_NOT_FOUND
    facts, evidence_scope = gen.facts, gen.request.evidence_transaction_ids
 2  sha = shared.hashing.narrative_sha256(narrative)      규약 5.3 해시 규칙 (shared/01)
