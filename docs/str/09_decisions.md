@@ -103,6 +103,7 @@
 | 2026-10-29 (SCRUM-15) | 생성 재시도의 **시간 예산**(남은 40초 미만이면 재생성 안 함)은 **이번 범위 밖**, 별도 이슈로 | SCRUM-15 범위는 provider·녹화·동결. 예산은 draft_service에 시간 측정이 없어 손 커짐 | 이번에 포함 |
 | 2026-10-29 (SCRUM-15) | 온도 거부 자동 재시도 **삭제**, 결정성은 설정 하나로 고정 — `LLM_TEMPERATURE_SUPPORTED` + `LLM_REASONING_EFFORT`(기본 false·low). gpt-6.1-sol은 reasoning 모델이라 `temperature` 지원 안 함(녹화로 확인) | 호출마다 폴백하면 지원 안 하는 모델은 매번 400 → 재호출 (실질 2배). 설정으로 고정하면 1호출. 지원 모델로 바꾸면 `.env`에서만 토글 | 호출마다 폴백 유지 / 온도만 조정 |
 | 2026-10-29 (SCRUM-15) | 공급자 `insufficient_quota` 는 **LLM_BUDGET_EXCEEDED**(재시도 0), 그 외 429 rate_limit 은 **LLM_UNAVAILABLE**(재시도 1). 4xx 중 `insufficient_quota` 도 BudgetExceeded | 일 토큰 한도는 재시도 소용 없음, 짧은 간격 rate_limit 은 재시도 1회로 풀릴 수 있음. 규약 6.3 두 에러 코드의 재시도 열과 맞춤 | 429 전부 Budget / 429 전부 Unavailable |
+| 2026-10-30 | 위 10/27 회의 안건 11 줄(`ESCALATED·DRAFTED·REJECTED → CLOSED, 사유 필수`) 바로잡음 — **REJECTED → CLOSED는 `NOT_REPORTABLE` 반려일 때만**, `NEED_REVISION` 반려는 수정·재생성만. 어긋나면 백엔드가 409 `INVALID_CASE_TRANSITION`으로 막고 AI는 상태를 보지 않음 | 같은 날 오후 안건 24 확정(규약 v0.2 §4)이 더 최근 — 반려 두 갈래 분리와 맞춰야 함 | REJECTED 전부 종료 허용 |
 
 ## 미결 (회의·측정 뒤)
 
