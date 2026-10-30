@@ -72,3 +72,4 @@
 | 오류 주입 7~14·23 수동 표 | 미착수 | | W4 |
 | `/v1/cases/summary` | 미착수 | | W4 말 |
 | `aml_ml` 설치 + `scoring/` 스텁 교체 | 미착수 | | 준영 첫 tag 후 |
+| D13 — 10/27 안건 11 줄 바로잡음(REJECTED → CLOSED는 NOT_REPORTABLE만, 어긋나면 409 `INVALID_CASE_TRANSITION`) | 완료 | 10/30 | 문서만. `str/09` 아래 새 줄, 윗줄은 그대로. `03_pipeline.md:69`는 이미 안건 24 반영됨 |
