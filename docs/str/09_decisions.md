@@ -109,7 +109,6 @@
 | 2026-10-30 (노션 백엔드 미결 25) | `revision_no` 1 = AI 원문, 첫 수정 = 2. 원문·첫 수정·재수정 예시 JSON은 `contracts/examples/`에 | 규약 §5.3·AI 설계와 같음. `null`이면 요청 스키마(정수)에 걸림 | AI 원문 = null |
 | 2026-10-30 (노션 백엔드 미결 26) | `rule_facts.paths`: ① `transaction_ids` 밖 ID → **400** ② R04·R05인데 paths 누락·경로 ID 합집합 ≠ `transaction_ids`·R04 4홉 이상 → 초안은 만들되 `paths` **`UNVERIFIED`**(경로 숫자는 STR에 안 씀), 이런 경보는 detection 테스트에서 먼저 막음(준혁) ③ R05 홉 한도는 임의로 두지 않고 미결 15 룰 명세에서. ML은 기존 FAILED·null 규칙을 따로 적용(준영) | 400은 입력 계약 위반에만, 잘못된 경로는 보고서에서 빼는 쪽이 안전. 경로 재구성·삭제는 하지 않음(10/28 원칙) | 전부 400 / R05도 3홉 |
 | 2026-10-30 (노션 백엔드 미결 27) | 시각은 두 종류. **데이터 시각**(`ts`·`window_start`·`window_end`·`reference_ts`·facts `period`·reasons `observation.window_*`)은 시간대 없음 그대로, **시스템 시각**(`created_at`·`updated_at`·`produced_at`·`reported_at`·`report_due_at` 등)은 전부 **UTC + `Z`, 초 단위**. 규약 §0 표·§2·§3·§4·§5.3 예시 반영(10/30). 전원 동의<br>거절은 기존 400 INVALID_REQUEST (FastAPI 기본 422 미사용). | IBM 원천 시각은 시간대 정보가 없어 추정하면 틀림. 시스템이 찍는 시각은 서버마다 시간대가 달라 Z 없이는 비교 불가 | 모든 시각 시간대 없음(규약 v0.2 §0 옛 문구) |
-
 | 2026-10-31 (SCRUM-52) | `SystemTimestamp`는 `AwareDatetime` 입력을 UTC 초 단위로 정규화·Z 직렬화하고 `DraftResponse.produced_at`을 필수로 추가. 데이터 `Timestamp` 동작은 유지. 세 서비스는 공용 `utc_now()` 사용. develop부터 51줄이던 verify를 관문 때문에 `_decide`로 순수 이동, 동작 변경 없음 | 미결 27·규약 §0의 시스템 시각 계약 통일. `str.py` 분리는 SCRUM-46으로 유지 | naive 시각을 UTC로 추정 / 데이터 시각까지 변경 |
 
 ## 미결 (회의·측정 뒤)

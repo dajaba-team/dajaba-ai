@@ -73,4 +73,4 @@
 | `/v1/cases/summary` | 미착수 | | W4 말 |
 | `aml_ml` 설치 + `scoring/` 스텁 교체 | 미착수 | | 준영 첫 tag 후 |
 | D13 — 10/27 안건 11 줄 바로잡음(REJECTED → CLOSED는 NOT_REPORTABLE만, 어긋나면 409 `INVALID_CASE_TRANSITION`) | 완료 | 10/30 | 문서만. `str/09` 아래 새 줄, 윗줄은 그대로. `03_pipeline.md:69`는 이미 안건 24 반영됨 |
-| SCRUM-52 — 시스템 시각 UTC + Z·초 단위, `SystemTimestamp`, 초안 `produced_at` | 완료 | 2026-10-30 | 타입·서비스·예시·계약 테스트 및 STR API naive 시각 거절(400 `INVALID_REQUEST`) 확인. 공용 `utc_now()`·`_decide` 순수 추출 반영. pytest 140 passed·17 skipped·7 deselected, 관문 전체 통과. 커밋 2개 생성은 Git 쓰기 제한으로 미완료. DB 테스트 9개는 Docker 소켓 접근 제한으로 skip |
+| SCRUM-52 — 시스템 시각 UTC + Z·초 단위, `SystemTimestamp`, 초안 `produced_at` | 완료 | 10/31 | 타입·서비스·예시·계약 테스트, naive 시스템 시각은 400 `INVALID_REQUEST`. 공용 `utc_now()`·`_decide` 순수 추출. pytest 149 passed·8 skipped, `-m db` 9 passed(skip 0), 관문 통과. PR #14 |
