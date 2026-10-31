@@ -45,13 +45,14 @@ class Subject:
     """보고 대상 계좌 S(= alert.account_key)와 그 법인. 없는 값은 None (docs/str/04 "입력").
 
     account_entities: 경보 거래에 나오는 계좌 → entity_id. internal(같은 법인 계좌끼리) 판정용.
-    accounts 에 없는 계좌는 키가 없다.
+    accounts 에 없는 계좌는 키가 없다. entity_type 은 ops.entities.entity_type 원값(SCRUM-47).
     """
 
     account_key: str
     entity_id: str | None
     entity_name: str | None
     bank_name: str | None
+    entity_type: str | None = None
     customer: Customer | None = None
     account_entities: Mapping[str, str] = field(default_factory=dict)
 

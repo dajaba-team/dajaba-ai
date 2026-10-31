@@ -27,7 +27,7 @@ from aml_ai.shared.schemas.str import (
     NarrativeOut,
     NarrativeSection,
     RevisedNarrativeSection,
-    Section,
+    SectionV1,
     VerifyRequest,
 )
 from tests.conftest import EXAMPLES, load_json
@@ -38,7 +38,7 @@ NFD_CHAR = unicodedata.normalize("NFD", "가")  # len=2 in Python
 EMOJI = "😀"  # U+1F600, BMP 밖 — Python len=1, UTF-16 2 units, Java String.length()=2
 
 
-def _verify_request_with_text(section: Section, text: str) -> dict:
+def _verify_request_with_text(section: SectionV1, text: str) -> dict:
     """verify_request.json 을 복제하고 한 섹션의 text 를 바꾼다."""
     d = deepcopy(load_json(EXAMPLES / "verify_request.json"))
     for s in d["narrative"]:
@@ -50,20 +50,20 @@ def _verify_request_with_text(section: Section, text: str) -> dict:
 
 # ---------- 1. 5,000자 통과 ----------
 def test_revised_5000_passes() -> None:
-    d = _verify_request_with_text(Section.SUMMARY, NFC_CHAR * 5000)
+    d = _verify_request_with_text(SectionV1.SUMMARY, NFC_CHAR * 5000)
     VerifyRequest.model_validate(d)
 
 
 # ---------- 2. 5,001자 거부 ----------
 def test_revised_5001_rejected() -> None:
-    d = _verify_request_with_text(Section.SUMMARY, NFC_CHAR * 5001)
+    d = _verify_request_with_text(SectionV1.SUMMARY, NFC_CHAR * 5001)
     with pytest.raises(ValidationError):
         VerifyRequest.model_validate(d)
 
 
 # ---------- 3. "4,999자 + 😀" 거부 (UTF-16 으로 5,001) ----------
 def test_revised_4999_plus_emoji_rejected() -> None:
-    d = _verify_request_with_text(Section.SUMMARY, NFC_CHAR * 4999 + EMOJI)
+    d = _verify_request_with_text(SectionV1.SUMMARY, NFC_CHAR * 4999 + EMOJI)
     with pytest.raises(ValidationError):
         VerifyRequest.model_validate(d)
 
@@ -71,26 +71,26 @@ def test_revised_4999_plus_emoji_rejected() -> None:
 # ---------- 4. NFD 한글 5,000자(코드포인트 10,000) 통과 ----------
 def test_revised_nfd_hangul_5000_passes() -> None:
     text = NFD_CHAR * 5000  # 10,000 code points → NFC 뒤 5,000 UTF-16 단위
-    d = _verify_request_with_text(Section.SUMMARY, text)
+    d = _verify_request_with_text(SectionV1.SUMMARY, text)
     VerifyRequest.model_validate(d)
 
 
 # ---------- 5. 요청 text 는 바뀌지 않고, 해시가 NFD/NFC 동일 ----------
 def test_revised_nfd_text_unchanged_and_hash_matches_nfc() -> None:
     text_nfd = NFD_CHAR * 10 + "힇"  # mixed
-    nfd_req = VerifyRequest.model_validate(_verify_request_with_text(Section.SUMMARY, text_nfd))
-    summary = next(s for s in nfd_req.narrative if s.section is Section.SUMMARY)
+    nfd_req = VerifyRequest.model_validate(_verify_request_with_text(SectionV1.SUMMARY, text_nfd))
+    summary = next(s for s in nfd_req.narrative if s.section is SectionV1.SUMMARY)
     assert summary.text == text_nfd, "검증 요청 text 가 변하면 해시가 Java 와 어긋남"
 
     text_nfc = unicodedata.normalize("NFC", text_nfd)
-    nfc_req = VerifyRequest.model_validate(_verify_request_with_text(Section.SUMMARY, text_nfc))
+    nfc_req = VerifyRequest.model_validate(_verify_request_with_text(SectionV1.SUMMARY, text_nfc))
     assert narrative_sha256(nfd_req.narrative) == narrative_sha256(nfc_req.narrative)
 
 
 # ---------- 6. 1,201 ~ 5,000자 통과 (회귀 방지) ----------
 @pytest.mark.parametrize("n", [1201, 2500, 5000])
 def test_revised_middle_range_passes(n: int) -> None:
-    d = _verify_request_with_text(Section.SUMMARY, NFC_CHAR * n)
+    d = _verify_request_with_text(SectionV1.SUMMARY, NFC_CHAR * n)
     VerifyRequest.model_validate(d)
 
 
@@ -101,8 +101,8 @@ def test_llm_narrative_still_1200_cap() -> None:
     # NarrativeOut 전체로도 같은 경로
     d = {
         "narrative": [
-            {"section": s.value, "text": NFC_CHAR * (1201 if s is Section.SUMMARY else 10), "cites": []}
-            for s in Section
+            {"section": s.value, "text": NFC_CHAR * (1201 if s is SectionV1.SUMMARY else 10), "cites": []}
+            for s in SectionV1
         ]
     }
     with pytest.raises(ValidationError):

@@ -1,0 +1,67 @@
+{
+  "example_id": 5,
+  "typology": "CYCLE",
+  "facts": {
+    "reporting_institution": "Example Bank #0004",
+    "subject": {
+      "entity_id": "E-CYCLE-04",
+      "entity_name": "Corporation #40004",
+      "entity_type": "CORPORATION",
+      "account_key": "010_SX00000D4"
+    },
+    "period": {"start": "2022-10-04T08:00:00", "end": "2022-10-04T12:00:00"},
+    "inbound": {
+      "count": 1,
+      "by_currency": [
+        {"currency": "USD", "total": "20000.00", "count": 1, "transaction_ids": [4003]}
+      ],
+      "transaction_ids": [4003]
+    },
+    "outbound": {
+      "count": 1,
+      "by_currency": [
+        {"currency": "USD", "total": "20000.00", "count": 1, "transaction_ids": [4001]}
+      ],
+      "transaction_ids": [4001]
+    },
+    "internal": {"count": 0, "transaction_ids": []},
+    "indirect": {"count": 1, "transaction_ids": [4002]},
+    "paths": {
+      "kind": "CYCLE",
+      "status": "VERIFIED",
+      "count": 1,
+      "max_hops": 3,
+      "max_accounts": 3,
+      "transaction_ids": [4001, 4002, 4003]
+    },
+    "excluded_self_transfer_count": 0,
+    "direction": "MIXED",
+    "counterparties": {"count": 2, "transaction_ids": [4001, 4003]},
+    "counterparty_banks": {"same_bank_accounts": 0, "other_bank_accounts": 2},
+    "payment_formats": ["Wire"],
+    "payment_format_counts": [{"format": "Wire", "count": 2}],
+    "amount_range": [{"currency": "USD", "min": "20000.00", "max": "20000.00"}],
+    "typology": "CYCLE",
+    "typology_source": "RULE",
+    "customer": {
+      "industry": "TRADING",
+      "risk_level": "MEDIUM",
+      "account_purpose": "OPERATIONS",
+      "onboarded_at": "2019-05-10",
+      "country_code": "KR"
+    },
+    "prior_alert_count": 2,
+    "observations": [],
+    "model_signals": [],
+    "unmapped_currencies": []
+  },
+  "narrative": [
+    {"section": "SUBJECT", "text": "보고 대상자는 Corporation #40004(엔티티 유형 CORPORATION)로 업종 TRADING·위험등급 MEDIUM임. 과거 경보 이력 2건이 있음.", "cites": ["subject.entity_name", "subject.entity_type", "customer.industry", "customer.risk_level", "prior_alert_count"], "evidence_ids": []},
+    {"section": "DATE", "text": "거래는 2022-10-04 08:00부터 12:00 사이에 발생함.", "cites": ["period"], "evidence_ids": [4001, 4002, 4003]},
+    {"section": "PLACE", "text": "거래 영업점은 자료 없음. 대상 계좌는 010_****00D4임. 상대 2개 계좌는 모두 타행임.", "cites": ["subject.account_key", "counterparties.count", "counterparty_banks.other_bank_accounts"], "evidence_ids": [4001, 4003]},
+    {"section": "INSTRUMENT", "text": "결제 수단은 Wire로 2건임.", "cites": ["payment_format_counts.Wire"], "evidence_ids": [4001, 4003]},
+    {"section": "METHOD", "text": "대상 계좌에서 송금한 자금이 3개 계좌를 거쳐 다시 대상 계좌로 돌아온 순환 경로(CYCLE) 1개가 확인됨.", "cites": ["paths.count", "paths.max_accounts", "paths.kind", "typology"], "evidence_ids": [4001, 4002, 4003]},
+    {"section": "GROUNDS", "text": "같은 금액 20,000.00 US Dollar가 2022-10-04 08:00부터 12:00 사이에 대상 계좌에서 나갔다가 돌아왔으며 경로는 3개 계좌·3홉으로 확인됨. 거래 목적은 자료 없음.", "cites": ["inbound.amount.USD", "outbound.amount.USD", "period", "paths.max_accounts", "paths.max_hops"], "evidence_ids": [4001, 4002, 4003]},
+    {"section": "OPINION", "text": "순환 이체 유형에 부합하여 자금세탁이 의심됨. 경로 구성 계좌의 관계와 자금 출처 확인이 필요하며 조사역의 최종 판단이 필요함.", "cites": ["typology", "paths.kind"], "evidence_ids": [4001, 4002, 4003]}
+  ]
+}

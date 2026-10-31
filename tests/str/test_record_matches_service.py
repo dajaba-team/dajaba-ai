@@ -2,6 +2,8 @@
 
 SCRUM-15 adversarial H3 — 녹화 user 와 서비스 user 가 어긋나면 녹화 재생이 실패하고, 외부
 공급자에게 서로 다른 데이터가 전달된다. 두 호출이 같은 recording_key 를 내야 한다.
+SCRUM-47 — v1·v2 각 활성 버전에서도 녹화 도구와 서비스 조립이 일치해야 한다(파라미터).
+v2 는 아직 녹화가 없으므로 조립 비교만.
 """
 
 from __future__ import annotations
@@ -9,6 +11,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from tools.record import _build_prompt
 
 from aml_ai.shared.infrastructure.llm_client import recording_key
@@ -21,10 +24,10 @@ from aml_ai.str.infrastructure.narrative_generator import load_prompt, render_us
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
-def _service_prompt(facts: Facts) -> tuple[str, str, list[str]]:
-    """draft_service._generate 가 LLM 에 넘기는 (system, user) 를 그대로 재구성."""
-    system, user_tpl = load_prompt("narrative_v1")
-    examples = FewshotStore().pick_examples(facts.typology)
+def _service_prompt(facts: Facts, prompt_name: str) -> tuple[str, str, list[str]]:
+    """draft_service._generate 가 LLM 에 넘기는 (system, user) 를 그대로 재구성 — 활성 버전 폴더."""
+    system, user_tpl = load_prompt(prompt_name)
+    examples = FewshotStore(prompt_name=prompt_name).pick_examples(facts.typology)
     keys = list(fact_keys(facts).keys())
     user = render_user(
         user_tpl,
@@ -37,12 +40,14 @@ def _service_prompt(facts: Facts) -> tuple[str, str, list[str]]:
     return system, user, keys
 
 
-def test_record_and_service_produce_same_recording_key() -> None:
+@pytest.mark.parametrize("prompt_name", ["narrative_v1", "narrative_v2"])
+def test_record_and_service_produce_same_recording_key(prompt_name: str) -> None:
+    """녹화 도구와 서비스 조립이 같은 프롬프트·키를 내야 — 활성 버전 폴더 분리 뒤에도 유지(SCRUM-47)."""
     facts = Facts.model_validate(
         json.loads((REPO_ROOT / "tests/str/fixtures/facts_fan_in.json").read_text(encoding="utf-8"))
     )
-    r_system, r_user, r_keys = _build_prompt(facts)
-    s_system, s_user, s_keys = _service_prompt(facts)
+    r_system, r_user, r_keys = _build_prompt(facts, prompt_name)
+    s_system, s_user, s_keys = _service_prompt(facts, prompt_name)
     assert r_system == s_system
     assert r_user == s_user
     assert r_keys == s_keys

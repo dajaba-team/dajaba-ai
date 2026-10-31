@@ -28,8 +28,8 @@ def make_txs(rows: list[dict[str, Any]]) -> list[Transaction]:
     ]
 
 
-def make_subject(customer: Customer | None = None) -> Subject:
-    return Subject(**CASES["subject"], customer=customer)
+def make_subject(customer: Customer | None = None, entity_type: str | None = None) -> Subject:
+    return Subject(**CASES["subject"], entity_type=entity_type, customer=customer)
 
 
 def make_req(
@@ -53,6 +53,6 @@ def make_req(
     return DraftRequest.model_validate(d)
 
 
-def build(case: dict[str, Any], **kw: Any) -> Facts:
+def build(case: dict[str, Any], *, subject: Subject | None = None, **kw: Any) -> Facts:
     rows = case["transactions"]
-    return facts_domain.build_facts(make_req(rows, **kw), make_txs(rows), make_subject())
+    return facts_domain.build_facts(make_req(rows, **kw), make_txs(rows), subject or make_subject())

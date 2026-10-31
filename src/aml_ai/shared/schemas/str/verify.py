@@ -11,6 +11,8 @@ from aml_ai.shared.schemas.str.narrative import (
     NarrativeRef,
     NarrativeSectionBase,
     Section,
+    SectionV1,
+    SectionV2,
     _each_section_once,
 )
 from aml_ai.shared.text import utf16_len_nfc
@@ -24,6 +26,7 @@ class CodeCheckName(StrEnum):
     COUNT_MATCH = "COUNT_MATCH"
     ACCOUNT_ID_MATCH = "ACCOUNT_ID_MATCH"
     EVIDENCE_IN_SCOPE = "EVIDENCE_IN_SCOPE"
+    OPINION_PRESENT = "OPINION_PRESENT"  # v2 전용 — 종합의견 공란 거부 (SCRUM-47 안건 6-5)
 
 
 class CheckReason(StrEnum):
@@ -105,7 +108,7 @@ class RevisedNarrativeSection(NarrativeSectionBase):
 class VerifyRequest(StrictModel):
     generation_id: str = Field(description="어느 생성본의 facts 와 대조하나")
     revision_no: int = Field(ge=1, description="백엔드 str_revisions 번호. 1 = AI 원문")
-    narrative: list[RevisedNarrativeSection] = Field(min_length=len(Section), max_length=len(Section))
+    narrative: list[RevisedNarrativeSection] = Field(min_length=len(SectionV1), max_length=len(SectionV2))
 
     @field_validator("narrative")
     @classmethod

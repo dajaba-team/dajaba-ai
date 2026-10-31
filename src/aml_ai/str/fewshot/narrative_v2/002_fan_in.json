@@ -1,0 +1,64 @@
+{
+  "example_id": 2,
+  "typology": "FAN_IN",
+  "facts": {
+    "reporting_institution": "Example Bank #0001",
+    "subject": {
+      "entity_id": "E-FAN-IN-01",
+      "entity_name": "Sole Proprietorship #10001",
+      "entity_type": "SOLE_PROPRIETORSHIP",
+      "account_key": "010_SX00000A1"
+    },
+    "period": {"start": "2022-10-01T00:14:00", "end": "2022-10-01T22:51:00"},
+    "inbound": {
+      "count": 3,
+      "by_currency": [
+        {"currency": "USD", "total": "42750.50", "count": 3, "transaction_ids": [1001, 1002, 1003]}
+      ],
+      "transaction_ids": [1001, 1002, 1003]
+    },
+    "outbound": {"count": 0, "by_currency": [], "transaction_ids": []},
+    "internal": {"count": 0, "transaction_ids": []},
+    "indirect": {"count": 0, "transaction_ids": []},
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {"count": 3, "transaction_ids": [1001, 1002, 1003]},
+    "counterparty_banks": {"same_bank_accounts": 0, "other_bank_accounts": 3},
+    "payment_formats": ["ACH"],
+    "payment_format_counts": [{"format": "ACH", "count": 3}],
+    "amount_range": [{"currency": "USD", "min": "12500.00", "max": "16800.50"}],
+    "typology": "FAN_IN",
+    "typology_source": "RULE",
+    "customer": {
+      "industry": "RETAIL",
+      "risk_level": "LOW",
+      "account_purpose": "SALES_DEPOSIT",
+      "onboarded_at": "2021-03-14",
+      "country_code": "PT"
+    },
+    "prior_alert_count": 1,
+    "observations": [
+      {
+        "name": "distinct_senders_24h",
+        "value": 3,
+        "unit": "count",
+        "window_start": "2022-10-01T00:00:00",
+        "window_end": "2022-10-02T00:00:00",
+        "basis": "distinct_inbound_counterparties",
+        "baseline": null
+      }
+    ],
+    "model_signals": ["distinct_senders_24h"],
+    "unmapped_currencies": []
+  },
+  "narrative": [
+    {"section": "SUBJECT", "text": "보고 대상자는 Sole Proprietorship #10001(엔티티 유형 SOLE_PROPRIETORSHIP)로 업종 RETAIL·위험등급 LOW임. 과거 경보 1건이 있음.", "cites": ["subject.entity_name", "subject.entity_type", "customer.industry", "customer.risk_level", "prior_alert_count"], "evidence_ids": [1001, 1002, 1003]},
+    {"section": "DATE", "text": "거래 기간은 2022-10-01 00:14부터 22:51까지로 단일일에 몰렸음.", "cites": ["period"], "evidence_ids": [1001, 1002, 1003]},
+    {"section": "PLACE", "text": "거래 영업점은 자료 없음. 대상 계좌는 010_****00A1임. 상대 계좌 3곳은 모두 타행임.", "cites": ["subject.account_key", "counterparties.count", "counterparty_banks.other_bank_accounts"], "evidence_ids": [1001, 1002, 1003]},
+    {"section": "INSTRUMENT", "text": "결제 수단은 ACH로 3건임.", "cites": ["payment_format_counts.ACH"], "evidence_ids": [1001, 1002, 1003]},
+    {"section": "METHOD", "text": "서로 다른 3개 계좌가 하루 안에 하나의 대상 계좌로 송금한 집중 입금(FAN_IN) 유형임. 합계 42,750.50 US Dollar가 입금됨.", "cites": ["period", "counterparties.count", "direction", "inbound.amount.USD", "typology"], "evidence_ids": [1001, 1002, 1003]},
+    {"section": "GROUNDS", "text": "모델 관측값(관측 구간 2022-10-01 00:00~2022-10-02 00:00 기준) 입금 상대 계좌 수가 3개임. 기준값이 없어 평소와 비교할 수 없음. 입금 사유는 자료 없음.", "cites": ["observations.distinct_senders_24h"], "evidence_ids": []},
+    {"section": "OPINION", "text": "집중 입금 유형에 부합하여 자금세탁이 의심됨. 입금 사유와 자금 출처 확인이 필요하며 조사역의 최종 판단이 필요함.", "cites": ["typology"], "evidence_ids": [1001, 1002, 1003]}
+  ]
+}

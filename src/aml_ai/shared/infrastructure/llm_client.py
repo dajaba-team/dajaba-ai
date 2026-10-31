@@ -87,9 +87,10 @@ class HttpLlmClient:
         self._http = http or httpx.Client(timeout=settings.llm_timeout_s)
 
     def complete_json(self, *, system: str, user: str, model: str, max_tokens: int, tag: str) -> LlmResult:
-        from aml_ai.shared.schemas.str import NarrativeOut
+        """SCRUM-47: tag(활성 서술 버전) 로 LLM 출력 스키마의 섹션 enum 을 좁힌다 — v1 6개 또는 v2 7개."""
+        from aml_ai.shared.schemas.str import llm_output_model
 
-        schema = json_schema_for(NarrativeOut, name=tag)
+        schema = json_schema_for(llm_output_model(tag), name=tag)
         body = build_body(
             system,
             user,

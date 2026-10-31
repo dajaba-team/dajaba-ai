@@ -27,6 +27,18 @@ from aml_ai.shared.schemas.str import (
 )
 from aml_ai.str.domain.constants import CURRENCY_CODES, DIRECTION_RATIO, MODEL_SIGNALS_TOP, MONEY_QUANT
 from aml_ai.str.domain.fact_paths import build_paths, paths_problem
+from aml_ai.str.domain.facts_aggregations import (
+    amount_range as _amount_range,
+)
+from aml_ai.str.domain.facts_aggregations import (
+    counterparty_banks as _counterparty_banks,
+)
+from aml_ai.str.domain.facts_aggregations import (
+    payment_format_counts as _payment_format_counts,
+)
+from aml_ai.str.domain.facts_aggregations import (
+    unmapped_currencies as _unmapped,
+)
 from aml_ai.str.domain.models import Customer, Subject, Transaction
 
 
@@ -61,7 +73,12 @@ def build_facts(req: DraftRequest, txs: list[Transaction], subject: Subject) -> 
 
     return Facts(
         reporting_institution=req.reporting_institution or subject.bank_name,
-        subject=SubjectFacts(entity_id=subject.entity_id, entity_name=subject.entity_name, account_key=s),
+        subject=SubjectFacts(
+            entity_id=subject.entity_id,
+            entity_name=subject.entity_name,
+            entity_type=subject.entity_type,  # SCRUM-47: ops.entities.entity_type 원값
+            account_key=s,
+        ),
         period=PeriodFacts(start=min(t.ts for t in active), end=max(t.ts for t in active)),
         inbound=_flow(inbound, received=True),
         outbound=_flow(outbound, received=False),
@@ -71,13 +88,17 @@ def build_facts(req: DraftRequest, txs: list[Transaction], subject: Subject) -> 
         excluded_self_transfer_count=len(txs) - len(active),
         direction=_direction(len(inbound), len(outbound)),
         counterparties=IdGroupFacts(count=_counterparty_count(flows, s), transaction_ids=_sorted_ids(flows)),
+        counterparty_banks=_counterparty_banks(flows, s),
         payment_formats=sorted({t.payment_format for t in flows}),
+        payment_format_counts=_payment_format_counts(flows),
+        amount_range=_amount_range(inbound, outbound, currency_code, _money),
         typology=req.alert.typology_hint,
         typology_source=TypologySource.RULE,
         customer=_customer(subject.customer),
         prior_alert_count=req.prior_alert_count,
         observations=_observations(req.reasons),
         model_signals=[r.name for r in req.reasons[:MODEL_SIGNALS_TOP]],
+        unmapped_currencies=_unmapped(inbound, outbound, currency_code),
     )
 
 
@@ -90,13 +111,19 @@ def _is_internal(t: Transaction, subject: Subject) -> bool:
 
 
 def _flow(txs: list[Transaction], *, received: bool) -> FlowFacts:
-    """받은 쪽은 amount_received·currency_received, 보낸 쪽은 amount_paid·currency_paid."""
+    """받은 쪽은 amount_received·currency_received, 보낸 쪽은 amount_paid·currency_paid.
+
+    매핑 안 되는 통화 거래도 `count`·`transaction_ids` 에는 포함, `by_currency` 에만 안 넣음 — SCRUM-47.
+    """
     totals: dict[str, Decimal] = defaultdict(Decimal)
     ids: dict[str, list[int]] = defaultdict(list)
     for t in txs:
         cur, amt = (t.currency_received, t.amount_received) if received else (t.currency_paid, t.amount_paid)
-        totals[cur] += amt
-        ids[cur].append(t.transaction_id)
+        iso = currency_code(cur)
+        if iso is None:  # 매핑 안 되는 원문은 Facts.unmapped_currencies 로 (by_currency 안 섞음)
+            continue
+        totals[iso] += amt
+        ids[iso].append(t.transaction_id)
     by_currency = [
         CurrencyTotal(
             currency=cur, total=_money(totals[cur]), count=len(ids[cur]), transaction_ids=sorted(ids[cur])

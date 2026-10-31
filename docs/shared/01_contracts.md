@@ -23,7 +23,7 @@
 
 - ID: 원칙 **문자열**. 예외 하나 — `transaction_id`는 **bigint, JSON 숫자**(안건 1). 적재 시 부여하는 순번이라 안전. 원본 파일 추적은 준혁의 `source_files` 테이블.
 - 금액: 소수 2자리 **숫자**(JSON number), 항상 `currency`와 쌍. `Money = Decimal(decimal_places=2)`. **facts 안의 금액만 문자열** — `str/04`.
-- 통화: ISO 4217 **코드** 문자열(`USD`). IBM 원천 이름(`US Dollar`)은 AI 로더가 고정 표로 바꾼다(`str/04`). **예외 `BTC`**(Bitcoin, ISO 4217에 없음). 표에 없는 이름은 에러 — 원문을 그대로 흘리지 않는다. (안건 19는 회의 제외, 현값 유지)
+- 통화: ISO 4217 **코드** 문자열(`USD`). IBM 원천 이름(`US Dollar`)은 AI 로더가 고정 표로 바꾼다(`str/04`). **예외 `BTC`**(Bitcoin, ISO 4217에 없음). 표에 없는 이름은 **에러 아님** — `facts.unmapped_currencies: [{name, count, transaction_ids}]` 로 원문 보존, 집계·대조에는 안 섞음(SCRUM-47 · 미결 7). (안건 19는 회의 제외, 현값 유지)
 - 데이터 시각(`ts`, `window_*`, `reference_ts`, facts `period`, observation `window_*`): ISO 8601, 초 단위, 시간대 없음(IBM 원본 그대로). 기존 `Timestamp`의 입력 동작은 유지한다.
 - 시스템 시각(`produced_at`, `created_at`): `SystemTimestamp` — 시간대 있는 입력만 받고(`AwareDatetime`, naive 입력은 Pydantic ValidationError로 거절하고 기존 처리기가 400 `INVALID_REQUEST`로 응답), UTC로 변환한 뒤 microsecond를 버린다. JSON은 UTC + `Z`, 초 단위(예: `2026-10-30T05:12:00Z`). 근거: 노션 미결 27·규약 §0.
 - `ScoreResponse`, `VerifyResponse`, `DraftResponse`에 필수 `produced_at`을 둔다. 서비스는 공용 `shared/time_utils.py`의 `utc_now()` (`datetime.now(UTC).replace(microsecond=0)`)로 채우며 초안 재사용은 저장된 응답의 생성 시각을 유지한다.
@@ -77,7 +77,7 @@
 |---|---|
 | 요청 `generation_id` | `draft_id` 대신. 저장된 facts를 그대로 쓴다 |
 | 요청 `revision_no: int` | 백엔드 `str_revisions` 번호, 1 = AI 원문 |
-| 요청 `narrative[]` | 섹션 6개 **각 1회** — 생성본과 같은 `NarrativeOut` 검증(현재 `VerifyRequest`에 빠져 있음 → 추가) |
+| 요청 `narrative[]` | 섹션 집합 **각 1회** (v1 6개 또는 v2 7개, SCRUM-47) — 생성본과 같은 스키마로 검증(섞이면 거부) |
 | 응답 `generation_id`, `revision_no`, `narrative_sha256` | 추가 — 백엔드 `ApprovalGate`가 `generation_id` + 해시로 "이 생성본·이 본문의 검증이 passed"를 확인(채영 V009, 세 조건은 `str/03`) |
 | 응답 `code_checks[].reason` | 추가 — `UNPARSED` 등. `match=false`일 때만 |
 | `status` | `PASSED / CODE_FAILED / LLM_FAILED / VERIFY_UNAVAILABLE` 유지 (안건 9) |
@@ -89,15 +89,24 @@
 
 ## narrative 해시 — 양쪽이 같은 값 (`shared/hashing.py`, 백엔드 `NarrativeHash.java`)
 
-1. 섹션 6개를 고정 순서 `SUMMARY, WHO, WHAT_WHEN_WHERE, HOW, WHY_SUSPICIOUS, CONCLUSION`으로 정렬.
+**섹션 집합 두 가지가 공존**(SCRUM-47 · 반영일 11/6) — v1 6개(기존)와 v2 7개(별지 제1호). 집합만 보고 버전을 안다(이름이 하나도 겹치지 않음) → 요청·응답에 버전 칸 없음.
+
+1. 섹션 **집합을 보고 순서를 고른다** — 입력 섹션 이름의 집합이:
+   - v1(`SUMMARY, WHO, WHAT_WHEN_WHERE, HOW, WHY_SUSPICIOUS, CONCLUSION`)이면 그 **순서로 정렬**.
+   - v2(`SUBJECT, DATE, PLACE, INSTRUMENT, METHOD, GROUNDS, OPINION`, 서식 1~7)이면 그 **순서로 정렬**.
+   - 둘 다 아니거나 **섞여 있으면** 해시하지 않고 오류(ValueError, 섹션 이름·개수만 로그).
 2. 각 섹션에서 `section`·`text`만 (cites·evidence_ids 제외). `text`는 **NFC 정규화**, 앞뒤 공백 그대로(자르지 않음).
 3. JSON 직렬화: 배열 안 객체, 키 순서 `section` → `text`, 구분자 `,`·`:` 공백 없음, non-ASCII 이스케이프 안 함(`ensure_ascii=False`). 예: `[{"section":"SUMMARY","text":"…"},…]`
 4. UTF-8 바이트 → sha256 → hex 소문자 64자.
-5. 섹션 6개가 각각 한 번씩이 아니면 해시하지 않고 오류(ValueError). 오류 메시지에 `text`를 넣지 않는다(섹션 이름·개수만). Java `NarrativeHash`도 같은 동작.
+5. 집합이 **정확히** v1 6개 또는 v2 7개가 아니면 ValueError (중복·누락·외부 이름 섞임). Java `NarrativeHash`도 같은 동작.
 
-`NarrativeSection`을 쓰는 스키마(`NarrativeOut`, `DraftResponse`, `VerifyRequest`)의 `text`는 자동 strip이 꺼져 있다 — pydantic이 자르면 Java와 바이트가 어긋난다. 길이 제한(`NARRATIVE_TEXT_MAX = 1200`)은 **앞뒤 공백 포함**해서 센다. 공백만 있는 `text`는 스키마가 거부(해시까지 가지 않음).
+`NarrativeSectionBase`를 쓰는 스키마(`NarrativeOut`, `DraftResponse`, `VerifyRequest`)의 `text`는 자동 strip이 꺼져 있다 — pydantic이 자르면 Java와 바이트가 어긋난다. 길이 제한(`NARRATIVE_TEXT_MAX = 1200` 생성·`REVISED_TEXT_MAX = 5000` 수정본)은 **앞뒤 공백 포함**해서 센다. 공백만 있는 `text`는 스키마가 거부(해시까지 가지 않음).
 
-테스트 벡터 `contracts/examples/narrative_hash.json`: `{"narrative": [...6섹션, 한글·조합형 자모·줄바꿈 포함...], "sha256": "..."}`. Python이 먼저 값을 만들고 Java가 같은 값을 내야 "됐다" (W3 ApprovalGate와 함께).
+테스트 벡터 **두 파일**:
+- `contracts/examples/narrative_hash.json` — v1 6섹션 **그대로**(백엔드 `NarrativeHashTest` 가 읽음 — 바꾸지 않는다).
+- `contracts/examples/narrative_hash_v2.json` — v2 7섹션(SCRUM-47 신규, Python 기준값 먼저, 백엔드가 같은 날 맞춤).
+
+Python이 먼저 값을 만들고 Java가 같은 값을 내야 "됐다"(W3 ApprovalGate 와 함께).
 
 ## 미결 — 규약 "미결 사항" 표와 같다
 

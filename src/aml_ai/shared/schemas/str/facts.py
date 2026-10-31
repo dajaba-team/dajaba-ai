@@ -1,9 +1,8 @@
-"""규약 5절 — facts (대상 계좌 관점 통화별 집계). 정본 docs/str/04."""
+"""규약 5절 — facts (대상 계좌 관점 통화별 집계). 정본 docs/str/04. enum 은 facts_enums.py."""
 
 from __future__ import annotations
 
 from datetime import date
-from enum import StrEnum
 
 from pydantic import Field, model_validator
 
@@ -17,20 +16,15 @@ from aml_ai.shared.schemas.common import (
     Typology,
     TypologySource,
 )
+from aml_ai.shared.schemas.str.facts_enums import Direction, EntityType, PathKind, PathStatus
 
 MODEL_SIGNALS_MAX = 3
-
-
-class Direction(StrEnum):
-    INBOUND = "INBOUND"
-    OUTBOUND = "OUTBOUND"
-    MIXED = "MIXED"
-    INTERNAL = "INTERNAL"  # inbound·outbound 둘 다 0 (법인 내 이동만)
 
 
 class SubjectFacts(StrictModel):
     entity_id: str | None
     entity_name: str | None
+    entity_type: EntityType | None = None
     account_key: AccountKey
 
 
@@ -59,7 +53,11 @@ class CurrencyTotal(StrictModel):
 
 
 class FlowFacts(StrictModel):
-    """inbound(받은 쪽 금액) / outbound(보낸 쪽 금액). 통화별, 환산 없음."""
+    """inbound(받은 쪽 금액) / outbound(보낸 쪽 금액). 통화별, 환산 없음.
+
+    `count`·`transaction_ids` 는 **모든** 흐름 거래(미등록 통화 포함),
+    `by_currency` 는 **매핑된 통화만**(미등록 통화는 `Facts.unmapped_currencies`, SCRUM-47).
+    """
 
     count: int = Field(ge=0)
     by_currency: list[CurrencyTotal]
@@ -69,8 +67,8 @@ class FlowFacts(StrictModel):
     def _consistent(self) -> FlowFacts:
         if self.count != len(self.transaction_ids):
             raise ValueError("count must equal len(transaction_ids)")
-        if sum(c.count for c in self.by_currency) != self.count:
-            raise ValueError("sum of by_currency.count must equal count")
+        if sum(c.count for c in self.by_currency) > self.count:
+            raise ValueError("sum of by_currency.count must not exceed count")
         return self
 
 
@@ -81,14 +79,50 @@ class IdGroupFacts(StrictModel):
     transaction_ids: list[TransactionId]
 
 
-class PathKind(StrEnum):
-    CYCLE = "CYCLE"
-    STACK = "STACK"
+class UnmappedCurrencyAgg(StrictModel):
+    """표에 없는 통화(ISO 매핑 없음) 원문 보존 — `by_currency`·대조에는 안 섞음(SCRUM-47, docs/str/04).
+
+    서술에는 "{원문} … 대응 미확인"(05). fact 키 `unmapped_currencies.{name}` 로 근거 거래만 인용.
+    """
+
+    name: str = Field(min_length=1, description="원문 이름 그대로 — ISO 코드가 아님")
+    count: int = Field(ge=1)
+    transaction_ids: list[TransactionId]
+
+    @model_validator(mode="after")
+    def _count_matches_ids(self) -> UnmappedCurrencyAgg:
+        if self.count != len(self.transaction_ids):
+            raise ValueError("unmapped_currencies.count must equal len(transaction_ids)")
+        return self
 
 
-class PathStatus(StrEnum):
-    VERIFIED = "VERIFIED"
-    UNVERIFIED = "UNVERIFIED"
+class CounterpartyBanks(StrictModel):
+    """`counterparties` 집합 기준 상대 계좌의 자행·타행 분포 (SCRUM-47, docs/str/04).
+
+    `{bank_id}` 비교 — `account_key` 의 앞부분이 대상 계좌와 같으면 same, 다르면 other.
+    두 합 = `counterparties.count`.
+    """
+
+    same_bank_accounts: int = Field(ge=0)
+    other_bank_accounts: int = Field(ge=0)
+
+
+class PaymentFormatCount(StrictModel):
+    """결제 방식별 건수 (SCRUM-47). 원본 문자열 그대로, 건수 내림차순 → 이름순 정렬 보존."""
+
+    format: str = Field(min_length=1)
+    count: int = Field(ge=1)
+
+
+class AmountRange(StrictModel):
+    """통화별 min/max 금액(SCRUM-47) — 매핑된 통화만, 환산·합산 없음.
+
+    min·max 는 Decimal 소수 2자리 문자열(`CurrencyTotal.total` 과 같은 규칙).
+    """
+
+    currency: CurrencyCode
+    min: FactAmount
+    max: FactAmount
 
 
 class PathFacts(StrictModel):
@@ -136,10 +170,16 @@ class Facts(StrictModel):
     excluded_self_transfer_count: int = Field(ge=0)
     direction: Direction
     counterparties: IdGroupFacts
+    counterparty_banks: CounterpartyBanks = Field(
+        default_factory=lambda: CounterpartyBanks(same_bank_accounts=0, other_bank_accounts=0)
+    )
     payment_formats: list[str]
+    payment_format_counts: list[PaymentFormatCount] = Field(default_factory=list)
+    amount_range: list[AmountRange] = Field(default_factory=list)
     typology: Typology | None
     typology_source: TypologySource
     customer: CustomerFacts | None
     prior_alert_count: int = Field(ge=0)
     observations: list[ObservationFacts]
     model_signals: list[str] = Field(max_length=MODEL_SIGNALS_MAX)
+    unmapped_currencies: list[UnmappedCurrencyAgg] = Field(default_factory=list)

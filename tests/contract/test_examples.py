@@ -26,7 +26,10 @@ def test_example_parses(name: str, model: type) -> None:
     model.model_validate(load_json(EXAMPLES / name))
 
 
-UNMAPPED = {"narrative_hash.json"}  # 모델이 아니라 해시 테스트 벡터 — tests/str/test_hashing.py
+UNMAPPED = {
+    "narrative_hash.json",
+    "narrative_hash_v2.json",
+}  # 해시 테스트 벡터 — tests/str/test_hashing.py (SCRUM-47)
 
 
 def test_examples_are_all_listed() -> None:

@@ -47,8 +47,16 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 | 24 | `VERIFIED` 고리 2개 facts(`fixtures/facts_cycle.json`)에 "3개 계좌를 거쳐 원래 계좌로 돌아오는 순환 경로 2개" | **통과해야 함** — 거짓 양성 검사(10/28) | 결정적 |
 | 25 | 같은 facts에 "4개 계좌를 거쳐", "순환 경로 3개" | `COUNT_MATCH` MISMATCH | 결정적 |
 | 26 | 끊긴 경로 facts(`UNVERIFIED`)에 "순환 경로 2개" | `COUNT_MATCH` MISMATCH — 확인 안 된 경로 수 | 결정적 |
+| 27 (SCRUM-47) | `payment_format_counts: [{"ACH", 47}]` 에 "ACH 50건" | `COUNT_MATCH` MISMATCH — 결제 방식별 건수 ⑥(06) | 결정적 (코드 검사 4종 구현 뒤) |
+| 28 (SCRUM-47) | `counterparty_banks: {same_bank_accounts: 0, other_bank_accounts: 31}` 에 "자행 5 계좌" | `COUNT_MATCH` MISMATCH — 자행/타행 계좌 수 ⑦(06) | 결정적 (코드 검사 4종 구현 뒤) |
+| 29 (SCRUM-47) | `amount_range: [{"USD", "1500000.00", "22000000.00"}]` 에 건당 `"2,000,000 US Dollar"`(min·max 사이) | **통과해야 함** — `AMOUNT_MATCH` 가 total 외에도 같은 통화 min·max 와 대조(06) | 결정적 (코드 검사 4종 구현 뒤) |
+| 30 (SCRUM-47) | v2 집합에서 `OPINION` 섹션 text 가 `"자료 없음"` 뿐 | `OPINION_PRESENT` MISSING (06) | 결정적 |
+| 31 (SCRUM-47) | v2 집합에서 `OPINION` 섹션 text 가 공란 아님(정상 결론 문장) | **통과해야 함** — `OPINION_PRESENT` match | 결정적 |
+| 32 (SCRUM-47) | v2 집합 7개 중 하나를 v1 이름(`CONCLUSION`)으로 섞음 | 생성 스키마 거부(섞인 집합) · 해시 ValueError (shared/01) | 결정적 |
+| 33 (SCRUM-47) | v1 6섹션 그대로(기존 녹화·picture) | **통과해야 함** — v1 집합 보존, `OPINION_PRESENT` 안 돈다 | 결정적 |
+| 34 (SCRUM-47) | v2 7개 중 하나 섹션 비움(예: `GROUNDS`) | 섹션 비면 생성 스키마가 공백만 거부, 평가자가 `FIVE_W_ONE_H_COMPLETE` 1점 | 결정적(스키마) + LLM(평가자) |
 
-12번이 안 나오면 프롬프트부터 고친다. 7~12·14·23은 손으로 돌려(23은 W3, 나머지 W4) **표로 남긴다** — 평가자 기준 4점을 조정하는 근거이고, MVP 정의서 9절 "검증 지표표"의 재료. 2·16·21·24는 **거짓 양성** 검사라 fail이 나면 검증 코드를 고치는 것이고, 조사역 문장을 탓하지 않는다.
+12번이 안 나오면 프롬프트부터 고친다. 7~12·14·23은 손으로 돌려(23은 W3, 나머지 W4) **표로 남긴다** — 평가자 기준 4점을 조정하는 근거이고, MVP 정의서 9절 "검증 지표표"의 재료. 2·16·21·24·29는 **거짓 양성** 검사라 fail이 나면 검증 코드를 고치는 것이고, 조사역 문장을 탓하지 않는다. 27~29는 코드 검사 4종 구현 이슈(후속)에서 실제 돌림.
 
 ## 녹화 (`recorded/`)
 

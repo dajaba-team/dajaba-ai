@@ -18,11 +18,12 @@
 
 ## 버전·동결 규칙
 
-- 파일명이 버전: `narrative_v1.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 그 전(지금)에는 v1을 자유롭게 고친다. 동결 뒤 고치려면 `narrative_v2.md`를 만들고 `domain/constants.py`의 `NARRATIVE_PROMPT = "narrative_v2"`를 바꾼다(코드 변경 = 리뷰). `prompt_versions.frozen_at`에 동결 시각.
+- 파일명이 버전: `narrative_v1.md`·`narrative_v2.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 동결 전에는 자유 수정, 동결 뒤에는 새 버전 파일(`narrative_vN.md`). `prompt_versions.frozen_at`에 동결 시각.
+- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`, 기본 `narrative_v1`, SCRUM-47). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
 - 기동 시 파일 sha256을 `ai.prompt_versions`에 색인. 동결된 버전의 해시가 파일과 다르면 **기동 실패**(경고가 아니라). 응답 `prompt_version`에 파일명.
-- **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29).
+- **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29). **narrative_v2 녹화·동결·녹화 재생 통합 테스트는 SCRUM-20**(47 머지 직후). **11/6 반영일 PR**은 기본값만 v2 로(채영 백엔드 enum·프론트와 같은 날).
 - 바꾼 뒤엔 오류 주입 12번(정상 초안)과 7~11을 다시 돌려 표로 남긴다(`08`). 표 없이 v2를 서빙하지 않는다.
-- few-shot 예시(`fewshot/*.json`)도 같은 규칙: `example_id` 고정, 내용 바꾸면 새 id. `generations.few_shot_ids`로 추적. 예시의 `narrative`도 `cites` 형식으로.
+- few-shot 예시(`fewshot/{version}/*.json`)도 같은 규칙: `example_id` 고정, 내용 바꾸면 새 id. `generations.few_shot_ids`로 추적. 예시의 `narrative`도 `cites` 형식으로. **활성 버전 폴더만** 읽는다(SCRUM-47, `fewshot_store`).
 
 ## few-shot 선택 (`infrastructure/fewshot_store.py`)
 
@@ -85,6 +86,20 @@ REFERENCES (참고 유형 사례, 출처·쪽 포함. 유형 설명 참고용이
 
 위 FACTS로 6개 섹션을 작성하십시오.
 ```
+
+## narrative_v2 전문 (SCRUM-47, 별지 제1호 서술부 7항목)
+
+v1 과 겹치지 않는 7항목(SUBJECT·DATE·PLACE·INSTRUMENT·METHOD·GROUNDS·OPINION, 서식 1~7)으로 전환. 전문은 `src/aml_ai/str/prompts/narrative_v2.md`. 변경 요지:
+
+- 섹션 enum·순서가 집합만 보고 버전을 결정(이름 겹침 없음, `shared/01`·`04`).
+- 규칙 2 에 `amount_range` 와 **미등록 통화**("{원문} … 대응 미확인") 지침. 금액 조립은 통화별 total·min·max 만.
+- 규칙 4 에 **보고 기관명 쓰지 않음** — 서식 I부(별지 제1호 상단)에 백엔드가 설정값으로 채우므로, 서술부 PLACE 에 쓰면 I부와 어긋날 수 있음(안건 3·5-8). PLACE 는 거래 영업점·대상 계좌·상대 자행/타행 분포만.
+- 규칙 4 "자료 없음" — 자료 없는 항목은 비우지 않고 명시. OPINION 은 끝맺음 문장만이라도 반드시 채움(비면 `OPINION_PRESENT` MISSING, `06`).
+- 규칙 11 보강 — 모델 점수·등급·SHAP 을 금액·확률처럼 인용하지 않는다(안건 6-7). `baseline` 이 null 이면 "평소 대비" 안 씀. 관측값은 FACTS 의 `window_start`~`window_end` 를 그대로 밝힘(피처 이름 접미 `_2h`·`_24h` 로 기간 추정 안 함).
+- 규칙 9·10 유지(cites·FACT_KEYS·경로 숫자는 `paths.status=VERIFIED` 일 때만).
+- few-shot: `fewshot/narrative_v2/002~006_*.json` 5개 — FAN_IN·FAN_OUT·PASS_THROUGH·CYCLE + 근거 약한 예시(`typology: null`). 활성 버전 폴더만 `fewshot_store` 가 읽는다.
+
+반영일(11/6) PR 에 기본값만 v2 로 전환. 녹화·동결(`FROZEN_PROMPTS`) 은 **SCRUM-20** 에서 실제 LLM 1회 호출·해시 박기.
 
 ## judge_v1 (요지 — 전문은 파일)
 

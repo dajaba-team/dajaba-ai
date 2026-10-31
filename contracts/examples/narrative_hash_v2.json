@@ -1,0 +1,63 @@
+{
+  "narrative": [
+    {
+      "section": "INSTRUMENT",
+      "text": "ACH 자동이체 수단.\n정기성 보임.",
+      "cites": [
+        "payment_formats"
+      ],
+      "evidence_ids": [
+        104221,
+        104233
+      ]
+    },
+    {
+      "section": "SUBJECT",
+      "text": "  개인사업자 ##개인.  ",
+      "cites": [
+        "subject.entity_name",
+        "subject.entity_type"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "section": "OPINION",
+      "text": "추가 확인 필요.",
+      "cites": [],
+      "evidence_ids": []
+    },
+    {
+      "section": "DATE",
+      "text": "2022-09-02 00:14 ~ 22:51",
+      "cites": [
+        "period"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "section": "PLACE",
+      "text": "포르투갈 은행 #4507",
+      "cites": [
+        "subject.account_key"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "section": "METHOD",
+      "text": "단일일 집중 입금 패턴.",
+      "cites": [
+        "direction"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "section": "GROUNDS",
+      "text": "매출 규모 대비 입금액 비정상.\n관측값(24h 기준) 상대 수 31개.",
+      "cites": [
+        "observations.account_in_counterparties_24h"
+      ],
+      "evidence_ids": []
+    }
+  ],
+  "sha256": "5897a441e265040af23b6042d752f00f22cf641ff4014415aef2a2f82770ad23"
+}

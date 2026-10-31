@@ -7,6 +7,8 @@ TODO(W3): AMOUNT·DATE·COUNT·ACCOUNT_ID 구현, EVIDENCE_IN_SCOPE 의 cites �
 
 from __future__ import annotations
 
+import unicodedata
+
 from aml_ai.shared.schemas.str import (
     CheckReason,
     CodeCheck,
@@ -14,7 +16,11 @@ from aml_ai.shared.schemas.str import (
     Facts,
     NarrativeSectionBase,
     Section,
+    SectionV2,
 )
+
+# OPINION 공란으로 간주할 표현 (SCRUM-47 안건 6-5) — strip·NFC 뒤 비교.
+OPINION_BLANK_STRINGS: frozenset[str] = frozenset({"자료 없음", "해당 없음", "없음", "-"})
 
 
 def run_code_checks(
@@ -26,6 +32,7 @@ def run_code_checks(
     checks += count_match(facts, narrative)
     checks += account_id_match(facts, narrative)
     checks += evidence_in_scope(narrative, transaction_ids)
+    checks += opinion_present(narrative)  # v2 전용 — 함수 안에서 집합 확인
     return checks
 
 
@@ -82,6 +89,31 @@ def evidence_in_scope(narrative: list[NarrativeSectionBase], transaction_ids: li
     return out
 
 
+def opinion_present(narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
+    """v2 전용 — OPINION 섹션이 공란 표현(`자료 없음·해당 없음·없음·-`)뿐이면 MISSING (SCRUM-47 안건 6-5).
+
+    v1 집합(OPINION 섹션 없음)에서는 돌지 않는다 — 섹션 이름만 보고 분기.
+    """
+    opinion_sections = [s for s in narrative if s.section == SectionV2.OPINION]
+    if not opinion_sections:  # v1 집합 — 검사 안 함
+        return []
+    out: list[CodeCheck] = []
+    for s in opinion_sections:
+        normalized = unicodedata.normalize("NFC", s.text).strip()
+        is_blank = normalized in OPINION_BLANK_STRINGS
+        out.append(
+            CodeCheck(
+                check=CodeCheckName.OPINION_PRESENT,
+                section=s.section,
+                draft_value=normalized if is_blank else None,
+                source_value=None,
+                match=not is_blank,
+                reason=CheckReason.MISSING if is_blank else None,
+            )
+        )
+    return out
+
+
 __all__ = [
     "run_code_checks",
     "amount_match",
@@ -89,5 +121,6 @@ __all__ = [
     "count_match",
     "account_id_match",
     "evidence_in_scope",
+    "opinion_present",
     "Section",
 ]

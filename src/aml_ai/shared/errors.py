@@ -46,12 +46,6 @@ class GenerationInProgress(AiError):
     status, code = 409, "GENERATION_IN_PROGRESS"
 
 
-class UnknownCurrency(AiError):
-    """원천 통화 이름이 코드 표에 없음 — 원문을 그대로 흘리면 통화 대조가 깨진다 (docs/str/04). 500."""
-
-    status, code = 500, "INTERNAL"
-
-
 class LlmInvalidOutput(AiError):
     """스키마 검증 실패 — 1회 재생성 뒤에도 실패했을 때. 백엔드 재시도 0회."""
 

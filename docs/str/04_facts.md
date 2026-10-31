@@ -13,7 +13,7 @@
 ```json
 {
   "reporting_institution": "Portugal Bank #4507",
-  "subject": { "entity_id": "80062E240", "entity_name": "Sole Proprietorship #50438", "account_key": "010_8000EBD30" },
+  "subject": { "entity_id": "80062E240", "entity_name": "Sole Proprietorship #50438", "entity_type": "SOLE_PROPRIETORSHIP", "account_key": "010_8000EBD30" },
   "period": { "start": "2022-09-02T00:14:00", "end": "2022-09-02T22:51:00" },
   "inbound":  { "count": 47, "by_currency": [ { "currency": "USD", "total": "320000000.00", "count": 47, "transaction_ids": [104221, 104233, 104301] } ], "transaction_ids": [104221, 104233, 104301] },
   "outbound": { "count": 0,  "by_currency": [], "transaction_ids": [] },
@@ -23,13 +23,17 @@
   "excluded_self_transfer_count": 0,
   "direction": "INBOUND",
   "counterparties": { "count": 31, "transaction_ids": [104221, 104233, 104301] },
+  "counterparty_banks": { "same_bank_accounts": 0, "other_bank_accounts": 31 },
   "payment_formats": ["ACH"],
+  "payment_format_counts": [ { "format": "ACH", "count": 47 } ],
+  "amount_range": [ { "currency": "USD", "min": "1500000.00", "max": "22000000.00" } ],
   "typology": "FAN_IN",
   "typology_source": "RULE",
   "customer": { "industry": "RETAIL", "risk_level": "LOW", "account_purpose": "SALES_DEPOSIT", "onboarded_at": "2021-03-14", "country_code": "PT" },
   "prior_alert_count": 1,
   "observations": [ { "name": "account_in_counterparties_24h", "value": 31, "unit": "count", "window_start": "2022-09-02T00:00:00", "window_end": "2022-09-03T00:00:00", "basis": "distinct_inbound_counterparties", "baseline": null } ],
-  "model_signals": ["distinct_senders_24h", "outflow_ratio_2h"]
+  "model_signals": ["distinct_senders_24h", "outflow_ratio_2h"],
+  "unmapped_currencies": []
 }
 ```
 
@@ -41,7 +45,8 @@
 
 | 필드 | 규칙 |
 |---|---|
-| `subject` | `S`와 `accounts.entity_id` → `entities`. 이름 없으면 `entity_name: null` |
+| `subject` | `S`와 `accounts.entity_id` → `entities.entity_name`·`entities.entity_type`. 이름 없으면 `entity_name: null` |
+| `subject.entity_type` | `ops.entities.entity_type` 원값 그대로(6종 `CORPORATION·PARTNERSHIP·SOLE_PROPRIETORSHIP·INDIVIDUAL·COUNTRY·DIRECT`) 또는 null. **서식 표기(개인사업자·법인…)로 바꾸지 않는다 — 백엔드 몫.** `COUNTRY`·`DIRECT` 는 개인·법인으로 추정하지 않음(SCRUM-47 · 안건 5-6) |
 | 제외 | `is_self_transfer = true`(from = to = S) 행은 **모든 집계에서 제외**, 건수만 `excluded_self_transfer_count`. 제외 후 남은 거래가 **0건**(self-transfer만)이면 facts를 만들지 않고 400 `INVALID_REQUEST`("no reportable transactions") — 기간·금액이 전부 비는 초안은 쓸 게 없다(가정, 축소본 확인) |
 | `inbound` | `to_account_key = S`인 행. 금액은 **받은 쪽** `amount_received`·`currency_received`. `by_currency`는 통화별 `{currency, total, count, transaction_ids}`, 통화 코드 정렬. 바깥 `transaction_ids`는 그 행 전부, 항목 안 `transaction_ids`는 그 통화 행만 |
 | `outbound` | `from_account_key = S`인 행. 금액은 **보낸 쪽** `amount_paid`·`currency_paid` |
@@ -49,11 +54,15 @@
 | `indirect` | **대상 계좌가 직접 참여하지 않은 경보 거래**(S가 from·to 어디에도 없음). 예: R04_CYCLE A→B→C→A, 대상 A일 때 B→C. `count`와 `transaction_ids`만 남긴다 — 버리지도 400으로 막지도 않고, 대상 계좌 관점 집계(inbound/outbound/counterparties/direction)에는 **섞지 않는다**. 금액 집계 없음. 인용 키 없음, LLM에 보내지 않음(마스킹에서 제거). 쓰임은 `period` 계산과 근거 범위뿐. **이 거래들이 어떤 순서로 이어진 경로인지는 여기서 다루지 않는다** — 그건 `paths`(아래 "경로" 절). (10/27 이름 `path`, 10/28 `indirect`로 변경) |
 | `paths` | `alert.rule_facts.paths`가 있을 때만. 확인 규칙·값은 아래 "경로" 절. 없거나 빈 배열이면 `null` |
 | `by_currency[].total` | Decimal 합, **문자열**, 소수 2자리 고정, 천 단위 구분 없음. 통화 간 **환산 없음**. (0절 "금액은 숫자"의 유일한 예외 — LLM·백엔드가 다르게 반올림하지 않도록) |
-| `currency` | ISO 4217 코드(`USD`, `EUR`, …). IBM 원천은 이름(`US Dollar`, `Euro`, …)이라 **`transaction_reader`가 읽을 때** 고정 표 `domain/constants.CURRENCY_CODES`로 바꾼다 — domain은 코드만 본다. HI-Small 15종(가정, 축소본 만들 때 `SELECT DISTINCT`로 확인): US Dollar→USD, Euro→EUR, Yuan→CNY, Shekel→ILS, Canadian Dollar→CAD, UK Pound→GBP, Ruble→RUB, Australian Dollar→AUD, Swiss Franc→CHF, Yen→JPY, Mexican Peso→MXN, Rupee→INR, Brazil Real→BRL, Saudi Riyal→SAR, **Bitcoin→BTC**(ISO 4217에 없음 — 규약 0절 예외). **표에 없는 이름은 `UnknownCurrency`(500)** — 원문을 그대로 흘리면 검증의 통화 대조가 깨진다 |
+| `currency` | ISO 4217 코드(`USD`, `EUR`, …). IBM 원천은 이름(`US Dollar`, `Euro`, …)이라 **`transaction_reader`가 읽을 때** 고정 표 `domain/constants.CURRENCY_CODES`로 바꾼다 — domain은 코드만 본다. HI-Small 15종(가정, 축소본 만들 때 `SELECT DISTINCT`로 확인): US Dollar→USD, Euro→EUR, Yuan→CNY, Shekel→ILS, Canadian Dollar→CAD, UK Pound→GBP, Ruble→RUB, Australian Dollar→AUD, Swiss Franc→CHF, Yen→JPY, Mexican Peso→MXN, Rupee→INR, Brazil Real→BRL, Saudi Riyal→SAR, **Bitcoin→BTC**(ISO 4217에 없음 — 규약 0절 예외). **표에 없는 이름**은 **에러 아님** → `unmapped_currencies` 로 보존(아래, SCRUM-47 · 미결 7) |
+| `unmapped_currencies` | 표에 없는 통화 이름이 섞여 있을 때 `[{name, count, transaction_ids}]` — 원문 이름 그대로. **`by_currency`·`amount_range` 금액 집계·통화 대조에는 섞지 않는다**(통화 간 환산·합산 금지). 상대 계좌 수는 통화와 무관하므로 **`counterparties` 와 inbound/outbound `count`·`transaction_ids` 에는 포함**. 서술에는 "{원문} … 대응 미확인"(05 규칙) |
 | `direction` | `inbound.count ≥ 2 × outbound.count` → `INBOUND`, 반대 → `OUTBOUND`, 그 밖 → `MIXED`. 둘 다 0이면(internal만) `INTERNAL` |
 | `period` | 제외 후 대상 거래 `ts`의 min / max(**indirect 포함** — 경로 전체가 일어난 기간). ISO 8601 초 단위. 룰 창이 아니라 **실제 거래 범위** |
 | `counterparties` | 상대 `account_key` distinct 수(internal 제외). `transaction_ids` = inbound ∪ outbound |
+| `counterparty_banks` | `counterparties` 집합 기준(internal 제외) `{same_bank_accounts, other_bank_accounts}` — 상대 `account_key` 의 `{bank_id}` 부분이 대상 계좌와 같으면 자행(same), 아니면 타행(other). 두 합 = `counterparties.count`. `account_key` 앞자리 0 통일은 적재에서 처리(5-1) (SCRUM-47 · 안건 6-2) |
 | `payment_formats` | distinct, 원본 문자열 그대로(ACH, Wire, Cash, …), 정렬 |
+| `payment_format_counts` | `[{format, count}]` — inbound ∪ outbound(self-transfer 제외) 원본 문자열별 건수. **건수 내림차순 → 이름순**(동률 안정화). 기존 `payment_formats`(distinct 목록) 는 v1 호환으로 남김 (SCRUM-47) |
+| `amount_range` | 통화별 `[{currency, min, max}]` — inbound ∪ outbound 중 **매핑된 통화만**(미등록 통화 제외), 통화 간 비교·합산 없음. min·max 는 Decimal 소수 2자리 **문자열**(`by_currency.total` 과 같은 규칙). 통화 코드 정렬. **거래마다 그 방향 금액 기준** — 입금은 `amount_received`·`currency_received`, 출금은 `amount_paid`·`currency_paid`(`inbound`·`outbound` 와 같음) (SCRUM-47 · 안건 6-2) |
 | `typology` / `typology_source` | 요청 `alert.typology_hint` 그대로. `typology_source`는 `RULE` 고정(안건 8) |
 | `customer` | `customer_attributes` 행. 없으면 `null`. `onboarded_at`은 날짜(검증 `DATE_MATCH`가 "개설일"로 허용) |
 | `prior_alert_count` | 요청 그대로. 내용은 오지도 않는다 |
@@ -106,7 +115,7 @@ LLM은 섹션마다 `cites`에 **fact 키**를 쓴다(05). 코드 `attach_eviden
 
 | 키 (`fact_keys(facts)`가 만든다) | 가리키는 값 | → `evidence_ids` |
 |---|---|---|
-| `subject`, `subject.entity_name`, `subject.account_key` | 대상 | 없음 |
+| `subject`, `subject.entity_name`, `subject.account_key`, `subject.entity_type` | 대상 (entity_type 는 null 이면 키 안 생김) | 없음 |
 | `period` | 기간 | inbound ∪ outbound ∪ internal ∪ indirect |
 | `inbound.count` | 입금 건수 | `inbound.transaction_ids` |
 | `inbound.amount.{currency}` (통화 코드별 1개씩, 예 `inbound.amount.USD`) | 그 통화 입금 합계 | **그 통화 항목의** `by_currency[].transaction_ids`만 — 달러 합계에 유로 거래가 붙지 않게 |
@@ -114,16 +123,20 @@ LLM은 섹션마다 `cites`에 **fact 키**를 쓴다(05). 코드 `attach_eviden
 | `outbound.amount.{currency}` | 그 통화 출금 합계 | 그 통화 항목의 `by_currency[].transaction_ids`만 |
 | `internal.count` | 법인 내 이동 | `internal.transaction_ids` |
 | `counterparties.count` | 상대 수 | `counterparties.transaction_ids` |
+| `counterparty_banks.same_bank_accounts`, `counterparty_banks.other_bank_accounts` | 자행·타행 상대 계좌 수 | `counterparties.transaction_ids` (facts 에 bank 별 거래 세분이 없음 — 세분화는 후속) |
+| `payment_format_counts.{format}` (원본 문자열별 1개씩) | 그 결제 방식 건수 | inbound ∪ outbound 거래 ID 전체 (facts 에 format 별 거래 세분이 없음 — 세분화는 후속) |
+| `amount_range.{currency}.min`, `amount_range.{currency}.max` | 통화별 min/max 금액 | 그 통화의 `by_currency[].transaction_ids` (매핑된 그 통화 거래 전체) |
 | `direction`, `payment_formats`, `typology` | 패턴 | inbound ∪ outbound |
 | `customer.industry`, `customer.risk_level`, `customer.account_purpose`, `customer.onboarded_at`, `customer.country_code` | 고객 | 없음 |
 | `prior_alert_count` | 과거 경보 수 | 없음 |
 | `observations.{name}` | 관측값 1개 | 없음 (거래가 아니라 피처) |
 | `model_signals` | 모델 주목 피처 이름들 | 없음 |
 | `paths.count`, `paths.max_hops`, `paths.max_accounts`, `paths.kind` | 경로 수·가장 긴 경로의 거래 수·거친 계좌 수·유형 — **`paths.status = VERIFIED`일 때만 키가 생긴다** | `paths.transaction_ids` |
+| `unmapped_currencies.{name}` (원문 통화 이름별 1개씩, 예 `unmapped_currencies.Dogecoin`) | 그 미등록 통화가 섞인 거래들 — **건수·근거만**, 금액 없음(통화 대조가 깨짐) → 서술에 **미등록 통화 금액은 쓰지 않는다**(그래서 06 `AMOUNT_MATCH` 규칙은 안 건드림) | 그 `unmapped_currencies[].transaction_ids` |
 
 - 존재하는 키 목록을 프롬프트 `FACT_KEYS`에 그대로 넣는다. 목록 밖 키는 `NarrativeOut` 검증에서 걸러 재생성(05).
 - `null`인 fact(예: `customer`가 없음)의 키는 목록에 **넣지 않는다** — 인용할 게 없다.
-- 섹션의 cites가 전부 "없음" 키(subject·customer)뿐이면 `evidence_ids = []`. CONCLUSION은 보통 `[]`.
+- 섹션의 cites가 전부 "없음" 키(subject·customer)뿐이면 `evidence_ids = []`. CONCLUSION(v1)·OPINION(v2) 은 보통 `[]`.
 
 ## 마스킹 (`masking.py`) — 생성·평가자 공용
 
@@ -135,7 +148,7 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 | `reporting_institution` (은행명) | 그대로 |
 | `subject.entity_name` (고객명) | 그대로 — IBM 합성 데이터라 실명이 아님. 실데이터 전환 시 여기서 가명화(MVP 정의서 8절 "한계" 4번) |
 | `subject.entity_id` | 그대로 (합성) |
-| `*.transaction_ids` | **제거** — LLM은 거래 ID를 보지 않는다 |
+| `*.transaction_ids` | **제거** — LLM은 거래 ID를 보지 않는다 (inbound·outbound·by_currency·counterparties·indirect·paths·**`unmapped_currencies`** 모든 집계, NFR-DRF-03) |
 | `indirect` | **통째로 제거** — 인용 키가 없는 사실을 LLM이 문장에 쓰면 검증이 대조할 곳이 없다 |
 | `paths` | `VERIFIED`면 `{kind, count, max_hops, max_accounts}`만 남기고 ID·`status` 제거. `UNVERIFIED`·`null`이면 **통째로 제거** — LLM은 확인된 경로만 본다 |
 | 그 밖 | 그대로 |
