@@ -17,8 +17,8 @@ from pydantic import ValidationError
 from aml_ai.shared.config import Settings
 from aml_ai.shared.errors import LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.infrastructure.llm_client import LlmClient, LlmResult
-from aml_ai.shared.schemas.str import NarrativeOut, Reference
-from aml_ai.str.domain.constants import NARRATIVE_MAX_TOKENS, NARRATIVE_PROMPT, SCHEMA_RETRY
+from aml_ai.shared.schemas.str import NarrativeOut, Reference, llm_output_model
+from aml_ai.str.domain.constants import NARRATIVE_MAX_TOKENS, SCHEMA_RETRY
 from aml_ai.str.domain.models import Example, GenerationResult
 
 log = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ class NarrativeGenerator:
         self,
         llm: LlmClient,
         settings: Settings,
-        prompt_name: str = NARRATIVE_PROMPT,
+        prompt_name: str = "narrative_v1",  # SCRUM-47 — draft_service.build 가 settings.narrative_prompt 전달
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self._llm = llm
@@ -119,8 +119,13 @@ class NarrativeGenerator:
         return deadline - self._clock() >= self._s.regen_min_remaining_s
 
     def _validate_result(self, res: LlmResult, fact_keys: list[str], attempt: int) -> NarrativeOut | None:
+        """활성 버전 모델(NarrativeOutV1/V2) 로 검증 — 공용 NarrativeOut 로 두면 v2 모드가 v1 응답을 통과시킴.
+
+        Codex adversarial 지적(SCRUM-47) 반영 — 모델 선택은 `llm_output_model(prompt_name)` 한 곳에서.
+        """
         try:
-            out = NarrativeOut.model_validate_json(res.text)
+            model = llm_output_model(self.prompt_version)
+            out = model.model_validate_json(res.text)
             _check_cites_in_scope(out, fact_keys)
             return out
         except (ValidationError, ValueError) as exc:

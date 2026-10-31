@@ -6,7 +6,8 @@ import re
 from decimal import Decimal
 
 # ---- facts (docs/str/04)
-# IBM 원천 통화 이름 → ISO 4217 코드. Bitcoin→BTC 는 규약 0절 예외. 표에 없는 이름은 UnknownCurrency.
+# IBM 원천 통화 이름 → ISO 4217 코드. Bitcoin→BTC 는 규약 0절 예외.
+# 표에 없는 이름은 에러 아님 — Facts.unmapped_currencies 로 원문 보존(SCRUM-47, 미결 7).
 CURRENCY_CODES: dict[str, str] = {
     "US Dollar": "USD",
     "Euro": "EUR",
@@ -31,7 +32,8 @@ PATH_MIN_TRANSACTIONS = 2
 MODEL_SIGNALS_TOP = 3  # reasons 상위 N개의 이름만 model_signals 로
 
 # ---- 프롬프트 (docs/str/05)
-NARRATIVE_PROMPT = "narrative_v1"
+# NARRATIVE_PROMPT 상수는 폐기 (SCRUM-47) — 활성 서술 버전은 shared/config.narrative_prompt 설정으로.
+# tools.record 와 draft_service.build() 는 get_settings().narrative_prompt 를 쓴다.
 JUDGE_PROMPT = "judge_v1"
 SUMMARY_PROMPT = "summary_v1"
 LLM_TEMPERATURE = 0.0

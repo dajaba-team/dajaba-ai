@@ -49,7 +49,7 @@ class DraftService:
             reader=TransactionReader(session),
             fewshot=FewshotStore(session),
             retriever=Retriever(session, make_embedding_client(settings), enabled=settings.rag_enabled),
-            generator=NarrativeGenerator(llm, settings, clock=clock),
+            generator=NarrativeGenerator(llm, settings, settings.narrative_prompt, clock=clock),
             generations=GenerationRepository(session, settings),
             clock=clock,
         )

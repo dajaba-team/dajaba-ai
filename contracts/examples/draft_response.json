@@ -7,6 +7,7 @@
     "subject": {
       "entity_id": "80062E240",
       "entity_name": "Sole Proprietorship #50438",
+      "entity_type": "SOLE_PROPRIETORSHIP",
       "account_key": "010_8000EBD30"
     },
     "period": {
@@ -57,8 +58,25 @@
         104301
       ]
     },
+    "counterparty_banks": {
+      "same_bank_accounts": 0,
+      "other_bank_accounts": 3
+    },
     "payment_formats": [
       "ACH"
+    ],
+    "payment_format_counts": [
+      {
+        "format": "ACH",
+        "count": 3
+      }
+    ],
+    "amount_range": [
+      {
+        "currency": "USD",
+        "min": "12500.00",
+        "max": "16800.50"
+      }
     ],
     "typology": "FAN_IN",
     "typology_source": "RULE",
@@ -83,7 +101,8 @@
     ],
     "model_signals": [
       "account_in_counterparties_24h"
-    ]
+    ],
+    "unmapped_currencies": []
   },
   "narrative": [
     {

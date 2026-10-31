@@ -41,7 +41,7 @@ def test_record_and_service_produce_same_recording_key() -> None:
     facts = Facts.model_validate(
         json.loads((REPO_ROOT / "tests/str/fixtures/facts_fan_in.json").read_text(encoding="utf-8"))
     )
-    r_system, r_user, r_keys = _build_prompt(facts)
+    r_system, r_user, r_keys = _build_prompt(facts, "narrative_v1")
     s_system, s_user, s_keys = _service_prompt(facts)
     assert r_system == s_system
     assert r_user == s_user

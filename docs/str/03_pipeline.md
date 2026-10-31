@@ -22,14 +22,14 @@
 2  transaction_reader.load_transactions(evidence_transaction_ids)   ops.transactions WHERE transaction_id = any(...) — 1 쿼리. 대상 계좌가 없는 거래(경로형 경보의 중간 거래)도 그대로 읽는다 → facts indirect, 경로 확인은 rule_facts.paths로 (04)
    transaction_reader.load_subject(alert, txs)                      accounts / entities / customer_attributes — 1~3 쿼리 (관련 계좌 entity_id 포함, internal 판정용)
    없는 ID가 있으면 400 INVALID_REQUEST (message에 없는 ID 최대 10개 + 개수) → 행 FAILED
-   self-transfer만 남으면(domain.facts.has_reportable) 400 INVALID_REQUEST "no reportable transactions" · 표에 없는 통화 이름 → 500 UnknownCurrency
+   self-transfer만 남으면(domain.facts.has_reportable) 400 INVALID_REQUEST "no reportable transactions" · 표에 없는 통화 이름은 `facts.unmapped_currencies` 로 보존(04, SCRUM-47) — 에러 아님
 3  facts = domain.facts.build_facts(req, txs, subject)                       순수 (04) — observations는 req.reasons에서
 4  facts_llm = domain.masking.mask_for_llm(facts)                            순수 (04) — 생성·평가자 공용
 5  examples = fewshot_store.pick_examples(facts.typology)                    (05) 같은 유형 1 + 다른 유형 2
 6  references = retriever.retrieve(facts)                                    (10) 0~3건. RetrievalUnavailable → [] ※ 초안을 막지 않음
 7  gen = narrative_generator.generate(facts_llm, fact_keys(facts), examples, references, notes, deadline=deadline)   (05)
       선체크 — 남은 예산 < LLM_TIMEOUT_S(35초) 이면 LLM 안 부르고 LlmUnavailable (502, 아래 "예산 초과는 LlmUnavailable")
-      LLM 1회(35초) + NarrativeOut 스키마 검증(섹션 6개 각 1회, cites ⊆ fact_keys)
+      LLM 1회(35초) + NarrativeOut 스키마 검증(섹션 집합 각 1회 — v1 6개 또는 v2 7개, cites ⊆ fact_keys)
       스키마 실패 → 남은 예산 ≥ 40초면 1회 재생성, 아니면 바로 → 또 실패 LlmInvalidOutput (502)
       성공 시 tokens_in·tokens_out·latency_ms 는 호출한 횟수의 합(재생성 뒤 성공해도 두 호출 합)
       연결 실패·타임아웃 → LlmUnavailable (502). ★ AI 안에서 연결 재시도 없음 — 재시도는 백엔드 AiClient 1회만
@@ -45,7 +45,7 @@
 
 ## `POST /v1/str/verify`
 
-요청(규약 5.3): `generation_id`, `revision_no`, `narrative`(조사역 수정본, 섹션 6개 각 1회 — 생성본과 같은 스키마).
+요청(규약 5.3): `generation_id`, `revision_no`, `narrative`(조사역 수정본, **섹션 집합 각 1회** — v1 6개 또는 v2 7개, 생성본과 같은 스키마).
 
 ```
 0  요청 검증                  NarrativeOut 과 같은 섹션 제약 (섹션 중복·누락 → 400). 수정본은 섹션당 5,000자(NFC 뒤 UTF-16 — 06 "수정본 길이", 미결 24 확정 10/30)

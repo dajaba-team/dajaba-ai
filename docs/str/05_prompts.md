@@ -18,11 +18,12 @@
 
 ## 버전·동결 규칙
 
-- 파일명이 버전: `narrative_v1.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 그 전(지금)에는 v1을 자유롭게 고친다. 동결 뒤 고치려면 `narrative_v2.md`를 만들고 `domain/constants.py`의 `NARRATIVE_PROMPT = "narrative_v2"`를 바꾼다(코드 변경 = 리뷰). `prompt_versions.frozen_at`에 동결 시각.
+- 파일명이 버전: `narrative_v1.md`·`narrative_v2.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 동결 전에는 자유 수정, 동결 뒤에는 새 버전 파일(`narrative_vN.md`). `prompt_versions.frozen_at`에 동결 시각.
+- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`, 기본 `narrative_v1`, SCRUM-47). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
 - 기동 시 파일 sha256을 `ai.prompt_versions`에 색인. 동결된 버전의 해시가 파일과 다르면 **기동 실패**(경고가 아니라). 응답 `prompt_version`에 파일명.
-- **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29).
+- **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29). **narrative_v2 녹화·동결·녹화 재생 통합 테스트는 SCRUM-20**(47 머지 직후). **11/6 반영일 PR**은 기본값만 v2 로(채영 백엔드 enum·프론트와 같은 날).
 - 바꾼 뒤엔 오류 주입 12번(정상 초안)과 7~11을 다시 돌려 표로 남긴다(`08`). 표 없이 v2를 서빙하지 않는다.
-- few-shot 예시(`fewshot/*.json`)도 같은 규칙: `example_id` 고정, 내용 바꾸면 새 id. `generations.few_shot_ids`로 추적. 예시의 `narrative`도 `cites` 형식으로.
+- few-shot 예시(`fewshot/{version}/*.json`)도 같은 규칙: `example_id` 고정, 내용 바꾸면 새 id. `generations.few_shot_ids`로 추적. 예시의 `narrative`도 `cites` 형식으로. **활성 버전 폴더만** 읽는다(SCRUM-47, `fewshot_store`).
 
 ## few-shot 선택 (`infrastructure/fewshot_store.py`)
 

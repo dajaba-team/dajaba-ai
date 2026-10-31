@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,6 +30,10 @@ class Settings(BaseSettings):
     # 결정성 — 설정 하나로 고정, 호출마다 폴백하지 않음(SCRUM-15 10/29)
     llm_temperature_supported: bool = Field(default=False, alias="LLM_TEMPERATURE_SUPPORTED")
     llm_reasoning_effort: str = Field(default="low", alias="LLM_REASONING_EFFORT")
+    # 활성 서술 버전 (SCRUM-47) — 프롬프트 파일·LLM 출력 스키마·few-shot 폴더가 이 값 하나로 바뀜
+    narrative_prompt: Literal["narrative_v1", "narrative_v2"] = Field(
+        default="narrative_v1", alias="NARRATIVE_PROMPT"
+    )
     # 초안 요청 시간 예산 (SCRUM-45) — draft_service 가 요청 수신 즉시 deadline = clock() + draft_budget_s 결정,
     # 생성기는 첫 LLM 호출 전과 재생성 전 두 지점에서만 남은 예산을 본다 (str/03 "구현 위치")
     draft_budget_s: float = Field(default=80.0, gt=0, alias="DRAFT_BUDGET_S")

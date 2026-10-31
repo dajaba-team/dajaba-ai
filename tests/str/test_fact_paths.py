@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from aml_ai.shared.schemas.str import LlmNarrativeSection, PathStatus, Section
+from aml_ai.shared.schemas.str import LlmNarrativeSection, PathStatus, SectionV1
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain.fact_keys import attach_evidence, fact_keys
 from aml_ai.str.domain.masking import mask_for_llm
@@ -81,8 +81,8 @@ def test_attach_evidence_unions_cited_keys_and_ignores_unknown(mixed) -> None:
     keys = fact_keys(mixed)
     usd, eur = (f"inbound.amount.{c.currency}" for c in reversed(mixed.inbound.by_currency))
     sections = [
-        LlmNarrativeSection(section=s, text="본문", cites=[usd, eur] if s is Section.SUMMARY else [])
-        for s in Section
+        LlmNarrativeSection(section=s, text="본문", cites=[usd, eur] if s is SectionV1.SUMMARY else [])
+        for s in SectionV1
     ]
     sections[-1] = sections[-1].model_copy(update={"cites": ["subject", "no.such.key"]})
     out = attach_evidence(sections, mixed)

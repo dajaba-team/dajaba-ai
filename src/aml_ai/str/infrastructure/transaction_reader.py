@@ -8,7 +8,7 @@ from __future__ import annotations
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from aml_ai.shared.errors import InvalidRequest, UnknownCurrency
+from aml_ai.shared.errors import InvalidRequest
 from aml_ai.shared.schemas.alerts import Alert
 from aml_ai.str.domain.facts import currency_code
 from aml_ai.str.domain.models import Customer, Subject, Transaction
@@ -31,7 +31,7 @@ _ACCOUNTS_SQL = text(
      where account_key = any(:keys)
     """
 )
-_ENTITY_SQL = text("select entity_name from ops.entities where entity_id = :eid")
+_ENTITY_SQL = text("select entity_name, entity_type from ops.entities where entity_id = :eid")
 _CUSTOMER_SQL = text(
     """
     select industry, risk_level, account_purpose, onboarded_at, country_code
@@ -60,9 +60,12 @@ class TransactionReader:
         accounts = {r["account_key"]: r for r in self._s.execute(_ACCOUNTS_SQL, {"keys": keys}).mappings()}
         own = accounts.get(alert.account_key)
         entity_id = own["entity_id"] if own else alert.entity_id
-        entity_name = customer = None
+        entity_name = entity_type = customer = None
         if entity_id is not None:
-            entity_name = self._s.execute(_ENTITY_SQL, {"eid": entity_id}).scalar_one_or_none()
+            ent = self._s.execute(_ENTITY_SQL, {"eid": entity_id}).mappings().one_or_none()
+            if ent is not None:
+                entity_name = ent["entity_name"]
+                entity_type = ent["entity_type"]
             row = self._s.execute(_CUSTOMER_SQL, {"eid": entity_id}).mappings().one_or_none()
             customer = Customer(**row) if row else None
         return Subject(
@@ -70,15 +73,17 @@ class TransactionReader:
             entity_id=entity_id,
             entity_name=entity_name,
             bank_name=own["bank_name"] if own else None,
+            entity_type=entity_type,
             customer=customer,
             account_entities={k: r["entity_id"] for k, r in accounts.items()},
         )
 
     @staticmethod
     def _to_tx(row: dict[str, object]) -> Transaction:
+        """IBM 원천 이름 → ISO 코드. 표에 없으면 원문 그대로 둠 — build_facts 가 Facts.unmapped_currencies 로 모은다 (SCRUM-47, docs/str/04)."""
         for col in ("currency_paid", "currency_received"):
             code = currency_code(str(row[col]))
-            if code is None:
-                raise UnknownCurrency(f"unknown currency name in {col}")  # 원문 값은 메시지에 안 넣는다
-            row[col] = code
+            if code is not None:
+                row[col] = code
+            # 매핑 실패해도 원문 유지 — Transaction.currency_* 는 str (ISO 패턴은 Facts.by_currency 에만)
         return Transaction(**row)  # type: ignore[arg-type]

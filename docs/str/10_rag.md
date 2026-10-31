@@ -72,7 +72,7 @@ REFERENCES 자리에 `[n] {doc_title} p.{page}: {text}` 0~3줄, 없으면 `(없�
 
 hit@3는 검색이 맞았는지만 본다. **초안이 실제로 나아졌는지**는 따로 본다. 픽스처 facts 5건(유형 5개) × `RAG_ENABLED=true/false` 각 1회 생성(온도 0, 같은 few-shot) → 표 한 장:
 
-| 사건 | RAG | 코드 5 통과 | `TYPOLOGY_CONSISTENT` | `NO_UNSUPPORTED_CLAIM` | WHY_SUSPICIOUS의 유형 지표 언급 수 | 사람 선호(블라인드) |
+| 사건 | RAG | 코드 5 통과 | `TYPOLOGY_CONSISTENT` | `NO_UNSUPPORTED_CLAIM` | WHY_SUSPICIOUS(v1)·GROUNDS(v2) 의 유형 지표 언급 수 | 사람 선호(블라인드) |
 |---|---|---|---|---|---|---|
 
 사람 선호는 진희·준영이 어느 쪽이 RAG인지 모르고 두 초안 중 고른다. RAG를 켠 쪽이 `NO_UNSUPPORTED_CLAIM`을 떨어뜨리면(사례 정황 반입) 규칙 8부터 고친다. 되돌림 조건(11/11 hit@3 표)은 그대로고, 이 표는 "RAG를 왜 넣었나"에 답하는 재료 — 켠 쪽이 나은 게 없으면 회의에서 2차 전환을 다시 꺼낸다. 결과는 `08`과 발표 자료에.
