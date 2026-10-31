@@ -13,7 +13,8 @@
 | 검색 평가 | `retrieval_eval.json` → hit@3(주)·precision@3·recall@3 (청크 단위, `10`) | W4, 11/11 전 |
 | RAG 켬/끔 비교 | 같은 facts 5건 × `RAG_ENABLED` true/false 생성 → 코드·평가자 점수·사람 선호 표 (`10`) | W4, 11/11 전 |
 | DB | Alembic + repository 저장·조회, **`draft_id` 선점 5가지**(`shared/03`): ① 같은 요청 동시 진입(두 스레드 → 하나 409) ② FAILED 뒤 같은 요청(새 `generation_id`, 옛 행 그대로) ③ 내용이 다른 두 요청 동시 시작 — 먼저 잡은 쪽이 성공하든 실패하든 다른 쪽은 400(결과를 받아 가지도, 새로 생성하지도 않음) ④ `STALE_PROCESSING_S` 지난 PROCESSING(FAILED로 닫고 재생성) ⑤ STALE로 닫힌 뒤 늦게 끝난 옛 작업의 finish → 0행, 결과 버림 | `-m db`, CI |
-| 녹화 | `recorded/*.json` — 실제 LLM 응답을 저장해 `AI_LLM_MOCK=true`에서 재생 | 백엔드 로컬 연동, CI |
+| 녹화 | `recorded/{prompt_version}/*.json` — 실제 LLM 응답을 저장해 `AI_LLM_MOCK=true`에서 재생. v1·v2 각 폴더(SCRUM-47) | 백엔드 로컬 연동, CI |
+| 통합 (SCRUM-20) | `tests/str/test_draft_integration.py` — TestClient `POST /v1/str/drafts` 를 녹화 모드로 끝까지(HTTP → DraftService → 선점 → ops 읽기 → facts → 마스킹 → few-shot → `RecordedLlmClient` → attach_evidence → 펜싱 저장 → 응답). `NARRATIVE_PROMPT=narrative_v1`·`narrative_v2` 둘 다 파라미터 | `-m db`, CI |
 
 ## 오류 주입 — 26개
 
@@ -60,7 +61,18 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 
 ## 녹화 (`recorded/`)
 
-`AI_LLM_MOCK=true`면 `shared/infrastructure/llm_client.RecordedLlmClient`가 호출 대신 `recorded/{prompt_version}/{key}.json`을 읽는다. **녹화 키**는 `shared/infrastructure/llm_client.recording_key(system, user)` = `sha256(stable_json({"s":system,"u":user}))[:16]` — 함수 하나, `record.py`와 `RecordedLlmClient`가 같은 걸 쓴다(이어 붙이기는 경계가 모호). 없으면 에러(조용히 지어내지 않음). 녹화 갱신은 `uv run python -m tools.record --case fan_in` 식으로 실제 호출 1회 → 파일 저장 → 커밋. 백엔드가 로컬에서 AI를 붙여 볼 때 LLM 키 없이 돈다.
+`AI_LLM_MOCK=true`면 `shared/infrastructure/llm_client.RecordedLlmClient`가 호출 대신 `recorded/{prompt_version}/{key}.json`을 읽는다. **녹화 키**는 `shared/infrastructure/llm_client.recording_key(system, user)` = `sha256(stable_json({"s":system,"u":user}))[:16]` — 함수 하나, `record.py`와 `RecordedLlmClient`가 같은 걸 쓴다(이어 붙이기는 경계가 모호). 없으면 에러(조용히 지어내지 않음). 녹화 갱신은 `AI_LLM_MOCK=false NARRATIVE_PROMPT=narrative_vN uv run python -m tools.record --case fan_in`(활성 버전으로 조립·저장). 커밋 = 템플릿 동결 시점(`FROZEN_PROMPTS`). 백엔드가 로컬에서 AI를 붙여 볼 때 LLM 키 없이 돈다.
+
+**fixture 변경 ↔ 녹화 키** (SCRUM-20): `fixtures/facts_fan_in.json` 또는 프롬프트 파일이 바뀌면 녹화 키가 깨짐 — fixture 갱신한 커밋에서 **v1·v2 모두 재녹화**해야 `test_recorded_replay` 통과. 통합 테스트는 fixture 를 "서비스가 계산한 facts" 와 대조해 녹화 키 깨지기 전에 먼저 잡는다.
+
+## 통합 (SCRUM-20)
+
+`tests/str/test_draft_integration.py`, `@pytest.mark.db`. TestClient 로 `POST /v1/str/drafts`(`X-Internal-Key`), `AI_LLM_MOCK=true`, `RAG_ENABLED=false`. `NARRATIVE_PROMPT` 를 `narrative_v1`·`narrative_v2` 파라미터로 각각 돌림.
+
+- **ops seed**: `tests/str/fixtures/ops_seed.sql` 로 `ops` 4테이블(`transactions`·`accounts`·`entities`·`customer_attributes`) 최소 DDL + 행. 백엔드 V002 와 컬럼·타입 일치(`entity_type` 포함). `is_laundering`·`pattern_*` 는 값 없이 — SELECT 안 되는지 확인.
+- **정상**: 200, 규약 5.2 모양(`draft_response.json` 스키마), `verification=null`, `facts == fixture`, 섹션 집합 활성 버전과 같음(v1 6·v2 7), `evidence_ids ⊆ 요청 evidence_transaction_ids`, `generation_meta.prompt_version` = 활성 버전, `few_shot_ids`(v1 `[1]` / v2 같은 유형 1 + 다른 유형 2), `references=[]`, `ai.generations` 1행 `SUCCEEDED`.
+- **경계**: 같은 `draft_id`·같은 본문 재요청 → 저장 결과 그대로(`ClaimReuse`, 녹화 클라이언트 호출 0회), `generations` 행 수 그대로.
+- **실패 4종**: 없는 `transaction_id` → 400 `INVALID_REQUEST`, 같은 `draft_id` 다른 본문 → 400, 녹화 없는 입력(`investigator_notes` 한 줄 추가 → user 프롬프트 바뀜 → 녹화 키 miss) → 502 `LLM_UNAVAILABLE` + generations `FAILED`(지어내지 않음), `X-Internal-Key` 없음 → 401.
 
 ## 검색 평가 (`retrieval_eval.json`)
 
