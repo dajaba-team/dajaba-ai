@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import time
-from datetime import datetime
 
 from aml_ai.shared.config import Settings
 from aml_ai.shared.schemas.alerts import Alert, ScoreRequest
@@ -17,6 +16,7 @@ from aml_ai.shared.schemas.scores import (
     ScoreResponse,
     ScoringMeta,
 )
+from aml_ai.shared.time_utils import utc_now
 
 MOCK_THRESHOLD = 0.7
 MOCK_MODEL_VERSION = "mock-0"
@@ -44,7 +44,7 @@ class ScoreService:
                 server_version=self._s.server_version,
                 latency_ms=int((time.perf_counter() - started) * 1000),
             ),
-            produced_at=datetime.now().replace(microsecond=0),
+            produced_at=utc_now(),
         )
 
     @staticmethod

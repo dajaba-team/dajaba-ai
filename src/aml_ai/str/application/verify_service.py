@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 
 from sqlalchemy.orm import Session
 
@@ -17,8 +16,10 @@ from aml_ai.shared.errors import DraftNotFound, LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.hashing import narrative_sha256
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
 from aml_ai.shared.schemas.str import LlmCheck, VerifyRequest, VerifyResponse, VerifyStatus
+from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain import masking, verification
 from aml_ai.str.domain.constants import JUDGE_PASS_SCORE, VERIFIER_VERSION
+from aml_ai.str.domain.models import StoredDraft
 from aml_ai.str.infrastructure.generation_repository import GenerationRepository
 from aml_ai.str.infrastructure.judge import Judge
 from aml_ai.str.infrastructure.verification_repository import VerificationRepository
@@ -51,22 +52,7 @@ class VerifyService:
         code_checks = verification.run_code_checks(draft.facts, req.narrative, draft.evidence_transaction_ids)
         code_ok = all(c.match for c in code_checks)
 
-        llm_checks: list[LlmCheck] | None = None
-        if not code_ok:
-            status = VerifyStatus.CODE_FAILED  # 평가자 안 부름 — 비용, 어차피 fail
-        else:
-            try:
-                llm_checks = self.judge.run(masking.mask_for_llm(draft.facts), req.narrative)
-                status = (
-                    VerifyStatus.PASSED
-                    if all(c.score >= JUDGE_PASS_SCORE for c in llm_checks)
-                    else VerifyStatus.LLM_FAILED
-                )
-            except (LlmUnavailable, LlmInvalidOutput) as exc:
-                log.warning("judge_unavailable", extra={"reason": exc.code})
-                status = (
-                    VerifyStatus.VERIFY_UNAVAILABLE
-                )  # passed=false 가 아니다 — 백엔드 "다시 검증" (안건 9)
+        status, llm_checks = self._decide(draft, req, code_ok)
 
         passed = status is VerifyStatus.PASSED
         verifier_version = f"{VERIFIER_VERSION}+{self.judge.prompt_version}"
@@ -91,5 +77,27 @@ class VerifyService:
             llm_checks=llm_checks,
             narrative_refs=None,  # TODO(Open-23): judge_v2 섹션별 cites → attach_evidence (W3)
             verifier_version=verifier_version,
-            produced_at=datetime.now().replace(microsecond=0),
+            produced_at=utc_now(),
         )
+
+    def _decide(
+        self, draft: StoredDraft, req: VerifyRequest, code_ok: bool
+    ) -> tuple[VerifyStatus, list[LlmCheck] | None]:
+        llm_checks: list[LlmCheck] | None = None
+        if not code_ok:
+            status = VerifyStatus.CODE_FAILED  # 평가자 안 부름 — 비용, 어차피 fail
+        else:
+            try:
+                llm_checks = self.judge.run(masking.mask_for_llm(draft.facts), req.narrative)
+                status = (
+                    VerifyStatus.PASSED
+                    if all(c.score >= JUDGE_PASS_SCORE for c in llm_checks)
+                    else VerifyStatus.LLM_FAILED
+                )
+            except (LlmUnavailable, LlmInvalidOutput) as exc:
+                log.warning("judge_unavailable", extra={"reason": exc.code})
+                status = (
+                    VerifyStatus.VERIFY_UNAVAILABLE
+                )  # passed=false 가 아니다 — 백엔드 "다시 검증" (안건 9)
+
+        return status, llm_checks

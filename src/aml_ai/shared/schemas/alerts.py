@@ -4,7 +4,15 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from aml_ai.shared.schemas.common import AccountKey, AlertId, StrictModel, Timestamp, TransactionId, Typology
+from aml_ai.shared.schemas.common import (
+    AccountKey,
+    AlertId,
+    StrictModel,
+    SystemTimestamp,
+    Timestamp,
+    TransactionId,
+    Typology,
+)
 
 
 class RuleFacts(BaseModel):
@@ -31,7 +39,7 @@ class Alert(StrictModel):
     reference_ts: Timestamp = Field(description="이 시각 이전 거래만 피처에. 보통 window_end")
     transaction_ids: list[TransactionId] = Field(min_length=1, description="창 안에서 룰에 걸린 거래 전부")
     rule_facts: RuleFacts
-    created_at: Timestamp
+    created_at: SystemTimestamp
 
 
 class ScoreRequest(StrictModel):

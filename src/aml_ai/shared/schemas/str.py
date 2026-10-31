@@ -15,6 +15,7 @@ from aml_ai.shared.schemas.common import (
     FactAmount,
     Sha256Hex,
     StrictModel,
+    SystemTimestamp,
     Timestamp,
     TransactionId,
     Typology,
@@ -262,6 +263,7 @@ class DraftRequest(StrictModel):
 
 
 class DraftResponse(StrictModel):
+    produced_at: SystemTimestamp
     draft_id: str
     generation_id: str
     facts: Facts
@@ -370,7 +372,7 @@ class VerifyResponse(StrictModel):
     llm_checks: list[LlmCheck] | None
     narrative_refs: list[NarrativeRef] | None = Field(description="평가자를 안 돌린 경우 null")
     verifier_version: str
-    produced_at: Timestamp
+    produced_at: SystemTimestamp
 
     @model_validator(mode="after")
     def _passed_matches_status(self) -> VerifyResponse:

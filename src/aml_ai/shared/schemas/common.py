@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import AfterValidator, AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints
 
 TransactionId = Annotated[
     int, Field(ge=1, description="백엔드 ops.transactions.transaction_id (bigint, JSON 숫자)")
@@ -28,7 +28,18 @@ FactAmount = Annotated[
     str, StringConstraints(pattern=r"^\d+\.\d{2}$"), Field(description="facts 금액 — 소수 2자리 고정 문자열")
 ]
 Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
-Timestamp = Annotated[datetime, Field(description="ISO 8601, 초 단위, 시간대 없음 (IBM 원본)")]
+Timestamp = Annotated[datetime, Field(description="데이터 시각: ISO 8601, 초 단위, 시간대 없음 (IBM 원본)")]
+
+
+def _utc_seconds(value: datetime) -> datetime:
+    return value.astimezone(UTC).replace(microsecond=0)
+
+
+SystemTimestamp = Annotated[
+    AwareDatetime,
+    AfterValidator(_utc_seconds),
+    Field(description="시스템 시각: 시간대 필수, UTC + Z, 초 단위"),
+]
 
 
 class Typology(StrEnum):
