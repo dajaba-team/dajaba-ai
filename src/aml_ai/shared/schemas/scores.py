@@ -6,7 +6,7 @@ from enum import StrEnum
 
 from pydantic import Field, model_validator
 
-from aml_ai.shared.schemas.common import AlertId, StrictModel, Timestamp, TransactionId
+from aml_ai.shared.schemas.common import AlertId, StrictModel, SystemTimestamp, Timestamp, TransactionId
 
 
 class DataQualityStatus(StrEnum):
@@ -103,4 +103,4 @@ class ScoreResponse(StrictModel):
     batch_run_id: int
     scores: list[ScoreItem]
     scoring_meta: ScoringMeta
-    produced_at: Timestamp
+    produced_at: SystemTimestamp

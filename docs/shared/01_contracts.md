@@ -24,7 +24,9 @@
 - ID: 원칙 **문자열**. 예외 하나 — `transaction_id`는 **bigint, JSON 숫자**(안건 1). 적재 시 부여하는 순번이라 안전. 원본 파일 추적은 준혁의 `source_files` 테이블.
 - 금액: 소수 2자리 **숫자**(JSON number), 항상 `currency`와 쌍. `Money = Decimal(decimal_places=2)`. **facts 안의 금액만 문자열** — `str/04`.
 - 통화: ISO 4217 **코드** 문자열(`USD`). IBM 원천 이름(`US Dollar`)은 AI 로더가 고정 표로 바꾼다(`str/04`). **예외 `BTC`**(Bitcoin, ISO 4217에 없음). 표에 없는 이름은 에러 — 원문을 그대로 흘리지 않는다. (안건 19는 회의 제외, 현값 유지)
-- 날짜·시각: ISO 8601, 초 단위, 시간대 없음(IBM 원본 그대로).
+- 데이터 시각(`ts`, `window_*`, `reference_ts`, facts `period`, observation `window_*`): ISO 8601, 초 단위, 시간대 없음(IBM 원본 그대로). 기존 `Timestamp`의 입력 동작은 유지한다.
+- 시스템 시각(`produced_at`, `created_at`): `SystemTimestamp` — 시간대 있는 입력만 받고(`AwareDatetime`, naive 입력은 Pydantic ValidationError로 거절하고 기존 처리기가 400 `INVALID_REQUEST`로 응답), UTC로 변환한 뒤 microsecond를 버린다. JSON은 UTC + `Z`, 초 단위(예: `2026-10-30T05:12:00Z`). 근거: 노션 미결 27·규약 §0.
+- `ScoreResponse`, `VerifyResponse`, `DraftResponse`에 필수 `produced_at`을 둔다. 서비스는 공용 `shared/time_utils.py`의 `utc_now()` (`datetime.now(UTC).replace(microsecond=0)`)로 채우며 초안 재사용은 저장된 응답의 생성 시각을 유지한다.
 - 계좌 키: `account_key` = `{bank_id}_{account_no}`.
 - `null`은 생략하지 않고 보낸다. 빈 배열은 `[]`.
 - 열거값: 대문자 스네이크. `StrictModel(extra="forbid")` — 모르는 키가 오면 400.

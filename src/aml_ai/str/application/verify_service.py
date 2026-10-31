@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 
 from sqlalchemy.orm import Session
 
@@ -17,6 +16,7 @@ from aml_ai.shared.errors import DraftNotFound, LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.hashing import narrative_sha256
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
 from aml_ai.shared.schemas.str import LlmCheck, VerifyRequest, VerifyResponse, VerifyStatus
+from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain import masking, verification
 from aml_ai.str.domain.constants import JUDGE_PASS_SCORE, VERIFIER_VERSION
 from aml_ai.str.domain.models import StoredDraft
@@ -77,7 +77,7 @@ class VerifyService:
             llm_checks=llm_checks,
             narrative_refs=None,  # TODO(Open-23): judge_v2 섹션별 cites → attach_evidence (W3)
             verifier_version=verifier_version,
-            produced_at=datetime.now().replace(microsecond=0),
+            produced_at=utc_now(),
         )
 
     def _decide(

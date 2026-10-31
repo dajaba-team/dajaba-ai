@@ -12,6 +12,7 @@ from aml_ai.shared.errors import AiError, FencedOut, InvalidRequest, RetrievalUn
 from aml_ai.shared.infrastructure.embedding_client import make_embedding_client
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
 from aml_ai.shared.schemas.str import DraftRequest, DraftResponse, Facts, Reference
+from aml_ai.shared.time_utils import utc_now
 from aml_ai.shared.versioning import generation_meta
 from aml_ai.str.domain import fact_keys as fact_keys_domain
 from aml_ai.str.domain import facts as facts_domain
@@ -97,7 +98,6 @@ class DraftService:
         )
         # 8 — 순수: cites 의 fact 키 → evidence_ids
         narrative = fact_keys_domain.attach_evidence(gen.narrative, facts)
-        # 9
         meta = generation_meta(
             self.settings,
             llm_model=gen.llm_model,
@@ -109,6 +109,7 @@ class DraftService:
             latency_ms=gen.latency_ms,
         )
         return DraftResponse(
+            produced_at=utc_now(),
             draft_id=req.draft_id,
             generation_id=generation_id,
             facts=facts,
