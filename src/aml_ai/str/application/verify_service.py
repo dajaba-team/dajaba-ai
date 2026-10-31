@@ -15,6 +15,7 @@ from aml_ai.shared.config import Settings
 from aml_ai.shared.errors import DraftNotFound, LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.hashing import narrative_sha256
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
+from aml_ai.shared.logging import current_request_id
 from aml_ai.shared.schemas.str import LlmCheck, VerifyRequest, VerifyResponse, VerifyStatus
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain import masking, verification
@@ -56,6 +57,7 @@ class VerifyService:
 
         passed = status is VerifyStatus.PASSED
         verifier_version = f"{VERIFIER_VERSION}+{self.judge.prompt_version}"
+        rid = current_request_id()
         vid = self.verifications.save(
             generation_id=draft.generation_id,
             draft_id=draft.draft_id,
@@ -65,6 +67,8 @@ class VerifyService:
             passed=passed,
             status=status,
             verifier_version=verifier_version,
+            narrative_sha256=sha,
+            request_id=None if rid == "-" else rid,
         )
         return VerifyResponse(
             verification_id=vid,

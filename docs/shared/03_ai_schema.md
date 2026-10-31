@@ -69,6 +69,6 @@ INSERT (PROCESSING, request_hash)      ← LLM 호출 전 선점 (순서는 아�
 | 파일 | 내용 | 누가·언제 |
 |---|---|---|
 | `0001_str_tables` | `generations`(status·request_hash·partial UNIQUE 포함), `prompt_versions`, `fewshot_examples` | 진희, W2 (뼈대에 있음 — 10/27 변경 반영 필요) |
-| `0002_scoring_tables` | `model_versions`, `alert_features`, `predictions` | 준영, W3 |
-| `0003_verification_runs` | `verification_runs`(revision_no·narrative_sha256 포함) | 진희, W3 |
+| `0002_verification_runs` | `verification_runs`(revision_no·narrative_sha256·request_id 포함) | 진희, W3 (SCRUM-57, 2026-11-01) |
+| `0003_scoring_tables` | `model_versions`, `alert_features`, `predictions` | 준영, W3 |
 | `0004_reference_chunks` | pg_extension 확인 → `reference_chunks` + HNSW·GIN | 진희, W4 (pgvector 뒤) |

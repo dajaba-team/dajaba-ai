@@ -46,7 +46,7 @@ class VerificationRun(Base):
     __table_args__ = {"schema": SCHEMA}
 
     verification_id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    generation_id: Mapped[str] = mapped_column(String(32))
+    generation_id: Mapped[str] = mapped_column(String(32), index=True)
     draft_id: Mapped[str] = mapped_column(String(64), index=True)
     revision_no: Mapped[int] = mapped_column(Integer)
     code_checks: Mapped[list] = mapped_column(JSON)
@@ -54,6 +54,8 @@ class VerificationRun(Base):
     passed: Mapped[bool] = mapped_column(Boolean)
     status: Mapped[str] = mapped_column(String(24))
     verifier_version: Mapped[str] = mapped_column(String(64))
+    narrative_sha256: Mapped[str] = mapped_column(String(64))
+    request_id: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 

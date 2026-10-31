@@ -104,9 +104,9 @@ def integration_client(_ai_mock_env, _ops_seed, db_session: Session) -> Iterator
 
 @pytest.fixture
 def db_session(_db_engine) -> Iterator[Session]:
-    """함수 범위 세션. ai.generations 를 매 테스트 전에 비운다."""
+    """함수 범위 세션. ai.generations·ai.verification_runs 를 매 테스트 전에 비운다 (SCRUM-57)."""
     with _db_engine.begin() as conn:
-        conn.execute(text("TRUNCATE ai.generations RESTART IDENTITY"))
+        conn.execute(text("TRUNCATE ai.generations, ai.verification_runs RESTART IDENTITY"))
     factory = sessionmaker(bind=_db_engine, expire_on_commit=False, future=True)
     with factory() as s:
         yield s
