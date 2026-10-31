@@ -25,6 +25,8 @@ class VerificationRepository:
         passed: bool,
         status: VerifyStatus,
         verifier_version: str,
+        narrative_sha256: str,
+        request_id: str | None,
     ) -> str:
         vid = uuid.uuid4().hex
         self._s.add(
@@ -33,11 +35,15 @@ class VerificationRepository:
                 generation_id=generation_id,
                 draft_id=draft_id,
                 revision_no=revision_no,
-                code_checks=[c.model_dump() for c in code_checks],
-                llm_checks=[c.model_dump() for c in llm_checks] if llm_checks is not None else None,
+                code_checks=[c.model_dump(mode="json") for c in code_checks],
+                llm_checks=(
+                    [c.model_dump(mode="json") for c in llm_checks] if llm_checks is not None else None
+                ),
                 passed=passed,
                 status=status.value,
                 verifier_version=verifier_version,
+                narrative_sha256=narrative_sha256,
+                request_id=request_id,
             )
         )
         self._s.commit()
