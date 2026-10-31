@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from tools.record import _build_prompt
 
 from aml_ai.shared.infrastructure.llm_client import RecordedLlmClient
@@ -21,14 +22,16 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_FAN_IN = REPO_ROOT / "tests" / "str" / "fixtures" / "facts_fan_in.json"
 
 
-def test_recorded_v1_fan_in_replays_in_service_path() -> None:
+@pytest.mark.parametrize("prompt_name", ["narrative_v1", "narrative_v2"])
+def test_recorded_fan_in_replays_in_service_path(prompt_name: str) -> None:
     """fan_in facts 로 조립한 user·system 이 커밋된 녹화 파일의 키와 매칭 → RecordedLlmClient 가 응답을 돌려줌.
 
     서비스 경로에서 쓰이는 `tools.record._build_prompt` 를 써서 "녹화 당시 조립 == 지금 조립" 을 보장.
+    v1·v2 둘 다(SCRUM-20).
     """
     facts = Facts.model_validate(json.loads(FIXTURE_FAN_IN.read_text(encoding="utf-8")))
-    system, user, _ = _build_prompt(facts, "narrative_v1")
+    system, user, _ = _build_prompt(facts, prompt_name)
     client = RecordedLlmClient(REPO_ROOT / "tests" / "str" / "recorded")
-    res = client.complete_json(system=system, user=user, model="recorded", max_tokens=0, tag="narrative_v1")
+    res = client.complete_json(system=system, user=user, model="recorded", max_tokens=0, tag=prompt_name)
     # 응답 자체도 활성 버전 스키마로 통과해야 — 녹화가 섹션 집합 어긋나면 안 됨
-    assert llm_output_model("narrative_v1").model_validate_json(res.text)
+    assert llm_output_model(prompt_name).model_validate_json(res.text)

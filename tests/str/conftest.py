@@ -8,6 +8,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -65,6 +66,40 @@ def _db_engine(_pg_container) -> Engine:
     cfg.set_main_option("sqlalchemy.url", url)
     command.upgrade(cfg, "head")
     return engine
+
+
+@pytest.fixture(scope="session")
+def _ops_seed(_db_engine: Engine) -> None:
+    """SCRUM-20 통합 테스트용 ops 4테이블(DDL + 행). session 당 한 번 — ops_seed.sql 안이 TRUNCATE 로 재시드."""
+    sql = (REPO_ROOT / "tests" / "str" / "fixtures" / "ops_seed.sql").read_text(encoding="utf-8")
+    with _db_engine.begin() as conn:
+        conn.execute(text(sql))
+
+
+INTEGRATION_INTERNAL_KEY = "test-internal-key"
+
+
+@pytest.fixture
+def _ai_mock_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """SCRUM-20 통합 테스트 공통 env — AI_LLM_MOCK=true, RAG off, 내부 키 고정."""
+    from aml_ai.shared.config import get_settings
+
+    monkeypatch.setenv("AI_LLM_MOCK", "true")
+    monkeypatch.setenv("RAG_ENABLED", "false")
+    monkeypatch.setenv("AI_INTERNAL_KEY", INTEGRATION_INTERNAL_KEY)
+    get_settings.cache_clear()
+
+
+@pytest.fixture
+def integration_client(_ai_mock_env, _ops_seed, db_session: Session) -> Iterator[TestClient]:
+    """SCRUM-20 — DB 세션 override + TestClient. NARRATIVE_PROMPT 는 각 테스트가 setenv."""
+    from aml_ai.main import app
+    from aml_ai.shared.db import get_session
+
+    app.dependency_overrides[get_session] = lambda: db_session
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.pop(get_session, None)
 
 
 @pytest.fixture

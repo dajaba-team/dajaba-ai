@@ -48,6 +48,7 @@ SCHEMA_RETRY = 1  # 스키마 실패 시 재생성 횟수 (재시도가 아니�
 # 이 값과 다르면 실패 — DB 없이도 걸림(SCRUM-15 10/29).
 FROZEN_PROMPTS: dict[str, str] = {
     "narrative_v1": "d2cbb854386dd3c01dc0d71556878e1e1287cab540839c56ae7dc51281155424",
+    "narrative_v2": "66210c3d25e59b136f4ec2359ad2f09c43501435322874f0048192795653aa9f",
 }
 
 # ---- 검증 (docs/str/06)
