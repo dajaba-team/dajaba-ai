@@ -6,10 +6,10 @@ import hashlib
 import json
 import unicodedata
 
-from aml_ai.shared.schemas.str import SECTION_ORDER, NarrativeSection, Section
+from aml_ai.shared.schemas.str import SECTION_ORDER, NarrativeSectionBase, Section
 
 
-def narrative_sha256(narrative: list[NarrativeSection]) -> str:
+def narrative_sha256(narrative: list[NarrativeSectionBase]) -> str:
     """섹션 고정 순서, section·text 만, NFC, 공백 없는 JSON, UTF-8 sha256 hex 소문자 64자.
 
     섹션 6개가 각각 한 번씩이 아니면 ValueError (docs/shared/01, 09_decisions 10/29).
