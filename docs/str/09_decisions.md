@@ -108,6 +108,7 @@
 | 2026-10-30 (노션 백엔드 미결 24) | 생성 스키마(`NarrativeOut`)는 섹션당 1~1,200자 유지, **수정본 검증 요청은 섹션당 5,000자**로 스키마 분리. 글자 수는 **NFC 정규화 뒤 UTF-16 코드 단위**(규약 §5.3, Java `String.length()`·JS `.length`와 같음). 구현·경계 테스트는 SCRUM-46 | 백엔드는 5,000자까지 저장하는데 AI가 생성 스키마로 검증하면 1,201~5,000자 수정본이 400. Python `len()`은 코드포인트라 이모지 등에서 Java와 어긋남 | 양쪽 1,200자 / 코드포인트 기준 |
 | 2026-10-30 (노션 백엔드 미결 25) | `revision_no` 1 = AI 원문, 첫 수정 = 2. 원문·첫 수정·재수정 예시 JSON은 `contracts/examples/`에 | 규약 §5.3·AI 설계와 같음. `null`이면 요청 스키마(정수)에 걸림 | AI 원문 = null |
 | 2026-10-30 (노션 백엔드 미결 26) | `rule_facts.paths`: ① `transaction_ids` 밖 ID → **400** ② R04·R05인데 paths 누락·경로 ID 합집합 ≠ `transaction_ids`·R04 4홉 이상 → 초안은 만들되 `paths` **`UNVERIFIED`**(경로 숫자는 STR에 안 씀), 이런 경보는 detection 테스트에서 먼저 막음(준혁) ③ R05 홉 한도는 임의로 두지 않고 미결 15 룰 명세에서. ML은 기존 FAILED·null 규칙을 따로 적용(준영) | 400은 입력 계약 위반에만, 잘못된 경로는 보고서에서 빼는 쪽이 안전. 경로 재구성·삭제는 하지 않음(10/28 원칙) | 전부 400 / R05도 3홉 |
+| 2026-10-30 (노션 백엔드 미결 27) | 시각은 두 종류. **데이터 시각**(`ts`·`window_start`·`window_end`·`reference_ts`·facts `period`·reasons `observation.window_*`)은 시간대 없음 그대로, **시스템 시각**(`created_at`·`updated_at`·`produced_at`·`reported_at`·`report_due_at` 등)은 전부 **UTC + `Z`, 초 단위**. 규약 §0 표·§2·§3·§4·§5.3 예시 반영(10/30). 전원 동의 | IBM 원천 시각은 시간대 정보가 없어 추정하면 틀림. 시스템이 찍는 시각은 서버마다 시간대가 달라 Z 없이는 비교 불가 | 모든 시각 시간대 없음(규약 v0.2 §0 옛 문구) |
 
 ## 미결 (회의·측정 뒤)
 
@@ -125,6 +126,7 @@
 | R06_BIPARTITE 대체 룰 (안건 20) — 정해지면 규약 2절 룰 표·`rule_facts`, 준영 학습 룰을 같이 맞춤 | **준혁** |
 | 수정 저장 ↔ 승인 요청이 동시에 올 때(승인 트랜잭션 안에서 현재 해시 재확인) | 채영, 백엔드 V009 |
 | 통화 표 15줄 확인(HI-Small `DISTINCT currency_*`) | 진희, 축소본 만들 때 |
+| 미결 27 후속 — 시스템 시각 Z: 스키마에 데이터용 `Timestamp`와 시스템용 시각 타입 분리, `produced_at`을 `datetime.now()` → UTC 기준으로, `contracts/examples/` 시스템 시각(`score_request`·`draft_request`의 `alert.created_at`, `score_response`·`verify_response`의 `produced_at`)에 `Z` | 진희 (코드) |
 | 노션 미결 23~26 후속 — 23·24·25·26은 10/30 확정(위 결정 표). 남은 것: 수정본 검증 스키마 5,000자·UTF-16 경계 테스트(**SCRUM-46**), `paths` 누락·합집합 불일치·R04 4홉 → `UNVERIFIED`·경로 숫자 미인용 테스트 고정, 규약 §2 `paths` 행 변경 요청(11/2 반영), 원문·수정 예시 JSON `contracts/examples/` | 진희 |
 | R05 홉 한도 (미결 26 ③) | **준혁**, 미결 15 룰 명세(W2) |
 | self-transfer만 남는 경보 400 유지 여부, `STALE_PROCESSING_S` 110초 | 축소본 분포·W2 실측 뒤 |
