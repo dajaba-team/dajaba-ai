@@ -9,10 +9,13 @@ from pydantic import Field, field_validator, model_validator
 from aml_ai.shared.schemas.common import Sha256Hex, StrictModel, SystemTimestamp
 from aml_ai.shared.schemas.str.narrative import (
     NarrativeRef,
-    NarrativeSection,
+    NarrativeSectionBase,
     Section,
     _each_section_once,
 )
+from aml_ai.shared.text import utf16_len_nfc
+
+REVISED_TEXT_MAX = 5000  # 수정본 섹션 상한, NFC·UTF-16 (규약 §5.3, docs/str/06)
 
 
 class CodeCheckName(StrEnum):
@@ -83,14 +86,30 @@ class JudgeOut(StrictModel):
         return v
 
 
+class RevisedNarrativeSection(NarrativeSectionBase):
+    """검증 요청 수정본 섹션 — 5,000자 NFC·UTF-16 (규약 §5.3, docs/str/06, SCRUM-46).
+
+    text 는 strip 하지 않고 NFC 로도 바꾸지 않는다(해시 규칙 shared/01). 세기만 NFC·UTF-16.
+    경계: 5,000 통과 · 5,001 거부 · "4,999자 + 😀" 거부(5,001로 셈) · NFD 한글 5,000자 통과.
+    """
+
+    @field_validator("text")
+    @classmethod
+    def _text_within_revised_max(cls, v: str) -> str:
+        """SCRUM-46 — Codex 구현. `shared.text.utf16_len_nfc(v) > REVISED_TEXT_MAX` 면 ValueError."""
+        if utf16_len_nfc(v) > REVISED_TEXT_MAX:
+            raise ValueError(f"text must be ≤{REVISED_TEXT_MAX} UTF-16 code units after NFC")
+        return v
+
+
 class VerifyRequest(StrictModel):
     generation_id: str = Field(description="어느 생성본의 facts 와 대조하나")
     revision_no: int = Field(ge=1, description="백엔드 str_revisions 번호. 1 = AI 원문")
-    narrative: list[NarrativeSection] = Field(min_length=len(Section), max_length=len(Section))
+    narrative: list[RevisedNarrativeSection] = Field(min_length=len(Section), max_length=len(Section))
 
     @field_validator("narrative")
     @classmethod
-    def _sections(cls, v: list[NarrativeSection]) -> list[NarrativeSection]:
+    def _sections(cls, v: list[RevisedNarrativeSection]) -> list[RevisedNarrativeSection]:
         _each_section_once([s.section for s in v])
         return v
 

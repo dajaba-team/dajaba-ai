@@ -74,3 +74,4 @@
 | `aml_ml` 설치 + `scoring/` 스텁 교체 | 미착수 | | 준영 첫 tag 후 |
 | D13 — 10/27 안건 11 줄 바로잡음(REJECTED → CLOSED는 NOT_REPORTABLE만, 어긋나면 409 `INVALID_CASE_TRANSITION`) | 완료 | 10/30 | 문서만. `str/09` 아래 새 줄, 윗줄은 그대로. `03_pipeline.md:69`는 이미 안건 24 반영됨 |
 | SCRUM-52 — 시스템 시각 UTC + Z·초 단위, `SystemTimestamp`, 초안 `produced_at` | 완료 | 10/31 | 타입·서비스·예시·계약 테스트, naive 시스템 시각은 400 `INVALID_REQUEST`. 공용 `utc_now()`·`_decide` 순수 추출. pytest 149 passed·8 skipped, `-m db` 9 passed(skip 0), 관문 통과. PR #14 |
+| SCRUM-46 — `shared/schemas/str` 패키지 분리 + 수정본 검증 섹션 5,000자 NFC·UTF-16 | 완료 | 10/31 | 공통 부모 `NarrativeSectionBase` + `NarrativeSection`(1,200 코드포인트) · `RevisedNarrativeSection`(5,000 NFC·UTF-16), `shared/text.utf16_len_nfc`, `VerifyRequest.narrative` 타입 교체, `hashing`·`verification.*`가 base 수용. 분리 전후 `model_json_schema()`·공개 이름 전부 일치, Codex adversarial-review approve(no findings), 관문 `OVER200_SKIP` 삭제. pytest 163 passed·8 skipped, `-m db` 9 passed(skip 0), 관문 통과 (머지 전) |

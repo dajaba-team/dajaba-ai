@@ -7,11 +7,18 @@ TODO(W3): AMOUNT·DATE·COUNT·ACCOUNT_ID 구현, EVIDENCE_IN_SCOPE 의 cites �
 
 from __future__ import annotations
 
-from aml_ai.shared.schemas.str import CheckReason, CodeCheck, CodeCheckName, Facts, NarrativeSection, Section
+from aml_ai.shared.schemas.str import (
+    CheckReason,
+    CodeCheck,
+    CodeCheckName,
+    Facts,
+    NarrativeSectionBase,
+    Section,
+)
 
 
 def run_code_checks(
-    facts: Facts, narrative: list[NarrativeSection], transaction_ids: list[int]
+    facts: Facts, narrative: list[NarrativeSectionBase], transaction_ids: list[int]
 ) -> list[CodeCheck]:
     checks: list[CodeCheck] = []
     checks += amount_match(facts, narrative)
@@ -22,27 +29,27 @@ def run_code_checks(
     return checks
 
 
-def amount_match(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
+def amount_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
     """금액+통화 쌍 ↔ 같은 통화의 inbound/outbound.amount. 통화 없는 숫자는 금액으로 보지 않는다."""
     raise NotImplementedError("W3 — docs/str/06 AMOUNT_MATCH")
 
 
-def date_match(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
+def date_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
     """거래 날짜 ↔ period, 개설일 ↔ customer.onboarded_at. WHAT_WHEN_WHERE 에 거래 날짜가 없으면 MISSING."""
     raise NotImplementedError("W3 — docs/str/06 DATE_MATCH")
 
 
-def count_match(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
+def count_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
     """건수·상대 수·경로 수 ↔ 해당 집합 (paths 는 VERIFIED 일 때만)."""
     raise NotImplementedError("W3 — docs/str/06 COUNT_MATCH")
 
 
-def account_id_match(facts: Facts, narrative: list[NarrativeSection]) -> list[CodeCheck]:
+def account_id_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
     """계좌 식별자 표현은 subject.account_key 끝 4자리만 통과."""
     raise NotImplementedError("W3 — docs/str/06 ACCOUNT_ID_MATCH")
 
 
-def evidence_in_scope(narrative: list[NarrativeSection], transaction_ids: list[int]) -> list[CodeCheck]:
+def evidence_in_scope(narrative: list[NarrativeSectionBase], transaction_ids: list[int]) -> list[CodeCheck]:
     """evidence_ids ⊆ 요청 evidence_transaction_ids (밖이면 OUT_OF_SCOPE). 6개 섹션 전부 근거가 없으면 MISSING.
 
     TODO(W3): docs/str/06 은 cites 기준(cites ⊆ fact_keys, 전부 빈 cites → MISSING). fact_keys 가 생기면 바꾼다.

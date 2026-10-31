@@ -55,6 +55,7 @@ else:                      status = LLM_FAILED,         passed = False
 - 글자 수는 **NFC로 정규화한 뒤 UTF-16 코드 단위**로 센다 — Java `String.length()`·JS `.length`와 같은 값. Python `len()`·Pydantic `max_length`는 코드포인트라 쓰지 않는다(예: `len(unicodedata.normalize("NFC", s).encode("utf-16-le")) // 2`). 한글·영문은 어느 방식이든 같고, 이모지처럼 BMP 밖 문자만 2로 세진다. 맥에서 NFD로 들어온 한글도 NFC로 바꾼 뒤 세므로 한 글자 = 1.
 - NFC는 **세기 위해서만** 쓴다. 해시는 원래대로 `shared/01` 규칙(NFC 포함)이고, 공백 strip은 하지 않는다(10/29 SCRUM-16).
 - 경계 테스트(양쪽 리포 같은 값): **5,000자 통과 · 5,001자 400 · "4,999자 + 이모지 1개" 400**(5,001로 셈). 구현은 SCRUM-46.
+- 구현 위치: `shared/schemas/str/narrative.NarrativeSectionBase`(공통 부모) + `shared/schemas/str/verify.RevisedNarrativeSection`(5,000자, `_text_within_revised_max`), 세기 함수 `shared/text.utf16_len_nfc`, 상수 `shared/schemas/str/verify.REVISED_TEXT_MAX`. `VerifyRequest.narrative`는 `list[RevisedNarrativeSection]`.
 
 ## 본문 해시 (`shared/hashing.py`)
 
