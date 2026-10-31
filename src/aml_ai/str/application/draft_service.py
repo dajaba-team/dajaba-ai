@@ -47,7 +47,7 @@ class DraftService:
         return cls(
             settings=settings,
             reader=TransactionReader(session),
-            fewshot=FewshotStore(session),
+            fewshot=FewshotStore(session, prompt_name=settings.narrative_prompt),
             retriever=Retriever(session, make_embedding_client(settings), enabled=settings.rag_enabled),
             generator=NarrativeGenerator(llm, settings, settings.narrative_prompt, clock=clock),
             generations=GenerationRepository(session, settings),

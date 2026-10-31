@@ -1,0 +1,64 @@
+{
+  "example_id": 3,
+  "typology": "FAN_OUT",
+  "facts": {
+    "reporting_institution": "Example Bank #0002",
+    "subject": {
+      "entity_id": "E-FAN-OUT-02",
+      "entity_name": "Corporation #20002",
+      "entity_type": "CORPORATION",
+      "account_key": "010_SX00000B2"
+    },
+    "period": {"start": "2022-10-02T09:00:00", "end": "2022-10-02T18:00:00"},
+    "inbound": {"count": 0, "by_currency": [], "transaction_ids": []},
+    "outbound": {
+      "count": 5,
+      "by_currency": [
+        {"currency": "USD", "total": "85000.00", "count": 5, "transaction_ids": [2001, 2002, 2003, 2004, 2005]}
+      ],
+      "transaction_ids": [2001, 2002, 2003, 2004, 2005]
+    },
+    "internal": {"count": 0, "transaction_ids": []},
+    "indirect": {"count": 0, "transaction_ids": []},
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "OUTBOUND",
+    "counterparties": {"count": 5, "transaction_ids": [2001, 2002, 2003, 2004, 2005]},
+    "counterparty_banks": {"same_bank_accounts": 1, "other_bank_accounts": 4},
+    "payment_formats": ["Wire"],
+    "payment_format_counts": [{"format": "Wire", "count": 5}],
+    "amount_range": [{"currency": "USD", "min": "15000.00", "max": "19500.00"}],
+    "typology": "FAN_OUT",
+    "typology_source": "RULE",
+    "customer": {
+      "industry": "WHOLESALE",
+      "risk_level": "MEDIUM",
+      "account_purpose": "OPERATIONS",
+      "onboarded_at": "2020-07-21",
+      "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+      {
+        "name": "distinct_recipients_24h",
+        "value": 5,
+        "unit": "count",
+        "window_start": "2022-10-02T00:00:00",
+        "window_end": "2022-10-03T00:00:00",
+        "basis": "distinct_outbound_counterparties",
+        "baseline": null
+      }
+    ],
+    "model_signals": ["distinct_recipients_24h"],
+    "unmapped_currencies": []
+  },
+  "narrative": [
+    {"section": "SUBJECT", "text": "보고 대상자는 Corporation #20002(엔티티 유형 CORPORATION)로 업종 WHOLESALE·위험등급 MEDIUM임. 과거 경보 이력은 없음.", "cites": ["subject.entity_name", "subject.entity_type", "customer.industry", "customer.risk_level", "prior_alert_count"], "evidence_ids": []},
+    {"section": "DATE", "text": "거래는 2022-10-02 09:00부터 18:00까지 발생함.", "cites": ["period"], "evidence_ids": [2001, 2002, 2003, 2004, 2005]},
+    {"section": "PLACE", "text": "거래 영업점은 자료 없음. 대상 계좌는 010_****00B2임. 상대 계좌 5곳 중 자행 1·타행 4임.", "cites": ["subject.account_key", "counterparties.count", "counterparty_banks.same_bank_accounts", "counterparty_banks.other_bank_accounts"], "evidence_ids": [2001, 2002, 2003, 2004, 2005]},
+    {"section": "INSTRUMENT", "text": "결제 수단은 Wire로 5건임.", "cites": ["payment_format_counts.Wire"], "evidence_ids": [2001, 2002, 2003, 2004, 2005]},
+    {"section": "METHOD", "text": "대상 계좌 하나에서 서로 다른 5개 계좌로 송금한 집중 출금(FAN_OUT) 유형임. 합계 85,000.00 US Dollar가 출금됨.", "cites": ["counterparties.count", "direction", "outbound.amount.USD", "typology"], "evidence_ids": [2001, 2002, 2003, 2004, 2005]},
+    {"section": "GROUNDS", "text": "모델 관측값(관측 구간 2022-10-02 00:00~2022-10-03 00:00 기준) 송금 상대 계좌 수가 5개임. 기준값이 없어 평소와 비교할 수 없음. 출금 사유는 자료 없음.", "cites": ["observations.distinct_recipients_24h"], "evidence_ids": []},
+    {"section": "OPINION", "text": "집중 출금 유형에 부합하여 자금세탁이 의심됨. 송금 사유와 상대 계좌 성격 확인이 필요하며 조사역의 최종 판단이 필요함.", "cites": ["typology"], "evidence_ids": [2001, 2002, 2003, 2004, 2005]}
+  ]
+}

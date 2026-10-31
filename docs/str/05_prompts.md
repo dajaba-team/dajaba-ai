@@ -87,6 +87,20 @@ REFERENCES (참고 유형 사례, 출처·쪽 포함. 유형 설명 참고용이
 위 FACTS로 6개 섹션을 작성하십시오.
 ```
 
+## narrative_v2 전문 (SCRUM-47, 별지 제1호 서술부 7항목)
+
+v1 과 겹치지 않는 7항목(SUBJECT·DATE·PLACE·INSTRUMENT·METHOD·GROUNDS·OPINION, 서식 1~7)으로 전환. 전문은 `src/aml_ai/str/prompts/narrative_v2.md`. 변경 요지:
+
+- 섹션 enum·순서가 집합만 보고 버전을 결정(이름 겹침 없음, `shared/01`·`04`).
+- 규칙 2 에 `amount_range` 와 **미등록 통화**("{원문} … 대응 미확인") 지침. 금액 조립은 통화별 total·min·max 만.
+- 규칙 4 에 **보고 기관명 쓰지 않음** — 서식 I부(별지 제1호 상단)에 백엔드가 설정값으로 채우므로, 서술부 PLACE 에 쓰면 I부와 어긋날 수 있음(안건 3·5-8). PLACE 는 거래 영업점·대상 계좌·상대 자행/타행 분포만.
+- 규칙 4 "자료 없음" — 자료 없는 항목은 비우지 않고 명시. OPINION 은 끝맺음 문장만이라도 반드시 채움(비면 `OPINION_PRESENT` MISSING, `06`).
+- 규칙 11 보강 — 모델 점수·등급·SHAP 을 금액·확률처럼 인용하지 않는다(안건 6-7). `baseline` 이 null 이면 "평소 대비" 안 씀. 관측값은 FACTS 의 `window_start`~`window_end` 를 그대로 밝힘(피처 이름 접미 `_2h`·`_24h` 로 기간 추정 안 함).
+- 규칙 9·10 유지(cites·FACT_KEYS·경로 숫자는 `paths.status=VERIFIED` 일 때만).
+- few-shot: `fewshot/narrative_v2/002~006_*.json` 5개 — FAN_IN·FAN_OUT·PASS_THROUGH·CYCLE + 근거 약한 예시(`typology: null`). 활성 버전 폴더만 `fewshot_store` 가 읽는다.
+
+반영일(11/6) PR 에 기본값만 v2 로 전환. 녹화·동결(`FROZEN_PROMPTS`) 은 **SCRUM-20** 에서 실제 LLM 1회 호출·해시 박기.
+
 ## judge_v1 (요지 — 전문은 파일)
 
 - system 첫 줄: "당신은 이 초안을 쓴 사람이 아니라 검수자입니다." (생성 모델과 같은 모델일 때 자기 글에 너그러워지는 것을 막는다.)

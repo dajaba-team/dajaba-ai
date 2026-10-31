@@ -1,0 +1,70 @@
+{
+  "example_id": 4,
+  "typology": "PASS_THROUGH",
+  "facts": {
+    "reporting_institution": "Example Bank #0003",
+    "subject": {
+      "entity_id": "E-PASS-03",
+      "entity_name": "Individual #30003",
+      "entity_type": "INDIVIDUAL",
+      "account_key": "010_SX00000C3"
+    },
+    "period": {"start": "2022-10-03T10:00:00", "end": "2022-10-03T15:30:00"},
+    "inbound": {
+      "count": 2,
+      "by_currency": [
+        {"currency": "USD", "total": "30000.00", "count": 2, "transaction_ids": [3001, 3002]}
+      ],
+      "transaction_ids": [3001, 3002]
+    },
+    "outbound": {
+      "count": 2,
+      "by_currency": [
+        {"currency": "USD", "total": "29800.00", "count": 2, "transaction_ids": [3003, 3004]}
+      ],
+      "transaction_ids": [3003, 3004]
+    },
+    "internal": {"count": 0, "transaction_ids": []},
+    "indirect": {"count": 0, "transaction_ids": []},
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "MIXED",
+    "counterparties": {"count": 4, "transaction_ids": [3001, 3002, 3003, 3004]},
+    "counterparty_banks": {"same_bank_accounts": 0, "other_bank_accounts": 4},
+    "payment_formats": ["Wire"],
+    "payment_format_counts": [{"format": "Wire", "count": 4}],
+    "amount_range": [{"currency": "USD", "min": "14800.00", "max": "15000.00"}],
+    "typology": "PASS_THROUGH",
+    "typology_source": "RULE",
+    "customer": {
+      "industry": null,
+      "risk_level": "MEDIUM",
+      "account_purpose": "PERSONAL",
+      "onboarded_at": "2022-09-25",
+      "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+      {
+        "name": "inflow_outflow_ratio_2h",
+        "value": 0.99,
+        "unit": "ratio",
+        "window_start": "2022-10-03T10:00:00",
+        "window_end": "2022-10-03T15:30:00",
+        "basis": "amount_received_over_amount_paid",
+        "baseline": null
+      }
+    ],
+    "model_signals": ["inflow_outflow_ratio_2h"],
+    "unmapped_currencies": []
+  },
+  "narrative": [
+    {"section": "SUBJECT", "text": "보고 대상자는 Individual #30003(엔티티 유형 INDIVIDUAL)로 개인 목적 계좌이며 개설일은 2022-09-25임. 업종은 자료 없음. 과거 경보 이력은 없음.", "cites": ["subject.entity_name", "subject.entity_type", "customer.account_purpose", "customer.onboarded_at", "prior_alert_count"], "evidence_ids": []},
+    {"section": "DATE", "text": "거래는 2022-10-03 10:00부터 15:30 사이에 몰림.", "cites": ["period"], "evidence_ids": [3001, 3002, 3003, 3004]},
+    {"section": "PLACE", "text": "거래 영업점은 자료 없음. 대상 계좌는 010_****00C3임. 상대 4개 계좌는 모두 타행임.", "cites": ["subject.account_key", "counterparties.count", "counterparty_banks.other_bank_accounts"], "evidence_ids": [3001, 3002, 3003, 3004]},
+    {"section": "INSTRUMENT", "text": "결제 수단은 Wire로 입·출금 4건임.", "cites": ["payment_format_counts.Wire"], "evidence_ids": [3001, 3002, 3003, 3004]},
+    {"section": "METHOD", "text": "같은 날 10:00부터 15:30 사이에 입금 30,000.00 US Dollar가 들어오고 비슷한 금액 29,800.00 US Dollar가 다른 계좌로 송금되는 통과형(PASS_THROUGH) 유형임.", "cites": ["period", "inbound.amount.USD", "outbound.amount.USD", "typology", "direction"], "evidence_ids": [3001, 3002, 3003, 3004]},
+    {"section": "GROUNDS", "text": "모델 관측값(관측 구간 2022-10-03 10:00~2022-10-03 15:30 기준) 입·출금 비율이 0.99로 자금이 거의 그대로 통과한 것으로 관측됨. 거래 목적은 자료 없음.", "cites": ["observations.inflow_outflow_ratio_2h"], "evidence_ids": []},
+    {"section": "OPINION", "text": "통과형 패턴에 부합하여 자금세탁이 의심됨. 자금 출처와 송금 목적 확인이 필요하며 조사역의 최종 판단이 필요함.", "cites": ["typology"], "evidence_ids": [3001, 3002, 3003, 3004]}
+  ]
+}

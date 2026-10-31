@@ -66,9 +66,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _build_prompt(facts: Facts, prompt_name: str) -> tuple[str, str, list[str]]:
-    """draft_service._generate 와 동일한 user 프롬프트를 조립 — 녹화·재생 키 일치 (SCRUM-15 adversarial H3)."""
+    """draft_service._generate 와 동일한 user 프롬프트를 조립 — 녹화·재생 키 일치 (SCRUM-15 adversarial H3).
+
+    `FewshotStore(prompt_name=prompt_name)` 로 활성 버전 폴더만 — SCRUM-47. 기본값 v1 로 두면
+    `NARRATIVE_PROMPT=narrative_v2` 녹화 때 v1 few-shot 이 섞여 서비스 조립과 키가 어긋남.
+    """
     system, user_tpl = load_prompt(prompt_name)
-    examples = FewshotStore().pick_examples(facts.typology)
+    examples = FewshotStore(prompt_name=prompt_name).pick_examples(facts.typology)
     keys = list(fact_keys(facts).keys())
     user = render_user(
         user_tpl,

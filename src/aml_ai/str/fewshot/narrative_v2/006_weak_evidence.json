@@ -1,0 +1,54 @@
+{
+  "example_id": 6,
+  "typology": null,
+  "facts": {
+    "reporting_institution": "Example Bank #0005",
+    "subject": {
+      "entity_id": "E-WEAK-05",
+      "entity_name": "Individual #50005",
+      "entity_type": "INDIVIDUAL",
+      "account_key": "010_SX00000E5"
+    },
+    "period": {"start": "2022-10-05T14:00:00", "end": "2022-10-05T14:30:00"},
+    "inbound": {
+      "count": 1,
+      "by_currency": [
+        {"currency": "USD", "total": "5000.00", "count": 1, "transaction_ids": [5001]}
+      ],
+      "transaction_ids": [5001]
+    },
+    "outbound": {"count": 0, "by_currency": [], "transaction_ids": []},
+    "internal": {"count": 0, "transaction_ids": []},
+    "indirect": {"count": 0, "transaction_ids": []},
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {"count": 1, "transaction_ids": [5001]},
+    "counterparty_banks": {"same_bank_accounts": 0, "other_bank_accounts": 1},
+    "payment_formats": ["ACH"],
+    "payment_format_counts": [{"format": "ACH", "count": 1}],
+    "amount_range": [{"currency": "USD", "min": "5000.00", "max": "5000.00"}],
+    "typology": null,
+    "typology_source": "RULE",
+    "customer": {
+      "industry": null,
+      "risk_level": "LOW",
+      "account_purpose": "PERSONAL",
+      "onboarded_at": "2018-01-10",
+      "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [],
+    "model_signals": [],
+    "unmapped_currencies": []
+  },
+  "narrative": [
+    {"section": "SUBJECT", "text": "보고 대상자는 Individual #50005(엔티티 유형 INDIVIDUAL)로 위험등급 LOW이며 업종은 자료 없음. 과거 경보 이력은 없음.", "cites": ["subject.entity_name", "subject.entity_type", "customer.risk_level", "prior_alert_count"], "evidence_ids": []},
+    {"section": "DATE", "text": "거래는 2022-10-05 14:00부터 14:30 사이에 1건 발생함.", "cites": ["period", "inbound.count"], "evidence_ids": [5001]},
+    {"section": "PLACE", "text": "거래 영업점은 자료 없음. 대상 계좌는 010_****00E5임. 상대 계좌 1곳은 타행임.", "cites": ["subject.account_key", "counterparties.count", "counterparty_banks.other_bank_accounts"], "evidence_ids": [5001]},
+    {"section": "INSTRUMENT", "text": "결제 수단은 ACH 1건임.", "cites": ["payment_format_counts.ACH"], "evidence_ids": [5001]},
+    {"section": "METHOD", "text": "타행에서 대상 계좌로 입금 1건이 들어왔음. 유형 분류는 자료 없음.", "cites": ["direction", "inbound.count", "counterparty_banks.other_bank_accounts"], "evidence_ids": [5001]},
+    {"section": "GROUNDS", "text": "모델이 주목한 피처는 없고 평소 대비 비교할 관측값도 자료 없음. 입금 사유도 자료 없음.", "cites": [], "evidence_ids": []},
+    {"section": "OPINION", "text": "근거가 부족한 상태이며 추가 확인이 필요함. 자금 출처와 거래 목적 확인이 필요하며 조사역의 최종 판단이 필요함.", "cites": [], "evidence_ids": []}
+  ]
+}

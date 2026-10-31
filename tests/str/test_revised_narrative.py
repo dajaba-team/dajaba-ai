@@ -38,7 +38,7 @@ NFD_CHAR = unicodedata.normalize("NFD", "가")  # len=2 in Python
 EMOJI = "😀"  # U+1F600, BMP 밖 — Python len=1, UTF-16 2 units, Java String.length()=2
 
 
-def _verify_request_with_text(section: Section, text: str) -> dict:
+def _verify_request_with_text(section: SectionV1, text: str) -> dict:
     """verify_request.json 을 복제하고 한 섹션의 text 를 바꾼다."""
     d = deepcopy(load_json(EXAMPLES / "verify_request.json"))
     for s in d["narrative"]:

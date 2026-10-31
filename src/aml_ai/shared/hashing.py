@@ -17,7 +17,6 @@ from aml_ai.shared.schemas.str import (
     NarrativeSectionBase,
     Section,
     SectionV1,
-    SectionV2,
     section_set_version,
 )
 
