@@ -8,6 +8,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -90,10 +91,8 @@ def _ai_mock_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def integration_client(_ai_mock_env, _ops_seed, db_session: Session) -> Iterator["TestClient"]:  # noqa: F821
+def integration_client(_ai_mock_env, _ops_seed, db_session: Session) -> Iterator[TestClient]:
     """SCRUM-20 — DB 세션 override + TestClient. NARRATIVE_PROMPT 는 각 테스트가 setenv."""
-    from fastapi.testclient import TestClient
-
     from aml_ai.main import app
     from aml_ai.shared.db import get_session
 
