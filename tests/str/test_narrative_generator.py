@@ -1,11 +1,13 @@
 """NarrativeGenerator — 재시도·cites ⊆ fact_keys 검사·fact_keys 전달.
 
 RecordedLlmClient 경로는 녹화 파일 커밋 뒤에만 재현되므로 여기선 stub LlmClient 로 분기 전부 검사.
+시간 예산(선체크·재생성 체크·토큰 합산) 테스트는 `test_narrative_generator_budget.py` 로 분리 (SCRUM-45, 200줄 관문).
 """
 
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 
 import pytest
@@ -31,6 +33,8 @@ NARRATIVE_OOS = {
         *NARRATIVE_SCOPED["narrative"][1:],
     ]
 }
+# 선체크·재생성 체크를 통과시킬 넉넉한 남은 예산 (초). 가짜 시계 테스트는 별도 파일.
+FAR_FUTURE = 10**9
 
 
 @dataclass
@@ -57,7 +61,12 @@ def _bind(g: NarrativeGenerator, llm: StubLlm) -> NarrativeGenerator:
     g._s = get_settings()
     g.prompt_version = "narrative_v1"
     g._system, g._user_tpl = load_prompt("narrative_v1")
+    g._clock = time.monotonic
     return g
+
+
+def _far_deadline(g: NarrativeGenerator) -> float:
+    return g._clock() + FAR_FUTURE
 
 
 def test_generator_passes_fact_keys_through_user(gen: NarrativeGenerator) -> None:
@@ -73,14 +82,14 @@ def test_generator_passes_fact_keys_through_user(gen: NarrativeGenerator) -> Non
         )
 
     g._llm = type("Capt", (), {"complete_json": lambda self, **kw: capture(**kw)})()
-    g.generate({"a": 1}, ["inbound.count", "period", "subject"], [], [], None)
+    g.generate({"a": 1}, ["inbound.count", "period", "subject"], [], [], None, deadline=_far_deadline(g))
     assert "inbound.count\nperiod\nsubject" in captured["user"]
 
 
 def test_generator_valid_passes(gen: NarrativeGenerator) -> None:
     llm = StubLlm(responses=[json.dumps(NARRATIVE_SCOPED)])
     g = _bind(gen, llm)
-    out = g.generate({"a": 1}, ["inbound.count", "period"], [], [], None)
+    out = g.generate({"a": 1}, ["inbound.count", "period"], [], [], None, deadline=_far_deadline(g))
     assert out.prompt_version == "narrative_v1"
     assert llm.calls == 1
 
@@ -89,7 +98,7 @@ def test_generator_retries_on_schema_invalid(gen: NarrativeGenerator) -> None:
     """1회 실패 → 1회 재시도 → 성공."""
     llm = StubLlm(responses=["not json at all", json.dumps(NARRATIVE_SCOPED)])
     g = _bind(gen, llm)
-    out = g.generate({"a": 1}, ["inbound.count", "period"], [], [], None)
+    out = g.generate({"a": 1}, ["inbound.count", "period"], [], [], None, deadline=_far_deadline(g))
     assert out.narrative[0].section.value == "SUMMARY"
     assert llm.calls == 2
 
@@ -99,7 +108,7 @@ def test_generator_rejects_cites_out_of_scope(gen: NarrativeGenerator) -> None:
     llm = StubLlm(responses=[json.dumps(NARRATIVE_OOS), json.dumps(NARRATIVE_OOS)])
     g = _bind(gen, llm)
     with pytest.raises(LlmInvalidOutput):
-        g.generate({"a": 1}, ["inbound.count", "period"], [], [], None)
+        g.generate({"a": 1}, ["inbound.count", "period"], [], [], None, deadline=_far_deadline(g))
     assert llm.calls == 2
 
 
@@ -107,6 +116,6 @@ def test_generator_retries_oos_then_succeeds(gen: NarrativeGenerator) -> None:
     """첫 응답 cites 밖 → 재시도 성공."""
     llm = StubLlm(responses=[json.dumps(NARRATIVE_OOS), json.dumps(NARRATIVE_SCOPED)])
     g = _bind(gen, llm)
-    out = g.generate({"a": 1}, ["inbound.count", "period"], [], [], None)
+    out = g.generate({"a": 1}, ["inbound.count", "period"], [], [], None, deadline=_far_deadline(g))
     assert llm.calls == 2
     assert all(c in {"inbound.count", "period"} for s in out.narrative for c in s.cites)

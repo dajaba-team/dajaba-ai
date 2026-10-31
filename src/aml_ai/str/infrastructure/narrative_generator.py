@@ -7,14 +7,16 @@ from __future__ import annotations
 
 import json
 import logging
+import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from pydantic import ValidationError
 
 from aml_ai.shared.config import Settings
-from aml_ai.shared.errors import LlmInvalidOutput
-from aml_ai.shared.infrastructure.llm_client import LlmClient
+from aml_ai.shared.errors import LlmInvalidOutput, LlmUnavailable
+from aml_ai.shared.infrastructure.llm_client import LlmClient, LlmResult
 from aml_ai.shared.schemas.str import NarrativeOut, Reference
 from aml_ai.str.domain.constants import NARRATIVE_MAX_TOKENS, NARRATIVE_PROMPT, SCHEMA_RETRY
 from aml_ai.str.domain.models import Example, GenerationResult
@@ -60,9 +62,16 @@ def render_user(
 
 
 class NarrativeGenerator:
-    def __init__(self, llm: LlmClient, settings: Settings, prompt_name: str = NARRATIVE_PROMPT) -> None:
+    def __init__(
+        self,
+        llm: LlmClient,
+        settings: Settings,
+        prompt_name: str = NARRATIVE_PROMPT,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
         self._llm = llm
         self._s = settings
+        self._clock = clock
         self.prompt_version = prompt_name
         self._system, self._user_tpl = load_prompt(prompt_name)
 
@@ -73,7 +82,10 @@ class NarrativeGenerator:
         examples: list[Example],
         references: list[Reference],
         notes: str | None,
+        *,
+        deadline: float,
     ) -> GenerationResult:
+        self._preflight(deadline)
         user = render_user(
             self._user_tpl,
             facts_masked=facts_masked,
@@ -82,6 +94,7 @@ class NarrativeGenerator:
             references=references,
             examples=examples,
         )
+        results: list[LlmResult] = []
         for attempt in range(1 + SCHEMA_RETRY):
             res = self._llm.complete_json(
                 system=self._system,
@@ -90,41 +103,56 @@ class NarrativeGenerator:
                 max_tokens=NARRATIVE_MAX_TOKENS,
                 tag=self.prompt_version,
             )
-            try:
-                out = NarrativeOut.model_validate_json(res.text)
-                _check_cites_in_scope(out, fact_keys)
-            except (ValidationError, ValueError) as exc:
-                # 민감 입력 유출 방지(SCRUM-15 adversarial H2) — 유형·개수만 로그, str(exc) 는 쓰지 않음
-                errors = getattr(exc, "error_count", lambda: 1)()
-                log.warning(
-                    "narrative_schema_invalid",
-                    extra={"attempt": attempt + 1, "error_type": type(exc).__name__, "errors": errors},
-                )
-                continue
-            return self._build_result(out, res, examples, references, notes)
+            results.append(res)
+            out = self._validate_result(res, fact_keys, attempt)
+            if out is not None:
+                return self._build_result(out, results, examples, references, notes)
+            if attempt < SCHEMA_RETRY and not self._can_regenerate(deadline):
+                break
         raise LlmInvalidOutput("narrative failed schema validation after retry")
+
+    def _preflight(self, deadline: float) -> None:
+        if deadline - self._clock() < self._s.llm_timeout_s:
+            raise LlmUnavailable("draft budget exceeded")
+
+    def _can_regenerate(self, deadline: float) -> bool:
+        return deadline - self._clock() >= self._s.regen_min_remaining_s
+
+    def _validate_result(self, res: LlmResult, fact_keys: list[str], attempt: int) -> NarrativeOut | None:
+        try:
+            out = NarrativeOut.model_validate_json(res.text)
+            _check_cites_in_scope(out, fact_keys)
+            return out
+        except (ValidationError, ValueError) as exc:
+            # 민감 입력 유출 방지(SCRUM-15 adversarial H2) — 유형·개수만 로그, str(exc) 는 쓰지 않음
+            errors = getattr(exc, "error_count", lambda: 1)()
+            log.warning(
+                "narrative_schema_invalid",
+                extra={"attempt": attempt + 1, "error_type": type(exc).__name__, "errors": errors},
+            )
+            return None
 
     def _build_result(
         self,
         out: NarrativeOut,
-        res,
+        results: list[LlmResult],
         examples: list[Example],
         references: list[Reference],
         notes: str | None,
     ) -> GenerationResult:
         return GenerationResult(
             narrative=out.narrative,
-            llm_model=res.model,
+            llm_model=results[-1].model,
             prompt_version=self.prompt_version,
-            tokens_in=res.tokens_in,
-            tokens_out=res.tokens_out,
-            latency_ms=res.latency_ms,
+            tokens_in=sum(res.tokens_in for res in results),
+            tokens_out=sum(res.tokens_out for res in results),
+            latency_ms=sum(res.latency_ms for res in results),
             request_payload={
                 "few_shot_ids": [e.example_id for e in examples],
                 "reference_ids": [r.doc_id for r in references],
                 "has_notes": bool(notes),
             },
-            raw_response=res.text,
+            raw_response=results[-1].text,
         )
 
 

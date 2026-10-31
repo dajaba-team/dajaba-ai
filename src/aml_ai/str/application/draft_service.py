@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
@@ -35,28 +37,33 @@ class DraftService:
     retriever: Retriever
     generator: NarrativeGenerator
     generations: GenerationRepository
+    clock: Callable[[], float] = time.monotonic
 
     @classmethod
-    def build(cls, session: Session, settings: Settings) -> DraftService:
+    def build(
+        cls, session: Session, settings: Settings, *, clock: Callable[[], float] = time.monotonic
+    ) -> DraftService:
         llm = make_llm_client(settings)
         return cls(
             settings=settings,
             reader=TransactionReader(session),
             fewshot=FewshotStore(session),
             retriever=Retriever(session, make_embedding_client(settings), enabled=settings.rag_enabled),
-            generator=NarrativeGenerator(llm, settings),
+            generator=NarrativeGenerator(llm, settings, clock=clock),
             generations=GenerationRepository(session, settings),
+            clock=clock,
         )
 
     def create(self, req: DraftRequest) -> DraftResponse:
         problem = facts_domain.request_problem(req)
         if problem:
             raise InvalidRequest(problem)
+        deadline = self.clock() + self.settings.draft_budget_s
         claim = self.generations.claim(req, request_hash(req))
         if isinstance(claim, ClaimReuse):
             return claim.response
         try:
-            response = self._generate(req, claim.generation_id)
+            response = self._generate(req, claim.generation_id, deadline)
             self.generations.finish(
                 claim.generation_id,
                 facts=response.facts,
@@ -77,7 +84,7 @@ class DraftService:
             log.warning("generation_fenced_out", extra={"generation_id": generation_id})
             raise
 
-    def _generate(self, req: DraftRequest, generation_id: str) -> DraftResponse:
+    def _generate(self, req: DraftRequest, generation_id: str, deadline: float) -> DraftResponse:
         txs = self.reader.load_transactions(req.evidence_transaction_ids)
         if not facts_domain.has_reportable(txs):
             raise InvalidRequest("no reportable transactions")
@@ -88,13 +95,13 @@ class DraftService:
         # 5
         examples = self.fewshot.pick_examples(facts.typology)
         references = self._references(facts)
-        # 7
         gen = self.generator.generate(
             facts_masked,
             list(fact_keys_domain.fact_keys(facts).keys()),
             examples,
             references,
             req.investigator_notes,
+            deadline=deadline,
         )
         # 8 — 순수: cites 의 fact 키 → evidence_ids
         narrative = fact_keys_domain.attach_evidence(gen.narrative, facts)

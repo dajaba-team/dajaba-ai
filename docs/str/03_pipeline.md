@@ -27,9 +27,11 @@
 4  facts_llm = domain.masking.mask_for_llm(facts)                            순수 (04) — 생성·평가자 공용
 5  examples = fewshot_store.pick_examples(facts.typology)                    (05) 같은 유형 1 + 다른 유형 2
 6  references = retriever.retrieve(facts)                                    (10) 0~3건. RetrievalUnavailable → [] ※ 초안을 막지 않음
-7  gen = narrative_generator.generate(facts_llm, fact_keys(facts), examples, references, notes)   (05)
+7  gen = narrative_generator.generate(facts_llm, fact_keys(facts), examples, references, notes, deadline=deadline)   (05)
+      선체크 — 남은 예산 < LLM_TIMEOUT_S(35초) 이면 LLM 안 부르고 LlmUnavailable (502, 아래 "예산 초과는 LlmUnavailable")
       LLM 1회(35초) + NarrativeOut 스키마 검증(섹션 6개 각 1회, cites ⊆ fact_keys)
       스키마 실패 → 남은 예산 ≥ 40초면 1회 재생성, 아니면 바로 → 또 실패 LlmInvalidOutput (502)
+      성공 시 tokens_in·tokens_out·latency_ms 는 호출한 횟수의 합(재생성 뒤 성공해도 두 호출 합)
       연결 실패·타임아웃 → LlmUnavailable (502). ★ AI 안에서 연결 재시도 없음 — 재시도는 백엔드 AiClient 1회만
 8  narrative = domain.facts.attach_evidence(gen.narrative, facts)            순수 — cites의 fact 키 → 거래 ID 합집합 = evidence_ids
 9  generation_repository.finish(generation_id, SUCCEEDED, facts, response, meta)
@@ -86,6 +88,10 @@
 | judge (verify) | 5~20초 | `LLM_TIMEOUT_S` 공용 |
 
 예산 초과는 `LlmUnavailable`(502)로 — 백엔드가 1회 재시도하면 같은 `draft_id`로 들어와 PROCESSING 선점에 걸리므로, **AI는 예산을 넘긴 생성을 반드시 FAILED로 닫고 응답한다**(닫지 않으면 재시도가 영원히 409).
+
+**구현 위치 (SCRUM-45)** — 마감 시각 `deadline`은 `draft_service.create()`가 요청 검증(0) 직후·선점(1) 전에 `clock() + DRAFT_BUDGET_S`로 정하고 `narrative_generator.generate(..., deadline=deadline)`에 넘긴다. 앞 단계(DB·검색)가 느려 선체크가 실패해도 같은 흐름으로 `_fail`이 generations 행을 FAILED로 닫는다. 생성기는 **첫 LLM 호출 전**(남은 < `LLM_TIMEOUT_S` → `LlmUnavailable`)과 **스키마 실패 뒤**(남은 < `REGEN_MIN_REMAINING_S` → 재생성 없이 `LlmInvalidOutput`) 두 지점에서만 남은 예산을 본다 — 호출마다 LLM 타임아웃을 줄이지는 않는다(09 2026-10-31). 시계는 `Callable[[], float]`로 `draft_service`·`narrative_generator`에 주입(기본 `time.monotonic`), `domain/`은 시계를 만지지 않는다(01).
+
+**불변식 (기동 때 검증, `shared/config.Settings._check_time_budget`)** — `DRAFT_BUDGET_S >= LLM_TIMEOUT_S` **그리고** `REGEN_MIN_REMAINING_S >= LLM_TIMEOUT_S`. 어기면 `ValidationError` 로 기동 실패 — `.env` 를 잘못 적어 LLM 1회조차 못 부르는 상태로 서버가 살아 있지 않게.
 
 ## 에러 (규약 6.3, `shared/errors.py`)
 
