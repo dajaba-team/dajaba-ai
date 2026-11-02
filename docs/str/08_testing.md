@@ -6,9 +6,9 @@
 
 | 층 | 무엇 | 돌리는 때 |
 |---|---|---|
-| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verify.py`(유형별 추출·정규화·판정·UNPARSED, 수정본 `narrative_refs` 재계산·목록 밖 키 제거·`CODE_FAILED`면 null), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
+| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verification.py`(유형별 추출·정규화·판정·UNPARSED — SCRUM-58 로 `amount_match`·`account_id_match` 활성, `date_match`·`count_match` 는 59·60), `test_logging_middleware.py`(SCRUM-58: `X-Request-Id` 64자 통과·65자 처리 — 새 ID 발급·`request_id_replaced` 경고), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
 | 계약 | `tests/contract/` — `examples/*.json` ↔ `schemas/`, `narrative_hash.json` ↔ `shared/hashing.py` | 매 커밋, CI |
-| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~26 | 매 커밋, CI |
+| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~26, 29 (SCRUM-58 로 1·2·15·17·18·29 활성). **SCRUM-58 범위에선 검사 함수를 직접 부르는 도우미**(케이스 번호 → `amount_match`/`account_id_match`) — `run_code_checks` 가 59·60 전까지 `NotImplementedError` 라서. 59·60 끝에 `run_code_checks` 로 바꿈 | 매 커밋, CI |
 | 오류 주입 (LLM) | `test_injection.py -m live` — 7~12, 14, 23 | W4 손으로, 표로 남김 |
 | 검색 평가 | `retrieval_eval.json` → hit@3(주)·precision@3·recall@3 (청크 단위, `10`) | W4, 11/11 전 |
 | RAG 켬/끔 비교 | 같은 facts 5건 × `RAG_ENABLED` true/false 생성 → 코드·평가자 점수·사람 선호 표 (`10`) | W4, 11/11 전 |
@@ -22,8 +22,8 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 
 | # | 주입 | 잡아야 하는 것 | 층 |
 |---|---|---|---|
-| 1 | 금액 `320,000,000 US Dollar` → `32,000,000 US Dollar` | `AMOUNT_MATCH` MISMATCH | 결정적 |
-| 2 | 금액을 한글 단위로 `3억 2천만 US Dollar` (정답) | **통과해야 함** — 거짓 양성 검사 | 결정적 |
+| 1 | 금액 `320,000,000 US Dollar` → `32,000,000 US Dollar` | `AMOUNT_MATCH` MISMATCH | 결정적 (SCRUM-58 활성) |
+| 2 | 금액을 한글 단위로 `3억 2천만 US Dollar` (정답) | **통과해야 함** — 거짓 양성 검사 | 결정적 (SCRUM-58 활성) |
 | 3 | 날짜를 기간 밖 `9월 5일`로 | `DATE_MATCH` MISMATCH | 결정적 |
 | 4 | 상대 수 `31개 계좌` → `13개 계좌` | `COUNT_MATCH` MISMATCH | 결정적 |
 | 5 | 수정본 `evidence_ids`에 범위 밖 ID, 또는 `cites`에 FACT_KEYS 밖 키 | `EVIDENCE_IN_SCOPE` OUT_OF_SCOPE | 결정적 |
@@ -36,10 +36,10 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 | 12 | 정상 초안 그대로 | 코드 5 통과, 평가자 5개 ≥ 4, `passed = true` | LLM |
 | 13 | REFERENCES 빈 배열(검색 결과 없음·임베딩 실패)로 **생성** | 초안 정상 생성, 코드 5 통과 — RAG 장애가 초안을 막지 않음 | 결정적(생성은 녹화) |
 | 14 | FAN_IN facts에 FAN_OUT 사례 3건만 REFERENCES로, 사례 안에 `USD 2,400,000` 포함해 **생성** | `TYPOLOGY_CONSISTENT` ≥ 4 유지 + 사례 금액이 본문에 안 섞임(`AMOUNT_MATCH` 통과) | LLM |
-| 15 | 금액은 맞고 통화만 틀림 `320,000,000 EUR` | `AMOUNT_MATCH` MISMATCH (통화 쌍 검사) | 결정적 |
+| 15 | 금액은 맞고 통화만 틀림 `320,000,000 EUR` | `AMOUNT_MATCH` MISMATCH (통화 쌍 검사) | 결정적 (SCRUM-58 활성) |
 | 16 | WHO에 개설일 `2021년 3월 14일` (facts `customer.onboarded_at`) | **통과해야 함** — 1차 검토가 잡은 오탐 | 결정적 |
-| 17 | 금액을 `약 3억 US Dollar`, `삼억 이천만 US Dollar`로 | `AMOUNT_MATCH` UNPARSED (조용히 통과 안 함) | 결정적 |
-| 18 | 본문에 상대 계좌 식별자 `****A1F2` | `ACCOUNT_ID_MATCH` MISMATCH | 결정적 |
+| 17 | 금액을 `약 3억 US Dollar`, `삼억 이천만 US Dollar`로 | `AMOUNT_MATCH` UNPARSED (조용히 통과 안 함) | 결정적 (SCRUM-58 활성) |
+| 18 | 본문에 상대 계좌 식별자 `****A1F2` | `ACCOUNT_ID_MATCH` MISMATCH | 결정적 (SCRUM-58 활성) |
 | 19 | 개설일을 거래 날짜 자리에 `2021년 3월 14일에 47건 입금`(개설 단어 없음) | `DATE_MATCH` MISMATCH — 거래 날짜로 보고 기간과 대조 | 결정적 |
 | 20 | 상대 수를 한글 수사로 `서른한 개 계좌` | `COUNT_MATCH` UNPARSED | 결정적 |
 | 21 | 한 문장에 두 날짜 `2021년 3월 14일 개설, 2022년 9월 2일 47건 입금` | **통과해야 함** — 개설 단어는 가까운 첫 날짜에만 붙고 둘째는 거래 날짜 | 결정적 |
@@ -50,14 +50,48 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 | 26 | 끊긴 경로 facts(`UNVERIFIED`)에 "순환 경로 2개" | `COUNT_MATCH` MISMATCH — 확인 안 된 경로 수 | 결정적 |
 | 27 (SCRUM-47) | `payment_format_counts: [{"ACH", 47}]` 에 "ACH 50건" | `COUNT_MATCH` MISMATCH — 결제 방식별 건수 ⑥(06) | 결정적 (코드 검사 4종 구현 뒤) |
 | 28 (SCRUM-47) | `counterparty_banks: {same_bank_accounts: 0, other_bank_accounts: 31}` 에 "자행 5 계좌" | `COUNT_MATCH` MISMATCH — 자행/타행 계좌 수 ⑦(06) | 결정적 (코드 검사 4종 구현 뒤) |
-| 29 (SCRUM-47) | `amount_range: [{"USD", "1500000.00", "22000000.00"}]` 에 건당 `"2,000,000 US Dollar"`(min·max 사이) | **통과해야 함** — `AMOUNT_MATCH` 가 total 외에도 같은 통화 min·max 와 대조(06) | 결정적 (코드 검사 4종 구현 뒤) |
+| 29 (SCRUM-47) | `amount_range: [{"USD", "1500000.00", "22000000.00"}]` 에 건당 `"2,000,000 US Dollar"`(min·max 사이) | **통과해야 함** — `AMOUNT_MATCH` 가 total 외에도 같은 통화 min·max 와 대조(06) | 결정적 (SCRUM-58 활성) |
 | 30 (SCRUM-47) | v2 집합에서 `OPINION` 섹션 text 가 `"자료 없음"` 뿐 | `OPINION_PRESENT` MISSING (06) | 결정적 |
 | 31 (SCRUM-47) | v2 집합에서 `OPINION` 섹션 text 가 공란 아님(정상 결론 문장) | **통과해야 함** — `OPINION_PRESENT` match | 결정적 |
 | 32 (SCRUM-47) | v2 집합 7개 중 하나를 v1 이름(`CONCLUSION`)으로 섞음 | 생성 스키마 거부(섞인 집합) · 해시 ValueError (shared/01) | 결정적 |
 | 33 (SCRUM-47) | v1 6섹션 그대로(기존 녹화·picture) | **통과해야 함** — v1 집합 보존, `OPINION_PRESENT` 안 돈다 | 결정적 |
 | 34 (SCRUM-47) | v2 7개 중 하나 섹션 비움(예: `GROUNDS`) | 섹션 비면 생성 스키마가 공백만 거부, 평가자가 `FIVE_W_ONE_H_COMPLETE` 1점 | 결정적(스키마) + LLM(평가자) |
 
-12번이 안 나오면 프롬프트부터 고친다. 7~12·14·23은 손으로 돌려(23은 W3, 나머지 W4) **표로 남긴다** — 평가자 기준 4점을 조정하는 근거이고, MVP 정의서 9절 "검증 지표표"의 재료. 2·16·21·24·29는 **거짓 양성** 검사라 fail이 나면 검증 코드를 고치는 것이고, 조사역 문장을 탓하지 않는다. 27~29는 코드 검사 4종 구현 이슈(후속)에서 실제 돌림.
+12번이 안 나오면 프롬프트부터 고친다. 7~12·14·23은 손으로 돌려(23은 W3, 나머지 W4) **표로 남긴다** — 평가자 기준 4점을 조정하는 근거이고, MVP 정의서 9절 "검증 지표표"의 재료. 2·16·21·24·29는 **거짓 양성** 검사라 fail이 나면 검증 코드를 고치는 것이고, 조사역 문장을 탓하지 않는다. **27·28** 은 결제 방식·자행/타행 `COUNT_MATCH` 확장이라 **SCRUM-60(COUNT) 활성**. SCRUM-58 범위는 1·2·15·17·18·29(AMOUNT·ACCOUNT_ID).
+
+### 정상 문장 오탐 테스트 (SCRUM-58 단위 — `test_verification.py`)
+
+AMOUNT_MATCH 가 잡지 **말아야** 하는 문장(결과 없음):
+- `입금 47건 42,750.50 US Dollar` → 47 은 금액 아님(바로 안 붙음), 42,750.50 만 match
+- `원인`·`회원`·`프랑스` 가 들어간 문장 → `원`·`프랑` 통화로 안 봄(바로 붙은 숫자 없음)
+- `USDT 100` → `USDT` 는 `USD` 뒤에 영문이 이어져 통화로 안 봄 → 금액 결과 없음
+- `42,750.50 US Dollar의` · `3억 2천만 원으로` → 한글 조사 붙어도 통화로 봄(정상 match)
+- **금액 없는 통화 언급 → 결과 없음(UNPARSED 아님)**: `입금 통화는 US Dollar이며`(조사 `이` 만 붙음) · `통화는 US Dollar 하나임`(금액 아예 없음) · `US Dollar 이체가 이어짐` (★B — ±10자 창을 버리고 "바로 붙은 덩이" 기준으로 좁힌 결과 반영)
+- **금액 모양 제외**(숫자 뒤 단위·날짜 모양): `합계 42,750.50 US Dollar 3건 입금` → 결과 1줄(42,750.50 match, 뒤 `3`은 `건`이라 금액 아님) · `US Dollar 2022-09-02 입금` → 결과 없음(앞 금액 없고, 뒤 `2022`는 `-`로 이어진 날짜라 금액 아님)
+
+AMOUNT_MATCH 가 **잡아야** 하는 문장(앞쪽 영문 원문, ★B):
+- `US Dollar 42,750.50` → match(앞쪽 영문 표기 허용)
+- `US Dollar 32,000,000` → `MISMATCH`(앞쪽 영문 원문·값 다름)
+
+ACCOUNT_ID_MATCH 가 잡지 **말아야** 하는 표현:
+- `R04_CYCLE`·`R05_STACK` 룰 ID → 앞이 영문 R 이라 안 걸림
+- `2022-09-02` 날짜·`42,750.50` 금액 → 계좌 식별자 아님
+
+### Codex adversarial 회귀 (SCRUM-58, `test_verification_amount.py`)
+
+끊긴 숫자 토큰은 **UNPARSED**(조용히 통과 금지):
+- `-42,750.50 US Dollar` — 앞 `-` 부호
+- `1,42,750.50 US Dollar` — 앞 `,` + 숫자 조각
+- `US Dollar 42,750.50,000` — 뒤 `,` + 숫자 조각
+
+통화 뒤 수사·근사도 **UNPARSED**(통화 위치로 우회 못 함):
+- `USD 삼억` · `USD 약 3억`
+
+지원 단위 `천만` 최장 일치 — 통화 위치 바뀌어도 같은 결과(MISMATCH, 30,000,000 ≠ facts total):
+- `USD 3천만` · `3천만 US Dollar`
+
+앞쪽 기호 `₩` 쌍짓기 — facts 에 KRW 없어 **MISMATCH**:
+- `₩1,000 입금`
 
 ## 녹화 (`recorded/`)
 

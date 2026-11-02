@@ -18,7 +18,10 @@ from starlette.responses import Response
 from aml_ai.shared.config import Settings
 
 REQUEST_ID_HEADER = "X-Request-Id"
+REQUEST_ID_MAX_LEN = 64  # verification_runs.request_id VARCHAR(64) (docs/shared/03, SCRUM-57·58)
 _request_id: ContextVar[str] = ContextVar("request_id", default="-")
+
+logger = logging.getLogger(__name__)
 
 
 def current_request_id() -> str:
@@ -44,10 +47,20 @@ def setup_logging(settings: Settings) -> None:
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
-    """백엔드 X-Request-Id 를 받아 쓰고, 없으면 만든다. 응답 헤더로 돌려준다."""
+    """백엔드 X-Request-Id 를 받아 쓰고, 없으면 만든다. 응답 헤더로 돌려준다.
+
+    SCRUM-58 — 길이 ≤ `REQUEST_ID_MAX_LEN`(64) 아니면 새 ID 발급 + `request_id_replaced` 경고.
+    verification_runs.request_id VARCHAR(64) commit 실패 방지(09 결정, docs/shared/03).
+    """
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        rid = request.headers.get(REQUEST_ID_HEADER) or uuid.uuid4().hex[:16]
+        raw = request.headers.get(REQUEST_ID_HEADER)
+        if raw is not None and 1 <= len(raw) <= REQUEST_ID_MAX_LEN:
+            rid = raw
+        else:
+            rid = uuid.uuid4().hex[:16]
+            if raw is not None:  # 헤더가 왔는데 길이 범위 밖
+                logger.warning("request_id_replaced", extra={"received_len": len(raw)})
         token = _request_id.set(rid)
         try:
             response = await call_next(request)
