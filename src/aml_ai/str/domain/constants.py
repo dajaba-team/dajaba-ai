@@ -54,45 +54,70 @@ FROZEN_PROMPTS: dict[str, str] = {
 # ---- 검증 (docs/str/06)
 VERIFIER_VERSION = "verify-2026.11"  # 코드 검증 로직이 바뀌면 올린다
 JUDGE_PASS_SCORE = 4  # W4 오류 주입 7~12 표 뒤 조정
-AMOUNT_CONTEXT_CHARS = 10  # 통화 단어 ±N 자 안의 숫자만 "금액 문맥"
-CURRENCY_WORDS = (
-    "원",
-    "달러",
-    "USD",
-    "US Dollar",
-    "유로",
-    "EUR",
-    "엔",
-    "JPY",
-    "위안",
-    "CNY",
-    "파운드",
-    "GBP",
-    "루피",
-    "INR",
-    "레알",
-    "BRL",
-    "페소",
-    "MXN",
-    "쉐켈",
-    "ILS",
-    "프랑",
-    "CHF",
-    "루블",
-    "RUB",
-    "리얄",
-    "SAR",
-    "AUD",
-    "CAD",
-    "비트코인",
-    "BTC",
+# AMOUNT_MATCH (SCRUM-58) — 06 "AMOUNT_MATCH" 줄. ±10자 창 폐기, "바로 붙은 덩이" 기준.
+# 코드 → 표기 목록. 긴 표기부터 매칭하므로 코드·IBM 원문·한국어 전부 수록. 맨 "달러"→USD (★A 2).
+# "원"·"₩" 은 facts 에 없어 늘 MISMATCH — 환산 금지 규칙(04).
+CURRENCY_ALIASES: dict[str, tuple[str, ...]] = {
+    "USD": ("USD", "US Dollar", "미국 달러", "달러", "$"),
+    "EUR": ("EUR", "Euro", "유로"),
+    "CNY": ("CNY", "Yuan", "위안"),
+    "ILS": ("ILS", "Shekel", "쉐켈"),
+    "CAD": ("CAD", "Canadian Dollar", "캐나다 달러"),
+    "GBP": ("GBP", "UK Pound", "영국 파운드", "파운드"),
+    "RUB": ("RUB", "Ruble", "루블"),
+    "AUD": ("AUD", "Australian Dollar", "호주 달러"),
+    "CHF": ("CHF", "Swiss Franc", "스위스 프랑", "프랑"),
+    "JPY": ("JPY", "Yen", "엔"),
+    "MXN": ("MXN", "Mexican Peso", "멕시코 페소", "페소"),
+    "INR": ("INR", "Rupee", "루피"),
+    "BRL": ("BRL", "Brazil Real", "브라질 레알", "레알"),
+    "SAR": ("SAR", "Saudi Riyal", "사우디 리얄", "리얄"),
+    "BTC": ("BTC", "Bitcoin", "비트코인"),
+    "KRW": ("KRW", "원", "₩"),
+}
+
+RE_AMOUNT_NUMBER = re.compile(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?")
+
+# 한국어 복합 단위 — 큰 쪽부터 내려가며 합산. 외는 UNPARSED (★A 3).
+KOREAN_UNIT_MULTIPLIER: dict[str, Decimal] = {
+    "억": Decimal(10) ** 8,
+    "천만": Decimal(10) ** 7,
+    "만": Decimal(10) ** 4,
+}
+# 지원 안 하는 단위가 아라비아 숫자 뒤에 바로 붙으면 UNPARSED (`3천`·`500백만`·`1조`).
+UNSUPPORTED_AMOUNT_UNITS: tuple[str, ...] = ("백만", "십만", "조", "경", "천")
+
+# 근사·범위 수식어 — 금액 덩이 바로 앞/뒤에 붙으면 UNPARSED (★A 3).
+APPROXIMATE_WORDS: tuple[str, ...] = (
+    "약",
+    "대략",
+    "가량",
+    "정도",
+    "여",
+    "이상",
+    "이하",
+    "넘는",
+    "미만",
+    "내외",
 )
-KOREAN_UNIT_MULTIPLIER = {"천만": Decimal(10) ** 7, "억": Decimal(10) ** 8, "만": Decimal(10) ** 4}
-RE_AMOUNT = re.compile(r"(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(천만|억|만)?")
-RE_DATE = re.compile(
-    r"(\d{4})-(\d{2})-(\d{2})|(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일|(?<!\d)(\d{1,2})월\s*(\d{1,2})일|(\d{4})/(\d{2})/(\d{2})"
+
+# 한글 수사 — 수사 글자 2자 이상이고 억·천만·만·천·백·십 중 하나 포함이면 UNPARSED (★A 3·★B).
+# "US Dollar이며" 의 조사 '이' 는 2자 미만이라 수사로 안 봄.
+KOREAN_NUMERAL_SMALL: frozenset[str] = frozenset("일이삼사오육칠팔구")
+KOREAN_NUMERAL_TENS: frozenset[str] = frozenset(
+    ("십", "스물", "서른", "마흔", "쉰", "예순", "일흔", "여든", "아흔")
 )
-RE_COUNTERPARTY = re.compile(r"(\d+)\s*(?:개|곳|명)의?\s*(?:계좌|상대|거래처)")
+KOREAN_NUMERAL_BIG: frozenset[str] = frozenset(("백", "천", "만", "억"))
+
+# 금액 모양 제외 — 숫자 바로 뒤에 이게 오면 건수·날짜 (★B 추가).
+NON_AMOUNT_TRAILERS: tuple[str, ...] = ("건", "회", "개", "곳", "명", "년", "월", "일", "시", "분")
+
+# ACCOUNT_ID_MATCH (SCRUM-58) — 06 "ACCOUNT_ID_MATCH" 줄. 세 패턴, 긴 쪽 우선.
+RE_ACCOUNT_FULL = re.compile(r"(?<![0-9A-Za-z])\d{1,4}_[0-9A-Z*]{4,}")
+RE_ACCOUNT_MASKED_TAIL = re.compile(r"(?<![0-9A-Za-z*])\*{4}[0-9A-Z]{4}")
+RE_ACCOUNT_TAIL_KO = re.compile(r"끝자리\s*([0-9A-Z]{4})")
+
+# (DATE·COUNT 정규식은 SCRUM-59·60 구현 때 추가)
 
 # ---- RAG (docs/str/10)
 RAG_TOP_K = 3
