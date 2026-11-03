@@ -117,7 +117,48 @@ RE_ACCOUNT_FULL = re.compile(r"(?<![0-9A-Za-z])\d{1,4}_[0-9A-Z*]{4,}")
 RE_ACCOUNT_MASKED_TAIL = re.compile(r"(?<![0-9A-Za-z*])\*{4}[0-9A-Z]{4}")
 RE_ACCOUNT_TAIL_KO = re.compile(r"끝자리\s*([0-9A-Z]{4})")
 
-# (DATE·COUNT 정규식은 SCRUM-59·60 구현 때 추가)
+# DATE_MATCH (SCRUM-59) — 06 "DATE_MATCH" 줄. 날짜·시각·범위·용도 분류 상수.
+
+# 날짜 형식 — 지원하는 쓰기만 뽑고 그 밖(`아침`·`9월 초`)은 UNPARSED.
+# ISO: `YYYY-MM-DD` 또는 `YYYY-MM-DDTHH:MM(:SS)` (녹화 v1·v2 가 실제 쓰는 모양).
+RE_DATE_ISO = re.compile(
+    # 끝 lookahead `(?![0-9:])` — `22:51:300` 처럼 뒤 `:숫자` 가 더 붙어 있어도 짧은 매치가
+    # "완결된 시각" 처럼 통과하지 않게(SCRUM-59 Codex adversarial 3차).
+    r"(?<![0-9])(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s](\d{1,2}):(\d{2})(?::(\d{2}))?)?(?![0-9:])"
+)
+# `YYYY년 M월 D일` + 선택 시각(`오전/오후 H시 M분` 또는 `HH:MM`).
+# 시각은 공용 소비기 `verification_date_time.consume_trailing_time` 가 받음(초 포함).
+# regex 자체에 시각 그룹을 두면 분까지만 흡수하고 초가 조용히 버려지는 경로가 생겨 — 통일(SCRUM-59 2차 Codex).
+RE_DATE_KO = re.compile(r"(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일")
+# `M월 D일` — 연도 없음(period.start 연도로 보강).
+# `일` 뒤 숫자가 다른 날짜 단위(`\d년`·`\d월`·`\d일`)로 끝나야 거부 — 시각(`23:30`·공백 0) 은 허용.
+RE_DATE_KO_NOYEAR = re.compile(r"(?<![0-9년])(\d{1,2})월\s*(\d{1,2})일(?![0-9]*[년월일])")
+# `YYYY/MM/DD`
+RE_DATE_SLASH = re.compile(r"(?<![0-9])(\d{4})/(\d{1,2})/(\d{1,2})(?![0-9])")
+# `YYYY.M.D` — 금액 소수점과 분리하려고 양옆 아닌 숫자 확인.
+RE_DATE_DOT = re.compile(r"(?<![0-9])(\d{4})\.(\d{1,2})\.(\d{1,2})(?![0-9])")
+
+# 시각만(`HH:MM` 또는 `HH:MM:SS`) — 날짜와 쌍일 때만 쓰려고 미리 뽑아 둠.
+RE_TIME_HHMM = re.compile(r"(?<![0-9])(\d{1,2}):(\d{2})(?::(\d{2}))?(?![0-9])")
+
+# 날짜 모양이지만 못 읽는 표현 — UNPARSED 로 떨어뜨림.
+VAGUE_DATE_SUFFIXES: tuple[str, ...] = ("초", "중순", "말", "중")  # `9월 초`·`9월 중순`·`9월 중`
+# 월만 — `YYYY년 M월`(일 없음) → UNPARSED. ("YYYY년 M월 D일" 과 겹치지 않게 lookbehind.)
+RE_YEAR_MONTH_ONLY = re.compile(r"(\d{4})년\s*(\d{1,2})월(?!\s*\d+일)(?![0-9])")
+
+# 날짜 바로 뒤 시간대 단어 → UNPARSED (`9월 2일 아침`·`9월 2일 오전에` — ★A 4 유지).
+# `오전 11시`·`오후 2시` 는 공용 소비기 `verification_date_time.consume_trailing_time` 가
+# 먼저 받으므로 UNPARSED 안 됨 — 소비기가 "none" 일 때만(숫자 시각 없이 단어만) 이 집합 체크.
+TIME_OF_DAY_WORDS: tuple[str, ...] = ("아침", "점심", "저녁", "새벽", "밤", "오전", "오후")
+
+# 날짜 용도 분류 (★A 1·2).
+# ONBOARD_WORDS — ±DATE_CONTEXT_WINDOW 자 안 가장 가까운 날짜가 개설일 용도.
+ONBOARD_WORDS: tuple[str, ...] = ("개설", "가입", "신규", "거래 시작")
+DATE_CONTEXT_WINDOW = 10  # 글자 수(코드포인트)
+
+# OBSERVATION_WORDS — 괄호 안 또는 여는 괄호 바로 앞(공백 제외)에 있으면 observation 용도.
+# `관측값`·`관측 구간` 둘 다 매칭 — `관측` substring 포함.
+OBSERVATION_WORDS: tuple[str, ...] = ("관측값", "관측 구간", "관측")
 
 # ---- RAG (docs/str/10)
 RAG_TOP_K = 3
