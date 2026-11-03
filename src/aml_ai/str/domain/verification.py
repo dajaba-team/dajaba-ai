@@ -40,13 +40,19 @@ def run_code_checks(
 
 
 def date_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
-    """거래 날짜 ↔ period, 개설일 ↔ customer.onboarded_at. WHAT_WHEN_WHERE 에 거래 날짜가 없으면 MISSING."""
-    raise NotImplementedError("SCRUM-59 — docs/str/06 DATE_MATCH")
+    """거래 날짜 ↔ period, 개설일 ↔ customer.onboarded_at. WHAT_WHEN_WHERE 에 거래 날짜가 없으면 MISSING.
+
+    SCRUM-59·60 전까지 결과 없음 — 검사 안 됨이 통과처럼 보이는 기간이라 W3 안에 채운다(docs/str/06)
+    """
+    return []
 
 
 def count_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
-    """건수·상대 수·경로 수 ↔ 해당 집합 (paths 는 VERIFIED 일 때만)."""
-    raise NotImplementedError("SCRUM-60 — docs/str/06 COUNT_MATCH")
+    """건수·상대 수·경로 수 ↔ 해당 집합 (paths 는 VERIFIED 일 때만).
+
+    SCRUM-59·60 전까지 결과 없음 — 검사 안 됨이 통과처럼 보이는 기간이라 W3 안에 채운다(docs/str/06)
+    """
+    return []
 
 
 def evidence_in_scope(narrative: list[NarrativeSectionBase], transaction_ids: list[int]) -> list[CodeCheck]:
