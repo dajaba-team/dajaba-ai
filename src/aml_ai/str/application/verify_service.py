@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from aml_ai.shared.config import Settings
-from aml_ai.shared.errors import DraftNotFound, LlmInvalidOutput, LlmUnavailable
+from aml_ai.shared.errors import AiError, DraftNotFound
 from aml_ai.shared.hashing import narrative_sha256
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
 from aml_ai.shared.logging import current_request_id
@@ -98,8 +98,11 @@ class VerifyService:
                     if all(c.score >= JUDGE_PASS_SCORE for c in llm_checks)
                     else VerifyStatus.LLM_FAILED
                 )
-            except (LlmUnavailable, LlmInvalidOutput) as exc:
-                log.warning("judge_unavailable", extra={"reason": exc.code})
+            except Exception as exc:
+                log.warning(
+                    "judge_unavailable",
+                    extra={"reason": exc.code if isinstance(exc, AiError) else type(exc).__name__},
+                )
                 status = (
                     VerifyStatus.VERIFY_UNAVAILABLE
                 )  # passed=false 가 아니다 — 백엔드 "다시 검증" (안건 9)

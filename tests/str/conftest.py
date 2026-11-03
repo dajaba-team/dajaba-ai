@@ -130,3 +130,27 @@ def draft_request_sample() -> dict:
 def draft_response_sample() -> dict:
     """contracts/examples/draft_response.json — SUCCEEDED 재사용 테스트에 저장할 유효 응답."""
     return json.loads((REPO_ROOT / "contracts" / "examples" / "draft_response.json").read_text())
+
+
+# ── SCRUM-91 — verify_service 로거 가로채기(logging 설정에 무관) ──
+
+from tests.str.verify_service_support import LogCall as _LogCall  # noqa: E402
+
+
+@pytest.fixture
+def judge_log(monkeypatch: pytest.MonkeyPatch) -> list[_LogCall]:
+    """verify_service.log.warning 호출을 직접 가로챔.
+
+    TestClient lifespan 이 `setup_logging` 을 돌려 root 핸들러를 교체(shared/logging.py:44)해도
+    `log` 참조 자체를 바꿔치기 하므로 pytest caplog 대신 이 fixture 를 쓴다.
+    """
+    import aml_ai.str.application.verify_service as mod
+
+    calls: list[_LogCall] = []
+
+    class _Spy:
+        def warning(self, msg: str, extra: dict | None = None) -> None:
+            calls.append(_LogCall(msg=msg, extra=dict(extra or {})))
+
+    monkeypatch.setattr(mod, "log", _Spy())
+    return calls

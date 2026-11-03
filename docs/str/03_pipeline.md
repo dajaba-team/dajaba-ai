@@ -55,7 +55,8 @@
 3  code_checks = domain.verification.run_code_checks(facts, narrative, evidence_scope)   순수 (06) — 유형별 대조
 4  if all(c.match):
        llm_checks = judge.run(mask_for_llm(facts), narrative)      (06) 5개. 평가자도 마스킹본
-       LlmUnavailable·LlmInvalidOutput → llm_checks=None, status=VERIFY_UNAVAILABLE   (자동 재시도 없음)
+       평가자 호출 중 **어떤 예외든** → llm_checks=None, status=VERIFY_UNAVAILABLE (자동 재시도 없음, 200·행 저장).
+       평가자 밖(facts 로드·해시·코드 검사·저장)의 예외는 500 INTERNAL — 안건 9 "실패가 아니라 못 함" (SCRUM-91)
    else:
        llm_checks=None, status=CODE_FAILED        ※ 코드가 틀렸으면 평가자를 부르지 않는다 (비용, 어차피 fail)
 5  passed = all(code match) AND llm_checks is not None AND all(score >= JUDGE_PASS_SCORE=4)    (안건 9)

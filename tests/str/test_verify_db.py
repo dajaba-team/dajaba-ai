@@ -1,18 +1,26 @@
-"""SCRUM-57 — verify 저장 2가지 (-m db). docs/str/08 "DB" 층.
+"""SCRUM-57·91 — verify 저장 3가지 (-m db). docs/str/08 "DB" 층.
 
 1) `VerificationRepository.save` 왕복 — `narrative_sha256`(검증 본문 해시, NOT NULL)·
    `request_id`(current_request_id() 값, "-" 면 null) 포함 모든 칸이 raw SELECT 로 그대로.
    `request_id=None` 케이스 포함(nullable 확인).
 2) 없는 `generation_id` 로 `VerifyService.verify()` → `DraftNotFound`, `verification_runs` 행 0.
+3) **SCRUM-91** — `AI_LLM_MOCK=true` 로 `POST /v1/str/verify` → 200 `VERIFY_UNAVAILABLE`·행 1.
+   녹화 폴더(`recorded/judge_v1/`)가 비어 `LlmUnavailable` 이 나와도 verify 가 끝까지 돌아야 함.
+   develop 에서는 `date_match`·`count_match` 가 NotImplementedError 라 전역 핸들러가 500.
 """
 
 from __future__ import annotations
 
+import uuid
+from collections.abc import Iterator
+
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import Engine, text
 from sqlalchemy.orm import Session
 
 from aml_ai.shared.config import get_settings
+from aml_ai.shared.db import get_session
 from aml_ai.shared.errors import DraftNotFound
 from aml_ai.shared.schemas.str import (
     CheckReason,
@@ -26,7 +34,9 @@ from aml_ai.shared.schemas.str import (
     VerifyStatus,
 )
 from aml_ai.str.application.verify_service import VerifyService
+from aml_ai.str.infrastructure.orm import Generation
 from aml_ai.str.infrastructure.verification_repository import VerificationRepository
+from tests.str.conftest import INTEGRATION_INTERNAL_KEY
 
 pytestmark = pytest.mark.db
 
@@ -106,3 +116,74 @@ def test_verify_404_leaves_no_row(
     with _db_engine.begin() as conn:
         n = conn.execute(text("SELECT count(*) FROM ai.verification_runs")).scalar_one()
     assert n == 0
+
+
+# ── SCRUM-91 — verify API 끝까지 돎(평가자 못 부름 → 200 VERIFY_UNAVAILABLE) ──
+
+
+def _seed_draft(db_session: Session, draft_request_sample: dict, draft_response_sample: dict) -> str:
+    """SUCCEEDED DRAFT 하나 — load_draft 가 facts·evidence_transaction_ids 를 꺼낼 수 있게."""
+    gid = uuid.uuid4().hex
+    db_session.add(
+        Generation(
+            generation_id=gid,
+            kind="DRAFT",
+            draft_id=f"d-91-{gid[:8]}",
+            case_no=draft_request_sample["case_no"],
+            facts=draft_response_sample["facts"],
+            request=draft_request_sample,
+            request_hash="h" * 64,
+            response=draft_response_sample,
+            llm_model="recorded",
+            prompt_version="narrative_v1",
+            status="SUCCEEDED",
+        )
+    )
+    db_session.commit()
+    return gid
+
+
+@pytest.fixture
+def _verify_client(db_session: Session, _ai_mock_env) -> Iterator[TestClient]:
+    """SCRUM-91 — AI_LLM_MOCK=true 로 verify API 호출. ops_seed 없이(verify 는 ops 안 읽음)."""
+    from aml_ai.main import app
+
+    get_settings.cache_clear()
+    app.dependency_overrides[get_session] = lambda: db_session
+    try:
+        with TestClient(app) as client:
+            yield client
+    finally:
+        app.dependency_overrides.pop(get_session, None)
+
+
+def test_verify_api_returns_unavailable_without_recording(
+    db_session: Session,
+    _db_engine: Engine,
+    _verify_client: TestClient,
+    draft_request_sample: dict,
+    draft_response_sample: dict,
+) -> None:
+    """SCRUM-91 — judge 녹화 없음 → 200 VERIFY_UNAVAILABLE, verification_runs 1행.
+
+    develop 에서는 `date_match`·`count_match` NotImplementedError 로 500.
+    """
+    gid = _seed_draft(db_session, draft_request_sample, draft_response_sample)
+    # 요청 narrative 는 응답과 같은 세트 — 코드 검사 통과해야 judge 호출로 떨어진다
+    req = {"generation_id": gid, "revision_no": 1, "narrative": draft_response_sample["narrative"]}
+
+    resp = _verify_client.post(
+        "/v1/str/verify", json=req, headers={"X-Internal-Key": INTEGRATION_INTERNAL_KEY}
+    )
+
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["status"] == VerifyStatus.VERIFY_UNAVAILABLE.value
+    assert data["passed"] is False
+    assert data["llm_checks"] is None
+
+    with _db_engine.begin() as conn:
+        n = conn.execute(
+            text("SELECT count(*) FROM ai.verification_runs WHERE generation_id = :g"), {"g": gid}
+        ).scalar_one()
+    assert n == 1
