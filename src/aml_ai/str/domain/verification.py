@@ -1,8 +1,8 @@
 """run_code_checks — 정본 docs/str/06 코드 검증 표(유형별 대조 6종). 순수 함수, 정규식 + Decimal.
 
 원칙: 거짓 양성 감수, 허용 오차 0. 코드가 잡은 건 LLM 이 뭐라 해도 fail. 못 읽은 표현은 UNPARSED.
-SCRUM-58 로 `amount_match`·`account_id_match` 구현 — 각각 verification_amount·verification_account 모듈.
-`date_match`·`count_match` 는 SCRUM-59·60. `evidence_in_scope`·`opinion_present` 는 여기.
+SCRUM-58 로 `amount_match`·`account_id_match`, SCRUM-59 로 `date_match` 구현 — 각각 전용 모듈.
+`count_match` 는 SCRUM-60. `evidence_in_scope`·`opinion_present` 는 여기.
 오류 주입 (tests/str/test_injection.py -m deterministic) 이 곧 테스트.
 """
 
@@ -21,6 +21,7 @@ from aml_ai.shared.schemas.str import (
 )
 from aml_ai.str.domain.verification_account import account_id_match
 from aml_ai.str.domain.verification_amount import amount_match
+from aml_ai.str.domain.verification_date import date_match
 
 # OPINION 공란으로 간주할 표현 (SCRUM-47 안건 6-5) — strip·NFC 뒤 비교.
 OPINION_BLANK_STRINGS: frozenset[str] = frozenset({"자료 없음", "해당 없음", "없음", "-"})
@@ -39,18 +40,10 @@ def run_code_checks(
     return checks
 
 
-def date_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
-    """거래 날짜 ↔ period, 개설일 ↔ customer.onboarded_at. WHAT_WHEN_WHERE 에 거래 날짜가 없으면 MISSING.
-
-    SCRUM-59·60 전까지 결과 없음 — 검사 안 됨이 통과처럼 보이는 기간이라 W3 안에 채운다(docs/str/06)
-    """
-    return []
-
-
 def count_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
     """건수·상대 수·경로 수 ↔ 해당 집합 (paths 는 VERIFIED 일 때만).
 
-    SCRUM-59·60 전까지 결과 없음 — 검사 안 됨이 통과처럼 보이는 기간이라 W3 안에 채운다(docs/str/06)
+    SCRUM-60 전까지 결과 없음 — 검사 안 됨이 통과처럼 보이는 기간이라 W3 안에 채운다(docs/str/06)
     """
     return []
 

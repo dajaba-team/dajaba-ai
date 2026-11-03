@@ -54,3 +54,22 @@ def amount(facts: Facts, section_: SectionV1 | SectionV2, text: str) -> list:
 
 def account(facts: Facts, section_: SectionV1 | SectionV2, text: str) -> list:
     return verification.account_id_match(facts, [section(section_, text)])
+
+
+def date(facts: Facts, section_: SectionV1 | SectionV2, text: str) -> list:
+    """SCRUM-59 — 섹션 하나로 `date_match` 호출."""
+    return verification.date_match(facts, [section(section_, text)])
+
+
+def facts_customer_null() -> Facts:
+    """customer 를 null 로 — 개설일 쓸 때 MISMATCH 유발 테스트."""
+    data = load_json(FIXTURES / "facts_fan_in.json")
+    data["customer"] = None
+    return Facts.model_validate(data)
+
+
+def facts_no_observations() -> Facts:
+    """observations 비움 — 괄호 관측 표현이 어느 window 와도 안 맞는 상황 테스트."""
+    data = load_json(FIXTURES / "facts_fan_in.json")
+    data["observations"] = []
+    return Facts.model_validate(data)

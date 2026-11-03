@@ -6,9 +6,9 @@
 
 | 층 | 무엇 | 돌리는 때 |
 |---|---|---|
-| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verification.py`(유형별 추출·정규화·판정·UNPARSED — SCRUM-58 로 `amount_match`·`account_id_match` 활성, `date_match`·`count_match` 는 59·60), `test_judge.py`(SCRUM-91: `Judge.run` 정상 5개 + 4개·중복·bad JSON → `LlmInvalidOutput`, `llm_output_model("judge_v1") is JudgeOut`·`json_schema_for(JudgeOut, name="judge_v1")` strict, `narrative_v1/v2` 매핑 회귀·모르는 이름 `ValueError`), `test_verify_service.py`(SCRUM-91, 가짜 repo·judge: PASSED·CODE_FAILED·judge 가 `RuntimeError` → **500 아님** `VERIFY_UNAVAILABLE`·`LlmUnavailable` 회귀·`LlmInvalidOutput`·경고 로그 `reason` 은 `AiError.code` 또는 예외 클래스 이름만), `test_logging_middleware.py`(SCRUM-58: `X-Request-Id` 64자 통과·65자 처리 — 새 ID 발급·`request_id_replaced` 경고), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
+| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verification.py`(유형별 추출·정규화·판정·UNPARSED — SCRUM-58 로 `amount_match`·`account_id_match` 활성, `count_match` 는 60), `test_verification_date.py`(SCRUM-59: 날짜 용도 분류 — 괄호 안 관측·개설·거래·범위, 시각 쌍 period 양 끝, ISO T·초 환원, `오전/오후` 변환, 월만·시간대 UNPARSED, `신규` 개설 단어 유지, 녹화 v1·v2 본문·`narrative_ok` 전부 통과), `test_judge.py`(SCRUM-91: `Judge.run` 정상 5개 + 4개·중복·bad JSON → `LlmInvalidOutput`, `llm_output_model("judge_v1") is JudgeOut`·`json_schema_for(JudgeOut, name="judge_v1")` strict, `narrative_v1/v2` 매핑 회귀·모르는 이름 `ValueError`), `test_verify_service.py`(SCRUM-91, 가짜 repo·judge: PASSED·CODE_FAILED·judge 가 `RuntimeError` → **500 아님** `VERIFY_UNAVAILABLE`·`LlmUnavailable` 회귀·`LlmInvalidOutput`·경고 로그 `reason` 은 `AiError.code` 또는 예외 클래스 이름만), `test_logging_middleware.py`(SCRUM-58: `X-Request-Id` 64자 통과·65자 처리 — 새 ID 발급·`request_id_replaced` 경고), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
 | 계약 | `tests/contract/` — `examples/*.json` ↔ `schemas/`, `narrative_hash.json` ↔ `shared/hashing.py` | 매 커밋, CI |
-| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~26, 29 (SCRUM-58 로 1·2·15·17·18·29 활성). **SCRUM-58 범위에선 검사 함수를 직접 부르는 도우미**(케이스 번호 → `amount_match`/`account_id_match`) — 59·60 전까지 날짜·건수 검사가 빈 목록이라 검사 함수를 직접 부름(60 끝에 `run_code_checks` 로) | 매 커밋, CI |
+| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~26, 29 (SCRUM-58 로 1·2·15·17·18·29 활성, **SCRUM-59 로 3·16·19·21·22 활성**). **검사 함수를 직접 부르는 도우미**(케이스 번호 → `amount_match`/`account_id_match`/`date_match`) — 60 전까지 건수 검사가 빈 목록이라. 60 끝에 `run_code_checks` 로 바꿈 | 매 커밋, CI |
 | 오류 주입 (LLM) | `test_injection.py -m live` — 7~12, 14, 23 | W4 손으로, 표로 남김 |
 | 검색 평가 | `retrieval_eval.json` → hit@3(주)·precision@3·recall@3 (청크 단위, `10`) | W4, 11/11 전 |
 | RAG 켬/끔 비교 | 같은 facts 5건 × `RAG_ENABLED` true/false 생성 → 코드·평가자 점수·사람 선호 표 (`10`) | W4, 11/11 전 |
@@ -76,6 +76,35 @@ AMOUNT_MATCH 가 **잡아야** 하는 문장(앞쪽 영문 원문, ★B):
 ACCOUNT_ID_MATCH 가 잡지 **말아야** 하는 표현:
 - `R04_CYCLE`·`R05_STACK` 룰 ID → 앞이 영문 R 이라 안 걸림
 - `2022-09-02` 날짜·`42,750.50` 금액 → 계좌 식별자 아님
+
+### 정상 문장 오탐 테스트 (SCRUM-59 단위 — `test_verification_date.py`)
+
+DATE_MATCH 가 **통과시켜야** 하는 문장(실제 녹화·`narrative_ok` 재료):
+- `narrative_ok`: `2022-09-02 하루 동안` · `계좌 개설일 2021-03-14임` · `2022-09-02 00:14부터 22:51 사이`
+- v1 녹화: `고객 가입일은 2021-03-14` · `거래 기간은 2022-09-02T00:14:00부터 2022-09-02T22:51:00까지`(ISO T + 초 환원) · WHY_SUSPICIOUS `모델 관측값(2022-09-02T00:00:00부터 2022-09-03T00:00:00까지, 24시간 기준)` (**여는 괄호 바로 앞 `관측값`** → observation 용도, SCRUM-59)
+- v2 녹화: DATE `거래 기간은 2022-09-02T00:14:00부터 2022-09-02T22:51:00까지임` · GROUNDS `모델 관측값(관측 구간: 2022-09-02T00:00:00~2022-09-03T00:00:00 기준)`(괄호 안 `관측 구간` → observation 용도)
+- 다양한 형식: `2022년 9월 2일` · `9월 2일`(연도 → period.start.year) · `2022/09/02` · `2022.9.2` · `2022-09-02 14:30` · `2022년 9월 2일 오후 2시 30분` · `2022-09-02 00:14:30`(초 포함 period 안)
+- 주입 16: WHO 에 개설일 `2021년 3월 14일` → match(개설일 용도)
+- 주입 21: `2021년 3월 14일 개설, 2022년 9월 2일 47건 입금` → 가까운 쪽 규칙으로 개설일·거래 날짜 둘 다 match
+
+DATE_MATCH 가 **잡지 말아야** 하는 표현(날짜 아님 → 결과 없음):
+- `42,750.50 US Dollar` · `3.0으로` · `24시간 기준` · `010_****BD30` · `R04_CYCLE` · `3건`
+- 시각만 따로(`22:51`)는 날짜와 쌍이 아니면 대조 안 함
+
+DATE_MATCH 가 **잡아야** 하는 문장(MISMATCH · UNPARSED):
+- 주입 3: `9월 5일` → `MISMATCH`(거래 날짜 기간 밖)
+- 주입 19: `2021년 3월 14일에 47건 입금` → `MISMATCH`(개설 단어 없음 → 거래 날짜 → 기간 밖)
+- 주입 22: `2021년 3월 14일과 2022년 9월 2일 사이 개설` → `UNPARSED`(범위 표현 + 개설 단어)
+- 개설 단어에서 두 날짜까지 거리가 같음 → `UNPARSED`
+- `9월 초`·`2022년 9월 중순`·`2022년 9월` → `UNPARSED`
+- `9월 2일 아침` → `UNPARSED`(시간대 단어가 **날짜 바로 뒤**)
+- 괄호 안 **관측 단어 + 개설 단어** 같이 있음 → `UNPARSED`(용도 애매, SCRUM-59)
+- **괄호 밖**에 관측 구간을 쓴 경우(`관측 구간은 2022-09-03까지`) → 거래 날짜로 분류돼 `MISMATCH`(거짓 양성 감수 — 지금 규칙의 결과, SCRUM-59)
+- `신규 고객의 2022-09-02 입금` → `MISMATCH`(`신규` 가 개설 단어라 거래 날짜가 onboarded_at 과 안 맞음 — 09 10/27 결정 유지, SCRUM-59)
+- `customer` 가 null 인데 `개설일 2021-03-14` → `MISMATCH`
+- 개설일이 onboarded_at 과 다름 → `MISMATCH`
+- 기간 안 날짜에 기간 밖 시각(`2022-09-02 23:30`) → `MISMATCH`(쓴 정밀도 시각까지 비교)
+- WHAT_WHEN_WHERE(v1) 또는 DATE(v2) 에 거래 날짜 0개 → 그 섹션 `MISSING`
 
 ### Codex adversarial 회귀 (SCRUM-58, `test_verification_amount.py`)
 
