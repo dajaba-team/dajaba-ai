@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     # 초안 요청 시간 예산 (SCRUM-45) — draft_service 가 요청 수신 즉시 deadline = clock() + draft_budget_s 결정,
     # 생성기는 첫 LLM 호출 전과 재생성 전 두 지점에서만 남은 예산을 본다 (str/03 "구현 위치")
     draft_budget_s: float = Field(default=80.0, gt=0, alias="DRAFT_BUDGET_S")
+    verify_budget_s: float = Field(default=80.0, gt=0, alias="VERIFY_BUDGET_S")
     regen_min_remaining_s: float = Field(default=40.0, gt=0, alias="REGEN_MIN_REMAINING_S")
     stale_processing_s: float = Field(default=110, gt=0, alias="STALE_PROCESSING_S")
     llm_daily_token_budget: int = Field(default=2_000_000, alias="LLM_DAILY_TOKEN_BUDGET")
@@ -71,6 +72,8 @@ class Settings(BaseSettings):
                 f"regen_min_remaining_s({self.regen_min_remaining_s}) must be >= "
                 f"llm_timeout_s({self.llm_timeout_s})"
             )
+        if self.verify_budget_s < self.llm_timeout_s:
+            raise ValueError("verify_budget_s must be >= llm_timeout_s")
         return self
 
     @property

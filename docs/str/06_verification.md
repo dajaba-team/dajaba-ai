@@ -34,6 +34,18 @@
 
 입력 **마스킹한 facts** + narrative(`text`만). 출력 5개 `{check, comment, score 1~5}` — comment가 score보다 앞. 온도 0. 통과선이 4점이므로 **4점의 뜻을 적는다**(2차 검토 반영 — 기준 없는 4점은 5와 3 사이 임의값이 된다).
 
+### 모델 (SCRUM-92, 11/4)
+
+`LLM_MODEL_JUDGE` 가 **비었거나 생성 모델(`LLM_MODEL_GENERATE`)과 같으면 기동 때 경고 한 줄** — `log.warning("judge_model_fallback", extra={"generate": <모델>, "judge": <모델 또는 "">, "reason": "EMPTY"|"SAME"})`. 모델 이름만 찍고 다른 비밀은 없다. 폴백 자체는 **유지**(비어 있어도 서버는 뜬다 — 평가자가 생성 모델로라도 돈다). `AI_LLM_MOCK=true` 면 모델을 안 쓰므로 경고 없음(테스트·CI 로그 덮임 방지). 아래 "평가자가 자기 글을 채점하는 문제" 와 같은 뜻 — 경고가 "다른 모델로 두라" 는 알림이다.
+
+### 1회 재시도 (SCRUM-92, 11/4)
+
+평가자 호출이 **스키마 실패**(`LlmInvalidOutput`)면 남은 예산 안에서 **1회만** 다시 부른다. **그 외 모든 예외**(연결·타임아웃 `LlmUnavailable`·일 토큰 한도 등)는 재시도하지 않고 바로 올라와 `VERIFY_UNAVAILABLE` 로 끝난다 — 35초 타임아웃을 한 번 더 기다리면 백엔드 공유 90초를 넘기고, 조사역이 "다시 검증" 을 누르는 흐름이 이미 있음(안건 9). 남은 예산이 `LLM_TIMEOUT_S`(35초) 미만이면 재시도하지 않고 바로 `LlmUnavailable("verify budget exceeded")` 로 올려 `VERIFY_UNAVAILABLE` 로 끝난다 — draft 의 예산 초과 처리와 같은 모양(`str/03` "예산 초과는 LlmUnavailable"). 예산은 verify 요청 시작에 `verify_service` 가 정하고(`str/03` 시간 예산 표) `Judge` 는 남은 시간만 본다 — `domain/` 은 시계를 만지지 않는다(`01`). 두 번 다 스키마 실패면 호출은 **2번**(3번 아님), `LlmInvalidOutput` 그대로 올라와 `VERIFY_UNAVAILABLE`. 실패한 1번째 시도의 토큰·지연도 합산해 저장한다(비용 추적 NFR-APR-03).
+
+### 모델·토큰 기록 (SCRUM-92, 11/4)
+
+평가자 호출 메타는 `verification_runs` 같은 행의 다섯 칸에 — `judge_llm_model`(OpenAI 가 돌려준 모델명 또는 녹화면 `"recorded"`), `judge_tokens_in`·`judge_tokens_out`(**시도 전체 합**), `judge_latency_ms`(시도 전체 합), `judge_attempts`(1 또는 2). 응답에는 **같은 값을 `judge_meta: JudgeMeta | null`** 로 담는다 — `JudgeMeta { llm_model, prompt_version, tokens_in, tokens_out, latency_ms, attempts }`. 이름은 초안 응답 `GenerationMeta` 와 맞춤(`shared/04`). **PASSED·LLM_FAILED 는 채우고**, `CODE_FAILED`·`VERIFY_UNAVAILABLE` 은 응답 `judge_meta=null`(평가자 결과가 "쓸 값" 이 아니므로 — `llm_checks` 와 같은 규칙). 단 **`VERIFY_UNAVAILABLE` 인데 1번째 시도가 스키마 실패로 토큰을 쓴 경우 DB 에는 그 토큰까지 포함해 남긴다** — 응답에는 null, 저장은 유지(감사·비용 추적). 백엔드 `AiDtos.VerifyResponse.raw(JsonNode)` 가 모르는 필드를 통째로 담아 `FAIL_ON_UNKNOWN_PROPERTIES` 영향 없음 — DTO 변경 없이도 깨지지 않는다.
+
 | check | 5 | **4 (통과선)** | 3 | 1 |
 |---|---|---|---|---|
 | `FIVE_W_ONE_H_COMPLETE` | 모든 섹션(v1 6개 또는 v2 7개)이 각자 할 말을 하고 비거나 겹치지 않음 | 다른 섹션 내용을 한 문장 반복 — 정보는 빠지지 않음. **v1 에서** 한 섹션이 한 문장이면 여기(v2 는 1문장 섹션 허용 — 규칙 6 "1~4문장") | 한 섹션이 다른 섹션을 대부분 반복, 또는 기간·금액·상대 중 하나가 어디에도 없음 | 섹션이 비었거나 **종합의견(OPINION)이 비었거나 '자료 없음'뿐**이면 1점 (SCRUM-47 안건 6-6) |
@@ -68,7 +80,7 @@ else:                      status = LLM_FAILED,         passed = False
 
 ## 평가자가 자기 글을 채점하는 문제
 
-생성 모델과 같은 모델이면 너그럽다. 대책: ① `LLM_MODEL_JUDGE`를 다른 모델로 ② 같은 모델이면 system 첫 줄 "당신은 이 초안을 쓴 사람이 아니라 검수자입니다" ③ comment 먼저 쓰게 하기. W4에 사람 평가 5건과 비교해 "대체로 일치"를 확인하는 게 MVP 정의서 4절 6번의 "됐다".
+생성 모델과 같은 모델이면 너그럽다. 대책: ① `LLM_MODEL_JUDGE`를 다른 모델로(비거나 같으면 **기동 경고 한 줄** — 위 "모델" 절, SCRUM-92) ② 같은 모델이면 system 첫 줄 "당신은 이 초안을 쓴 사람이 아니라 검수자입니다" ③ comment 먼저 쓰게 하기. W4에 사람 평가 5건과 비교해 "대체로 일치"를 확인하는 게 MVP 정의서 4절 6번의 "됐다".
 
 ## 수정본의 cites·evidence_ids — (a) 확정 (안건 23 세부, 채영 "반영 가능", 10/28 문서 반영)
 

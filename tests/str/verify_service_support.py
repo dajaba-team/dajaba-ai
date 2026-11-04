@@ -1,6 +1,6 @@
-"""verify_service·run_code_checks 테스트 공용 helper (SCRUM-91).
+"""verify_service·run_code_checks 테스트 공용 helper (SCRUM-91·92).
 
-`test_verify_service.py`(상태 분기)·`test_verify_service_code_checks.py`(코드 검사) 공용.
+`test_verify_service.py`(상태 분기·judge_meta)·`test_verify_service_code_checks.py`(코드 검사) 공용.
 리포 공유 패턴은 `verification_support.py`·`facts_support.py` 참조.
 """
 
@@ -12,6 +12,7 @@ from typing import Any
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.schemas.str import (
     Facts,
+    JudgeMeta,
     LlmCheck,
     LlmCheckName,
     RevisedNarrativeSection,
@@ -19,6 +20,7 @@ from aml_ai.shared.schemas.str import (
 )
 from aml_ai.str.application.verify_service import VerifyService
 from aml_ai.str.domain.models import StoredDraft
+from aml_ai.str.infrastructure.judge import JudgeResult
 from tests.conftest import FIXTURES, load_json
 
 
@@ -49,19 +51,37 @@ class FakeVerificationRepository:
 
 @dataclass
 class FakeJudge:
-    """`Judge.run` 과 같은 시그니처만 — prompt_version 포함."""
+    """`Judge.run` 과 같은 시그니처 — SCRUM-92 에서 `JudgeResult` 반환.
+
+    `result` 가 있으면 그걸 리턴, `exc` 가 있으면 예외, 둘 다 없으면 `checks` 로 조립.
+    """
 
     checks: list[LlmCheck] | None = None
+    result: JudgeResult | None = None
     exc: BaseException | None = None
     prompt_version: str = "judge_v1"
     calls: int = 0
 
-    def run(self, facts_masked: dict, narrative: list) -> list[LlmCheck]:
+    def run(self, facts_masked: dict, narrative: list, *, deadline: float | None = None) -> JudgeResult:
         self.calls += 1
         if self.exc is not None:
             raise self.exc
+        if self.result is not None:
+            return self.result
         assert self.checks is not None
-        return self.checks
+        return JudgeResult(checks=self.checks, meta=judge_pass_meta())
+
+
+def judge_pass_meta(*, attempts: int = 1, tokens_in: int = 1800, tokens_out: int = 600) -> JudgeMeta:
+    """PASSED·LLM_FAILED 예시에 쓰는 기본 meta."""
+    return JudgeMeta(
+        llm_model="stub-judge",
+        prompt_version="judge_v1",
+        tokens_in=tokens_in,
+        tokens_out=tokens_out,
+        latency_ms=8000,
+        attempts=attempts,
+    )
 
 
 def facts_fan_in() -> Facts:

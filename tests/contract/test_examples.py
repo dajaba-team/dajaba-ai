@@ -17,6 +17,7 @@ CASES = [
     ("draft_response.json", DraftResponse),
     ("verify_request.json", VerifyRequest),
     ("verify_response.json", VerifyResponse),
+    ("verify_response_passed.json", VerifyResponse),  # SCRUM-92 — PASSED + judge_meta
     ("error.json", ErrorBody),
 ]
 

@@ -51,21 +51,23 @@
 0  요청 검증                  NarrativeOut 과 같은 섹션 제약 (섹션 중복·누락 → 400). 수정본은 섹션당 5,000자(NFC 뒤 UTF-16 — 06 "수정본 길이", 미결 24 확정 10/30)
 1  gen = generation_repository.load(generation_id)        kind=DRAFT, status=SUCCEEDED — 없으면 404 DRAFT_NOT_FOUND
    facts, evidence_scope = gen.facts, gen.request.evidence_transaction_ids
+   deadline = clock() + VERIFY_BUDGET_S                   (SCRUM-92) judge 재시도 조건에만 씀 — 시간 예산 표
 2  sha = shared.hashing.narrative_sha256(narrative)      규약 5.3 해시 규칙 (shared/01)
 3  code_checks = domain.verification.run_code_checks(facts, narrative, evidence_scope)   순수 (06) — 유형별 대조
 4  if all(c.match):
-       llm_checks = judge.run(mask_for_llm(facts), narrative)      (06) 5개. 평가자도 마스킹본
-       평가자 호출 중 **어떤 예외든** → llm_checks=None, status=VERIFY_UNAVAILABLE (자동 재시도 없음, 200·행 저장).
+       judge_result = judge.run(mask_for_llm(facts), narrative, deadline=deadline)   (06) checks 5개 + meta
+       평가자 호출 중 **어떤 예외든** → llm_checks=None, judge_meta=None(응답), status=VERIFY_UNAVAILABLE (자동 재시도 없음, 200·행 저장).
+       스키마 실패(LlmInvalidOutput) 는 남은 예산 ≥ LLM_TIMEOUT_S 일 때만 1회 다시 부름(06 "1회 재시도"). 그 외 예외는 재시도 없음(남은 예산 < LLM_TIMEOUT_S 는 LlmUnavailable("verify budget exceeded") — draft 와 같은 모양)
        평가자 밖(facts 로드·해시·코드 검사·저장)의 예외는 500 INTERNAL — 안건 9 "실패가 아니라 못 함" (SCRUM-91)
    else:
-       llm_checks=None, status=CODE_FAILED        ※ 코드가 틀렸으면 평가자를 부르지 않는다 (비용, 어차피 fail)
+       llm_checks=None, judge_meta=None, status=CODE_FAILED        ※ 코드가 틀렸으면 평가자를 부르지 않는다 (비용, 어차피 fail)
 5  passed = all(code match) AND llm_checks is not None AND all(score >= JUDGE_PASS_SCORE=4)    (안건 9)
    status = PASSED | LLM_FAILED | CODE_FAILED | VERIFY_UNAVAILABLE
 5b narrative_refs = llm_checks 가 있으면 섹션별 judge cites → FACT_KEYS 밖 키 버림 → attach_evidence(cites, facts)   (06 "수정본의 cites")
    CODE_FAILED · VERIFY_UNAVAILABLE 이면 narrative_refs = None  → 백엔드는 기존 cites·evidence_ids 유지
-6  verification_repository.save(generation_id, draft_id, revision_no, sha, code_checks, llm_checks, narrative_refs, passed, status, verifier_version)
-   judge 호출 메타는 generations(kind=VERIFY) 한 행 (W3)
-7  응답 VerifyResponse: {verification_id, generation_id, revision_no, narrative_sha256, passed, status, code_checks, llm_checks, narrative_refs, verifier_version, produced_at}
+6  verification_repository.save(generation_id, draft_id, revision_no, sha, code_checks, llm_checks, narrative_refs, passed, status, verifier_version, judge_meta)
+   judge 호출 메타는 `verification_runs` 같은 행의 `judge_*` 5칸(shared/03, SCRUM-92). PASSED·LLM_FAILED 는 채우고 CODE_FAILED·VERIFY_UNAVAILABLE 은 null — 단 VERIFY_UNAVAILABLE 로 끝났어도 1번째 시도가 토큰을 썼으면 그 값까지 합산해 DB 에는 남긴다(응답은 null, 비용 추적). `generations(kind=VERIFY)` 행은 이번에 안 남김(09 미결 — SCRUM-61 결정)
+7  응답 VerifyResponse: {verification_id, generation_id, revision_no, narrative_sha256, passed, status, code_checks, llm_checks, narrative_refs, judge_meta, verifier_version, produced_at}
 ```
 
 - `VERIFY_UNAVAILABLE`은 검증 실패가 아니다 — 백엔드는 한 줄로 저장해 "검증 못 함"이 보이게 하고 "다시 검증" 버튼(채영). 승인 불가.
@@ -87,12 +89,16 @@
 | loader | 1초 | — |
 | retrieval (임베딩 1회 + pgvector) | 1~2초 | `RETRIEVAL_TIMEOUT_S=3` |
 | judge (verify) | 5~20초 | `LLM_TIMEOUT_S` 공용 |
+| verify 요청 전체(AI 안) | **80초** — 백엔드 공유 타임아웃 90초보다 10초 짧게 (SCRUM-92) | `VERIFY_BUDGET_S=80` |
+| judge 1회 재시도(스키마 실패만) | 남은 예산 **≥ `LLM_TIMEOUT_S`(35초)** 일 때만, `LlmUnavailable`·`BudgetExceeded` 는 재시도 없음 | `LLM_TIMEOUT_S` 공용 |
 
 예산 초과는 `LlmUnavailable`(502)로 — 백엔드가 1회 재시도하면 같은 `draft_id`로 들어와 PROCESSING 선점에 걸리므로, **AI는 예산을 넘긴 생성을 반드시 FAILED로 닫고 응답한다**(닫지 않으면 재시도가 영원히 409).
 
 **구현 위치 (SCRUM-45)** — 마감 시각 `deadline`은 `draft_service.create()`가 요청 검증(0) 직후·선점(1) 전에 `clock() + DRAFT_BUDGET_S`로 정하고 `narrative_generator.generate(..., deadline=deadline)`에 넘긴다. 앞 단계(DB·검색)가 느려 선체크가 실패해도 같은 흐름으로 `_fail`이 generations 행을 FAILED로 닫는다. 생성기는 **첫 LLM 호출 전**(남은 < `LLM_TIMEOUT_S` → `LlmUnavailable`)과 **스키마 실패 뒤**(남은 < `REGEN_MIN_REMAINING_S` → 재생성 없이 `LlmInvalidOutput`) 두 지점에서만 남은 예산을 본다 — 호출마다 LLM 타임아웃을 줄이지는 않는다(09 2026-10-31). 시계는 `Callable[[], float]`로 `draft_service`·`narrative_generator`에 주입(기본 `time.monotonic`), `domain/`은 시계를 만지지 않는다(01).
 
-**불변식 (기동 때 검증, `shared/config.Settings._check_time_budget`)** — `DRAFT_BUDGET_S >= LLM_TIMEOUT_S` **그리고** `REGEN_MIN_REMAINING_S >= LLM_TIMEOUT_S`. 어기면 `ValidationError` 로 기동 실패 — `.env` 를 잘못 적어 LLM 1회조차 못 부르는 상태로 서버가 살아 있지 않게.
+**불변식 (기동 때 검증, `shared/config.Settings._check_time_budget`)** — `DRAFT_BUDGET_S >= LLM_TIMEOUT_S` **그리고** `REGEN_MIN_REMAINING_S >= LLM_TIMEOUT_S` **그리고** `VERIFY_BUDGET_S >= LLM_TIMEOUT_S`(SCRUM-92). 어기면 `ValidationError` 로 기동 실패 — `.env` 를 잘못 적어 LLM 1회조차 못 부르는 상태로 서버가 살아 있지 않게.
+
+**verify 구현 위치 (SCRUM-92)** — `verify_service.verify()` 가 generation 로드 직후 `deadline = clock() + VERIFY_BUDGET_S` 를 정해 `judge.run(..., deadline=deadline)` 에 넘긴다. `Judge` 는 스키마 실패 뒤 **두 번째 호출 직전**에 남은 예산을 보고 `< LLM_TIMEOUT_S` 면 재시도 없이 바로 `LlmInvalidOutput`. 첫 호출 선체크는 draft 와 달리 생략한다 — verify 흐름에서 judge 가 유일한 LLM 호출이고 앞 단계가 가벼움(코드 검사·facts 로드만). 시계는 `Callable[[], float]`(기본 `time.monotonic`) 로 주입, `domain/` 은 시계를 만지지 않는다.
 
 ## 에러 (규약 6.3, `shared/errors.py`)
 
