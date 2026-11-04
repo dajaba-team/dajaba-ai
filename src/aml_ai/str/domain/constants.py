@@ -161,6 +161,36 @@ DATE_CONTEXT_WINDOW = 10  # 글자 수(코드포인트)
 # `관측값`·`관측 구간` 둘 다 매칭 — `관측` substring 포함.
 OBSERVATION_WORDS: tuple[str, ...] = ("관측값", "관측 구간", "관측")
 
+# COUNT_MATCH (SCRUM-60, 06). 절 분리: 양옆 모두 숫자인 쉼표·소수점만 보존, 그 밖 분리(adv. 3차).
+COUNT_CLAUSE_SPLIT = re.compile(r"(?<!\d)[.,;]|[.,;](?!\d)|\n")
+PRIOR_ALERT_WORDS: tuple[str, ...] = ("과거 경보", "이전 경보", "앞서 경보")
+COUNT_OBSERVATION_WORDS: tuple[str, ...] = ("관측", "모델")  # DATE 와 별개(DATE 동작 안 바꿈)
+PATH_WORDS: tuple[str, ...] = ("경로", "고리", "순환")
+PATH_HOP_UNITS: tuple[str, ...] = ("홉", "단계")  # PATH_HOPS 전용, PATH 와 별개(adv. 3차)
+PERIOD_UNITS: tuple[str, ...] = ("시간", "일", "주", "개월", "년")  # 관측 소비 시 건너뜀(adv. 4차)
+COUNTERPARTY_WORDS: tuple[str, ...] = ("상대방", "상대", "거래처", "송금인", "수취인", "계좌")
+SAME_BANK_WORDS: tuple[str, ...] = ("자행", "같은 은행", "동일 은행")
+OTHER_BANK_WORDS: tuple[str, ...] = ("타행", "다른 은행")
+DIRECTION_IN_WORDS: tuple[str, ...] = ("입금", "받은", "수취")
+DIRECTION_OUT_WORDS: tuple[str, ...] = ("보낸", "출금")  # `송금` 뺌(SCRUM-60 ★A 3)
+DIRECTION_INTERNAL_WORDS: tuple[str, ...] = ("법인 내", "내부")
+PAYMENT_FORMAT_ALIASES: dict[str, tuple[str, ...]] = {
+    "ACH": ("ACH",),
+    "Wire": ("Wire", "전신환"),
+    "Cash": ("Cash", "현금"),
+    "Credit Card": ("Credit Card", "신용카드"),
+    "Cheque": ("Cheque", "수표"),
+    "Reinvestment": ("Reinvestment", "재투자"),
+}
+# 한글 수사 + 단위 → UNPARSED. `한`(1)은 "한 계좌로" 관용이라 제외.
+KOREAN_NUMERAL_COUNT: frozenset[str] = frozenset(
+    ("두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉")
+    + ("열", "스물", "서른", "마흔", "쉰", "예순", "일흔", "여든", "아흔")
+)
+COUNT_UNITS_SMALL: tuple[str, ...] = ("개", "곳", "명")  # 상대·경로·자행/타행·관측값
+COUNT_UNITS_COUNT: tuple[str, ...] = ("건", "회")  # 과거·관측값·결제·거래 건수
+BANK_COUNT_UNITS: tuple[str, ...] = ("개", "곳", "계좌")  # ⑦ 자행/타행 뒤 단위
+
 # ---- RAG (docs/str/10)
 RAG_TOP_K = 3
 REFERENCE_TEXT_MAX_CHARS = 600

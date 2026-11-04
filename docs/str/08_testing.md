@@ -6,9 +6,10 @@
 
 | 층 | 무엇 | 돌리는 때 |
 |---|---|---|
-| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verification.py`(유형별 추출·정규화·판정·UNPARSED — SCRUM-58 로 `amount_match`·`account_id_match` 활성, `count_match` 는 60), `test_verification_date.py`(SCRUM-59: 날짜 용도 분류 — 괄호 안 관측·개설·거래·범위, 시각 쌍 period 양 끝, ISO T·초 환원, `오전/오후` 변환, 월만·시간대 UNPARSED, `신규` 개설 단어 유지, 녹화 v1·v2 본문·`narrative_ok` 전부 통과), `test_judge.py`(SCRUM-91: `Judge.run` 정상 5개 + 4개·중복·bad JSON → `LlmInvalidOutput`, `llm_output_model("judge_v1") is JudgeOut`·`json_schema_for(JudgeOut, name="judge_v1")` strict, `narrative_v1/v2` 매핑 회귀·모르는 이름 `ValueError`), `test_verify_service.py`(SCRUM-91, 가짜 repo·judge: PASSED·CODE_FAILED·judge 가 `RuntimeError` → **500 아님** `VERIFY_UNAVAILABLE`·`LlmUnavailable` 회귀·`LlmInvalidOutput`·경고 로그 `reason` 은 `AiError.code` 또는 예외 클래스 이름만), `test_logging_middleware.py`(SCRUM-58: `X-Request-Id` 64자 통과·65자 처리 — 새 ID 발급·`request_id_replaced` 경고), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
+| 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verification.py`(유형별 추출·정규화·판정·UNPARSED — SCRUM-58 로 `amount_match`·`account_id_match` 활성), `test_verification_date.py`(SCRUM-59: 날짜 용도 분류 — 괄호 안 관측·개설·거래·범위, 시각 쌍 period 양 끝, ISO T·초 환원, `오전/오후` 변환, 월만·시간대 UNPARSED, `신규` 개설 단어 유지, 녹화 v1·v2 본문·`narrative_ok` 전부 통과), `test_verification_count.py`(SCRUM-60: 단위 선검색 + 거리 최근접 종류 단어, 과거 경보·관측값·경로·상대·거래·결제·자행/타행, `송금` 방향 뺌, 한글 수사 UNPARSED, `facts_cycle(VERIFIED/UNVERIFIED)` 경로 검증, 녹화 v1·v2 본문·`draft_response`·`narrative_ok` 전부 통과), `test_judge.py`(SCRUM-91: `Judge.run` 정상 5개 + 4개·중복·bad JSON → `LlmInvalidOutput`, `llm_output_model("judge_v1") is JudgeOut`·`json_schema_for(JudgeOut, name="judge_v1")` strict, `narrative_v1/v2` 매핑 회귀·모르는 이름 `ValueError`), `test_judge_retry.py`(SCRUM-92: 1회 재시도·메타·`JUDGE_MAX_TOKENS`), `test_verify_service.py`(SCRUM-91, 가짜 repo·judge: PASSED·CODE_FAILED·judge 가 `RuntimeError` → **500 아님** `VERIFY_UNAVAILABLE`·`LlmUnavailable` 회귀·`LlmInvalidOutput`·경고 로그 `reason` 은 `AiError.code` 또는 예외 클래스 이름만), `test_logging_middleware.py`(SCRUM-58: `X-Request-Id` 64자 통과·65자 처리 — 새 ID 발급·`request_id_replaced` 경고), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
 | 계약 | `tests/contract/` — `examples/*.json` ↔ `schemas/`, `narrative_hash.json` ↔ `shared/hashing.py` | 매 커밋, CI |
-| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~26, 29 (SCRUM-58 로 1·2·15·17·18·29 활성, **SCRUM-59 로 3·16·19·21·22 활성**). **검사 함수를 직접 부르는 도우미**(케이스 번호 → `amount_match`/`account_id_match`/`date_match`) — 60 전까지 건수 검사가 빈 목록이라. 60 끝에 `run_code_checks` 로 바꿈 | 매 커밋, CI |
+| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 15~22, 24~31 (SCRUM-58 로 1·2·15·17·18·29, **SCRUM-59 로 3·16·19·21·22, SCRUM-60 로 4·5·6·20·24·25·26·27·28·30·31 활성**). **도우미를 `run_code_checks` 로** 바꿈(SCRUM-60) — 해당 `check` 이름만 골라 단언. 13(RAG)·32·33·34(생성·평가자)는 성격이 달라 남음 | 매 커밋, CI |
+| 오탐 테스트(정상 본문 통과) | `test_verification_count.py` 안 — `recorded/narrative_v1/*.json`·`recorded/narrative_v2/*.json`·`contracts/examples/draft_response.json`·`fixtures/narrative_ok.json` 네 본문이 `run_code_checks` 를 전부 통과(SCRUM-60). 61 verify 녹화 통합 테스트 PASSED 의 전제 | 매 커밋, CI |
 | 오류 주입 (LLM) | `test_injection.py -m live` — 7~12, 14, 23 | W4 손으로, 표로 남김 |
 | 검색 평가 | `retrieval_eval.json` → hit@3(주)·precision@3·recall@3 (청크 단위, `10`) | W4, 11/11 전 |
 | RAG 켬/끔 비교 | 같은 facts 5건 × `RAG_ENABLED` true/false 생성 → 코드·평가자 점수·사람 선호 표 (`10`) | W4, 11/11 전 |
@@ -45,11 +46,11 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 | 21 | 한 문장에 두 날짜 `2021년 3월 14일 개설, 2022년 9월 2일 47건 입금` | **통과해야 함** — 개설 단어는 가까운 첫 날짜에만 붙고 둘째는 거래 날짜 | 결정적 |
 | 22 | 범위 표현에 개설 단어 `2021년 3월 14일과 2022년 9월 2일 사이 개설` | `DATE_MATCH` UNPARSED (범위 표현 규칙 ①, `06`) | 결정적 |
 | 23 | CYCLE facts(R04 픽스처 A→B→C→A, **`paths` 없음** — indirect 1건)로 **생성** (W3) | 본문에 고리 길이·경유 계좌 수(`3개 계좌를 거쳐 돌아옴`)가 없어야 함(규칙 10). 있으면 `COUNT_MATCH` MISMATCH(상대 수 2와 다름) 또는 `NO_UNSUPPORTED_CLAIM` ≤ 3으로 잡혀야 함 | LLM |
-| 24 | `VERIFIED` 고리 2개 facts(`fixtures/facts_cycle.json`)에 "3개 계좌를 거쳐 원래 계좌로 돌아오는 순환 경로 2개" | **통과해야 함** — 거짓 양성 검사(10/28) | 결정적 |
+| 24 | `VERIFIED` 고리 2개 facts(`verification_support.facts_cycle(status=VERIFIED)` — `facts_cases.json` 의 `cycle` 트랜잭션에서 `PathFacts` 를 붙여 만듦, SCRUM-60)에 "3개 계좌를 거쳐 원래 계좌로 돌아오는 순환 경로 2개" | **통과해야 함** — 거짓 양성 검사(10/28) | 결정적 |
 | 25 | 같은 facts에 "4개 계좌를 거쳐", "순환 경로 3개" | `COUNT_MATCH` MISMATCH | 결정적 |
-| 26 | 끊긴 경로 facts(`UNVERIFIED`)에 "순환 경로 2개" | `COUNT_MATCH` MISMATCH — 확인 안 된 경로 수 | 결정적 |
-| 27 (SCRUM-47) | `payment_format_counts: [{"ACH", 47}]` 에 "ACH 50건" | `COUNT_MATCH` MISMATCH — 결제 방식별 건수 ⑥(06) | 결정적 (코드 검사 4종 구현 뒤) |
-| 28 (SCRUM-47) | `counterparty_banks: {same_bank_accounts: 0, other_bank_accounts: 31}` 에 "자행 5 계좌" | `COUNT_MATCH` MISMATCH — 자행/타행 계좌 수 ⑦(06) | 결정적 (코드 검사 4종 구현 뒤) |
+| 26 | 끊긴 경로 facts(`verification_support.facts_cycle(status=UNVERIFIED)`, SCRUM-60)에 "순환 경로 2개" | `COUNT_MATCH` MISMATCH — 확인 안 된 경로 수 | 결정적 |
+| 27 (SCRUM-47) | `payment_format_counts: [{"ACH", 47}]` 에 "ACH 50건" | `COUNT_MATCH` MISMATCH — 결제 방식별 건수 ⑥(06) | 결정적 (SCRUM-60 활성) |
+| 28 (SCRUM-47) | `counterparty_banks: {same_bank_accounts: 0, other_bank_accounts: 31}` 에 "자행 5 계좌" | `COUNT_MATCH` MISMATCH — 자행/타행 계좌 수 ⑦(06) | 결정적 (SCRUM-60 활성) |
 | 29 (SCRUM-47) | `amount_range: [{"USD", "1500000.00", "22000000.00"}]` 에 건당 `"2,000,000 US Dollar"`(min·max 사이) | **통과해야 함** — `AMOUNT_MATCH` 가 total 외에도 같은 통화 min·max 와 대조(06) | 결정적 (SCRUM-58 활성) |
 | 30 (SCRUM-47) | v2 집합에서 `OPINION` 섹션 text 가 `"자료 없음"` 뿐 | `OPINION_PRESENT` MISSING (06) | 결정적 |
 | 31 (SCRUM-47) | v2 집합에서 `OPINION` 섹션 text 가 공란 아님(정상 결론 문장) | **통과해야 함** — `OPINION_PRESENT` match | 결정적 |

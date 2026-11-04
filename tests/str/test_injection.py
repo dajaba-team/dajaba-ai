@@ -1,8 +1,8 @@
 """오류 주입 (docs/str/08 표).
 
-SCRUM-58 로 1·2·15·17·18·29 결정적 활성. SCRUM-59 로 3·16·19·21·22 추가 활성.
-나머지 결정적(4·5·6·13·20·24~28·30~34)은 skip. LLM 층(7~12·14·23)은 -m live.
-**검사 함수를 직접 부름** — count_match 는 60 전까지 빈 목록. 60 끝에 `run_code_checks` 로.
+SCRUM-58 로 1·2·15·17·18·29 활성. SCRUM-59 로 3·16·19·21·22 활성. SCRUM-60 로 4·5·6·20·24~28·30·31 활성
++ 도우미를 `run_code_checks` 로 바꿈(모듈 docstring 약속). 남은 skip: 13(RAG)·32·33·34(생성·평가자).
+LLM 층(7~12·14·23)은 -m live.
 """
 
 from __future__ import annotations
@@ -21,8 +21,8 @@ from aml_ai.shared.schemas.str import (
 from aml_ai.str.domain import verification
 from tests.conftest import FIXTURES, load_json
 
-ACTIVE = [1, 2, 3, 15, 16, 17, 18, 19, 21, 22, 29]
-SKIPPED_DET = [4, 5, 6, 13, 20, 24, 25, 26, 27, 28, 30, 31, 32, 33, 34]
+ACTIVE = [1, 2, 3, 4, 5, 6, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31]
+SKIPPED_DET = [13, 32, 33, 34]
 CASES_LIVE = [7, 8, 9, 10, 11, 12, 14, 23]
 
 
@@ -144,13 +144,14 @@ def test_injection_22_range_with_onboard_unparsed() -> None:
     assert any(c.reason is CheckReason.UNPARSED for c in checks)
 
 
-# ---------- 아직 skip (SCRUM-60·61 뒤 활성) ----------
+# ---------- SCRUM-60 활성(4·5·6·20·24~28·30·31)은 `test_injection_count.py` ----------
+# ---------- 아직 skip (SCRUM-61 뒤 활성 또는 생성·평가자 영역) ----------
 
 
 @pytest.mark.deterministic
 @pytest.mark.parametrize("case", SKIPPED_DET)
 def test_injection_deterministic_pending(case: int) -> None:
-    pytest.skip(f"SCRUM-60·61 — 오류 주입 #{case} (docs/str/08)")
+    pytest.skip(f"SCRUM-61/W4 — 오류 주입 #{case} (docs/str/08: RAG·스키마·생성·평가자)")
 
 
 @pytest.mark.live
