@@ -17,7 +17,7 @@ from sqlalchemy import text
 
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.schemas.str import DraftResponse, Facts
-from tests.str.conftest import INTEGRATION_INTERNAL_KEY
+from tests.str.integration_support import INTEGRATION_INTERNAL_KEY
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session

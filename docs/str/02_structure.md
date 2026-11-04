@@ -34,7 +34,7 @@ dajaba-AI/
 │  ├─ str/                             진희
 │  │  ├─ api/router.py                 POST /str/drafts, /str/verify, /cases/summary
 │  │  ├─ application/                  draft_service · verify_service · summary_service      (03)
-│  │  ├─ domain/                       models · constants · facts · fact_paths · fact_keys · facts_aggregations · masking · verification · verification_amount · verification_amount_scan · verification_amount_number · verification_amount_grammar · verification_account · verification_date · verification_date_scan · verification_date_formats · verification_date_purpose · verification_date_time · request_hash    (04, 06)
+│  │  ├─ domain/                       models · constants · facts · fact_paths · fact_keys · facts_aggregations · masking · verification · verification_amount · verification_amount_scan · verification_amount_number · verification_amount_grammar · verification_account · verification_count · verification_count_scan · verification_count_kind · verification_count_distance · verification_date · verification_date_scan · verification_date_formats · verification_date_purpose · verification_date_time · request_hash    (04, 06)
 │  │  ├─ infrastructure/               orm · transaction_reader · generation_repository · verification_repository
 │  │  │                                · fewshot_store · narrative_generator · judge · retriever · prompt_index
 │  │  ├─ prompts/                      narrative_v1.md · judge_v1.md — 쓰고 나면 수정 금지 (05)
@@ -67,7 +67,7 @@ scoring/application → aml_ml         (패키지, 리포 밖)
 |---|---|
 | `domain/facts.py`, `domain/fact_paths.py`, `domain/fact_keys.py`, `domain/masking.py`, `infrastructure/transaction_reader.py` | `04_facts.md` |
 | `prompts/*`, `infrastructure/narrative_generator.py`, `fewshot_store.py` | `05_prompts.md` |
-| `domain/verification.py`, `domain/verification_amount.py`, `domain/verification_amount_scan.py`, `domain/verification_amount_number.py`, `domain/verification_amount_grammar.py`, `domain/verification_account.py`, `domain/verification_date.py`, `domain/verification_date_scan.py`, `domain/verification_date_formats.py`, `domain/verification_date_purpose.py`, `domain/verification_date_time.py`, `infrastructure/judge.py` | `06_verification.md` |
+| `domain/verification.py`, `domain/verification_amount.py`, `domain/verification_amount_scan.py`, `domain/verification_amount_number.py`, `domain/verification_amount_grammar.py`, `domain/verification_account.py`, `domain/verification_count.py`, `domain/verification_count_scan.py`, `domain/verification_count_kind.py`, `domain/verification_count_distance.py`, `domain/verification_date.py`, `domain/verification_date_scan.py`, `domain/verification_date_formats.py`, `domain/verification_date_purpose.py`, `domain/verification_date_time.py`, `infrastructure/judge.py` | `06_verification.md` |
 | `application/*_service.py`, `api/router.py`, `*_repository.py` | `03_pipeline.md` |
 | `infrastructure/retriever.py`, `tools/ingest_corpus.py`, `corpus/` | `10_rag.md` |
 | `infrastructure/orm.py`, `migrations/` | `../shared/03_ai_schema.md` |

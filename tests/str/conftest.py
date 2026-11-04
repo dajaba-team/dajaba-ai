@@ -76,7 +76,7 @@ def _ops_seed(_db_engine: Engine) -> None:
         conn.execute(text(sql))
 
 
-INTEGRATION_INTERNAL_KEY = "test-internal-key"
+from tests.str.integration_support import INTEGRATION_INTERNAL_KEY  # noqa: E402
 
 
 @pytest.fixture

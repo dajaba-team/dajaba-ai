@@ -30,7 +30,7 @@ from aml_ai.shared.schemas.str import (
 from aml_ai.str.application.verify_service import VerifyService
 from aml_ai.str.infrastructure.orm import Generation
 from aml_ai.str.infrastructure.verification_repository import VerificationRepository
-from tests.str.conftest import INTEGRATION_INTERNAL_KEY
+from tests.str.integration_support import INTEGRATION_INTERNAL_KEY
 from tests.str.verify_db_support import (
     SAMPLE_CODE_CHECKS,
     SAMPLE_LLM_CHECKS,

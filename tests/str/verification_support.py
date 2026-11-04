@@ -73,3 +73,43 @@ def facts_no_observations() -> Facts:
     data = load_json(FIXTURES / "facts_fan_in.json")
     data["observations"] = []
     return Facts.model_validate(data)
+
+
+def count(facts: Facts, section_: SectionV1 | SectionV2, text: str) -> list:
+    """SCRUM-60 — 섹션 하나로 `count_match` 호출."""
+    return verification.count_match(facts, [section(section_, text)])
+
+
+def facts_with_observation_value(value: float) -> Facts:
+    """observations 를 값 하나짜리로 교체 — 관측값 우선 테스트."""
+    data = load_json(FIXTURES / "facts_fan_in.json")
+    data["observations"] = [
+        {
+            "name": "account_in_counterparties_24h",
+            "value": value,
+            "unit": "count",
+            "window_start": "2022-09-02T00:00:00",
+            "window_end": "2022-09-03T00:00:00",
+            "basis": None,
+            "baseline": None,
+        }
+    ]
+    return Facts.model_validate(data)
+
+
+def facts_cycle(status: str = "VERIFIED") -> Facts:
+    """VERIFIED·UNVERIFIED `PathFacts` 를 `facts_fan_in` 에 붙인다.
+
+    `tests/str/fixtures/facts_cases.json` 의 `cycle` 트랜잭션 ID 를 쓴다. 상태만 바꿔 넣어
+    `COUNT_MATCH` 경로 수·홉 수 집합을 전환하는 테스트용. SCRUM-60 ★A 7.
+    """
+    data = load_json(FIXTURES / "facts_fan_in.json")
+    data["paths"] = {
+        "status": status,
+        "kind": "CYCLE",
+        "count": 2,
+        "max_hops": 3,
+        "max_accounts": 3,
+        "transaction_ids": [1, 2, 3],
+    }
+    return Facts.model_validate(data)

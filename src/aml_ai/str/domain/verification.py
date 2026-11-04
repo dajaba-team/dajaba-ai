@@ -1,8 +1,8 @@
 """run_code_checks — 정본 docs/str/06 코드 검증 표(유형별 대조 6종). 순수 함수, 정규식 + Decimal.
 
 원칙: 거짓 양성 감수, 허용 오차 0. 코드가 잡은 건 LLM 이 뭐라 해도 fail. 못 읽은 표현은 UNPARSED.
-SCRUM-58 로 `amount_match`·`account_id_match`, SCRUM-59 로 `date_match` 구현 — 각각 전용 모듈.
-`count_match` 는 SCRUM-60. `evidence_in_scope`·`opinion_present` 는 여기.
+SCRUM-58 로 `amount_match`·`account_id_match`, SCRUM-59 로 `date_match`, SCRUM-60 로 `count_match`·
+`evidence_in_scope` cites 기준 — 각각 전용 모듈. `opinion_present` 는 여기.
 오류 주입 (tests/str/test_injection.py -m deterministic) 이 곧 테스트.
 """
 
@@ -19,8 +19,10 @@ from aml_ai.shared.schemas.str import (
     Section,
     SectionV2,
 )
+from aml_ai.str.domain.fact_keys import FactKeys, fact_keys
 from aml_ai.str.domain.verification_account import account_id_match
 from aml_ai.str.domain.verification_amount import amount_match
+from aml_ai.str.domain.verification_count import count_match
 from aml_ai.str.domain.verification_date import date_match
 
 # OPINION 공란으로 간주할 표현 (SCRUM-47 안건 6-5) — strip·NFC 뒤 비교.
@@ -30,49 +32,50 @@ OPINION_BLANK_STRINGS: frozenset[str] = frozenset({"자료 없음", "해당 없�
 def run_code_checks(
     facts: Facts, narrative: list[NarrativeSectionBase], transaction_ids: list[int]
 ) -> list[CodeCheck]:
+    keys = fact_keys(facts)
     checks: list[CodeCheck] = []
     checks += amount_match(facts, narrative)
     checks += date_match(facts, narrative)
     checks += count_match(facts, narrative)
     checks += account_id_match(facts, narrative)
-    checks += evidence_in_scope(narrative, transaction_ids)
+    checks += evidence_in_scope(narrative, transaction_ids, keys)
     checks += opinion_present(narrative)  # v2 전용 — 함수 안에서 집합 확인
     return checks
 
 
-def count_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
-    """건수·상대 수·경로 수 ↔ 해당 집합 (paths 는 VERIFIED 일 때만).
+def evidence_in_scope(
+    narrative: list[NarrativeSectionBase],
+    transaction_ids: list[int],
+    fact_keys_result: FactKeys,
+) -> list[CodeCheck]:
+    """cites ⊆ fact_keys(facts) + evidence_ids ⊆ evidence_scope (SCRUM-60 ★A 5).
 
-    SCRUM-60 전까지 결과 없음 — 검사 안 됨이 통과처럼 보이는 기간이라 W3 안에 채운다(docs/str/06)
+    섹션 cites 에 fact_keys 밖 키가 있거나 evidence_ids 가 scope 밖이면 OUT_OF_SCOPE.
+    모든 섹션 cites 가 전부 비면 MISSING 1줄 (근거 없는 초안·수정본).
     """
-    return []
-
-
-def evidence_in_scope(narrative: list[NarrativeSectionBase], transaction_ids: list[int]) -> list[CodeCheck]:
-    """evidence_ids ⊆ 요청 evidence_transaction_ids (밖이면 OUT_OF_SCOPE). 6개 섹션 전부 근거가 없으면 MISSING.
-
-    TODO(W3): docs/str/06 은 cites 기준(cites ⊆ fact_keys, 전부 빈 cites → MISSING). fact_keys 가 생기면 바꾼다.
-    """
-    allowed = set(transaction_ids)
+    allowed_ids = set(transaction_ids)
+    allowed_keys = set(fact_keys_result.keys())
     out: list[CodeCheck] = []
     for s in narrative:
-        bad = [i for i in s.evidence_ids if i not in allowed]
+        bad_keys = [k for k in s.cites if k not in allowed_keys]
+        bad_ids = [i for i in s.evidence_ids if i not in allowed_ids]
+        bad = bad_keys + [str(i) for i in bad_ids]
         out.append(
             CodeCheck(
                 check=CodeCheckName.EVIDENCE_IN_SCOPE,
                 section=s.section,
-                draft_value=",".join(map(str, bad)) or None,
+                draft_value=",".join(bad) or None,
                 source_value=None,
                 match=not bad,
                 reason=CheckReason.OUT_OF_SCOPE if bad else None,
             )
         )
-    if all(not s.evidence_ids for s in narrative):
+    if all(not s.cites for s in narrative):
         out.append(
             CodeCheck(
                 check=CodeCheckName.EVIDENCE_IN_SCOPE,
                 section=None,
-                draft_value="no evidence in any section",
+                draft_value="no cites in any section",
                 source_value=None,
                 match=False,
                 reason=CheckReason.MISSING,
