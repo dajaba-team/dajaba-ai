@@ -1,14 +1,7 @@
 """SCRUM-91 — VerifyService 상태 분기 테스트 (DB 없이, 가짜 저장소·judge). docs/str/06·03.
 
-지금 develop 에서는 `_decide()` 가 `(LlmUnavailable, LlmInvalidOutput)` 만 잡음 → `RuntimeError`
-같은 예상 밖 예외가 그대로 위로 올라가 전역 핸들러가 500. 또 `run_code_checks` 안에서
-`date_match`·`count_match` 가 `NotImplementedError` 를 던지므로 verify 자체가 500.
-
-- `test_verify_passed` — 코드 전부 match + judge 5개 모두 5점 → PASSED
-- `test_verify_code_failed_skips_judge` — EVIDENCE_IN_SCOPE OUT_OF_SCOPE → CODE_FAILED, judge 0회
-- `test_verify_unexpected_exception_becomes_unavailable` — judge RuntimeError → 500 아니라 VERIFY_UNAVAILABLE
-- `test_verify_llm_unavailable_regression` — LlmUnavailable → reason=LLM_UNAVAILABLE
-- `test_verify_llm_invalid_output_regression` — LlmInvalidOutput → reason=LLM_INVALID_OUTPUT
+SCRUM-92 judge_meta 상세(LLM_FAILED 채움·VERIFY_UNAVAILABLE null 규칙·deadline)
+는 `test_verify_service_judge_meta.py`.
 """
 
 from __future__ import annotations
@@ -28,7 +21,7 @@ from tests.str.verify_service_support import (
 
 
 def test_verify_passed() -> None:
-    """정상 — 코드 전부 match + judge 모두 5점 → PASSED, save 1회."""
+    """정상 — 코드 전부 match + judge 모두 5점 → PASSED, save 1회, judge_meta 채움."""
     narrative = narrative_ok()
     draft = stored_draft(facts_fan_in(), narrative)
     judge = FakeJudge(checks=judge_pass_checks())
@@ -39,13 +32,19 @@ def test_verify_passed() -> None:
     assert resp.status is VerifyStatus.PASSED
     assert resp.passed is True
     assert resp.llm_checks is not None and len(resp.llm_checks) == 5
+    assert resp.judge_meta is not None
+    assert resp.judge_meta.prompt_version == "judge_v1"
+    assert resp.judge_meta.attempts == 1
     assert judge.calls == 1
     assert len(verifications.saved) == 1
-    assert verifications.saved[0]["status"] is VerifyStatus.PASSED
+    saved = verifications.saved[0]
+    assert saved["status"] is VerifyStatus.PASSED
+    assert saved["judge_meta"] is not None
+    assert saved["judge_meta"].attempts == 1
 
 
 def test_verify_code_failed_skips_judge() -> None:
-    """EVIDENCE_IN_SCOPE OUT_OF_SCOPE — judge 안 부름, CODE_FAILED, save 1회."""
+    """★ 진희 필수 — CODE_FAILED → judge 0회, judge_meta=None (응답·DB 둘 다)."""
     narrative = narrative_ok()
     # 첫 섹션에 범위 밖 ID 를 끼워 넣어 OUT_OF_SCOPE 유발
     narrative[0] = narrative[0].model_copy(update={"evidence_ids": [1, 2, 999]})
@@ -58,16 +57,16 @@ def test_verify_code_failed_skips_judge() -> None:
     assert resp.status is VerifyStatus.CODE_FAILED
     assert resp.passed is False
     assert resp.llm_checks is None
+    assert resp.judge_meta is None
     assert judge.calls == 0
     assert len(verifications.saved) == 1
-    assert verifications.saved[0]["llm_checks"] is None
+    saved = verifications.saved[0]
+    assert saved["llm_checks"] is None
+    assert saved["judge_meta"] is None  # DB judge_* 5칸 전부 NULL
 
 
 def test_verify_unexpected_exception_becomes_unavailable(judge_log: list[LogCall]) -> None:
-    """★ SCRUM-91 — judge 가 RuntimeError → 500 아니라 VERIFY_UNAVAILABLE·save 1회.
-
-    로그 reason 은 AiError 가 아니면 예외 클래스 이름("RuntimeError") 만 — 메시지·facts 는 없음.
-    """
+    """★ SCRUM-91 — judge 가 RuntimeError → 500 아니라 VERIFY_UNAVAILABLE·save 1회."""
     narrative = narrative_ok()
     draft = stored_draft(facts_fan_in(), narrative)
     judge = FakeJudge(exc=RuntimeError("boom with 42,750.50 USD leaked"))
@@ -86,7 +85,7 @@ def test_verify_unexpected_exception_becomes_unavailable(judge_log: list[LogCall
     assert len(judge_calls) == 1
     call = judge_calls[0]
     assert call.extra == {"reason": "RuntimeError"}
-    # 민감 입력 유출 방지(SCRUM-15 adversarial H2) — 메시지·판정·facts 어디에도 안 들어감
+    # 민감 입력 유출 방지(SCRUM-15 adversarial H2)
     assert "42,750.50" not in call.msg
     assert not any("42,750.50" in str(v) for v in call.extra.values())
 

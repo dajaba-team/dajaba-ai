@@ -117,7 +117,17 @@ class VerifyRequest(StrictModel):
         return v
 
 
+class JudgeMeta(StrictModel):
+    llm_model: str
+    prompt_version: str
+    tokens_in: int
+    tokens_out: int
+    latency_ms: int
+    attempts: int
+
+
 class VerifyResponse(StrictModel):
+    judge_meta: JudgeMeta | None = None
     verification_id: str
     generation_id: str
     revision_no: int = Field(ge=1)

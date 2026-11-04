@@ -107,7 +107,8 @@ v1 과 겹치지 않는 7항목(SUBJECT·DATE·PLACE·INSTRUMENT·METHOD·GROUND
 - 입력: **마스킹한 facts**(생성기와 같은 것 — 평가자는 숫자 대조를 하지 않으므로 원본이 필요 없다) + narrative(조사역 수정본, `text`만).
 - 출력: `{"checks": [{"check": "...", "comment": "한 줄", "score": 1~5}]}` 5개. **comment를 score 앞에** 둔다 — 평가자가 근거를 먼저 쓰고 점수를 매기게 하는 짧은 CoT. 여기만 CoT를 쓴다(`07`).
 - 루브릭 5개와 **5·4·3·1점 기준**은 `06_verification.md`. 프롬프트에 그 표를 그대로 넣는다 — 통과선이 4점이라 4점의 뜻이 적혀 있어야 한다.
-- 온도 0. 평가자 모델은 `.env` `LLM_MODEL_JUDGE` — 생성 모델과 다르면 좋다.
+- 온도 0. 평가자 모델은 `.env` `LLM_MODEL_JUDGE` — 생성 모델과 다르면 좋다. 비거나 같으면 기동 경고(`06` "모델", SCRUM-92).
+- 토큰 한도 **상수 `JUDGE_MAX_TOKENS = 4000`**(`str/domain/constants.py`, `NARRATIVE_MAX_TOKENS` 와 같은 자리, SCRUM-92) — OpenAI Responses API `max_output_tokens` 기준이라 `reasoning_effort=low` 의 사고 토큰(500~1500)을 덮어야 함. comment `max_length=500` 그대로 유지 — "짧게 쓰라" 는 지시는 61 의 `judge_v2` 프롬프트 몫.
 - **`judge_v2`(W3, 안건 23 세부 (a) 확정 10/28)**: 입력에 `FACT_KEYS`를 더하고, 출력에 `"sections": [{"section": "...", "cites": ["..."]}]` 6개를 더한다 — 검사한 본문 기준으로 각 섹션이 실제로 쓴 fact 키. 코드가 `FACT_KEYS` 밖 키를 버리고(버린 수는 `generation_meta`에 기록) `attach_evidence`로 `evidence_ids`를 만들어 검증 응답 `narrative_refs`에 넣는다(`06`). 루브릭·점수 부분은 v1과 같다.
 
 ## summary_v1 (W4 말)

@@ -1,0 +1,52 @@
+{
+  "verification_id": "v-9c1d55",
+  "generation_id": "g-7c1d44e2",
+  "revision_no": 2,
+  "narrative_sha256": "e36fac1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "passed": true,
+  "status": "PASSED",
+  "code_checks": [
+    {
+      "check": "AMOUNT_MATCH",
+      "section": "SUMMARY",
+      "draft_value": "42,750.50 US Dollar",
+      "source_value": "inbound.amount.USD=42750.50",
+      "match": true,
+      "reason": null
+    },
+    {
+      "check": "DATE_MATCH",
+      "section": "WHAT_WHEN_WHERE",
+      "draft_value": "2022-09-02",
+      "source_value": "period 2022-09-02..2022-09-02",
+      "match": true,
+      "reason": null
+    },
+    {
+      "check": "EVIDENCE_IN_SCOPE",
+      "section": null,
+      "draft_value": null,
+      "source_value": null,
+      "match": true,
+      "reason": null
+    }
+  ],
+  "llm_checks": [
+    {"check": "FIVE_W_ONE_H_COMPLETE", "comment": "여섯 섹션이 각자 할 말을 함.", "score": 5},
+    {"check": "TYPOLOGY_CONSISTENT", "comment": "FAN_IN 설명과 facts 숫자 일치.", "score": 4},
+    {"check": "NO_UNSUPPORTED_CLAIM", "comment": "facts 밖 숫자·이름 없음.", "score": 5},
+    {"check": "NO_SPECULATION", "comment": "'~의심됨' 화법 유지.", "score": 4},
+    {"check": "NO_INSTRUCTION_TEXT", "comment": "메타 발화 없음.", "score": 5}
+  ],
+  "narrative_refs": null,
+  "judge_meta": {
+    "llm_model": "gpt-5-judge-sol",
+    "prompt_version": "judge_v1",
+    "tokens_in": 1842,
+    "tokens_out": 612,
+    "latency_ms": 8450,
+    "attempts": 1
+  },
+  "verifier_version": "verify-2026.11+judge_v1",
+  "produced_at": "2026-11-05T14:02:30Z"
+}

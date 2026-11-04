@@ -82,6 +82,7 @@
 | 응답 `code_checks[].reason` | 추가 — `UNPARSED` 등. `match=false`일 때만 |
 | `status` | `PASSED / CODE_FAILED / LLM_FAILED / VERIFY_UNAVAILABLE` 유지 (안건 9) |
 | 응답 `narrative_refs: list[{section, cites, evidence_ids}] \| None` | **추가 (안건 23 세부 (a), 10/28)** — 검증한 본문 기준으로 다시 계산한 섹션별 근거. 평가자(`judge_v2`)가 섹션별 `cites`를 내고 코드가 `attach_evidence`로 `evidence_ids`를 만든다. 평가자를 안 돌린 경우(`CODE_FAILED`·`VERIFY_UNAVAILABLE`)는 `null` → 백엔드는 기존 값 유지. 백엔드(채영)는 값이 오면 수정본 저장에 반영. 본문 해시는 section·text만 보므로 영향 없음 |
+| 응답 `judge_meta: JudgeMeta \| None` | **추가 (SCRUM-92, 11/4)** — 평가자 호출 메타. `JudgeMeta { llm_model, prompt_version, tokens_in, tokens_out, latency_ms, attempts }`. 이름은 초안 응답 `GenerationMeta` 와 맞춤. `tokens_in`·`tokens_out`·`latency_ms` 는 시도 전체 합(실패한 1번째도 포함), `llm_model` 은 마지막 값, `attempts` 는 1 또는 2. **PASSED·LLM_FAILED 만 채움**, `CODE_FAILED`·`VERIFY_UNAVAILABLE` 은 `null`(`llm_checks` 와 같은 규칙) — 단 `VERIFY_UNAVAILABLE` 로 끝나도 DB `verification_runs.judge_*` 에는 실패 토큰까지 포함해 남긴다(응답은 null, 비용 추적 NFR-APR-03). 백엔드 `AiDtos.VerifyResponse.raw(JsonNode)` 로 들어가 `FAIL_ON_UNKNOWN_PROPERTIES` 영향 없음 |
 
 ### 에러 `schemas/errors.py` (규약 6.3)
 

@@ -11,7 +11,7 @@
 | `predictions` | scoring | `prediction_id` PK, `alert_id`, `batch_run_id`, `model_version`, `feature_version`, `score numeric \| null`, `threshold`, **`data_quality_status`**(OK/SHORT_HISTORY/MISSING_INPUT/FAILED), `reasons jsonb`, `evidence_transaction_ids bigint[]`, **`context_transaction_ids bigint[]`**, `request_id`, `created_at` | 백엔드 `alert_scores.prediction_id`가 가리키는 것. FAILED도 행을 남긴다(재처리 추적) |
 | `prompt_versions` | 진희, 프롬프트 바꿀 때 | `prompt_name`, `version`, `file_hash`, `frozen_at`, `created_at` — PK(`prompt_name`,`version`) | 파일이 정본, 여기는 색인. `frozen_at`은 첫 녹화 커밋 시각(`str/05` 동결 규칙) |
 | `generations` | str, 호출마다 | `generation_id` PK, `kind`(DRAFT/VERIFY/SUMMARY), `draft_id`, `case_no`, **`status`**(PROCESSING/SUCCEEDED/FAILED), **`request_hash`**, `facts jsonb`, `request jsonb`, `response jsonb`, `llm_model`, `prompt_version`, `few_shot_ids int[]`, `references jsonb`, `retrieval_version`, `tokens_in`, `tokens_out`, `latency_ms`, `error`, `request_id`, `created_at`, `finished_at` | verify가 facts를 여기서 꺼낸다(`generation_id`로). **중복 방지 — 장치 둘**: ① 선점 전 `request_hash` 비교(상태 무관 — 내용이 다른 재사용 차단) ② `UNIQUE (draft_id) WHERE kind='DRAFT' AND status <> 'FAILED'`(동시 진입 차단). 하는 일이 달라서 둘 다 필요하다 — 아래 "같은 `draft_id` 재요청". `request_hash`는 5.1 요청 본문 sha256, FAILED 행에도 남는다 |
-| `verification_runs` | str | `verification_id` PK, `generation_id`, `draft_id`, **`revision_no`**, **`narrative_sha256`**, `code_checks jsonb`, `llm_checks jsonb`, `passed`, `status`, `verifier_version`, `request_id`, `created_at` | 백엔드 `verification_results.verification_id`가 가리키는 것. 백엔드도 `generation_id`·`revision_no`·`narrative_sha256`을 같이 저장(채영 V009) → `ApprovalGate`가 `generation_id` + 해시로 "이 생성본·이 본문의 검증"을 찾는다(`str/03`) |
+| `verification_runs` | str | `verification_id` PK, `generation_id`, `draft_id`, **`revision_no`**, **`narrative_sha256`**, `code_checks jsonb`, `llm_checks jsonb`, `passed`, `status`, `verifier_version`, `request_id`, **`judge_llm_model VARCHAR(128) NULL`, `judge_tokens_in INTEGER NULL`, `judge_tokens_out INTEGER NULL`, `judge_latency_ms INTEGER NULL`, `judge_attempts SMALLINT NULL`** (SCRUM-92), `created_at` | 백엔드 `verification_results.verification_id`가 가리키는 것. 백엔드도 `generation_id`·`revision_no`·`narrative_sha256`을 같이 저장(채영 V009) → `ApprovalGate`가 `generation_id` + 해시로 "이 생성본·이 본문의 검증"을 찾는다(`str/03`). `judge_*` 5칸은 평가자 호출 메타 — 시도 전체 합(실패한 1번째도 포함), **PASSED·LLM_FAILED 는 값, CODE_FAILED 는 전부 NULL, VERIFY_UNAVAILABLE 은 1번째 시도 토큰을 썼으면 그 값까지 합산해 남김**(응답 `judge_meta` 와 규칙 다름 — 응답은 null, 비용 추적 NFR-APR-03). 칸 이름 앞 `judge_` — 같은 행 `generation_id`(생성 모델 쪽)와 혼동 방지 |
 | `fewshot_examples` | 진희 | `example_id` PK, `typology`, `facts jsonb`, `narrative jsonb`, `is_active` | 파일(`str/fewshot/*.json`)이 정본, 여기는 서빙용 사본 |
 | `reference_chunks` | 진희, `tools/ingest_corpus.py` | `chunk_id` PK, `doc_id`, `doc_title`, `publisher`, `year`, `page`, `section`, `lang`, `typologies text[]`, `text`, `embedding vector(N)`, `embedding_model`, `content_hash` UNIQUE, `created_at`. 인덱스 HNSW(cosine) on `embedding`, GIN on `typologies` | RAG 코퍼스 청크. PDF가 정본, 여기는 검색용. 평가는 `chunk_id` 단위(`str/10`) |
 
@@ -52,7 +52,7 @@ INSERT (PROCESSING, request_hash)      ← LLM 호출 전 선점 (순서는 아�
 |---|---|---|
 | **새 DB**(compose 처음 띄울 때) | 백엔드 리포 `db/init/00_extensions.sql`에 `CREATE EXTENSION IF NOT EXISTS vector;` — `db/init/`은 postgres 이미지가 superuser로 1회 실행한다. compose db 이미지를 `postgres:16` → `pgvector/pgvector:pg16` | 준혁(백엔드 리포), W3 초 — 준혁 W2 적재가 끝난 뒤 |
 | **이미 있는 DB**(팀원 로컬·시연 서버) | 손으로 1회: `docker compose exec db psql -U postgres -d aml -c "CREATE EXTENSION IF NOT EXISTS vector;"` — `shared/05`에 명령 그대로 | 각자 |
-| Alembic `0004_reference_chunks` | 확장을 **만들지 않고 확인만**: `SELECT 1 FROM pg_extension WHERE extname='vector'` 없으면 `RuntimeError("pgvector 확장 없음 — shared/03 절차")`로 멈춘다. 조용히 넘어가지 않는다 | 진희, W4 |
+| Alembic `0005_reference_chunks` | 확장을 **만들지 않고 확인만**: `SELECT 1 FROM pg_extension WHERE extname='vector'` 없으면 `RuntimeError("pgvector 확장 없음 — shared/03 절차")`로 멈춘다. 조용히 넘어가지 않는다 | 진희, W4 |
 
 차원 N은 임베딩 모델에 따라 `.env`의 `EMBEDDING_DIM`. 모델을 바꾸면 테이블을 비우고 전부 재적재(마이그레이션이 아니라 스크립트).
 
@@ -70,5 +70,6 @@ INSERT (PROCESSING, request_hash)      ← LLM 호출 전 선점 (순서는 아�
 |---|---|---|
 | `0001_str_tables` | `generations`(status·request_hash·partial UNIQUE 포함), `prompt_versions`, `fewshot_examples` | 진희, W2 (뼈대에 있음 — 10/27 변경 반영 필요) |
 | `0002_verification_runs` | `verification_runs`(revision_no·narrative_sha256·request_id 포함) | 진희, W3 (SCRUM-57, 2026-11-01) |
-| `0003_scoring_tables` | `model_versions`, `alert_features`, `predictions` | 준영, W3 |
-| `0004_reference_chunks` | pg_extension 확인 → `reference_chunks` + HNSW·GIN | 진희, W4 (pgvector 뒤) |
+| `0003_verification_judge_meta` | `verification_runs` 에 `judge_llm_model`·`judge_tokens_in`·`judge_tokens_out`·`judge_latency_ms`·`judge_attempts` 5칸 (전부 NULL 허용) | 진희, W3 (SCRUM-92, 2026-11-04) |
+| `0004_scoring_tables` | `model_versions`, `alert_features`, `predictions` | 준영, W3 |
+| `0005_reference_chunks` | pg_extension 확인 → `reference_chunks` + HNSW·GIN | 진희, W4 (pgvector 뒤) |

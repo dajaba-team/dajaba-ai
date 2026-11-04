@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import ARRAY, JSON, Boolean, DateTime, Integer, String, Text, func
+from sqlalchemy import ARRAY, JSON, Boolean, DateTime, Integer, SmallInteger, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from aml_ai.shared.db import Base
@@ -51,6 +51,11 @@ class VerificationRun(Base):
     revision_no: Mapped[int] = mapped_column(Integer)
     code_checks: Mapped[list] = mapped_column(JSON)
     llm_checks: Mapped[list | None] = mapped_column(JSON)
+    judge_llm_model: Mapped[str | None] = mapped_column(String(128))
+    judge_tokens_in: Mapped[int | None] = mapped_column(Integer)
+    judge_tokens_out: Mapped[int | None] = mapped_column(Integer)
+    judge_latency_ms: Mapped[int | None] = mapped_column(Integer)
+    judge_attempts: Mapped[int | None] = mapped_column(SmallInteger)
     passed: Mapped[bool] = mapped_column(Boolean)
     status: Mapped[str] = mapped_column(String(24))
     verifier_version: Mapped[str] = mapped_column(String(64))

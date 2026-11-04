@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -19,14 +20,28 @@ from aml_ai.shared.errors import install_exception_handlers
 from aml_ai.shared.logging import RequestIdMiddleware, setup_logging
 from aml_ai.shared.versioning import health_versions
 from aml_ai.str.api.router import router as str_router
+from aml_ai.str.infrastructure.judge import judge_model_decision
 from aml_ai.str.infrastructure.prompt_index import check_frozen_prompts, index_prompt_files
+
+log = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
-    setup_logging(settings)
+    if not logging.getLogger().handlers:
+        setup_logging(settings)
     check_frozen_prompts()  # docs/str/05 동결 강제 — 파일 해시가 다르면 기동 실패
+    _, reason = judge_model_decision(settings)
+    if reason is not None:
+        log.warning(
+            "judge_model_fallback",
+            extra={
+                "generate": settings.llm_model_generate,
+                "judge": settings.llm_model_judge,
+                "reason": reason,
+            },
+        )
     if settings.index_prompts_on_startup:
         index_prompt_files(settings)
     yield
