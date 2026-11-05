@@ -2,6 +2,12 @@
 
 정본: `str/api/router.py`, `str/application/draft_service.py`·`verify_service.py`·`summary_service.py`, `str/infrastructure/*_repository.py`. 규약 5·6절을 함수 순서로 적은 것. 10/27 반영: `draft_id` 중복 방지(PROCESSING 선점), `generation_id`, AI 내부 재시도 삭제, 시간 예산, FAILED 행, cites → evidence_ids.
 
+**트랜잭션 경계 규칙 (SCRUM-122, 2026-11-0x)** — 외부 호출 중 DB 연결 반납.
+
+> "LLM 호출 바로 앞에는 반드시 `end_read`, `end_read` 와 LLM 호출 사이에는 DB 읽기 금지."
+
+임베딩 호출도 같은 규칙(외부 호출). `shared/db.end_read(session)` 가 "읽기만 한 트랜잭션" 을 `commit()` 으로 닫아 연결을 풀로 돌려줌 — `expire_on_commit=False` 라 읽은 값 그대로 유지. 쓰기(`new/dirty/deleted`) 가 섞여 있으면 `RuntimeError` 로 멈춤(의도 노출, `python -O` 안전). 요약(`summary_service`, SCRUM-129) 도 이 규칙을 따른다. 펜싱은 DB 조건(`status='PROCESSING'`)이라 연결을 놓아도 유지됨(`shared/03`).
+
 ## `POST /v1/str/drafts`
 
 요청(규약 5.1): `draft_id`(백엔드 시퀀스 선발급), `case_no`, `alert`(2절 경보), `evidence_transaction_ids`(**= `alert.transaction_ids` 전체** — 점수의 근거 부분집합 아님, `str/04`), `reasons`(3절 그대로), `prior_alert_count`, `investigator_notes`, `reporting_institution`.
@@ -26,7 +32,9 @@
 3  facts = domain.facts.build_facts(req, txs, subject)                       순수 (04) — observations는 req.reasons에서
 4  facts_llm = domain.masking.mask_for_llm(facts)                            순수 (04) — 생성·평가자 공용
 5  examples = fewshot_store.pick_examples(facts.typology)                    (05) 같은 유형 1 + 다른 유형 2
-6  references = retriever.retrieve(facts)                                    (10) 0~3건. RetrievalUnavailable → [] ※ 초안을 막지 않음
+   shared.db.end_read(session)                                               (SCRUM-122) 읽기 트랜잭션 닫고 연결 반납 — 임베딩 호출 전
+6  references = retriever.retrieve(facts)                                    (10) 0~3건. 임베딩은 외부 호출(연결 없음), _search 는 SCRUM-125에서 짧은 트랜잭션. RetrievalUnavailable → [] ※ 초안을 막지 않음
+   shared.db.end_read(session)                                               (SCRUM-122) LLM 호출 바로 앞 — 지금 RAG 꺼져 no-op, 125에서 의미 생김
 7  gen = narrative_generator.generate(facts_llm, fact_keys(facts), examples, references, notes, deadline=deadline)   (05)
       선체크 — 남은 예산 < LLM_TIMEOUT_S(35초) 이면 LLM 안 부르고 LlmUnavailable (502, 아래 "예산 초과는 LlmUnavailable")
       LLM 1회(35초) + NarrativeOut 스키마 검증(섹션 집합 각 1회 — v1 6개 또는 v2 7개, cites ⊆ fact_keys)
@@ -54,6 +62,7 @@
    deadline = clock() + VERIFY_BUDGET_S                   (SCRUM-92) judge 재시도 조건에만 씀 — 시간 예산 표
 2  sha = shared.hashing.narrative_sha256(narrative)      규약 5.3 해시 규칙 (shared/01)
 3  code_checks = domain.verification.run_code_checks(facts, narrative, evidence_scope)   순수 (06) — 유형별 대조
+   shared.db.end_read(session)                                               (SCRUM-122) LLM 호출 바로 앞 — CODE_FAILED 경로에서도 호출(저장은 autobegin 으로 새 트랜잭션)
 4  if all(c.match):
        judge_result = judge.run(mask_for_llm(facts), narrative, deadline=deadline)   (06) checks 5개 + meta
        평가자 호출 중 **어떤 예외든** → llm_checks=None, judge_meta=None(응답), status=VERIFY_UNAVAILABLE (자동 재시도 없음, 200·행 저장).
