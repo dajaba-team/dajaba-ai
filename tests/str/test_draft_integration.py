@@ -86,6 +86,39 @@ def test_draft_success_through_recorded_llm(
     assert row.status == "SUCCEEDED"
 
 
+# ───────── 기본값 경로 (SCRUM-62) — env 없으면 narrative_v2 ─────────
+
+
+def test_draft_success_default_prompt_is_v2(
+    integration_client: TestClient,
+    db_session: Session,
+    draft_request_sample: dict,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """NARRATIVE_PROMPT 를 env 에서 지워 **기본값 경로**로 /v1/str/drafts — 7 섹션·`narrative_v2`."""
+    monkeypatch.delenv("NARRATIVE_PROMPT", raising=False)
+    get_settings.cache_clear()
+    body = _fan_in_body(draft_request_sample, draft_id="DRF-DEFAULT-V2")
+    res = integration_client.post("/v1/str/drafts", json=body, headers={"X-Internal-Key": INTERNAL_KEY})
+    assert res.status_code == 200, res.text
+    out = DraftResponse.model_validate(res.json())
+    assert out.generation_meta.prompt_version == "narrative_v2"
+    assert len(out.narrative) == 7
+    assert {s.section.value for s in out.narrative} == {
+        "SUBJECT",
+        "DATE",
+        "PLACE",
+        "INSTRUMENT",
+        "METHOD",
+        "GROUNDS",
+        "OPINION",
+    }
+    row = db_session.execute(
+        text("SELECT status FROM ai.generations WHERE draft_id=:d"), {"d": body["draft_id"]}
+    ).one()
+    assert row.status == "SUCCEEDED"
+
+
 # ───────── 경계 — 같은 draft_id·같은 본문 재요청: ClaimReuse ─────────
 
 

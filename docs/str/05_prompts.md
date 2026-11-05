@@ -19,9 +19,9 @@
 ## 버전·동결 규칙
 
 - 파일명이 버전: `narrative_v1.md`·`narrative_v2.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 동결 전에는 자유 수정, 동결 뒤에는 새 버전 파일(`narrative_vN.md`). `prompt_versions.frozen_at`에 동결 시각.
-- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`, 기본 `narrative_v1`, SCRUM-47). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
+- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`, 기본 `narrative_v2`(SCRUM-62, 11/6 — 그 전은 v1)). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
 - 기동 시 파일 sha256을 `ai.prompt_versions`에 색인. 동결된 버전의 해시가 파일과 다르면 **기동 실패**(경고가 아니라). 응답 `prompt_version`에 파일명.
-- **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29). **narrative_v2 는 SCRUM-20 녹화 커밋 시점에 동결** — `FROZEN_PROMPTS` 에 `narrative_v2` sha256 추가, `test_frozen_prompts` 가 `narrative_v2` 등록 강제. **11/6 반영일 PR**은 기본값만 v2 로(채영 백엔드 enum·프론트와 같은 날).
+- **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29). **narrative_v2 는 SCRUM-20 녹화 커밋 시점에 동결** — `FROZEN_PROMPTS` 에 `narrative_v2` sha256 추가, `test_frozen_prompts` 가 `narrative_v2` 등록 강제. **2026-11-06 SCRUM-62 에서 기본값 v2** (채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날).
 - 바꾼 뒤엔 오류 주입 12번(정상 초안)과 7~11을 다시 돌려 표로 남긴다(`08`). 표 없이 v2를 서빙하지 않는다.
 - few-shot 예시(`fewshot/{version}/*.json`)도 같은 규칙: `example_id` 고정, 내용 바꾸면 새 id. `generations.few_shot_ids`로 추적. 예시의 `narrative`도 `cites` 형식으로. **활성 버전 폴더만** 읽는다(SCRUM-47, `fewshot_store`).
 
@@ -99,7 +99,7 @@ v1 과 겹치지 않는 7항목(SUBJECT·DATE·PLACE·INSTRUMENT·METHOD·GROUND
 - 규칙 9·10 유지(cites·FACT_KEYS·경로 숫자는 `paths.status=VERIFIED` 일 때만).
 - few-shot: `fewshot/narrative_v2/002~006_*.json` 5개 — FAN_IN·FAN_OUT·PASS_THROUGH·CYCLE + 근거 약한 예시(`typology: null`). 활성 버전 폴더만 `fewshot_store` 가 읽는다.
 
-반영일(11/6) PR 에 기본값만 v2 로 전환. 녹화·동결(`FROZEN_PROMPTS`) 은 **SCRUM-20** 에서 실제 LLM 1회 호출·해시 박기.
+**2026-11-06 SCRUM-62 에서 기본값 v2 전환 (한 줄 커밋).** 녹화·동결(`FROZEN_PROMPTS`) 은 **SCRUM-20** 에서 실제 LLM 1회 호출·해시 박기.
 
 ## judge_v1 (요지 — 전문은 파일)
 
