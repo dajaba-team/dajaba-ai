@@ -46,7 +46,7 @@ compose로: 이 리포의 `compose.yaml`은 `ai` 서비스 하나이고 백엔�
 | `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL_GENERATE`, `LLM_MODEL_JUDGE` | 생성·평가자 모델. 평가자는 다른 모델이면 좋고, 같으면 프롬프트에서 역할 분리. `LLM_MODEL_JUDGE` 가 **비었거나 `LLM_MODEL_GENERATE` 와 같으면 기동 때 경고 한 줄**(`judge_model_fallback`, `AI_LLM_MOCK=false` 일 때만, 기동 실패 아님) + 생성 모델로 폴백(SCRUM-92). `LLM_PROVIDER`는 지금 `openai` 하나만 구현 |
 | `LLM_API_BASE` (기본 `https://api.openai.com/v1`) | Responses API 엔드포인트. Azure OpenAI·호환 게이트웨이 쓸 때만 바꿈 — 모델·키는 그대로 `.env`에만 |
 | `LLM_TEMPERATURE_SUPPORTED` (기본 `false`), `LLM_REASONING_EFFORT` (기본 `low`) | 결정성 — `true`면 `temperature=0`, 아니면 `reasoning.effort=<값>`(추론 모델). 호출마다 폴백하지 않음(SCRUM-15 10/29). OpenAI 지원값은 `low/medium/high/xhigh/max` |
-| `NARRATIVE_PROMPT` (기본 `narrative_v1`) | 활성 서술 버전 — `narrative_v1`\|`narrative_v2`. 이 값 하나로 프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더가 같이 바뀜(SCRUM-47). 11/6 반영일 PR 이 기본값만 v2 로. 그 전엔 자유 전환 가능하되 녹화·동결은 SCRUM-20 |
+| `NARRATIVE_PROMPT` (기본 `narrative_v2`) | 활성 서술 버전 — `narrative_v1`\|`narrative_v2`. 이 값 하나로 프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더가 같이 바뀜(SCRUM-47). **2026-11-06 SCRUM-62 에서 기본값 v2** (채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날). 평소엔 `.env` 에 `NARRATIVE_PROMPT` 줄 없이 둔다(기본 v2). v1 로 되돌리려면 `.env` 에 `NARRATIVE_PROMPT=narrative_v1` 한 줄 추가. 이미 그 줄이 있는 사람은 지울 것(승인본·해시 호환 경로는 그대로 열려 있음) |
 | `LLM_TIMEOUT_S` (기본 **35**), `DRAFT_BUDGET_S` (기본 80), `REGEN_MIN_REMAINING_S` (기본 40), `VERIFY_BUDGET_S` (기본 80 — 백엔드 공유 90초 − 10, SCRUM-92), `LLM_DAILY_TOKEN_BUDGET` | 시간 예산(`str/03`) — W2 수 실측 전 가정값. 기동 때 `VERIFY_BUDGET_S >= LLM_TIMEOUT_S` 불변식 검증 |
 | `STALE_PROCESSING_S` (기본 **110**) | 오래된 PROCESSING 정리 기준(초), `DRAFT_BUDGET_S + 30` (`shared/03`) |
 | `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_DIM` | RAG(W4). 멀티링구얼 1종 |

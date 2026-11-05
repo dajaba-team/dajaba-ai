@@ -66,7 +66,7 @@ class NarrativeGenerator:
         self,
         llm: LlmClient,
         settings: Settings,
-        prompt_name: str = "narrative_v1",  # SCRUM-47 — draft_service.build 가 settings.narrative_prompt 전달
+        prompt_name: str = "narrative_v2",  # SCRUM-47·62 — draft_service.build 가 settings.narrative_prompt 전달
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self._llm = llm

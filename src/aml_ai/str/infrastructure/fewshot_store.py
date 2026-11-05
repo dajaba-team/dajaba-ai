@@ -24,7 +24,7 @@ class FewshotStore:
         self,
         session: Session | None = None,
         *,
-        prompt_name: str = "narrative_v1",
+        prompt_name: str = "narrative_v2",  # SCRUM-62 — 설정 기본값과 같이 v2
         directory: Path | None = None,
     ) -> None:
         self._s = session
