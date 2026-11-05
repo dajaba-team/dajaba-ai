@@ -35,3 +35,21 @@ def ping(settings: Settings) -> str:
         return "ok"
     except Exception as exc:  # noqa: BLE001 — health 는 이유를 한 단어로만
         return f"down:{type(exc).__name__}"
+
+
+def end_read(session: Session) -> None:
+    """읽기만 한 트랜잭션을 `commit()` 으로 닫아 연결을 풀로 돌려준다 (SCRUM-122, docs/str/03).
+
+    규칙: "LLM 호출 바로 앞에는 반드시 `end_read`, `end_read` 와 LLM 호출 사이에는 DB 읽기 금지."
+    `expire_on_commit=False` 전제라 commit 뒤 읽어 둔 ORM 값(txs·subject·StoredDraft)은 그대로 유효.
+
+    - `in_transaction()=False` → no-op (이미 닫힌 세션에 또 commit 금지).
+    - `new/dirty/deleted` 중 하나라도 있으면 **`raise RuntimeError`** (쓰기 가드 — 읽기 외 상태를
+      실수로 날리지 않게. `assert` 안 씀 — `python -O` 에서 빠지면 조용히 통과하기 때문).
+    - 정상이면 `session.commit()`. `rollback()` 쓰면 ORM 객체가 만료돼 다음 접근에서 연결을 다시 잡음.
+    """
+    if not session.in_transaction():
+        return
+    if session.new or session.dirty or session.deleted:
+        raise RuntimeError("end_read expects a read-only transaction (new/dirty/deleted is not empty)")
+    session.commit()

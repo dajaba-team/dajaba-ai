@@ -19,6 +19,20 @@
 | verify 녹화 통합 (SCRUM-61) | `tests/str/test_verify_integration_judge.py` — 6개(v1 = LLM_FAILED·CODE_FAILED·VERIFY_UNAVAILABLE / v2 = PASSED·CODE_FAILED·VERIFY_UNAVAILABLE, 후자 둘은 parametrize). **v2 PASSED**(녹화 본문 + `judge_v2` 녹화 `bd573dd9…` → `status=PASSED`·5 checks 전부 ≥4·`narrative_refs` 7 섹션·`evidence_ids ⊆ evidence_transaction_ids`·`verification_runs.judge_*` 채움·`verifier_version` 끝 `+judge_v2`) · **v1 LLM_FAILED**(녹화 본문 + `judge_v2` 녹화 `6eefc9f4…` → `FIVE_W_ONE_H_COMPLETE=3`·`status=LLM_FAILED`·`narrative_refs` 6 섹션 값 있음·`judge_meta` 채움 — 평가자 기준표 "섹션 반복" 판정이 v1 생성 프롬프트 한계라 자연 LLM_FAILED 케이스로 사용 — **SCRUM-62(2026-11-06) 로 기본값 v2 전환 뒤 신규 초안에는 해당 없음, v1 녹화는 승인본·해시 호환 회귀 테스트 재료로 유지**) · **CODE_FAILED**(v1·v2 각각 — 첫 섹션 `evidence_ids`를 scope 밖으로 → judge 안 부름·`narrative_refs=None`·`judge_meta=None`) · **VERIFY_UNAVAILABLE**(v1·v2 각각 — 마지막 섹션 text 에서 **숫자 없는 단어 하나만** 다른 글자로 → 코드(금액·날짜·건수·계좌) 통과·judge 녹화 키 miss·`narrative_refs=None`·`judge_meta=None`) | `-m db`, CI |
 | narrative_refs 단위 (SCRUM-61) | `tests/str/test_narrative_refs.py` — 목록 밖 키 cites 에서 빠짐·`customer.*`·`subject` 는 cites 남고 evidence_ids 빔·섹션 순서=요청 순서·빈 cites → 빈 evidence_ids·CODE_FAILED·VERIFY_UNAVAILABLE → null·LLM_FAILED → 값 있음·sections 불일치 → `LlmInvalidOutput` → 재시도 1회 → VERIFY_UNAVAILABLE | CI |
 | 설정 기본값 (SCRUM-62) | `tests/shared/test_settings_narrative_prompt_default.py` — 각 테스트 앞에 `monkeypatch.delenv("NARRATIVE_PROMPT", raising=False)` autouse(외부 env·`.env` 차단) + `Settings(_env_file=None)` → `narrative_prompt == "narrative_v2"`. `llm_output_model("narrative_v2") is NarrativeOutV2`. `FewshotStore()` 기본 디렉토리가 `fewshot/narrative_v2`. `NarrativeGenerator(stub, settings)` 의 `prompt_version == "narrative_v2"`. v1 로 되돌림(`NARRATIVE_PROMPT=narrative_v1` 명시)도 반대 방향으로 한 번. **통합(`-m db`)**: `tests/str/test_draft_integration.py::test_draft_success_default_prompt_is_v2` — `monkeypatch.delenv` 로 env 지운 상태에서 `POST /v1/str/drafts`(녹화 재생) → `generation_meta.prompt_version == "narrative_v2"` · 섹션 7개(SUBJECT~OPINION) · `generations.status=SUCCEEDED` | CI (+통합 `-m db`) |
+| `end_read` 단위 (SCRUM-122) | `tests/shared/test_end_read.py` — `MagicMock` Session: ① `in_transaction()=False` → no-op(`commit` 호출 0), ② `new/dirty/deleted` 중 하나라도 있으면 **명시적 `raise RuntimeError`**(`assert` 안 씀 — `python -O` 안전), ③ 정상 읽기 뒤 `commit()` 1회 호출, ④ `expire_on_commit=False` 전제라 commit 뒤 ORM 객체 접근 가능(별도 DB 테스트 `test_transaction_boundaries.py` 에서 라운드) | CI |
+| 트랜잭션 경계 단위 (SCRUM-122) | `tests/str/test_transaction_boundaries.py` — 초안·검증(PASSED)·검증(CODE_FAILED) 각각 **가짜 LLM·가짜 embedder 호출 안에서 `session.in_transaction() is False`**. Retriever `enabled=True` + 지연 embedder + `_search` monkeypatch 로 임베딩 중 연결 없음도 확인. CODE_FAILED 는 judge 호출 수 0 + `verification_runs` 행 1 (`end_read` 뒤 저장 autobegin 정상) | CI |
+| 동시 요청 풀 (SCRUM-122) | `tests/str/test_concurrent_pool.py` (`-m db`) — `get_engine` monkeypatch 로 `pool_size=2·max_overflow=0·pool_timeout=3s` 전용 엔진(운영 코드 변경 없음). `ThreadPoolExecutor` 초안 4 동시 — 가짜 LLM 이 `threading.Event` 로 대기, 테스트가 `entered >= pool_size` 를 확인한 뒤 verify 404 요청(DB 세션 체크아웃·반납만, judge 안 부름). **결정적 assert 셋**: ① 초안 전부 200·verify 404, ② pool 최대 ≤ 2, ③ verify < 1s. develop 흉내(`end_read` 두 줄 주석)에서는 verify 가 `pool_timeout=3s` 안에 연결 못 받아 `TimeoutError` 500 | `-m db`, CI |
+
+### 고치기 전·후 숫자 (SCRUM-122, 2026-11-05)
+
+`test_concurrent_pool.py` 실측 (`-s`). "브랜치 + `end_read` no-op" = 이 브랜치에서 `draft_service`·`verify_service` 의 `end_read` 두 줄을 일시 주석 — develop `d7a7abc` 와 동작 동치.
+
+| 측정 | 브랜치 + `end_read` no-op | 브랜치 |
+|---|---|---|
+| pool 최대 사용 수 | 2 (풀 꽉 참) | 2 |
+| verify 응답 | **`TimeoutError` → 500** (`pool_timeout=3s`) | **0.017s** |
+| LLM 진입 (`gate.entered`) | 2 (pool 묶여 3·4번째 초안은 LLM까지 못 감) | 4 (end_read 로 반납, 전부 진입) |
+| 초안 4 전부 성공 | 아니오 (일부 `TimeoutError`) | 네 |
 
 ## 오류 주입 — 26개
 

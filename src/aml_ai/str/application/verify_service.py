@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from aml_ai.shared.config import Settings
+from aml_ai.shared.db import end_read
 from aml_ai.shared.errors import AiError, DraftNotFound
 from aml_ai.shared.hashing import narrative_sha256
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
@@ -42,6 +43,7 @@ log = logging.getLogger(__name__)
 @dataclass
 class VerifyService:
     settings: Settings
+    session: Session  # SCRUM-122 — end_read(self.session) 호출용
     generations: GenerationRepository
     verifications: VerificationRepository
     judge: Judge
@@ -53,6 +55,7 @@ class VerifyService:
     ) -> VerifyService:
         return cls(
             settings=settings,
+            session=session,
             generations=GenerationRepository(session),
             verifications=VerificationRepository(session),
             judge=Judge(make_llm_client(settings), settings, clock=clock),
@@ -67,8 +70,16 @@ class VerifyService:
         sha = narrative_sha256(req.narrative)
         code_checks = verification.run_code_checks(draft.facts, req.narrative, draft.evidence_transaction_ids)
         code_ok = all(c.match for c in code_checks)
+        # SCRUM-122 — LLM 호출 바로 앞. CODE_FAILED 경로도 end_read(저장은 autobegin).
+        end_read(self.session)
         status, llm_checks, judge_meta, narrative_refs = self._decide(draft, req, code_ok, deadline)
+        return self._persist_and_respond(
+            draft, req, sha, code_checks, llm_checks, judge_meta, narrative_refs, status
+        )
 
+    def _persist_and_respond(
+        self, draft, req, sha, code_checks, llm_checks, judge_meta, narrative_refs, status
+    ):
         passed = status is VerifyStatus.PASSED
         verifier_version = f"{VERIFIER_VERSION}+{self.judge.prompt_version}"
         rid = current_request_id()

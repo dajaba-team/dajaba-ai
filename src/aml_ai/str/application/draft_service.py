@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from aml_ai.shared.config import Settings
+from aml_ai.shared.db import end_read
 from aml_ai.shared.errors import AiError, FencedOut, InvalidRequest, RetrievalUnavailable
 from aml_ai.shared.infrastructure.embedding_client import make_embedding_client
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
@@ -32,6 +33,7 @@ log = logging.getLogger(__name__)
 @dataclass
 class DraftService:
     settings: Settings
+    session: Session  # SCRUM-122 — end_read(self.session) 호출용
     reader: TransactionReader
     fewshot: FewshotStore
     retriever: Retriever
@@ -46,6 +48,7 @@ class DraftService:
         llm = make_llm_client(settings)
         return cls(
             settings=settings,
+            session=session,
             reader=TransactionReader(session),
             fewshot=FewshotStore(session, prompt_name=settings.narrative_prompt),
             retriever=Retriever(session, make_embedding_client(settings), enabled=settings.rag_enabled),
@@ -94,7 +97,10 @@ class DraftService:
         facts_masked = masking.mask_for_llm(facts)
         # 5
         examples = self.fewshot.pick_examples(facts.typology)
+        # SCRUM-122 — LLM/임베딩 호출 전 연결 반납. end_read 와 LLM 사이에 DB 읽기 금지.
+        end_read(self.session)
         references = self._references(facts)
+        end_read(self.session)  # 지금은 RAG 꺼져 no-op, 125에서 _search 가 짧은 트랜잭션
         gen = self.generator.generate(
             facts_masked,
             list(fact_keys_domain.fact_keys(facts).keys()),
@@ -105,6 +111,9 @@ class DraftService:
         )
         # 8 — 순수: cites 의 fact 키 → evidence_ids
         narrative = fact_keys_domain.attach_evidence(gen.narrative, facts)
+        return self._build_response(req, generation_id, facts, narrative, gen, examples, references)
+
+    def _build_response(self, req, generation_id, facts, narrative, gen, examples, references):
         meta = generation_meta(
             self.settings,
             llm_model=gen.llm_model,

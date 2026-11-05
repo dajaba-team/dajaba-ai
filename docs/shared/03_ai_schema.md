@@ -42,6 +42,8 @@ INSERT (PROCESSING, request_hash)      ← LLM 호출 전 선점 (순서는 아�
 
 **늦게 살아 돌아온 작업 막기(펜싱)** — 110초가 지났다고 이전 작업이 정말 죽었다는 보장은 없다. 그래서 끝낼 때도 "내가 아직 유효한 시도인지"를 조건으로 건다: `UPDATE generations SET status=…, … WHERE generation_id=$1 AND status='PROCESSING'`. 바뀐 행이 0이면(이미 STALE로 닫힘) 결과를 저장하지 않고 버린다 — 로그에 `generation_id`만 남기고 500 `INTERNAL`. 110초는 가정값 그대로. **범위를 구분해 둔다**: 펜싱은 "결과가 두 번 저장되는 것"을 막는다. "LLM 호출이 한 번만 일어난다"는 보장은 아니다 — 죽은 줄 알았던 옛 작업이 실제로 살아 있었다면 새 시도와 LLM 호출이 겹칠 수 있고, 그 비용은 MVP에서 감수한다(110초 넘게 걸리는 호출은 35초 타임아웃 때문에 드물다).
 
+**LLM 호출 중에는 세션이 연결을 들고 있지 않다 (SCRUM-122)** — `str/03` "트랜잭션 경계 규칙" 참조. 선점(1)은 자기 트랜잭션에서 커밋하고 끝남(위 "잠금" 설명). 그 뒤 읽기(2~5)는 autobegin 으로 열린 트랜잭션에서 돌고 `shared.db.end_read(session)`로 닫은 뒤 LLM/임베딩 호출. 펜싱은 DB 조건(`status='PROCESSING'`)이라 연결을 놓아도 유지된다 — advisory lock 은 1에서만 쓰이고 그 트랜잭션 끝과 함께 풀렸으니 LLM 호출 중 다른 요청의 선점을 막지 않는다(의도된 동작).
+
 테스트는 `str/08` DB 층(5가지).
 
 ## pgvector — 확장 생성은 superuser만

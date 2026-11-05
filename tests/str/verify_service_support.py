@@ -54,6 +54,7 @@ class FakeJudge:
     """`Judge.run` 과 같은 시그니처 — SCRUM-92 에서 `JudgeResult` 반환.
 
     `result` 가 있으면 그걸 리턴, `exc` 가 있으면 예외, 둘 다 없으면 `checks` 로 조립.
+    `session` 이 주어지면 `run()` 호출 시점의 `in_transaction()` 을 `in_tx_at_call` 에 기록 — SCRUM-122.
     """
 
     checks: list[LlmCheck] | None = None
@@ -62,6 +63,8 @@ class FakeJudge:
     prompt_version: str = "judge_v2"
     calls: int = 0
     received_fact_keys: list[str] | None = None
+    session: Any = None  # Session | None — SCRUM-122 (test_transaction_boundaries 용)
+    in_tx_at_call: list[bool] = field(default_factory=list)
 
     def run(
         self,
@@ -74,6 +77,8 @@ class FakeJudge:
         """SCRUM-61 — `fact_keys` 인자 받음. v2 Judge 실제 시그니처와 맞춤."""
         self.calls += 1
         self.received_fact_keys = fact_keys
+        if self.session is not None:
+            self.in_tx_at_call.append(self.session.in_transaction())
         if self.exc is not None:
             raise self.exc
         if self.result is not None:
@@ -126,10 +131,22 @@ def verify_request(narrative: list[RevisedNarrativeSection]) -> VerifyRequest:
 def build_service(
     *, judge: FakeJudge, draft: StoredDraft
 ) -> tuple[VerifyService, FakeVerificationRepository]:
+    """SCRUM-122 — `session` 은 `end_read` 호출 시점에 `in_transaction()=False` 로 흉내 (no-op).
+
+    `end_read` 가 `in_transaction()` 을 **먼저** 보고 False 면 바로 return → `new/dirty/deleted`
+    검사 전에 빠져나감. MagicMock 기본 attribute 가 truthy 라 그 검사에 들어가면 RuntimeError 가
+    났을 것. 실제 서비스가 end_read 를 거치는 라운드는 `test_concurrent_pool.py`(-m db) + verify
+    통합(`test_verify_integration_judge.py`)이 실 DB 에서 커버.
+    """
+    from unittest.mock import MagicMock
+
     get_settings.cache_clear()
     verifications = FakeVerificationRepository()
+    session = MagicMock()
+    session.in_transaction.return_value = False
     svc = VerifyService(
         settings=get_settings(),
+        session=session,
         generations=FakeGenerationRepository(draft=draft),
         verifications=verifications,
         judge=judge,
