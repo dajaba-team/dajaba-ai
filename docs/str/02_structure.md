@@ -37,7 +37,7 @@ dajaba-AI/
 │  │  ├─ domain/                       models · constants · facts · fact_paths · fact_keys · facts_aggregations · masking · verification · verification_amount · verification_amount_scan · verification_amount_number · verification_amount_grammar · verification_account · verification_count · verification_count_scan · verification_count_kind · verification_count_distance · verification_date · verification_date_scan · verification_date_formats · verification_date_purpose · verification_date_time · request_hash    (04, 06)
 │  │  ├─ infrastructure/               orm · transaction_reader · generation_repository · verification_repository
 │  │  │                                · fewshot_store · narrative_generator · judge · retriever · prompt_index
-│  │  ├─ prompts/                      narrative_v1.md · judge_v1.md — 쓰고 나면 수정 금지 (05)
+│  │  ├─ prompts/                      narrative_v1.md · narrative_v2.md · judge_v1.md · judge_v2.md — 동결 뒤 수정 금지 (05)
 │  │  └─ fewshot/                      예시 json (정본). DB fewshot_examples 는 사본
 │  └─ scoring/                         준영 — 같은 4계층. domain/ 은 비어 있음(로직은 aml_ml)
 │     ├─ api/router.py · application/score_service.py(AI_SCORING_MOCK) · infrastructure/

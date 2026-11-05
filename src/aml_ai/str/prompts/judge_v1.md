@@ -1,6 +1,6 @@
 # judge_v1 — 평가자 프롬프트
 
-정본은 docs/str/06_verification.md(루브릭)·05_prompts.md. **수정 금지** — 바꾸면 judge_v2.md.
+정본은 docs/str/06_verification.md(루브릭)·05_prompts.md. **judge_v2(SCRUM-61, 11/5) 로 대체.** 기록용으로 남긴다(본문 손대지 않음).
 
 ```text
 [system]

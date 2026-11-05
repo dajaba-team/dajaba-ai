@@ -109,7 +109,19 @@ v1 과 겹치지 않는 7항목(SUBJECT·DATE·PLACE·INSTRUMENT·METHOD·GROUND
 - 루브릭 5개와 **5·4·3·1점 기준**은 `06_verification.md`. 프롬프트에 그 표를 그대로 넣는다 — 통과선이 4점이라 4점의 뜻이 적혀 있어야 한다.
 - 온도 0. 평가자 모델은 `.env` `LLM_MODEL_JUDGE` — 생성 모델과 다르면 좋다. 비거나 같으면 기동 경고(`06` "모델", SCRUM-92).
 - 토큰 한도 **상수 `JUDGE_MAX_TOKENS = 4000`**(`str/domain/constants.py`, `NARRATIVE_MAX_TOKENS` 와 같은 자리, SCRUM-92) — OpenAI Responses API `max_output_tokens` 기준이라 `reasoning_effort=low` 의 사고 토큰(500~1500)을 덮어야 함. comment `max_length=500` 그대로 유지 — "짧게 쓰라" 는 지시는 61 의 `judge_v2` 프롬프트 몫.
-- **`judge_v2`(W3, 안건 23 세부 (a) 확정 10/28)**: 입력에 `FACT_KEYS`를 더하고, 출력에 `"sections": [{"section": "...", "cites": ["..."]}]` 6개를 더한다 — 검사한 본문 기준으로 각 섹션이 실제로 쓴 fact 키. 코드가 `FACT_KEYS` 밖 키를 버리고(버린 수는 `generation_meta`에 기록) `attach_evidence`로 `evidence_ids`를 만들어 검증 응답 `narrative_refs`에 넣는다(`06`). 루브릭·점수 부분은 v1과 같다.
+
+## judge_v2 (SCRUM-61, 11/5 활성) — 전문은 `str/prompts/judge_v2.md`
+
+- **v1 과 다른 점**: 입력에 `FACT_KEYS` 추가(생성기 프롬프트와 **같은 모양** — `"\n".join(...) or "(없음)"`, 09 11/5), 출력에 `"sections": [{"section": "...", "cites": ["..."]}]` 추가 — 검사한 본문 기준으로 각 섹션이 실제로 쓴 fact 키. **섹션 집합은 요청 본문과 정확히 같게**(v1 6 또는 v2 7, 섹션마다 1회) — 다르면 `LlmInvalidOutput` → 기존 1회 재시도 → 실패면 `VERIFY_UNAVAILABLE`(★A 1).
+- **cites 필터·narrative_refs 생성**: `verify_service` 가 섹션별 cites 중 `fact_keys(draft.facts)` 안 키만 남기고(목록 밖 키는 버림) `attach_evidence(요청 본문 text + 버린 뒤 cites, facts)` 로 `evidence_ids` 계산 → `NarrativeRef{section, cites, evidence_ids}` 리스트(요청 섹션 순서 유지, 빈 cites 허용). **`CODE_FAILED`·`VERIFY_UNAVAILABLE`** 은 `null`, **`LLM_FAILED`** 은 값 있음(평가자는 돌았음).
+- **버린 키 기록**: `log.warning("judge_cites_dropped", extra={"section": <enum>, "count": <int>})` 한 번(섹션당 한 줄). **키 이름·본문·comment 안 찍음**(CLAUDE.md 로그 금지어). 응답 모양은 그대로 — `judge_meta` 에 칸 추가하지 않음(규약 변경 피함).
+- **루브릭·점수·comment-first 는 v1 과 동일** — 바꾸면 v1 대비 비교가 불가. comment 는 "한두 문장" 지시만 더함.
+- **온도·토큰 한도·재시도** v1 과 같음(`JUDGE_MAX_TOKENS=4000`·`JUDGE_SCHEMA_RETRY=1`). 평가자 모델은 `.env` `LLM_MODEL_JUDGE` — 생성기와 다른 OpenAI 모델(09 11/5 결정).
+- **녹화·동결**: 녹화 커밋 시 `FROZEN_PROMPTS["judge_v2"]` 에 sha256 박음(SCRUM-15 10/29 동결 규칙과 같음).
+
+## judge_v1 — 기록용 보존
+
+`judge_v1.md` 는 **judge_v2(11/5) 로 대체**. 녹화 커밋이 없어 `FROZEN_PROMPTS` 에도 없었고 본문도 그대로 둠(기록·회귀 참고).
 
 ## summary_v1 (W4 말)
 

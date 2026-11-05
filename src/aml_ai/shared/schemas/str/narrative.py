@@ -178,3 +178,13 @@ class NarrativeRef(StrictModel):
     section: Section
     cites: list[str]
     evidence_ids: list[TransactionId]
+
+
+class NarrativeRefLlm(StrictModel):
+    """judge_v2 가 섹션마다 낸 cites(아직 fact_keys 밖 키 안 걸러진 상태). verify 가 필터·evidence_ids 로 확장.
+
+    cites 는 임의 문자열 — 스키마는 범위 검사하지 않음(목록 밖 키는 `verify_service` 가 버림, SCRUM-61 ★A 3).
+    """
+
+    section: Section
+    cites: list[str] = Field(default_factory=list)
