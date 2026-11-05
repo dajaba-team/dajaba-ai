@@ -10,7 +10,6 @@ SCRUM-92 judge_* 5칸 왕복은 `test_verify_db_judge_meta.py`.
 
 from __future__ import annotations
 
-import uuid
 from collections.abc import Iterator
 
 import pytest
@@ -28,7 +27,6 @@ from aml_ai.shared.schemas.str import (
     VerifyStatus,
 )
 from aml_ai.str.application.verify_service import VerifyService
-from aml_ai.str.infrastructure.orm import Generation
 from aml_ai.str.infrastructure.verification_repository import VerificationRepository
 from tests.str.integration_support import INTEGRATION_INTERNAL_KEY
 from tests.str.verify_db_support import (
@@ -38,6 +36,7 @@ from tests.str.verify_db_support import (
     assert_judge_meta_null,
     read_run,
     save_code_failed,
+    seed_draft,
 )
 
 pytestmark = pytest.mark.db
@@ -90,28 +89,6 @@ def test_verify_404_leaves_no_row(
 # ── SCRUM-91 — verify API 끝까지 돎(평가자 못 부름 → 200 VERIFY_UNAVAILABLE) ──
 
 
-def _seed_draft(db_session: Session, draft_request_sample: dict, draft_response_sample: dict) -> str:
-    """SUCCEEDED DRAFT 하나 — load_draft 가 facts·evidence_transaction_ids 를 꺼낼 수 있게."""
-    gid = uuid.uuid4().hex
-    db_session.add(
-        Generation(
-            generation_id=gid,
-            kind="DRAFT",
-            draft_id=f"d-91-{gid[:8]}",
-            case_no=draft_request_sample["case_no"],
-            facts=draft_response_sample["facts"],
-            request=draft_request_sample,
-            request_hash="h" * 64,
-            response=draft_response_sample,
-            llm_model="recorded",
-            prompt_version="narrative_v1",
-            status="SUCCEEDED",
-        )
-    )
-    db_session.commit()
-    return gid
-
-
 @pytest.fixture
 def _verify_client(db_session: Session, _ai_mock_env) -> Iterator[TestClient]:
     """SCRUM-91 — AI_LLM_MOCK=true 로 verify API 호출. ops_seed 없이(verify 는 ops 안 읽음)."""
@@ -134,7 +111,7 @@ def test_verify_api_returns_unavailable_without_recording(
     draft_response_sample: dict,
 ) -> None:
     """SCRUM-91 — judge 녹화 없음 → 200 VERIFY_UNAVAILABLE, verification_runs 1행."""
-    gid = _seed_draft(db_session, draft_request_sample, draft_response_sample)
+    gid = seed_draft(db_session, draft_request_sample, draft_response_sample)
     # 요청 narrative 는 응답과 같은 세트 — 코드 검사 통과해야 judge 호출로 떨어진다
     req = {
         "generation_id": gid,

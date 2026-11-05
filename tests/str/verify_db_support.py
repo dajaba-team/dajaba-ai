@@ -93,6 +93,35 @@ def read_run(engine: Engine, vid: str) -> object:
         ).one()
 
 
+def seed_draft(db_session, draft_request_sample: dict, draft_response_sample: dict) -> str:  # type: ignore[no-untyped-def]
+    """SUCCEEDED DRAFT 하나를 저장 — verify 쪽 테스트에서 `load_draft` 가 facts 를 꺼낼 수 있게.
+
+    SCRUM-57·91·144 공용(공통 테스트에서 draft 시드 하나만 필요한 자리).
+    """
+    import uuid
+
+    from aml_ai.str.infrastructure.orm import Generation
+
+    gid = uuid.uuid4().hex
+    db_session.add(
+        Generation(
+            generation_id=gid,
+            kind="DRAFT",
+            draft_id=f"d-{gid[:8]}",
+            case_no=draft_request_sample["case_no"],
+            facts=draft_response_sample["facts"],
+            request=draft_request_sample,
+            request_hash="h" * 64,
+            response=draft_response_sample,
+            llm_model="recorded",
+            prompt_version="narrative_v1",
+            status="SUCCEEDED",
+        )
+    )
+    db_session.commit()
+    return gid
+
+
 def read_judge_meta(engine: Engine, vid: str) -> object:
     """judge_* 5칸만 SELECT."""
     with engine.begin() as conn:

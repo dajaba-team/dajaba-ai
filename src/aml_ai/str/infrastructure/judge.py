@@ -116,18 +116,25 @@ class Judge:
     ) -> JudgeResult:
         results: list[LlmResult] = []
         for attempt in range(JUDGE_SCHEMA_RETRY + 1):
-            results.append(
-                self._llm.complete_json(
+            calls = attempt + 1  # SCRUM-144 — 보낸 호출 수(실패 포함)
+            try:
+                res = self._llm.complete_json(
                     system=self._system,
                     user=user,
                     model=model,
                     max_tokens=JUDGE_MAX_TOKENS,
                     tag=self.prompt_version,
                 )
-            )
-            meta = self._meta(results)
+            except Exception as exc:
+                # SCRUM-144 — 2차+ complete_json 이 예외로 끝나면 앞선 1차 토큰을 보존.
+                # 첫 호출 자체 예외면 results 비어 judge_meta 안 붙음(지금 동작 그대로).
+                if results:
+                    exc.judge_meta = self._meta(results, calls=calls)
+                raise
+            results.append(res)
+            meta = self._meta(results, calls=calls)
             try:
-                checks, sections = self._parse(results[-1].text, request_sections)
+                checks, sections = self._parse(res.text, request_sections)
             except LlmInvalidOutput as exc:
                 log.warning("judge_invalid_output", extra={"reason": type(exc).__name__})
                 exc.judge_meta = meta
@@ -139,14 +146,18 @@ class Judge:
                 return JudgeResult(checks=checks, meta=meta, sections=sections)
         raise AssertionError("judge retry loop exhausted")
 
-    def _meta(self, results: list[LlmResult]) -> JudgeMeta:
+    def _meta(self, results: list[LlmResult], *, calls: int) -> JudgeMeta:
+        """SCRUM-144 — `attempts` = 보낸 호출 수(`calls`, 실패 포함).
+
+        `tokens·latency` 는 `results` 합 — 결과 받은 호출만. 실패 호출 지연은 안 셈(`09`).
+        """
         return JudgeMeta(
             llm_model=results[-1].model,
             prompt_version=self.prompt_version,
             tokens_in=sum(r.tokens_in for r in results),
             tokens_out=sum(r.tokens_out for r in results),
             latency_ms=sum(r.latency_ms for r in results),
-            attempts=len(results),
+            attempts=calls,
         )
 
     def _parse(self, text: str, request_sections: list[str]) -> tuple[list[LlmCheck], list[NarrativeRefLlm]]:
