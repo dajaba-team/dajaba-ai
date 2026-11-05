@@ -59,17 +59,27 @@ class FakeJudge:
     checks: list[LlmCheck] | None = None
     result: JudgeResult | None = None
     exc: BaseException | None = None
-    prompt_version: str = "judge_v1"
+    prompt_version: str = "judge_v2"
     calls: int = 0
+    received_fact_keys: list[str] | None = None
 
-    def run(self, facts_masked: dict, narrative: list, *, deadline: float | None = None) -> JudgeResult:
+    def run(
+        self,
+        facts_masked: dict,
+        narrative: list,
+        *,
+        deadline: float | None = None,
+        fact_keys: list[str] | None = None,
+    ) -> JudgeResult:
+        """SCRUM-61 — `fact_keys` 인자 받음. v2 Judge 실제 시그니처와 맞춤."""
         self.calls += 1
+        self.received_fact_keys = fact_keys
         if self.exc is not None:
             raise self.exc
         if self.result is not None:
             return self.result
         assert self.checks is not None
-        return JudgeResult(checks=self.checks, meta=judge_pass_meta())
+        return JudgeResult(checks=self.checks, meta=judge_pass_meta(), sections=[])
 
 
 def judge_pass_meta(*, attempts: int = 1, tokens_in: int = 1800, tokens_out: int = 600) -> JudgeMeta:

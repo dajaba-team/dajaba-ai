@@ -34,7 +34,7 @@ MODEL_SIGNALS_TOP = 3  # reasons 상위 N개의 이름만 model_signals 로
 # ---- 프롬프트 (docs/str/05)
 # NARRATIVE_PROMPT 상수는 폐기 (SCRUM-47) — 활성 서술 버전은 shared/config.narrative_prompt 설정으로.
 # tools.record 와 draft_service.build() 는 get_settings().narrative_prompt 를 쓴다.
-JUDGE_PROMPT = "judge_v1"
+JUDGE_PROMPT = "judge_v2"  # SCRUM-61 — 11/5 활성. judge_v1 은 기록용.
 SUMMARY_PROMPT = "summary_v1"
 LLM_TEMPERATURE = 0.0
 NARRATIVE_MAX_TOKENS = 2000
@@ -44,16 +44,15 @@ FEWSHOT_SAME_TYPOLOGY = 1
 FEWSHOT_OTHER_TYPOLOGY = 2
 SCHEMA_RETRY = 1  # 스키마 실패 시 재생성 횟수 (재시도가 아니라 생성 절차의 일부)
 
-# ---- 동결 (docs/str/05 "버전·동결 규칙", docs/shared/04)
-# 녹화를 처음 커밋할 때 그 커밋에서 파일 sha256 을 여기에 박는다. 기동 때 파일 해시가
-# 이 값과 다르면 실패 — DB 없이도 걸림(SCRUM-15 10/29).
+# ---- 동결 (docs/str/05, shared/04) — 녹화 커밋에 파일 sha256 박음. 기동 때 해시 다르면 실패(SCRUM-15 10/29).
 FROZEN_PROMPTS: dict[str, str] = {
     "narrative_v1": "d2cbb854386dd3c01dc0d71556878e1e1287cab540839c56ae7dc51281155424",
     "narrative_v2": "66210c3d25e59b136f4ec2359ad2f09c43501435322874f0048192795653aa9f",
+    "judge_v2": "9879f7d2eb7f7a82cffe6bdddacb880362c06ad682d0aca318da03b1af62862d",
 }
 
 # ---- 검증 (docs/str/06)
-VERIFIER_VERSION = "verify-2026.11"  # 코드 검증 로직이 바뀌면 올린다
+VERIFIER_VERSION = "verify-2026.11.1"  # SCRUM-61 — judge_v2 활성·narrative_refs 재계산 추가
 JUDGE_PASS_SCORE = 4  # W4 오류 주입 7~12 표 뒤 조정
 # AMOUNT_MATCH (SCRUM-58) — 06 "AMOUNT_MATCH" 줄. ±10자 창 폐기, "바로 붙은 덩이" 기준.
 # 코드 → 표기 목록. 긴 표기부터 매칭하므로 코드·IBM 원문·한국어 전부 수록. 맨 "달러"→USD (★A 2).

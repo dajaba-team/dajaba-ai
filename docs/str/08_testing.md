@@ -16,6 +16,8 @@
 | DB | Alembic + repository 저장·조회, **`draft_id` 선점 5가지**(`shared/03`): ① 같은 요청 동시 진입(두 스레드 → 하나 409) ② FAILED 뒤 같은 요청(새 `generation_id`, 옛 행 그대로) ③ 내용이 다른 두 요청 동시 시작 — 먼저 잡은 쪽이 성공하든 실패하든 다른 쪽은 400(결과를 받아 가지도, 새로 생성하지도 않음) ④ `STALE_PROCESSING_S` 지난 PROCESSING(FAILED로 닫고 재생성) ⑤ STALE로 닫힌 뒤 늦게 끝난 옛 작업의 finish → 0행, 결과 버림. **verify 저장 2가지(SCRUM-57)**: ① `VerificationRepository.save` 왕복 — `narrative_sha256`(검증한 본문의 해시, 수정본일 수 있음·백엔드 `ApprovalGate` 가 비교하는 값, NOT NULL)·`request_id`(`shared.logging.current_request_id()` 값, `"-"` 는 항상 null 로 저장 — 요청 밖과 명시적 `-` 를 저장 시점에 구분하지 않음, nullable) 포함 모든 칸이 raw SELECT 로 그대로 — `request_id=None` 케이스 포함(nullable 확인) ② 없는 `generation_id` 로 `VerifyService.verify()` → `DraftNotFound`·`verification_runs` 행 0. **③ (SCRUM-91) `AI_LLM_MOCK=true` 로 TestClient `POST /v1/str/verify` → 200·`status=VERIFY_UNAVAILABLE`·`passed=false`·`verification_runs` 1행** — 녹화 폴더가 비어 `LlmUnavailable` 이 나와도 verify 가 끝까지 돌고 저장이 남는 걸 API 레벨로 확인(develop 에서는 500). CODE_FAILED·PASSED 서비스 경로는 `test_verify_service.py`(가짜 저장소)에서, 녹화로 끝까지 도는 건 **SCRUM-61** | `-m db`, CI |
 | 녹화 | `recorded/{prompt_version}/*.json` — 실제 LLM 응답을 저장해 `AI_LLM_MOCK=true`에서 재생. v1·v2 각 폴더(SCRUM-47) | 백엔드 로컬 연동, CI |
 | 통합 (SCRUM-20) | `tests/str/test_draft_integration.py` — TestClient `POST /v1/str/drafts` 를 녹화 모드로 끝까지(HTTP → DraftService → 선점 → ops 읽기 → facts → 마스킹 → few-shot → `RecordedLlmClient` → attach_evidence → 펜싱 저장 → 응답). `NARRATIVE_PROMPT=narrative_v1`·`narrative_v2` 둘 다 파라미터 | `-m db`, CI |
+| verify 녹화 통합 (SCRUM-61) | `tests/str/test_verify_integration_judge.py` — 6개(v1 = LLM_FAILED·CODE_FAILED·VERIFY_UNAVAILABLE / v2 = PASSED·CODE_FAILED·VERIFY_UNAVAILABLE, 후자 둘은 parametrize). **v2 PASSED**(녹화 본문 + `judge_v2` 녹화 `bd573dd9…` → `status=PASSED`·5 checks 전부 ≥4·`narrative_refs` 7 섹션·`evidence_ids ⊆ evidence_transaction_ids`·`verification_runs.judge_*` 채움·`verifier_version` 끝 `+judge_v2`) · **v1 LLM_FAILED**(녹화 본문 + `judge_v2` 녹화 `6eefc9f4…` → `FIVE_W_ONE_H_COMPLETE=3`·`status=LLM_FAILED`·`narrative_refs` 6 섹션 값 있음·`judge_meta` 채움 — 평가자 기준표 "섹션 반복" 판정이 v1 생성 프롬프트 한계라 자연 LLM_FAILED 케이스로 사용) · **CODE_FAILED**(v1·v2 각각 — 첫 섹션 `evidence_ids`를 scope 밖으로 → judge 안 부름·`narrative_refs=None`·`judge_meta=None`) · **VERIFY_UNAVAILABLE**(v1·v2 각각 — 마지막 섹션 text 에서 **숫자 없는 단어 하나만** 다른 글자로 → 코드(금액·날짜·건수·계좌) 통과·judge 녹화 키 miss·`narrative_refs=None`·`judge_meta=None`) | `-m db`, CI |
+| narrative_refs 단위 (SCRUM-61) | `tests/str/test_narrative_refs.py` — 목록 밖 키 cites 에서 빠짐·`customer.*`·`subject` 는 cites 남고 evidence_ids 빔·섹션 순서=요청 순서·빈 cites → 빈 evidence_ids·CODE_FAILED·VERIFY_UNAVAILABLE → null·LLM_FAILED → 값 있음·sections 불일치 → `LlmInvalidOutput` → 재시도 1회 → VERIFY_UNAVAILABLE | CI |
 
 ## 오류 주입 — 26개
 
@@ -123,11 +125,53 @@ DATE_MATCH 가 **잡아야** 하는 문장(MISMATCH · UNPARSED):
 앞쪽 기호 `₩` 쌍짓기 — facts 에 KRW 없어 **MISMATCH**:
 - `₩1,000 입금`
 
+## 오류 주입 1차 결과표 (SCRUM-61, 2026-11-05)
+
+결정적 항목 26개 중 **활성 22 · skip 4**. 활성은 `tests/str/test_injection*.py` 에서 직접 `run_code_checks`/검사 함수를 호출한다(마커 없음 — 전체 `pytest` 에서 통과). `-m deterministic` 마커는 **skip 4개 전용**이라 실제 실행 결과는 다음 한 줄.
+
+```
+$ uv run --frozen --extra dev pytest -m deterministic
+4 skipped, 551 deselected
+```
+
+LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127) 수동.
+
+| # | 주입 (08 본문 축약) | 잡아야 하는 것 | 상태 | 담당 |
+|---|---|---|---|---|
+| 1 | 금액 값 틀림 (`32,000,000 US Dollar`) | `AMOUNT_MATCH` MISMATCH | 활성 | SCRUM-58 |
+| 2 | 한글 단위 `3억 2천만 US Dollar` (정답) | 통과(거짓 양성 검사) | 활성 | SCRUM-58 |
+| 3 | 날짜를 기간 밖 `9월 5일` | `DATE_MATCH` MISMATCH | 활성 | SCRUM-59 |
+| 4 | 상대 수 `13개 계좌` | `COUNT_MATCH` MISMATCH | 활성 | SCRUM-60 |
+| 5 | `cites` 밖 키 또는 `evidence_ids` 범위 밖 | `EVIDENCE_IN_SCOPE` OUT_OF_SCOPE | 활성 | SCRUM-60 |
+| 6 | 모든 섹션 `cites` 빈 배열 | `EVIDENCE_IN_SCOPE` MISSING | 활성 | SCRUM-60 |
+| 13 | REFERENCES 빈 배열로 생성 (RAG 장애) | 초안 정상 생성·코드 5 통과 | skip | RAG(SCRUM-125) |
+| 15 | 통화만 틀림 `320,000,000 EUR` | `AMOUNT_MATCH` MISMATCH | 활성 | SCRUM-58 |
+| 16 | WHO 개설일 `2021년 3월 14일` (정답) | 통과 | 활성 | SCRUM-59 |
+| 17 | 금액 `약 3억`·`삼억 이천만 US Dollar` | `AMOUNT_MATCH` UNPARSED | 활성 | SCRUM-58 |
+| 18 | 본문에 상대 계좌 식별자 `****A1F2` | `ACCOUNT_ID_MATCH` MISMATCH | 활성 | SCRUM-58 |
+| 19 | 개설일을 거래 자리 `2021년 3월 14일에 47건` | `DATE_MATCH` MISMATCH | 활성 | SCRUM-59 |
+| 20 | 상대 수 한글 수사 `서른한 개 계좌` | `COUNT_MATCH` UNPARSED | 활성 | SCRUM-60 |
+| 21 | 한 문장 두 날짜(가까운 쪽) | 통과 | 활성 | SCRUM-59 |
+| 22 | 범위 표현 + 개설 단어 | `DATE_MATCH` UNPARSED | 활성 | SCRUM-59 |
+| 24 | VERIFIED 고리 "3개 계좌·순환 2개" (정답) | 통과 | 활성 | SCRUM-60 |
+| 25 | VERIFIED 같은 facts "4개 계좌·순환 3개" | `COUNT_MATCH` MISMATCH | 활성 | SCRUM-60 |
+| 26 | UNVERIFIED 경로에 "순환 경로 2개" | `COUNT_MATCH` MISMATCH | 활성 | SCRUM-60 |
+| 27 | ACH 47 facts 에 "ACH 50건" | `COUNT_MATCH` MISMATCH (⑥ 결제 방식별) | 활성 | SCRUM-60 |
+| 28 | 자행 0 facts 에 "자행 5 계좌" | `COUNT_MATCH` MISMATCH (⑦ 자행/타행) | 활성 | SCRUM-60 |
+| 29 | `amount_range` 안 건당 `2,000,000 USD` (정답) | 통과(total 외 min·max 와 대조) | 활성 | SCRUM-58 |
+| 30 | v2 OPINION 섹션 text `"자료 없음"` | `OPINION_PRESENT` MISSING | 활성 | SCRUM-60 |
+| 31 | v2 OPINION 정상 결론 문장 | `OPINION_PRESENT` match | 활성 | SCRUM-60 |
+| 32 | v2 7개 중 하나를 v1 이름으로 섞음 | 생성 스키마 거부 + 해시 ValueError | skip | 생성 스키마(SCRUM-125) |
+| 33 | v1 6섹션 그대로(기존 녹화) | v1 집합 보존, `OPINION_PRESENT` 안 돎 | skip | SCRUM-20 녹화 재생이 커버 |
+| 34 | v2 7개 중 하나 섹션 비움 | 생성 스키마 거부(공백만) + 평가자 1점 | skip | 스키마(SCRUM-125) · 평가자(SCRUM-127) |
+
 ## 녹화 (`recorded/`)
 
 `AI_LLM_MOCK=true`면 `shared/infrastructure/llm_client.RecordedLlmClient`가 호출 대신 `recorded/{prompt_version}/{key}.json`을 읽는다. **녹화 키**는 `shared/infrastructure/llm_client.recording_key(system, user)` = `sha256(stable_json({"s":system,"u":user}))[:16]` — 함수 하나, `record.py`와 `RecordedLlmClient`가 같은 걸 쓴다(이어 붙이기는 경계가 모호). 없으면 에러(조용히 지어내지 않음). 녹화 갱신은 `AI_LLM_MOCK=false NARRATIVE_PROMPT=narrative_vN uv run python -m tools.record --case fan_in`(활성 버전으로 조립·저장). 커밋 = 템플릿 동결 시점(`FROZEN_PROMPTS`). 백엔드가 로컬에서 AI를 붙여 볼 때 LLM 키 없이 돈다.
 
 **fixture 변경 ↔ 녹화 키** (SCRUM-20): `fixtures/facts_fan_in.json` 또는 프롬프트 파일이 바뀌면 녹화 키가 깨짐 — fixture 갱신한 커밋에서 **v1·v2 모두 재녹화**해야 `test_recorded_replay` 통과. 통합 테스트는 fixture 를 "서비스가 계산한 facts" 와 대조해 녹화 키 깨지기 전에 먼저 잡는다.
+
+**평가자 녹화** (SCRUM-61): `recorded/judge_v2/` 폴더. 명령 `AI_LLM_MOCK=false uv run --frozen --extra dev python -m tools.record --judge --from-recorded <narrative_v1|v2>/<key>.json` — narrative 녹화 파일에서 facts·본문을 꺼내 평가자 1회 호출. 재녹화 조건: `prompts/judge_v2.md`·`render_judge_user`·`masking.mask_for_llm`·`fact_keys` 가 바뀌면. 자세한 건 `tests/str/recorded/README.md`.
 
 ## 통합 (SCRUM-20)
 

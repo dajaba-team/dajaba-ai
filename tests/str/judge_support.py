@@ -43,7 +43,9 @@ class StubLlm:
 
     def complete_json(self, *, system, user, model, max_tokens, tag) -> LlmResult:
         idx = len(self.calls)
-        self.calls.append({"tag": tag, "model": model, "max_tokens": max_tokens})
+        self.calls.append(
+            {"tag": tag, "model": model, "max_tokens": max_tokens, "system": system, "user": user}
+        )
         if self.call_specs is not None:
             spec = self.call_specs[idx]
             if spec.exc is not None:
@@ -61,9 +63,18 @@ class StubLlm:
         )
 
 
-def make_judge(stub: StubLlm) -> Judge:
+def make_judge(
+    stub: StubLlm,
+    *,
+    prompt_name: str = "judge_v1",
+    request_sections: list[str] | None = None,
+) -> Judge:
+    """SCRUM-91 회귀 테스트 기본값은 v1 — v2 는 호출 측에서 `prompt_name="judge_v2"` 명시(SCRUM-61)."""
     get_settings.cache_clear()
-    return Judge(stub, get_settings())
+    kwargs: dict = {"prompt_name": prompt_name}
+    if request_sections is not None:
+        kwargs["request_sections"] = request_sections
+    return Judge(stub, get_settings(), **kwargs)
 
 
 def generous_deadline() -> float:

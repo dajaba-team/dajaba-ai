@@ -9,12 +9,13 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 from aml_ai.shared.schemas.str.narrative import NarrativeOutV1, NarrativeOutV2
-from aml_ai.shared.schemas.str.verify import JudgeOut
+from aml_ai.shared.schemas.str.verify import JudgeOut, JudgeOutV2
 
 _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "narrative_v1": NarrativeOutV1,
     "narrative_v2": NarrativeOutV2,
     "judge_v1": JudgeOut,
+    "judge_v2": JudgeOutV2,
 }
 
 

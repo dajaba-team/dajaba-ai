@@ -9,6 +9,7 @@ from pydantic import Field, field_validator, model_validator
 from aml_ai.shared.schemas.common import Sha256Hex, StrictModel, SystemTimestamp
 from aml_ai.shared.schemas.str.narrative import (
     NarrativeRef,
+    NarrativeRefLlm,
     NarrativeSectionBase,
     Section,
     SectionV1,
@@ -86,6 +87,30 @@ class JudgeOut(StrictModel):
     def _each_check_once(cls, v: list[LlmCheck]) -> list[LlmCheck]:
         if sorted(c.check for c in v) != sorted(LlmCheckName):
             raise ValueError("each of the 5 checks exactly once")
+        return v
+
+
+class JudgeOutV2(StrictModel):
+    """judge_v2 출력 — v1 5개 루브릭 + 섹션별 cites (SCRUM-61).
+
+    `sections` 집합이 요청 섹션 집합과 같지 않으면 `verify_service` 가 `LlmInvalidOutput` 로 거른다.
+    스키마는 "각 섹션 1회, 집합은 v1/v2 중 하나"만 본다 — 요청과의 일치는 호출 측 책임.
+    """
+
+    checks: list[LlmCheck] = Field(min_length=len(LlmCheckName), max_length=len(LlmCheckName))
+    sections: list[NarrativeRefLlm] = Field(min_length=len(SectionV1), max_length=len(SectionV2))
+
+    @field_validator("checks")
+    @classmethod
+    def _each_check_once(cls, v: list[LlmCheck]) -> list[LlmCheck]:
+        if sorted(c.check for c in v) != sorted(LlmCheckName):
+            raise ValueError("each of the 5 checks exactly once")
+        return v
+
+    @field_validator("sections")
+    @classmethod
+    def _each_section_once(cls, v: list[NarrativeRefLlm]) -> list[NarrativeRefLlm]:
+        _each_section_once([s.section for s in v])
         return v
 
 

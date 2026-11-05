@@ -26,6 +26,6 @@
   "llm_checks": null,
   "narrative_refs": null,
   "judge_meta": null,
-  "verifier_version": "verify-2026.11+judge_v1",
+  "verifier_version": "verify-2026.11.1+judge_v2",
   "produced_at": "2026-11-05T14:02:14Z"
 }
