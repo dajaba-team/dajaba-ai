@@ -15,7 +15,7 @@ import time
 
 import pytest
 
-from aml_ai.shared.errors import LlmInvalidOutput, LlmUnavailable
+from aml_ai.shared.errors import BudgetExceeded, LlmInvalidOutput, LlmUnavailable
 from aml_ai.str.domain.constants import JUDGE_MAX_TOKENS
 from tests.str.judge_support import (
     StubCall,
@@ -119,6 +119,61 @@ def test_judge_no_budget_no_retry() -> None:
     with pytest.raises(LlmInvalidOutput):
         make_judge(stub).run({"facts": "masked"}, [], deadline=deadline)
     assert len(stub.calls) == 1
+
+
+# ───────── SCRUM-144 — 2차 complete_json 예외 시 1차 토큰 보존 ─────────
+
+
+@pytest.mark.parametrize(
+    "exc",
+    [LlmUnavailable("timeout"), BudgetExceeded("quota"), LlmInvalidOutput("http 4xx")],
+    ids=["LlmUnavailable", "BudgetExceeded", "LlmInvalidOutput_http"],
+)
+def test_judge_2nd_call_exception_preserves_1st_meta(exc) -> None:
+    """SCRUM-144 — 2차 complete_json 이 예외로 끝나면 1차 토큰이 exc.judge_meta 로 올라온다."""
+    stub = StubLlm(
+        call_specs=[
+            StubCall(text="not-json", tokens_in=1200, tokens_out=300, latency_ms=3000),
+            StubCall(text="unused", exc=exc),
+        ]
+    )
+    with pytest.raises(type(exc)) as excinfo:
+        make_judge(stub).run({"facts": "masked"}, [], deadline=generous_deadline())
+    assert len(stub.calls) == 2
+    meta = getattr(excinfo.value, "judge_meta", None)
+    assert meta is not None and meta.attempts == 2
+    assert meta.tokens_in == 1200 and meta.tokens_out == 300 and meta.latency_ms == 3000
+
+
+def test_judge_1st_call_exception_no_meta() -> None:
+    """회귀 — 첫 호출 자체가 예외면 results 비어 judge_meta 안 붙음(지금 동작 그대로)."""
+    stub = StubLlm(
+        call_specs=[
+            StubCall(text="unused", exc=LlmUnavailable("llm unavailable")),
+            StubCall(text=judge_payload([4, 5, 4, 4, 5])),
+        ]
+    )
+    with pytest.raises(LlmUnavailable) as excinfo:
+        make_judge(stub).run({"facts": "masked"}, [], deadline=generous_deadline())
+    assert len(stub.calls) == 1
+    assert getattr(excinfo.value, "judge_meta", None) is None
+
+
+def test_judge_no_budget_attempts_stays_one() -> None:
+    """회귀 (SCRUM-144) — 1차 스키마 실패 + 예산 부족으로 2차 안 부르고 raise → attempts=1 그대로."""
+    stub = StubLlm(
+        call_specs=[
+            StubCall(text="not-json", tokens_in=1200, tokens_out=300, latency_ms=3000),
+            StubCall(text=judge_payload([4, 5, 4, 4, 5])),
+        ]
+    )
+    deadline = time.monotonic() - 1.0
+    with pytest.raises(LlmInvalidOutput) as excinfo:
+        make_judge(stub).run({"facts": "masked"}, [], deadline=deadline)
+    assert len(stub.calls) == 1
+    meta = getattr(excinfo.value, "judge_meta", None)
+    assert meta is not None
+    assert meta.attempts == 1, "예산 부족으로 2차 안 보냈으니 attempts=1"
 
 
 def test_judge_fail_log_safe(caplog: pytest.LogCaptureFixture) -> None:

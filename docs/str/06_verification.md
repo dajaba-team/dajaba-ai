@@ -38,7 +38,7 @@
 
 ### 1회 재시도 (SCRUM-92, 11/4)
 
-평가자 호출이 **스키마 실패**(`LlmInvalidOutput`)면 남은 예산 안에서 **1회만** 다시 부른다. **그 외 모든 예외**(연결·타임아웃 `LlmUnavailable`·일 토큰 한도 등)는 재시도하지 않고 바로 올라와 `VERIFY_UNAVAILABLE` 로 끝난다 — 35초 타임아웃을 한 번 더 기다리면 백엔드 공유 90초를 넘기고, 조사역이 "다시 검증" 을 누르는 흐름이 이미 있음(안건 9). 남은 예산이 `LLM_TIMEOUT_S`(35초) 미만이면 재시도하지 않고 바로 `LlmUnavailable("verify budget exceeded")` 로 올려 `VERIFY_UNAVAILABLE` 로 끝난다 — draft 의 예산 초과 처리와 같은 모양(`str/03` "예산 초과는 LlmUnavailable"). 예산은 verify 요청 시작에 `verify_service` 가 정하고(`str/03` 시간 예산 표) `Judge` 는 남은 시간만 본다 — `domain/` 은 시계를 만지지 않는다(`01`). 두 번 다 스키마 실패면 호출은 **2번**(3번 아님), `LlmInvalidOutput` 그대로 올라와 `VERIFY_UNAVAILABLE`. 실패한 1번째 시도의 토큰·지연도 합산해 저장한다(비용 추적 NFR-APR-03).
+평가자 호출이 **스키마 실패**(`LlmInvalidOutput`)면 남은 예산 안에서 **1회만** 다시 부른다. **그 외 모든 예외**(연결·타임아웃 `LlmUnavailable`·일 토큰 한도 등)는 재시도하지 않고 바로 올라와 `VERIFY_UNAVAILABLE` 로 끝난다 — 35초 타임아웃을 한 번 더 기다리면 백엔드 공유 90초를 넘기고, 조사역이 "다시 검증" 을 누르는 흐름이 이미 있음(안건 9). 남은 예산이 `LLM_TIMEOUT_S`(35초) 미만이면 재시도하지 않고 바로 `LlmUnavailable("verify budget exceeded")` 로 올려 `VERIFY_UNAVAILABLE` 로 끝난다 — draft 의 예산 초과 처리와 같은 모양(`str/03` "예산 초과는 LlmUnavailable"). 예산은 verify 요청 시작에 `verify_service` 가 정하고(`str/03` 시간 예산 표) `Judge` 는 남은 시간만 본다 — `domain/` 은 시계를 만지지 않는다(`01`). 두 번 다 스키마 실패면 호출은 **2번**(3번 아님), `LlmInvalidOutput` 그대로 올라와 `VERIFY_UNAVAILABLE`. 실패한 1번째 시도의 토큰·지연도 합산해 저장한다(비용 추적 NFR-APR-03). **SCRUM-144 (2026-11-05)**: 2차가 스키마가 아닌 다른 예외(연결 `LlmUnavailable`·HTTP 4xx `LlmInvalidOutput`·`BudgetExceeded`·예상 못 한 예외) 로 끝나도 같은 규칙 — 1차 결과가 있으면 그 값으로 `judge_meta` 를 붙여 던지고, `verify_service` 가 DB 에 남긴다. `judge_attempts` 는 **보낸 호출 수**(2), `judge_latency_ms` 는 결과 받은 호출만(실패 호출 지연은 `judge_unavailable` 로그로만).
 
 ### 모델·토큰 기록 (SCRUM-92, 11/4)
 

@@ -138,3 +138,39 @@ def test_verify_budget_exceeded_becomes_unavailable(judge_log: list[LogCall]) ->
     # 예산 초과도 LlmUnavailable 이므로 reason 은 AiError.code
     call = [c for c in judge_log if c.msg == "judge_unavailable"][0]
     assert call.extra == {"reason": "LLM_UNAVAILABLE"}
+
+
+# ───────── SCRUM-144 — 실제 Judge + StubLlm 서비스 단위 ─────────
+
+
+def test_verify_2nd_judge_call_exception_persists_1st_meta_to_db() -> None:
+    """SCRUM-144 — 실제 `Judge` + `StubLlm` 로 "1차 스키마 실패 → 2차 complete_json 예외" 재현.
+
+    서비스 응답은 `VERIFY_UNAVAILABLE`·`judge_meta=None` (SCRUM-92 규칙), DB 저장에는 1차 토큰이 남는다.
+    """
+    from aml_ai.shared.schemas.str import SectionV1
+    from tests.str.judge_support import StubCall, StubLlm, make_judge
+
+    narrative = narrative_ok()
+    draft = stored_draft(facts_fan_in(), narrative)
+    stub = StubLlm(
+        call_specs=[
+            StubCall(text="not-json", tokens_in=1200, tokens_out=300, latency_ms=3000),
+            StubCall(text="unused", exc=LlmUnavailable("timeout")),
+        ]
+    )
+    judge = make_judge(stub, prompt_name="judge_v2", request_sections=[s.value for s in SectionV1])
+    # build_service helper 재사용 — judge 만 실제로 교체
+    svc, verifications = build_service(judge=judge, draft=draft)
+
+    resp = svc.verify(verify_request(narrative))
+
+    assert resp.status is VerifyStatus.VERIFY_UNAVAILABLE
+    assert resp.judge_meta is None, "응답 judge_meta 는 VERIFY_UNAVAILABLE 이면 null (SCRUM-92)"
+    saved_meta = verifications.saved[0]["judge_meta"]
+    assert saved_meta is not None, "DB 저장에는 1차 토큰이 남아야 (SCRUM-144)"
+    assert saved_meta.attempts == 2, "보낸 호출 수"
+    assert saved_meta.tokens_in == 1200
+    assert saved_meta.tokens_out == 300
+    assert saved_meta.latency_ms == 3000
+    assert len(stub.calls) == 2
