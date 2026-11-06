@@ -11,6 +11,9 @@
 | `draft_response.json` | `str.DraftResponse` |
 | `verify_request.json` | `str.VerifyRequest` |
 | `verify_response.json` | `str.VerifyResponse` |
+| `verify_response_passed.json` | `str.VerifyResponse` (PASSED 예시, SCRUM-61) |
+| `summary_request.json` | `str.SummaryRequest` (SCRUM-129) |
+| `summary_response.json` | `str.SummaryResponse` (SCRUM-129) |
 | `error.json` | `errors.ErrorBody` |
 
 규약 v0.2 (10/27·10/28) 반영 — SCRUM-12. 바꿀 때는 여기와 schemas 를 같은 PR 에서.

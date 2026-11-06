@@ -2,9 +2,9 @@
 
 생성(narrative): `uv run python -m tools.record --case fan_in`
 평가자(judge, SCRUM-61): `uv run python -m tools.record --judge --case fan_in --from-recorded narrative_v1/<key>.json`
+요약(summary, SCRUM-129): `uv run python -m tools.record --summary --case fan_in`
 - `.env` 의 LLM_API_KEY · LLM_MODEL_GENERATE·LLM_MODEL_JUDGE 필요(AI_LLM_MOCK 은 무시 — 실제 호출)
-- 입력: 생성 — `fixtures/facts_<case>.json`. 평가자 — 생성 녹화(사람이 고른 "정상 본문") + 같은 facts.
-- 저장 전: 해당 출력 스키마 검증 + v2 는 sections 집합이 활성 섹션 집합과 같은지 + cites ⊆ fact_keys.
+- 저장 전: 해당 출력 스키마 검증(요약은 1~6줄·한 줄 ≤80자·숫자 신호 이름 통과 정책 그대로).
 - 저장 내용: {"text": "<LLM 응답 JSON 문자열>", "model": "<모델 ID>"} — API 키·헤더·토큰 수 안 들어감
 
 녹화 파일 커밋 = 템플릿 동결 시점(docs/str/05). `FROZEN_PROMPTS` 에 파일 sha256 을 같은 커밋에 박는다.
@@ -45,6 +45,10 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     if args.judge:
         return _record_judge(settings, facts, args.from_recorded)
+    if args.summary:
+        from tools.record_summary import record_summary
+
+        return record_summary(settings, facts, save=_save, print_ok=_print_ok)
     return _record_narrative(settings, facts)
 
 
@@ -181,6 +185,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="LLM 녹화 (docs/str/08)")
     p.add_argument("--case", required=True, help="tests/str/fixtures/facts_<case>.json")
     p.add_argument("--judge", action="store_true", help="평가자 녹화 (SCRUM-61)")
+    p.add_argument("--summary", action="store_true", help="요약 녹화 (SCRUM-129)")
     p.add_argument("--from-recorded", help="평가자 녹화 입력 — tests/str/recorded/<prompt>/<key>.json")
     return p.parse_args(argv)
 

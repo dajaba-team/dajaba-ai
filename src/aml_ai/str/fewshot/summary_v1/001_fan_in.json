@@ -1,0 +1,61 @@
+{
+  "example_id": 1,
+  "typology": "FAN_IN",
+  "facts": {
+    "reporting_institution": "Example Bank #0002",
+    "subject": {
+      "entity_id": "E-FAN-IN-02",
+      "entity_name": "Wholesale Co. #20002",
+      "entity_type": "CORPORATION",
+      "account_key": "020_WH00000B2"
+    },
+    "period": {"start": "2022-10-01T08:00:00", "end": "2022-10-01T19:00:00"},
+    "inbound": {
+      "count": 5,
+      "by_currency": [
+        {"currency": "EUR", "total": "85400.00", "count": 5, "transaction_ids": [2001, 2002, 2003, 2004, 2005]}
+      ],
+      "transaction_ids": [2001, 2002, 2003, 2004, 2005]
+    },
+    "outbound": {"count": 0, "by_currency": [], "transaction_ids": []},
+    "internal": {"count": 0, "transaction_ids": []},
+    "indirect": {"count": 0, "transaction_ids": []},
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {"count": 5, "transaction_ids": [2001, 2002, 2003, 2004, 2005]},
+    "counterparty_banks": {"same_bank_accounts": 2, "other_bank_accounts": 3},
+    "payment_formats": ["Wire"],
+    "payment_format_counts": [{"format": "Wire", "count": 5}],
+    "amount_range": [{"currency": "EUR", "min": "15000.00", "max": "22000.00"}],
+    "typology": "FAN_IN",
+    "typology_source": "RULE",
+    "customer": {
+      "industry": "WHOLESALE",
+      "risk_level": "MEDIUM",
+      "account_purpose": "BUSINESS_SETTLEMENT",
+      "onboarded_at": "2020-01-10",
+      "country_code": "DE"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+      {
+        "name": "cross_border_amount_24h",
+        "value": 85400.0,
+        "unit": "amount",
+        "window_start": "2022-10-01T00:00:00",
+        "window_end": "2022-10-02T00:00:00",
+        "basis": "sum_inbound_amount_eur",
+        "baseline": null
+      }
+    ],
+    "model_signals": ["cross_border_amount_24h"],
+    "unmapped_currencies": []
+  },
+  "summary_lines": [
+    "2022-10-01 보고 대상 계좌(020_****00B2)로 5개 계좌에서 Wire 입금 5건이 들어옴.",
+    "같은 날 입금 합계는 85,400.00 EUR이며, 출금은 없음.",
+    "보고 대상자는 Wholesale Co. #20002(업종 WHOLESALE·위험등급 MEDIUM)이며, 과거 경보는 없음."
+  ],
+  "model_focus": "모델은 cross_border_amount_24h 신호를 가장 크게 봄"
+}

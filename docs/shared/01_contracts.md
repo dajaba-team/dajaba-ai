@@ -84,6 +84,13 @@
 | 응답 `narrative_refs: list[{section, cites, evidence_ids}] \| None` | **추가 (안건 23 세부 (a), 10/28)** — 검증한 본문 기준으로 다시 계산한 섹션별 근거. 평가자(`judge_v2`)가 섹션별 `cites`를 내고 코드가 `attach_evidence`로 `evidence_ids`를 만든다. 평가자를 안 돌린 경우(`CODE_FAILED`·`VERIFY_UNAVAILABLE`)는 `null` → 백엔드는 기존 값 유지. 백엔드(채영)는 값이 오면 수정본 저장에 반영. 본문 해시는 section·text만 보므로 영향 없음 |
 | 응답 `judge_meta: JudgeMeta \| None` | **추가 (SCRUM-92, 11/4)** — 평가자 호출 메타. `JudgeMeta { llm_model, prompt_version, tokens_in, tokens_out, latency_ms, attempts }`. 이름은 초안 응답 `GenerationMeta` 와 맞춤. `tokens_in`·`tokens_out`·`latency_ms` 는 시도 전체 합(실패한 1번째도 포함), `llm_model` 은 마지막 값, `attempts` 는 1 또는 2. **PASSED·LLM_FAILED 만 채움**, `CODE_FAILED`·`VERIFY_UNAVAILABLE` 은 `null`(`llm_checks` 와 같은 규칙) — 단 `VERIFY_UNAVAILABLE` 로 끝나도 DB `verification_runs.judge_*` 에는 실패 토큰까지 포함해 남긴다(응답은 null, 비용 추적 NFR-APR-03). 백엔드 `AiDtos.VerifyResponse.raw(JsonNode)` 로 들어가 `FAIL_ON_UNKNOWN_PROPERTIES` 영향 없음 |
 
+### 요약 요청·응답 (규약 §6.1, SCRUM-129)
+
+| 필드 | 메모 | 코드 자리 |
+|---|---|---|
+| 요청 `reasons`·`prior_alert_count` 필수 | **SCRUM-129 — 규약 §6.1 11/6 반영(v0.4 추가 20번)**. 요약도 `model_signals`·`observations` 를 facts 에 채우려면 초안과 같은 입력이 필요. `reasons: list[Reason]`(점수 응답 그대로)·`prior_alert_count: int ge=0` **필수**. `reporting_institution: str \| None = None` 선택(없으면 `subject.bank_name` 폴백, 초안과 같음). Facts 모양 그대로(요약 전용 처리 없음) | `shared/schemas/str/summary.py` `SummaryRequest` |
+| 응답 `produced_at` · `case_no` · `generation_id` · `summary_lines[1..6]` · `model_focus: str \| None` · `code_checks` · `generation_meta` | **`produced_at`**(`SystemTimestamp` — UTC `Z` 초 단위, 초안 `5.2`·`SCRUM-52` 와 같음, 백엔드 `case_summaries.produced_at` NOT NULL 제약)·`generation_id`(`g-<hex8>`, 저장 행 PK 와 같음)는 서비스가 조립해 덧붙임. LLM 출력 `summary_lines`·`model_focus`(SummaryOut 스키마). `model_focus` 는 `model_signals` 이름만 쓴 한 줄 — 서비스가 **이름을 지운 뒤 남은 글자에 숫자가 있을 때만** `null`. `code_checks` 는 요약 줄 한 덩어리로 4종(AMOUNT·DATE·COUNT·ACCOUNT_ID) — `EVIDENCE_IN_SCOPE`·`OPINION_PRESENT` 안 돌림. 코드 검사 실패해도 **200**, 백엔드는 검증 통과분만 저장 | `SummaryResponse`·`SummaryService` |
+
 ### 에러 `schemas/errors.py` (규약 6.3)
 
 추가 `409 GENERATION_IN_PROGRESS`(`GenerationInProgress`), `503 DB_UNAVAILABLE`(`DbUnavailable`, 점수 요청 중 AI 서버 DB 조회 실패 — 백엔드 재시도 1회, 10/29). 삭제 `TRANSACTION_NOT_FOUND`(→ 400 메시지에 없는 ID), `EVIDENCE_OUT_OF_SCOPE`(→ 검증 결과), `LLM_TIMEOUT`(→ `LLM_UNAVAILABLE`). 나머지 그대로.

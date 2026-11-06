@@ -70,7 +70,7 @@
 | Alembic — `reference_chunks` (+pgvector superuser 절차) | 미착수 | | W4 |
 | RAG — 코퍼스 적재 → retrieval(0~3건) → REFERENCES → hit@3 표 | 미착수 | | W4 전반, 11/11 기준 |
 | 오류 주입 7~14·23 수동 표 | 미착수 | | W4 |
-| `/v1/cases/summary` | 미착수 | | W4 말 |
+| `/v1/cases/summary` | 완료 | 11/6 | SCRUM-129 — `FactsInput` 공통 입력 DTO · 요약 코드 검사 4종 한 덩어리(section=None) · 재생성 1회+200 담아 반환(초안 동형) · `model_focus` 숫자 거부(신호 이름 지운 뒤 남은 글자 기준, 틀 "모델은 {이름} 신호를 가장 크게 봄") · 응답 `produced_at`(SystemTimestamp)·`generation_id` · `SUMMARY_BUDGET_S=40`·`SUMMARY_MAX_TOKENS=1500` · `FROZEN_PROMPTS["summary_v1"]`. 녹화 재생 (`-m db`) 200, `generations` kind=SUMMARY·status=SUCCEEDED·draft_id=null. 규약 §6.1 11/6 반영(v0.4 추가 20번). pytest 635 passed·4 skipped·8 deselected, 관문 통과 |
 | `aml_ml` 설치 + `scoring/` 스텁 교체 | 미착수 | | 준영 첫 tag 후 |
 | D13 — 10/27 안건 11 줄 바로잡음(REJECTED → CLOSED는 NOT_REPORTABLE만, 어긋나면 409 `INVALID_CASE_TRANSITION`) | 완료 | 10/30 | 문서만. `str/09` 아래 새 줄, 윗줄은 그대로. `03_pipeline.md:69`는 이미 안건 24 반영됨 |
 | SCRUM-52 — 시스템 시각 UTC + Z·초 단위, `SystemTimestamp`, 초안 `produced_at` | 완료 | 10/31 | 타입·서비스·예시·계약 테스트, naive 시스템 시각은 400 `INVALID_REQUEST`. 공용 `utc_now()`·`_decide` 순수 추출. pytest 149 passed·8 skipped, `-m db` 9 passed(skip 0), 관문 통과. PR #14 |

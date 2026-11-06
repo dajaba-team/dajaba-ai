@@ -1,0 +1,53 @@
+{
+  "case_no": "CASE-2022-000057",
+  "alert": {
+    "alert_id": "ALT-20220903-000142",
+    "account_key": "010_8000EBD30",
+    "entity_id": "80062E240",
+    "rule_id": "R02_FAN_IN_24H",
+    "rule_version": "1",
+    "typology_hint": "FAN_IN",
+    "window_start": "2022-09-02T00:00:00",
+    "window_end": "2022-09-02T23:59:59",
+    "reference_ts": "2022-09-02T23:59:59",
+    "transaction_ids": [
+      104221,
+      104233,
+      104301
+    ],
+    "rule_facts": {
+      "distinct_senders": 3,
+      "total_amount_received": 42750.5,
+      "currency": "US Dollar"
+    },
+    "created_at": "2026-11-03T01:00:00Z"
+  },
+  "evidence_transaction_ids": [
+    104221,
+    104233,
+    104301
+  ],
+  "reasons": [
+    {
+      "name": "account_in_counterparties_24h",
+      "observation": {
+        "value": 3,
+        "unit": "count",
+        "window_start": "2022-09-02T00:00:00",
+        "window_end": "2022-09-03T00:00:00",
+        "basis": "distinct_inbound_counterparties"
+      },
+      "baseline": {
+        "value": null,
+        "definition": null
+      },
+      "contribution": {
+        "method": "SHAP",
+        "value": 0.42,
+        "scale": "raw_margin"
+      }
+    }
+  ],
+  "prior_alert_count": 1,
+  "reporting_institution": "Portugal Bank #4507"
+}

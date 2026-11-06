@@ -1,7 +1,8 @@
-"""LLM 호출의 프롬프트 이름 → 출력 스키마 모델 매핑 (SCRUM-47·91).
+"""LLM 호출의 프롬프트 이름 → 출력 스키마 모델 매핑 (SCRUM-47·91·129).
 
 생성기 `_validate_result`·`shared/infrastructure/llm_client.complete_json`·`tools/record` 가
-같은 함수를 쓴다 — tag 문자열 비교를 세 자리에 흩지 않음.
+같은 함수를 쓴다 — tag 문자열 비교를 여러 자리에 흩지 않음. 초안(narrative)·평가자(judge)·
+요약(summary) 셋 다 여기에 등록.
 """
 
 from __future__ import annotations
@@ -9,6 +10,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 from aml_ai.shared.schemas.str.narrative import NarrativeOutV1, NarrativeOutV2
+from aml_ai.shared.schemas.str.summary import SummaryOut
 from aml_ai.shared.schemas.str.verify import JudgeOut, JudgeOutV2
 
 _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
@@ -16,6 +18,7 @@ _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "narrative_v2": NarrativeOutV2,
     "judge_v1": JudgeOut,
     "judge_v2": JudgeOutV2,
+    "summary_v1": SummaryOut,  # SCRUM-129 — HttpLlmClient 가 Structured Output 스키마로 씀
 }
 
 
@@ -27,4 +30,4 @@ def llm_output_model(prompt_name: str) -> type[BaseModel]:
     try:
         return _LLM_OUTPUT_MODELS[prompt_name]
     except KeyError:
-        raise ValueError(f"unknown narrative prompt: {prompt_name}") from None
+        raise ValueError(f"unknown prompt name: {prompt_name}") from None

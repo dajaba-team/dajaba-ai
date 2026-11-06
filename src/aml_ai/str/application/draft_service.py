@@ -58,7 +58,7 @@ class DraftService:
         )
 
     def create(self, req: DraftRequest) -> DraftResponse:
-        problem = facts_domain.request_problem(req)
+        problem = facts_domain.request_problem(req.to_facts_input())
         if problem:
             raise InvalidRequest(problem)
         deadline = self.clock() + self.settings.draft_budget_s
@@ -93,7 +93,7 @@ class DraftService:
             raise InvalidRequest("no reportable transactions")
         subject = self.reader.load_subject(req.alert, txs)
         # 3·4 — 순수
-        facts = facts_domain.build_facts(req, txs, subject)
+        facts = facts_domain.build_facts(req.to_facts_input(), txs, subject)
         facts_masked = masking.mask_for_llm(facts)
         # 5
         examples = self.fewshot.pick_examples(facts.typology)

@@ -71,7 +71,7 @@ def test_fact_keys_customer_when_present() -> None:
     cust = Customer(
         industry="RETAIL", risk_level="LOW", account_purpose=None, onboarded_at=None, country_code="PT"
     )
-    f = facts_domain.build_facts(make_req(rows), make_txs(rows), make_subject(cust))
+    f = facts_domain.build_facts(make_req(rows).to_facts_input(), make_txs(rows), make_subject(cust))
     keys = fact_keys(f)
     assert {"customer.industry", "customer.risk_level", "customer.country_code"} <= set(keys)
     assert "customer.account_purpose" not in keys

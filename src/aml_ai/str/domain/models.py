@@ -82,6 +82,31 @@ class GenerationResult:
 
 
 @dataclass(frozen=True)
+class SummaryExample:
+    """fewshot/summary_v1/*.json — 요약 few-shot 예시 (SCRUM-129)."""
+
+    example_id: int
+    typology: str
+    facts: Facts
+    summary_lines: list[str]
+    model_focus: str | None
+
+
+@dataclass(frozen=True)
+class SummaryGenerationResult:
+    """summary_generator 가 돌려주는 것 — summary_lines·model_focus + 호출 메타."""
+
+    summary_lines: list[str]
+    model_focus: str | None
+    llm_model: str
+    prompt_version: str
+    tokens_in: int
+    tokens_out: int
+    latency_ms: int
+    few_shot_ids: list[int] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
 class StoredDraft:
     """verify 가 generations 에서 꺼내는 것. 수정본도 생성 당시 facts 로 대조한다."""
 

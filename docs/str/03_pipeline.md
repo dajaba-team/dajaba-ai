@@ -83,15 +83,42 @@
 - 백엔드 `ApprovalGate`: 승인 요청은 **이 생성본·이 본문의 passed 검증**이 있을 때만(규약 4절 DRAFTED → PENDING_APPROVAL 조건과 같은 말). 세 조건: ① 검증의 `generation_id` == 현재 활성 초안의 `generation_id` ② 검증의 `narrative_sha256` == 현재 본문 해시 ③ `passed = true`. 해시만 보면 다른 생성본(다른 facts)에서 같은 문장이 나온 검증이 통할 수 있어서 ①을 둔다. `revision_no`는 **맞추지 않는다** — 같은 생성본에 본문이 같으면 대조한 facts도 같으니, 되돌린 수정본(rev 3 본문 = rev 1 본문)은 rev 1 검증으로 승인할 수 있다. **단 보완 요청(NEED_REVISION) 반려 뒤에는** 본문 해시가 반려 당시 해시와 같으면 백엔드가 409 `NARRATIVE_UNCHANGED`로 막는다(안건 24) — AI 서버는 할 일 없음. 수정 저장과 승인 요청이 동시에 오는 경우는 백엔드가 승인 트랜잭션 안에서 현재 본문 해시를 다시 읽어 비교(채영 V009에서 정함 — 미결 `09`). "최신 검증"이 아니라 "이 본문의 검증".
 - 수정본의 `cites`·`evidence_ids`는 **다시 계산해 응답 `narrative_refs`로 돌려준다**(안건 23 세부 (a), 10/28 확정 — 위 5b). 평가자가 섹션별 cites를 내고 코드가 `attach_evidence`를 다시 돌린다. `CODE_FAILED`·`VERIFY_UNAVAILABLE`이면 `null` → 백엔드는 기존 값 유지. 백엔드는 현재 `draft_id`·`generation_id`·본문 해시가 검증 요청과 모두 같을 때만 반영(백엔드 docs `06_features/str.md`).
 
-## `POST /v1/cases/summary` (W4 말)
+## `POST /v1/cases/summary` (SCRUM-129)
 
-같은 `transaction_reader → facts → masking`, 프롬프트만 `summary_v1.md`(5줄), 검증은 코드만(평가자 없음), `generations.kind=SUMMARY`. 요약 문장은 관측 사실만 쓰고 모델 설명은 `model_signals`로 "모델이 주목한 점" 한 줄 따로 — 점수 설명과 관측을 섞지 않는다.
+요청(규약 §6.1): `case_no`, `alert`, `evidence_transaction_ids`(min 1), **`reasons`**(초안과 같은 타입·점수 응답 그대로), **`prior_alert_count`**(int ge=0), **`reporting_institution`**(선택, 없으면 `subject.bank_name` 폴백 — 초안과 같은 규칙). `reasons`·`prior_alert_count` 는 **필수** — 규약 §6.1 11/6 반영(v0.4 추가 20번). (SCRUM-129)
+
+```
+0  요청 검증                  SummaryRequest 스키마 — evidence_transaction_ids set ⊆ alert.transaction_ids set, min 1 → 400 INVALID_REQUEST
+1  deadline = clock() + SUMMARY_BUDGET_S  (SCRUM-129, 40초 — LLM_TIMEOUT_S 이상, 설정 불변식)
+2  transaction_reader.load_transactions·load_subject   초안과 같음, 없는 ID → 400
+3  facts = domain.facts.build_facts(req.to_facts_input(), txs, subject)   순수 — FactsInput 공통 DTO 거침(초안도 같음, SCRUM-129)
+   facts_masked = masking.mask_for_llm(facts)                             초안과 같은 masking
+4  examples = fewshot_store.pick_examples(facts.typology, prompt_name="summary_v1")
+5  shared.db.end_read(session)                                             (SCRUM-122) LLM 호출 바로 앞
+6  gen = summary_generator.generate(facts_masked, fact_keys(facts), examples, deadline=deadline)
+      LLM 1회(35초) + SummaryOut 스키마 검증 (summary_lines 1~6, model_focus optional string)
+      스키마 실패 → 남은 예산 ≥ REGEN_MIN_REMAINING_S 면 1회 재생성, 아니면 LlmInvalidOutput (502)
+7  code_checks = run_code_checks(facts, [SummarySection(section=None, text="\n".join(summary_lines), evidence_ids=req.evidence_transaction_ids)], req.evidence_transaction_ids)
+      4종(AMOUNT_MATCH·DATE_MATCH·COUNT_MATCH·ACCOUNT_ID_MATCH), 한 덩어리 본문 (SCRUM-129 ★A 2)
+      EVIDENCE_IN_SCOPE·OPINION_PRESENT 는 안 돌림 — 요약 줄에 cites 없음, facts 가 evidence_transaction_ids 로만 계산
+8  if any(not c.match for c in code_checks) and 남은 예산 ≥ REGEN_MIN_REMAINING_S:
+      재생성 1회 → 다시 code_checks → 여전히 실패면 **200 + code_checks 담아 반환**(★A 3)
+      백엔드는 "검증 통과분" 만 저장(case_summaries.payload) — 틀린 요약 화면에 안 띄움
+9  model_focus — LLM 출력 그대로. 숫자(0~9) 들어 있으면 null 로 버리고 log.warning("summary_model_focus_rejected", extra={"reason":"has_digit"}) (SCRUM-129 ★A 4)
+10 generations 신규 행 (kind=SUMMARY·draft_id=null·case_no·status=SUCCEEDED·response·meta). 재생성 토큰·latency 합산
+11 응답 SummaryResponse: {case_no, facts(원본), summary_lines[≤6], model_focus, code_checks, generation_meta}
+```
+
+- `cites`·평가자(LLM 검사) 없음. 요약은 관측 사실만 쓰고 model_focus 에 model_signals 이름만.
+- `generations.kind=SUMMARY`·`draft_id=null` — Alembic 변경 없음(`str/orm.py` 이미 nullable).
+- 재시도 1회는 **스키마 실패** 또는 **코드 검사 실패** 둘 중 하나로만 — 각 경우 남은 예산 ≥ `REGEN_MIN_REMAINING_S` 일 때. 두 번 다 안 돌림.
 
 ## 시간 예산 — 실측 전 가정값, W2 수요일 측정 뒤 조정
 
 | 단계 | 예산 | 상수 (`domain/constants.py` / `.env`) |
 |---|---|---|
 | 초안 요청 전체(AI 안) | **80초** — 백엔드 타임아웃 90초보다 10초 짧게 | `DRAFT_BUDGET_S=80` |
+| 요약 요청 전체(AI 안) | **40초** — Jira SCRUM-129, 단 `LLM_TIMEOUT_S` 이상(기동 불변식) | `SUMMARY_BUDGET_S=40` |
 | 죽은 PROCESSING 판정 | 예산 + 30초 = **110초** | `STALE_PROCESSING_S` |
 | LLM 호출 1회 | **35초** | `LLM_TIMEOUT_S=35` |
 | 스키마 실패 재생성 | 남은 예산 **≥ 40초**일 때만 | `REGEN_MIN_REMAINING_S=40` |

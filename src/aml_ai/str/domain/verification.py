@@ -15,8 +15,10 @@ from aml_ai.shared.schemas.str import (
     CodeCheck,
     CodeCheckName,
     Facts,
+    NarrativeSection,
     NarrativeSectionBase,
     Section,
+    SectionV1,
     SectionV2,
 )
 from aml_ai.str.domain.fact_keys import FactKeys, fact_keys
@@ -109,8 +111,33 @@ def opinion_present(narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
     return out
 
 
+def run_summary_code_checks(
+    facts: Facts, summary_lines: list[str], transaction_ids: list[int]
+) -> list[CodeCheck]:
+    """요약 응답 `summary_lines[≤6]` 을 한 덩어리 본문으로 4종만 검사 (SCRUM-129 ★A 2).
+
+    AMOUNT·DATE·COUNT·ACCOUNT_ID — `EVIDENCE_IN_SCOPE`·`OPINION_PRESENT` 는 안 돎(요약에 `cites` 없음,
+    facts 는 `evidence_transaction_ids` 로만 계산되므로 숫자 범위 밖 거래 생성 불가).
+
+    내부적으로 임의 섹션 enum(`SectionV1.SUMMARY`) 을 쓴 뒤 결과 `section` 을 전부 `None` 으로 교체.
+    """
+    pseudo = NarrativeSection(
+        section=SectionV1.SUMMARY,
+        text="\n".join(summary_lines),
+        cites=[],
+        evidence_ids=transaction_ids,
+    )
+    checks: list[CodeCheck] = []
+    checks += amount_match(facts, [pseudo])
+    checks += date_match(facts, [pseudo])
+    checks += count_match(facts, [pseudo])
+    checks += account_id_match(facts, [pseudo])
+    return [c.model_copy(update={"section": None}) for c in checks]
+
+
 __all__ = [
     "run_code_checks",
+    "run_summary_code_checks",
     "amount_match",
     "date_match",
     "count_match",

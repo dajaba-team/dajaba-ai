@@ -33,6 +33,7 @@ from aml_ai.shared.schemas.str.facts import (
     SubjectFacts,
     UnmappedCurrencyAgg,
 )
+from aml_ai.shared.schemas.str.facts_input import FactsInput
 from aml_ai.shared.schemas.str.narrative import (
     NARRATIVE_TEXT_MAX,
     SECTION_ORDER_V1,
@@ -51,7 +52,14 @@ from aml_ai.shared.schemas.str.narrative import (
     section_set_version,
 )
 from aml_ai.shared.schemas.str.narrative_version import llm_output_model
-from aml_ai.shared.schemas.str.summary import SummaryRequest, SummaryResponse
+from aml_ai.shared.schemas.str.summary import (
+    SUMMARY_LINE_MAX,
+    SUMMARY_LINES_MAX,
+    SUMMARY_LINES_MIN,
+    SummaryOut,
+    SummaryRequest,
+    SummaryResponse,
+)
 from aml_ai.shared.schemas.str.verify import (
     REVISED_TEXT_MAX,
     CheckReason,
@@ -112,8 +120,14 @@ __all__ = [
     "llm_output_model",
     "section_set_version",
     # summary
+    "SUMMARY_LINE_MAX",
+    "SUMMARY_LINES_MAX",
+    "SUMMARY_LINES_MIN",
+    "SummaryOut",
     "SummaryRequest",
     "SummaryResponse",
+    # facts_input (공통)
+    "FactsInput",
     # verify
     "REVISED_TEXT_MAX",
     "CheckReason",

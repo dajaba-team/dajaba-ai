@@ -91,6 +91,16 @@ else:                      status = LLM_FAILED,         passed = False
 
 본문 해시는 section·text만 보므로 `cites`가 바뀌어도 `ApprovalGate`에는 영향이 없다. `EVIDENCE_IN_SCOPE` 코드 검사는 그대로 요청에 담긴 수정본의 `cites`·`evidence_ids`를 본다(재계산 전 값). 테스트: 재계산 결과가 범위 안인지, 목록 밖 키가 버려지는지, `CODE_FAILED`·`VERIFY_UNAVAILABLE`이면 `null`·`LLM_FAILED` 면 값 있음인지(`08` 단위).
 
+## 요약에 도는 코드 검사 (SCRUM-129, 2026-11-06)
+
+`/v1/cases/summary` 응답 `summary_lines[≤6]` 을 **한 덩어리 본문**으로 코드 검사 4종만 돌린다 — `AMOUNT_MATCH`·`DATE_MATCH`·`COUNT_MATCH`·`ACCOUNT_ID_MATCH`. `run_code_checks(facts, [SummarySection(section=None, text="\n".join(summary_lines), evidence_ids=req.evidence_transaction_ids)], req.evidence_transaction_ids)`. `EVIDENCE_IN_SCOPE`·`OPINION_PRESENT` 는 안 돌림 — 요약 줄에 `cites` 가 없고(규약 §6.1 응답 모양 — `cites` 칸 없음), facts 가 `evidence_transaction_ids` 로만 계산되므로 숫자 범위 밖 거래 생성 불가(IF-CASE-02 "허용 거래 대조"는 이걸로 충족). OPINION 섹션은 초안 v2 전용.
+
+**평가자(LLM 검사)는 안 돌림** — 요약은 보조 정보라 40초 예산 안에서 코드 검사만. 품질은 코드 검사 + 재생성 1회로.
+
+**실패 처리 (★A 3)**: 코드 검사 실패 → 남은 예산 ≥ `REGEN_MIN_REMAINING_S` 면 재생성 1회. 두 번 다 실패면 **200 + `code_checks.match=false` 담아 반환**. 백엔드가 "검증 통과분만 저장"(`case_summaries.payload`, 지윤·채영) — 틀린 요약은 화면에 안 띄움. `generations` 행은 `kind=SUMMARY·status=SUCCEEDED`(응답은 돌려줬으므로).
+
+**`model_focus` 숫자 거부 (★A 4)**: `summary_service` 가 `model_signals` 이름을 **글자 그대로 지운 뒤 남은 글자에 숫자(0~9) 가 있을 때만** `null` 로 바꿈 — 이름 자체가 `account_in_counterparties_24h` 처럼 숫자 포함이어도 그 이름만 썼으면 통과, 이름 밖에 "3건"·"24시간" 같은 관측 수치가 섞이면 거부. `log.warning("summary_model_focus_rejected", extra={"reason":"non_signal_digit"})` — 본문·숫자 안 찍음.
+
 ## RAG와의 관계
 
 프롬프트 규칙 8(REFERENCES 숫자·이름 반입 금지)이 1차 방어, `AMOUNT_MATCH`·`DATE_MATCH`·`NO_UNSUPPORTED_CLAIM`이 2차 방어. 코드는 바뀌지 않는다 — 참고 사례의 금액도 "facts에 없는 통화·금액"이라 그대로 잡힌다. 오류 주입 13·14.
