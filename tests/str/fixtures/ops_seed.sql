@@ -1,10 +1,32 @@
--- SCRUM-20 통합 테스트용 ops 4테이블 최소 DDL + 행.
--- 백엔드 V002 (dajaba) 컬럼·타입 그대로. is_laundering·pattern_* 는 값 없이 — SELECT 안 되는지 확인.
+-- SCRUM-20 통합 테스트용 ops 4테이블 최소 DDL + 행 — 테스트 컨테이너 전용.
+-- 백엔드 V002 중 facts 가 읽는 칸만(bank_id·account_no 등 NOT NULL 은 빠짐).
+-- is_laundering·pattern_* 는 값 없이 — SELECT 안 되는지 확인.
+-- 적재된 DB(백엔드 Flyway 또는 거래 데이터) 에 손으로 넣으면 아래 TRUNCATE 가 다 지우므로
+-- 맨 위에서 막는다 (SCRUM-158): docs/shared/05_dev_setup.md 참고.
 --
 -- facts_fan_in.json 기존 칸 값이 그대로 떨어지도록 시드:
 --   거래 3건(id 1·2·3), 전부 inbound to 010_8000EBD30, ACH, US Dollar
 --   합 42,750.50 USD (12500 + 14000 + 16250.50), period 2022-09-02 00:14~22:51
 --   상대 3개 (020_C0000001·02·03, 전부 타행), subject entity 80062E240 Sole Proprietorship
+
+-- 가드: 백엔드 Flyway 표시(ops.source_files) 또는 적재된 거래(ops.transactions 행 > 3) 면
+-- TRUNCATE 전에 멈춘다 (SCRUM-158). SELECT 는 EXECUTE 로 감싸 ops.transactions 가
+-- 아직 없는 빈 DB 에서도 PL/pgSQL 컴파일이 UndefinedTable 로 깨지지 않게.
+DO $$
+DECLARE
+    tx_count bigint := 0;
+    guard_msg constant text := 'ops_seed.sql 은 테스트 컨테이너 전용이에요 — 백엔드 스키마(또는 데이터)가 있는 DB 라 멈춤. docs/shared/05_dev_setup.md 참고';
+BEGIN
+    IF to_regclass('ops.source_files') IS NOT NULL THEN
+        RAISE EXCEPTION '%', guard_msg;
+    END IF;
+    IF to_regclass('ops.transactions') IS NOT NULL THEN
+        EXECUTE 'SELECT count(*) FROM ops.transactions' INTO tx_count;
+        IF tx_count > 3 THEN
+            RAISE EXCEPTION '%', guard_msg;
+        END IF;
+    END IF;
+END $$;
 
 CREATE SCHEMA IF NOT EXISTS ops;
 
