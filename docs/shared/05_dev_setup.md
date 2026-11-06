@@ -67,6 +67,12 @@ uv run pytest tests/str/test_injection.py -m deterministic   # 오류 주입 1~6
 
 LLM을 실제로 부르는 테스트(7~12, 14)와 검색 평가(hit@3)는 `-m live`로만, CI에서는 안 돈다.
 
+## 로컬 DB 와 테스트 시드
+
+`tests/str/fixtures/ops_seed.sql` 은 **테스트 컨테이너 전용**(SCRUM-20·158) — pytest `-m db` 가 Testcontainers Postgres 를 띄워 거기에 적용한다. **손으로 넣지 않는다**. 파일 맨 위 `DO $$ ... RAISE EXCEPTION $$` 가드가 아래 둘 중 하나면 `TRUNCATE` 이전에 멈춘다(SCRUM-158): ① `to_regclass('ops.source_files') IS NOT NULL` — 백엔드 Flyway(V004_1)만 만드는 테이블이라 "백엔드 스키마가 깔려 있음" 신호 ② `ops.transactions` 가 있고 행이 3개보다 많음 — 백엔드 표시가 없어도 적재된 데이터가 있으면 멈춤. 가드가 걸리면 남겨 두면 됨, 지워지지 않는다.
+
+백엔드와 같은 DB 에서 AI 응답만 확인하고 싶을 땐 **별도 시드를 쓰지 않는다** — 준혁 적재 데이터의 **실제 거래 id** 를 `evidence_transaction_ids` 에 넣어 요청을 만든다. 테스트 시드의 거래 id(1·2·3) 는 적재 데이터와 겹치므로 요청에 쓰면 안 된다.
+
 ## 코드 스타일
 
 ruff(format + lint), 설정은 `pyproject.toml`. 커밋 전 `uv run ruff check . && uv run ruff format .`. 타입 힌트 필수(`mypy --strict`는 `shared/`와 `str/domain/`에만 — 순수 함수라 비용이 작다). 예외 이름은 규약 에러 코드를 따르므로 ruff N818은 끈다.

@@ -194,7 +194,7 @@ LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127) 수동.
 
 `tests/str/test_draft_integration.py`, `@pytest.mark.db`. TestClient 로 `POST /v1/str/drafts`(`X-Internal-Key`), `AI_LLM_MOCK=true`, `RAG_ENABLED=false`. `NARRATIVE_PROMPT` 를 `narrative_v1`·`narrative_v2` 파라미터로 각각 돌림.
 
-- **ops seed**: `tests/str/fixtures/ops_seed.sql` 로 `ops` 4테이블(`transactions`·`accounts`·`entities`·`customer_attributes`) 최소 DDL + 행. 백엔드 V002 와 컬럼·타입 일치(`entity_type` 포함). `is_laundering`·`pattern_*` 는 값 없이 — SELECT 안 되는지 확인.
+- **ops seed**: `tests/str/fixtures/ops_seed.sql` 로 `ops` 4테이블(`transactions`·`accounts`·`entities`·`customer_attributes`) **V002 일부 칸만 있는 최소 DDL**(bank_id·account_no·from_bank_id 등 NOT NULL 칸은 들어오지 않아 facts 가 동작). `is_laundering`·`pattern_*` 는 값 없이 — SELECT 안 되는지 확인. 맨 위 **가드 블록**이 `ops.source_files` 가 있거나 `ops.transactions` 행이 3개 초과이면 `RAISE EXCEPTION` 으로 멈춤 — 백엔드 스키마·적재 데이터가 있는 DB 에 손으로 넣어도 `TRUNCATE` 전에 끊김(SCRUM-158). 테스트 컨테이너는 둘 다 해당 없어 그대로 돈다.
 - **정상**: 200, 규약 5.2 모양(`draft_response.json` 스키마), `verification=null`, `facts == fixture`, 섹션 집합 활성 버전과 같음(v1 6·v2 7), `evidence_ids ⊆ 요청 evidence_transaction_ids`, `generation_meta.prompt_version` = 활성 버전, `few_shot_ids`(v1 `[1]` / v2 같은 유형 1 + 다른 유형 2), `references=[]`, `ai.generations` 1행 `SUCCEEDED`.
 - **경계**: 같은 `draft_id`·같은 본문 재요청 → 저장 결과 그대로(`ClaimReuse`, 녹화 클라이언트 호출 0회), `generations` 행 수 그대로.
 - **실패 4종**: 없는 `transaction_id` → 400 `INVALID_REQUEST`, 같은 `draft_id` 다른 본문 → 400, 녹화 없는 입력(`investigator_notes` 한 줄 추가 → user 프롬프트 바뀜 → 녹화 키 miss) → 502 `LLM_UNAVAILABLE` + generations `FAILED`(지어내지 않음), `X-Internal-Key` 없음 → 401.
