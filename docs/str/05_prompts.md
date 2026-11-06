@@ -123,6 +123,21 @@ v1 과 겹치지 않는 7항목(SUBJECT·DATE·PLACE·INSTRUMENT·METHOD·GROUND
 
 `judge_v1.md` 는 **judge_v2(11/5) 로 대체**. 녹화 커밋이 없어 `FROZEN_PROMPTS` 에도 없었고 본문도 그대로 둠(기록·회귀 참고).
 
-## summary_v1 (W4 말)
+## summary_v1 (SCRUM-129, 2026-11-06 활성 — 전문은 `str/prompts/summary_v1.md`)
 
-같은 system 규칙 1~5·7·9, 섹션 대신 "5줄 요약 + 모델이 주목한 점 1줄(model_signals 이름만)". few-shot 2개. REFERENCES 없음.
+케이스 상세 AI 요약. 초안 system 규칙(관측만·숫자 정확·단정 금지) 그대로 쓰되 섹션 대신 **요약 줄 1~6개 + model_focus 한 줄**. few-shot 2개 (`fewshot/summary_v1/001_*.json`·`002_*.json`). REFERENCES 없음(RAG 안 씀).
+
+**출력 JSON 스키마** (`SummaryOut`):
+```
+{"summary_lines": [str, ...], "model_focus": str | null}
+```
+- `summary_lines`: 1~6줄. **한 줄 ≤80자**(스키마가 받음 — 81자면 `LlmInvalidOutput`). 각 줄은 관측 사실 — FACTS 안 숫자·이름·장소만. 섹션 이름 안 적음.
+- `model_focus`: `model_signals`(점수 응답의 `reasons[*].name`) 이름만으로 쓴 한 줄. `summary_service` 가 **`model_signals` 이름을 글자 그대로 지운 뒤 남은 글자에 숫자(0~9)가 있을 때만 `null`** — 이름 자체가 `account_in_counterparties_24h` 처럼 숫자 포함이어도 그 이름만 썼으면 지운 나머지가 공백·구두점이라 통과, "3건" 같은 관측 수치가 섞여 들어오면 거부(`log.warning("summary_model_focus_rejected", extra={"reason":"non_signal_digit"})` — 본문 안 찍음). 관측 사실과 섞지 않음. 근거가 없으면 `null`.
+
+**코드 검사 (SCRUM-129 ★A 2)**: 요약 줄 전체를 한 덩어리 본문(`section=None`, `text="\n".join(summary_lines)`) 으로 AMOUNT_MATCH·DATE_MATCH·COUNT_MATCH·ACCOUNT_ID_MATCH 4종. EVIDENCE_IN_SCOPE·OPINION_PRESENT 는 안 돌림(`cites` 없음·요약에 OPINION 없음). facts 를 `evidence_transaction_ids` 로만 계산하므로 숫자 범위 밖 거래 생성 불가(IF-CASE-02 "허용 거래 대조" 충족).
+
+**코드 검사 실패 처리 (SCRUM-129 ★A 3)**: 실패면 **재생성 1회**(남은 예산 ≥ `REGEN_MIN_REMAINING_S`). 두 번 다 실패면 **200 + `code_checks.match=false`** 로 돌려줌 — 백엔드는 검증 통과분만 저장(`case_summaries.payload`, 지윤·채영 정책).
+
+**응답 조립 (`SummaryResponse`)**: LLM 출력 `SummaryOut` 에 **`produced_at`**(`SystemTimestamp`, UTC `Z` — 초안 `5.2` 와 같음)·**`generation_id`**(`g-<hex8>`)·`case_no`·`code_checks`·`generation_meta` 를 서비스가 덧붙임. `produced_at` 은 백엔드 `case_summaries.produced_at` NOT NULL 제약 때문에 필수(지윤·채영 공지). `generation_id` 는 저장 행 PK 와 같은 값.
+
+**동결**: 녹화 커밋 시점에 `FROZEN_PROMPTS["summary_v1"]` sha256 박음(SCRUM-15 10/29 규칙).

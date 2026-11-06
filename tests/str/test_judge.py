@@ -81,5 +81,5 @@ def test_judge_bad_json_raises_invalid_output() -> None:
 def test_narrative_version_mapping_regression() -> None:
     assert llm_output_model("narrative_v1") is NarrativeOutV1
     assert llm_output_model("narrative_v2") is NarrativeOutV2
-    with pytest.raises(ValueError, match="unknown narrative prompt"):
+    with pytest.raises(ValueError, match="unknown prompt name"):
         llm_output_model("nope")

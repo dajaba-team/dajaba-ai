@@ -17,8 +17,8 @@ from aml_ai.shared.schemas.str import (
     CurrencyTotal,
     CustomerFacts,
     Direction,
-    DraftRequest,
     Facts,
+    FactsInput,
     FlowFacts,
     IdGroupFacts,
     ObservationFacts,
@@ -49,11 +49,14 @@ def currency_code(name: str) -> str | None:
     return CURRENCY_CODES.get(name)
 
 
-def request_problem(req: DraftRequest) -> str | None:
-    """요청 안의 목록끼리 어긋났는지. 있으면 400 메시지, 없으면 None (docs/str/04 "입력"·"경로" 1번)."""
-    if set(req.evidence_transaction_ids) != set(req.alert.transaction_ids):
+def request_problem(inp: FactsInput) -> str | None:
+    """요청 안의 목록끼리 어긋났는지. 있으면 400 메시지, 없으면 None (docs/str/04 "입력"·"경로" 1번).
+
+    초안용 — `evidence == alert.transaction_ids` 완전 일치. 요약은 ⊆ 라 `summary_service` 에서 별도 체크.
+    """
+    if set(inp.evidence_transaction_ids) != set(inp.alert.transaction_ids):
         return "evidence must equal alert.transaction_ids"
-    return paths_problem(req.alert)
+    return paths_problem(inp.alert)
 
 
 def has_reportable(txs: Iterable[Transaction]) -> bool:
@@ -61,8 +64,8 @@ def has_reportable(txs: Iterable[Transaction]) -> bool:
     return any(not t.is_self_transfer for t in txs)
 
 
-def build_facts(req: DraftRequest, txs: list[Transaction], subject: Subject) -> Facts:
-    """경보 + 거래 행 + 대상 → facts. 호출 전에 request_problem·has_reportable 을 통과해야 한다."""
+def build_facts(inp: FactsInput, txs: list[Transaction], subject: Subject) -> Facts:
+    """공통 입력 + 거래 행 + 대상 → facts (SCRUM-129 ★A 1 — `.to_facts_input()` 로 들어옴)."""
     s = subject.account_key
     active = [t for t in txs if not t.is_self_transfer]
     internal = [t for t in active if _is_internal(t, subject)]
@@ -72,7 +75,7 @@ def build_facts(req: DraftRequest, txs: list[Transaction], subject: Subject) -> 
     flows = inbound + outbound
 
     return Facts(
-        reporting_institution=req.reporting_institution or subject.bank_name,
+        reporting_institution=inp.reporting_institution or subject.bank_name,
         subject=SubjectFacts(
             entity_id=subject.entity_id,
             entity_name=subject.entity_name,
@@ -84,7 +87,7 @@ def build_facts(req: DraftRequest, txs: list[Transaction], subject: Subject) -> 
         outbound=_flow(outbound, received=False),
         internal=_ids(internal),
         indirect=_ids(indirect),
-        paths=build_paths(req.alert, txs, s),
+        paths=build_paths(inp.alert, txs, s),
         excluded_self_transfer_count=len(txs) - len(active),
         direction=_direction(len(inbound), len(outbound)),
         counterparties=IdGroupFacts(count=_counterparty_count(flows, s), transaction_ids=_sorted_ids(flows)),
@@ -92,12 +95,12 @@ def build_facts(req: DraftRequest, txs: list[Transaction], subject: Subject) -> 
         payment_formats=sorted({t.payment_format for t in flows}),
         payment_format_counts=_payment_format_counts(flows),
         amount_range=_amount_range(inbound, outbound, currency_code, _money),
-        typology=req.alert.typology_hint,
+        typology=inp.alert.typology_hint,
         typology_source=TypologySource.RULE,
         customer=_customer(subject.customer),
-        prior_alert_count=req.prior_alert_count,
-        observations=_observations(req.reasons),
-        model_signals=[r.name for r in req.reasons[:MODEL_SIGNALS_TOP]],
+        prior_alert_count=inp.prior_alert_count,
+        observations=_observations(inp.reasons),
+        model_signals=[r.name for r in inp.reasons[:MODEL_SIGNALS_TOP]],
         unmapped_currencies=_unmapped(inbound, outbound, currency_code),
     )
 

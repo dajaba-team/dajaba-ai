@@ -46,7 +46,7 @@ def test_ops_seed_facts_match_fixture(
     reader = TransactionReader(db_session)
     txs = reader.load_transactions(req.evidence_transaction_ids)
     subject = reader.load_subject(req.alert, txs)
-    service_facts = facts_domain.build_facts(req, txs, subject)
+    service_facts = facts_domain.build_facts(req.to_facts_input(), txs, subject)
 
     fixture_facts = Facts.model_validate(json.loads(FIXTURE_FAN_IN.read_text(encoding="utf-8")))
     assert service_facts.model_dump(mode="json") == fixture_facts.model_dump(mode="json"), (

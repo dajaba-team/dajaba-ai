@@ -1,0 +1,56 @@
+{
+  "produced_at": "2026-11-06T05:20:00Z",
+  "case_no": "CASE-2022-000057",
+  "generation_id": "g-2b7c91",
+  "summary_lines": [
+    "2022-09-02 보고 대상 계좌(010_****BD30)로 서로 다른 3개 계좌에서 ACH 입금 3건이 들어옴.",
+    "같은 날 입금 합계는 42,750.50 USD이며, 출금은 없음."
+  ],
+  "model_focus": "모델은 account_in_counterparties_24h 신호를 가장 크게 봄",
+  "code_checks": [
+    {
+      "check": "AMOUNT_MATCH",
+      "section": null,
+      "draft_value": "42,750.50 USD",
+      "source_value": "inbound.amount.USD=42750.50",
+      "match": true,
+      "reason": null
+    },
+    {
+      "check": "DATE_MATCH",
+      "section": null,
+      "draft_value": "2022-09-02",
+      "source_value": "period 2022-09-02..2022-09-02",
+      "match": true,
+      "reason": null
+    },
+    {
+      "check": "COUNT_MATCH",
+      "section": null,
+      "draft_value": "3건",
+      "source_value": "inbound.count=3",
+      "match": true,
+      "reason": null
+    },
+    {
+      "check": "ACCOUNT_ID_MATCH",
+      "section": null,
+      "draft_value": "010_****BD30",
+      "source_value": "subject.account_key=010_8000EBD30",
+      "match": true,
+      "reason": null
+    }
+  ],
+  "generation_meta": {
+    "llm_model": "(API가 돌려준 모델 ID)",
+    "prompt_version": "summary_v1",
+    "few_shot_ids": [
+      1,
+      2
+    ],
+    "server_version": "a1b2c3d",
+    "tokens_in": 2600,
+    "tokens_out": 480,
+    "latency_ms": 11200
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "example_id": 2,
+  "typology": "PASS_THROUGH",
+  "facts": {
+    "reporting_institution": "Example Bank #0003",
+    "subject": {
+      "entity_id": "E-PASS-03",
+      "entity_name": "Individual #30003",
+      "entity_type": "INDIVIDUAL",
+      "account_key": "010_SX00000C3"
+    },
+    "period": {"start": "2022-10-03T10:00:00", "end": "2022-10-03T15:30:00"},
+    "inbound": {
+      "count": 2,
+      "by_currency": [
+        {"currency": "USD", "total": "30000.00", "count": 2, "transaction_ids": [3001, 3002]}
+      ],
+      "transaction_ids": [3001, 3002]
+    },
+    "outbound": {
+      "count": 2,
+      "by_currency": [
+        {"currency": "USD", "total": "29800.00", "count": 2, "transaction_ids": [3003, 3004]}
+      ],
+      "transaction_ids": [3003, 3004]
+    },
+    "internal": {"count": 0, "transaction_ids": []},
+    "indirect": {"count": 0, "transaction_ids": []},
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "MIXED",
+    "counterparties": {"count": 4, "transaction_ids": [3001, 3002, 3003, 3004]},
+    "counterparty_banks": {"same_bank_accounts": 0, "other_bank_accounts": 4},
+    "payment_formats": ["Wire"],
+    "payment_format_counts": [{"format": "Wire", "count": 4}],
+    "amount_range": [{"currency": "USD", "min": "14800.00", "max": "15000.00"}],
+    "typology": "PASS_THROUGH",
+    "typology_source": "RULE",
+    "customer": {
+      "industry": null,
+      "risk_level": "MEDIUM",
+      "account_purpose": "PERSONAL",
+      "onboarded_at": "2022-09-25",
+      "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+      {
+        "name": "inflow_outflow_ratio_2h",
+        "value": 0.99,
+        "unit": "ratio",
+        "window_start": "2022-10-03T10:00:00",
+        "window_end": "2022-10-03T15:30:00",
+        "basis": "amount_received_over_amount_paid",
+        "baseline": null
+      }
+    ],
+    "model_signals": ["inflow_outflow_ratio_2h"],
+    "unmapped_currencies": []
+  },
+  "summary_lines": [
+    "2022-10-03 보고 대상 계좌(010_****00C3)로 입금 2건이 들어옴.",
+    "같은 기간 출금 2건이 나감.",
+    "입금 합계 30,000.00 USD, 출금 합계 29,800.00 USD임.",
+    "상대 4개 계좌는 모두 타행이며, 결제 수단은 Wire임."
+  ],
+  "model_focus": "모델은 inflow_outflow_ratio_2h 신호를 가장 크게 봄"
+}

@@ -55,4 +55,6 @@ def make_req(
 
 def build(case: dict[str, Any], *, subject: Subject | None = None, **kw: Any) -> Facts:
     rows = case["transactions"]
-    return facts_domain.build_facts(make_req(rows, **kw), make_txs(rows), subject or make_subject())
+    return facts_domain.build_facts(
+        make_req(rows, **kw).to_facts_input(), make_txs(rows), subject or make_subject()
+    )

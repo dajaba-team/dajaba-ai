@@ -7,7 +7,14 @@ import pytest
 from aml_ai.shared.schemas.alerts import ScoreRequest
 from aml_ai.shared.schemas.errors import ErrorBody
 from aml_ai.shared.schemas.scores import ScoreResponse
-from aml_ai.shared.schemas.str import DraftRequest, DraftResponse, VerifyRequest, VerifyResponse
+from aml_ai.shared.schemas.str import (
+    DraftRequest,
+    DraftResponse,
+    SummaryRequest,
+    SummaryResponse,
+    VerifyRequest,
+    VerifyResponse,
+)
 from tests.conftest import EXAMPLES, load_json
 
 CASES = [
@@ -18,6 +25,8 @@ CASES = [
     ("verify_request.json", VerifyRequest),
     ("verify_response.json", VerifyResponse),
     ("verify_response_passed.json", VerifyResponse),  # SCRUM-92 — PASSED + judge_meta
+    ("summary_request.json", SummaryRequest),  # SCRUM-129
+    ("summary_response.json", SummaryResponse),  # SCRUM-129
     ("error.json", ErrorBody),
 ]
 

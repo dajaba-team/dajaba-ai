@@ -39,7 +39,11 @@ class Settings(BaseSettings):
     # 생성기는 첫 LLM 호출 전과 재생성 전 두 지점에서만 남은 예산을 본다 (str/03 "구현 위치")
     draft_budget_s: float = Field(default=80.0, gt=0, alias="DRAFT_BUDGET_S")
     verify_budget_s: float = Field(default=80.0, gt=0, alias="VERIFY_BUDGET_S")
+    summary_budget_s: float = Field(default=40.0, gt=0, alias="SUMMARY_BUDGET_S")  # SCRUM-129 ★A 6
     regen_min_remaining_s: float = Field(default=40.0, gt=0, alias="REGEN_MIN_REMAINING_S")
+    # 요약 전용 재생성 임계값(SCRUM-129 리뷰 medium) — summary_budget_s=40 과 같은 값이면 첫 호출이
+    # 양의 시간을 쓰면 재생성 자리가 사라짐. 요약은 자연어 1~6줄이라 짧게 두고 재생성 여유를 확보.
+    summary_regen_min_remaining_s: float = Field(default=15.0, gt=0, alias="SUMMARY_REGEN_MIN_REMAINING_S")
     stale_processing_s: float = Field(default=110, gt=0, alias="STALE_PROCESSING_S")
     llm_daily_token_budget: int = Field(default=2_000_000, alias="LLM_DAILY_TOKEN_BUDGET")
 
@@ -75,6 +79,10 @@ class Settings(BaseSettings):
             )
         if self.verify_budget_s < self.llm_timeout_s:
             raise ValueError("verify_budget_s must be >= llm_timeout_s")
+        if self.summary_budget_s < self.llm_timeout_s:
+            raise ValueError(
+                f"summary_budget_s({self.summary_budget_s}) must be >= llm_timeout_s({self.llm_timeout_s})"
+            )
         return self
 
     @property

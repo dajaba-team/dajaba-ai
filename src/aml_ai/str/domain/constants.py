@@ -32,13 +32,13 @@ PATH_MIN_TRANSACTIONS = 2
 MODEL_SIGNALS_TOP = 3  # reasons 상위 N개의 이름만 model_signals 로
 
 # ---- 프롬프트 (docs/str/05)
-# NARRATIVE_PROMPT 상수는 폐기 (SCRUM-47) — 활성 서술 버전은 shared/config.narrative_prompt 설정으로.
-# tools.record 와 draft_service.build() 는 get_settings().narrative_prompt 를 쓴다.
+# NARRATIVE_PROMPT 는 설정(shared/config.narrative_prompt)으로 — tools.record·draft_service.build 가 씀.
 JUDGE_PROMPT = "judge_v2"  # SCRUM-61 — 11/5 활성. judge_v1 은 기록용.
 SUMMARY_PROMPT = "summary_v1"
 LLM_TEMPERATURE = 0.0
 NARRATIVE_MAX_TOKENS = 2000
 JUDGE_MAX_TOKENS = 4000
+SUMMARY_MAX_TOKENS = 1500  # SCRUM-129 — 1~6줄·model_focus 1줄 + 사고 토큰. fewshot 2개
 JUDGE_SCHEMA_RETRY = 1
 FEWSHOT_SAME_TYPOLOGY = 1
 FEWSHOT_OTHER_TYPOLOGY = 2
@@ -49,6 +49,7 @@ FROZEN_PROMPTS: dict[str, str] = {
     "narrative_v1": "d2cbb854386dd3c01dc0d71556878e1e1287cab540839c56ae7dc51281155424",
     "narrative_v2": "66210c3d25e59b136f4ec2359ad2f09c43501435322874f0048192795653aa9f",
     "judge_v2": "9879f7d2eb7f7a82cffe6bdddacb880362c06ad682d0aca318da03b1af62862d",
+    "summary_v1": "110d73729036723f6587721ae5e39ebbd4a5d925142ab683522126e13eac5d65",  # SCRUM-129
 }
 
 # ---- 검증 (docs/str/06)

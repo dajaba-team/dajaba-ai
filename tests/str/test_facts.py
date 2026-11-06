@@ -74,7 +74,7 @@ def test_subject_typology_and_reporting_institution(mixed) -> None:
 def test_reporting_institution_falls_back_to_bank_name() -> None:
     rows = CASES["mixed"]["transactions"]
     req = make_req(rows).model_copy(update={"reporting_institution": None})
-    f = facts_domain.build_facts(req, make_txs(rows), make_subject())
+    f = facts_domain.build_facts(req.to_facts_input(), make_txs(rows), make_subject())
     assert f.reporting_institution == CASES["subject"]["bank_name"]
 
 
@@ -95,18 +95,18 @@ def test_observations_only_values_and_no_contribution() -> None:
 def test_evidence_must_equal_alert_transaction_ids() -> None:
     rows = CASES["mixed"]["transactions"]
     req = make_req(rows, evidence=[r["transaction_id"] for r in rows[:-1]])
-    assert facts_domain.request_problem(req) == "evidence must equal alert.transaction_ids"
+    assert facts_domain.request_problem(req.to_facts_input()) == "evidence must equal alert.transaction_ids"
 
 
 def test_paths_id_outside_transaction_ids() -> None:
     case = CASES["cycle"]
     outside = max(r["transaction_id"] for r in case["transactions"]) + 1
     req = make_req(case["transactions"], rule_id=case["rule_id"], paths=[*case["paths"], [outside]])
-    assert facts_domain.request_problem(req) == "paths id not in transaction_ids"
+    assert facts_domain.request_problem(req.to_facts_input()) == "paths id not in transaction_ids"
 
 
 def test_valid_request_has_no_problem(mixed) -> None:
-    assert facts_domain.request_problem(make_req(CASES["mixed"]["transactions"])) is None
+    assert facts_domain.request_problem(make_req(CASES["mixed"]["transactions"]).to_facts_input()) is None
 
 
 def test_self_transfer_only_is_not_reportable() -> None:

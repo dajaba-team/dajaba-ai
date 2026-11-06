@@ -8,6 +8,7 @@ from aml_ai.shared.schemas.alerts import Alert
 from aml_ai.shared.schemas.common import StrictModel, SystemTimestamp, TransactionId
 from aml_ai.shared.schemas.scores import Reason
 from aml_ai.shared.schemas.str.facts import Facts
+from aml_ai.shared.schemas.str.facts_input import FactsInput
 from aml_ai.shared.schemas.str.narrative import NarrativeSection, _each_section_once
 
 INVESTIGATOR_NOTES_MAX = 2000  # AI 설계 7A 2번 — 메모 상한
@@ -46,6 +47,16 @@ class DraftRequest(StrictModel):
     prior_alert_count: int = Field(ge=0, description="건수만 — 내용은 보내지 않는다")
     investigator_notes: str | None = Field(max_length=INVESTIGATOR_NOTES_MAX)
     reporting_institution: str | None
+
+    def to_facts_input(self) -> FactsInput:
+        """build_facts 공통 입력으로 (SCRUM-129 ★A 1). 라운드트립 테스트가 초안 녹화 키 보존을 보장."""
+        return FactsInput(
+            alert=self.alert,
+            evidence_transaction_ids=self.evidence_transaction_ids,
+            reasons=self.reasons,
+            prior_alert_count=self.prior_alert_count,
+            reporting_institution=self.reporting_institution,
+        )
 
 
 class DraftResponse(StrictModel):
