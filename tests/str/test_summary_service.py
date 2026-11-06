@@ -92,8 +92,9 @@ def test_code_failure_then_regen_success(req: SummaryRequest) -> None:
 def test_code_failure_regen_with_realistic_clock(req: SummaryRequest) -> None:
     """★ 리뷰 medium — 첫 호출이 6초 걸리는 현실적 시계에서도 재생성 돎.
 
-    기본 summary_budget_s=40, summary_regen_min_remaining_s=15 — 첫 호출 6초 뒤 남은 34초가
-    15초 이상이라 재생성 분기 진입. 리뷰 전에는 regen_min_remaining_s=40 을 재사용해 분기가 막혔음.
+    기본 summary_budget_s=40, summary_regen_min_remaining_s=15, summary_llm_timeout_s=15 —
+    첫 호출 6초 뒤 남은 34초가 15초 이상이라 재생성 분기 진입. 리뷰 전에는 regen_min_remaining_s=40
+    을 재사용해 분기가 막혔음.
     """
     stub = StubLlm(responses=[bad_amount_text(), ok_text()])
     ticks = iter(
@@ -102,6 +103,20 @@ def test_code_failure_regen_with_realistic_clock(req: SummaryRequest) -> None:
     out = build_service(stub, clock=lambda: next(ticks)).summarize(req)
     assert len(stub.calls) == 2
     assert all(c.match for c in out.code_checks)
+
+
+def test_code_failure_remaining_14s_no_second_call(req: SummaryRequest) -> None:
+    """★ 커밋 전 수정 — 남은 14초(summary_llm_timeout_s=15 미만)면 2차 호출 안 함.
+
+    첫 호출 뒤 남은 시간이 LLM 1회 제한보다 작으면 _can_regenerate 가 False → 재생성 스킵.
+    "남은 시간 < 호출 1회 제한이면 안 부름" 불변식 유지. 응답은 200 + code_checks.match=false.
+    """
+    stub = StubLlm(responses=[bad_amount_text(), ok_text()])
+    # deadline = 0 + 40 = 40. 1차 뒤 clock=26 → 남은 14 < 15 → 재생성 안 함.
+    ticks = iter([0.0, 0.0, 26.0, 26.0, 26.0])
+    out = build_service(stub, clock=lambda: next(ticks)).summarize(req)
+    assert len(stub.calls) == 1  # 재생성 안 돎
+    assert any(not c.match for c in out.code_checks)
 
 
 def test_code_failure_twice_returns_200_with_match_false(req: SummaryRequest) -> None:

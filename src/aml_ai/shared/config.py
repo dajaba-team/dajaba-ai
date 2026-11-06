@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     # 요약 전용 재생성 임계값(SCRUM-129 리뷰 medium) — summary_budget_s=40 과 같은 값이면 첫 호출이
     # 양의 시간을 쓰면 재생성 자리가 사라짐. 요약은 자연어 1~6줄이라 짧게 두고 재생성 여유를 확보.
     summary_regen_min_remaining_s: float = Field(default=15.0, gt=0, alias="SUMMARY_REGEN_MIN_REMAINING_S")
+    # 요약 전용 LLM 1회 호출 제한 — 초안·검증 llm_timeout_s=35 와 별도. 요약 호출은 실제 5~10초라
+    # 15초면 충분하고, _preflight 가 이 값으로 체크해 "남은 시간 < 호출 1회 제한이면 안 부름" 유지.
+    summary_llm_timeout_s: float = Field(default=15.0, gt=0, alias="SUMMARY_LLM_TIMEOUT_S")
     stale_processing_s: float = Field(default=110, gt=0, alias="STALE_PROCESSING_S")
     llm_daily_token_budget: int = Field(default=2_000_000, alias="LLM_DAILY_TOKEN_BUDGET")
 
@@ -82,6 +85,11 @@ class Settings(BaseSettings):
         if self.summary_budget_s < self.llm_timeout_s:
             raise ValueError(
                 f"summary_budget_s({self.summary_budget_s}) must be >= llm_timeout_s({self.llm_timeout_s})"
+            )
+        if self.summary_regen_min_remaining_s < self.summary_llm_timeout_s:
+            raise ValueError(
+                f"summary_regen_min_remaining_s({self.summary_regen_min_remaining_s}) must be >= "
+                f"summary_llm_timeout_s({self.summary_llm_timeout_s})"
             )
         return self
 

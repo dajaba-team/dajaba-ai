@@ -24,7 +24,7 @@ class StubLlm:
     exc_at: dict[int, Exception] = field(default_factory=dict)
     calls: list[dict] = field(default_factory=list)
 
-    def complete_json(self, *, system, user, model, max_tokens, tag) -> LlmResult:
+    def complete_json(self, *, system, user, model, max_tokens, tag, timeout_s=None) -> LlmResult:
         idx = len(self.calls)
         self.calls.append({"tag": tag})
         if idx in self.exc_at:

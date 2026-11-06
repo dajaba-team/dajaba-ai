@@ -109,6 +109,7 @@ class SummaryGenerator:
                 model=self._s.llm_model_generate,
                 max_tokens=SUMMARY_MAX_TOKENS,
                 tag=SUMMARY_PROMPT,
+                timeout_s=self._s.summary_llm_timeout_s,  # 요약 전용 1회 제한(초안·검증은 llm_timeout_s)
             )
             totals = [totals[0] + res.tokens_in, totals[1] + res.tokens_out, totals[2] + res.latency_ms]
             try:
@@ -142,13 +143,13 @@ class SummaryGenerator:
         )
 
     def _preflight(self, deadline: float) -> None:
-        """남은 예산이 요약 전용 임계값 아래면 LlmUnavailable (SCRUM-129 리뷰 medium 수정).
+        """남은 예산이 요약 호출 1회 제한보다 작으면 LlmUnavailable (SCRUM-129 커밋 전 수정).
 
-        초안 `llm_timeout_s=35` 를 재사용하면 첫 호출 몇 초 뒤 2차 preflight 가 바로 막힘.
-        요약 호출은 실제 5~10초라 `summary_regen_min_remaining_s` (기본 15) 를 임계값으로.
+        초안 `llm_timeout_s=35` 는 요약에 과도. 요약 전용 `summary_llm_timeout_s`(기본 15)로 체크 —
+        "남은 시간 < 호출 1회 제한이면 안 부름" 불변식 유지. 재생성 판정은 서비스단 `_can_regenerate`.
         """
         remaining = deadline - self._clock()
-        if remaining < self._s.summary_regen_min_remaining_s:
+        if remaining < self._s.summary_llm_timeout_s:
             raise LlmUnavailable("summary budget exceeded")
 
 

@@ -48,7 +48,14 @@ class LlmResult:
 
 class LlmClient(Protocol):
     def complete_json(
-        self, *, system: str, user: str, model: str, max_tokens: int, tag: str
+        self,
+        *,
+        system: str,
+        user: str,
+        model: str,
+        max_tokens: int,
+        tag: str,
+        timeout_s: float | None = None,  # SCRUM-129 — 호출별 제한(초안·검증은 None→기본값 유지)
     ) -> LlmResult: ...
 
 
@@ -58,7 +65,16 @@ class RecordedLlmClient:
     def __init__(self, recorded_dir: Path) -> None:
         self._dir = recorded_dir
 
-    def complete_json(self, *, system: str, user: str, model: str, max_tokens: int, tag: str) -> LlmResult:
+    def complete_json(
+        self,
+        *,
+        system: str,
+        user: str,
+        model: str,
+        max_tokens: int,
+        tag: str,
+        timeout_s: float | None = None,  # 재생에서는 무시
+    ) -> LlmResult:
         key = recording_key(system, user)
         path = self._dir / tag / f"{key}.json"
         if not path.exists():
@@ -86,8 +102,20 @@ class HttpLlmClient:
         self._s = settings
         self._http = http or httpx.Client(timeout=settings.llm_timeout_s)
 
-    def complete_json(self, *, system: str, user: str, model: str, max_tokens: int, tag: str) -> LlmResult:
-        """SCRUM-47: tag(활성 서술 버전) 로 LLM 출력 스키마의 섹션 enum 을 좁힌다 — v1 6개 또는 v2 7개."""
+    def complete_json(
+        self,
+        *,
+        system: str,
+        user: str,
+        model: str,
+        max_tokens: int,
+        tag: str,
+        timeout_s: float | None = None,
+    ) -> LlmResult:
+        """SCRUM-47: tag(활성 서술 버전) 로 LLM 출력 스키마의 섹션 enum 을 좁힌다 — v1 6개 또는 v2 7개.
+
+        `timeout_s` — 호출별 제한(SCRUM-129). None 이면 클라이언트 생성 시 설정(`llm_timeout_s`)을 쓴다.
+        """
         from aml_ai.shared.schemas.str import llm_output_model
 
         schema = json_schema_for(llm_output_model(tag), name=tag)
@@ -101,7 +129,7 @@ class HttpLlmClient:
             reasoning_effort=self._s.llm_reasoning_effort,
         )
         started = time.perf_counter()
-        raw = self._post(body, tag=tag)
+        raw = self._post(body, tag=tag, timeout_s=timeout_s)
         latency = int((time.perf_counter() - started) * 1000)
         text = extract_output_text(raw)
         usage = raw.get("usage") or {}
@@ -113,14 +141,18 @@ class HttpLlmClient:
             latency_ms=latency,
         )
 
-    def _post(self, body: dict, *, tag: str) -> dict:
+    def _post(self, body: dict, *, tag: str, timeout_s: float | None = None) -> dict:
         headers = {
             "Authorization": f"Bearer {self._s.llm_api_key}",
             "Content-Type": "application/json",
         }
         url = f"{self._s.llm_api_base.rstrip('/')}/responses"
         try:
-            resp = self._http.post(url, json=body, headers=headers)
+            resp = (
+                self._http.post(url, json=body, headers=headers, timeout=timeout_s)
+                if timeout_s is not None
+                else self._http.post(url, json=body, headers=headers)
+            )
         except httpx.TransportError as exc:
             # TransportError 는 TimeoutException·ConnectError·ReadError·RemoteProtocolError 포괄
             # (SCRUM-15 adversarial M2). 백엔드가 1회 재시도하는 LLM_UNAVAILABLE 로 통일.
