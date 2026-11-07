@@ -48,12 +48,12 @@ INSERT (PROCESSING, request_hash)      ← LLM 호출 전 선점 (순서는 아�
 
 ## pgvector — 확장 생성은 superuser만
 
-`CREATE EXTENSION vector`는 **DB superuser 권한**이 필요하다. `app_migrate`(Alembic 계정)로는 안 된다. 그래서 세 갈래:
+`CREATE EXTENSION vector`는 **DB superuser 권한**이 필요하다. AI 서버 Alembic 계정(`app_ai`, `ai` 주인)이나 백엔드 Flyway 계정(`app_migrate`, `ops` 주인) **둘 다 안 된다** — 확장은 서버 단위라 superuser만. 그래서 세 갈래:
 
 | 상황 | 절차 | 누가 |
 |---|---|---|
-| **새 DB**(compose 처음 띄울 때) | 백엔드 리포 `db/init/00_extensions.sql`에 `CREATE EXTENSION IF NOT EXISTS vector;` — `db/init/`은 postgres 이미지가 superuser로 1회 실행한다. compose db 이미지를 `postgres:16` → `pgvector/pgvector:pg16` | 준혁(백엔드 리포), W3 초 — 준혁 W2 적재가 끝난 뒤 |
-| **이미 있는 DB**(팀원 로컬·시연 서버) | 손으로 1회: `docker compose exec db psql -U postgres -d aml -c "CREATE EXTENSION IF NOT EXISTS vector;"` — `shared/05`에 명령 그대로 | 각자 |
+| **새 DB**(compose 처음 띄울 때) | 백엔드 리포 `db/init/00_extensions.sql`이 `CREATE EXTENSION IF NOT EXISTS vector;` — postgres 이미지가 superuser 로 볼륨 첫 기동 때 1회 실행. db 이미지는 `pgvector/pgvector:0.8.2-pg16-trixie`(버전 고정, 기존 `postgres:16` trixie 볼륨과 collation 그대로) | 백엔드 리포 (SCRUM-124, 완료) |
+| **이미 있는 DB**(팀원 로컬·시연 서버 — 볼륨이 이미 떠 있어 `db/init/`이 안 돈다) | 손으로 1회: `docker exec aml-db psql -U postgres -d aml -c "CREATE EXTENSION IF NOT EXISTS vector;"` — 백엔드 폴더 아니어도 돈다(컨테이너 이름으로 직접). `docker compose exec db …` 는 백엔드 폴더·같은 compose 프로젝트(`name: dajaba`)에서만 | 각자 |
 | Alembic `0005_reference_chunks` | 확장을 **만들지 않고 확인만**: `SELECT 1 FROM pg_extension WHERE extname='vector'` 없으면 `RuntimeError("pgvector 확장 없음 — shared/03 절차")`로 멈춘다. 조용히 넘어가지 않는다 | 진희, W4 |
 
 차원 N은 임베딩 모델에 따라 `.env`의 `EMBEDDING_DIM`. 모델을 바꾸면 테이블을 비우고 전부 재적재(마이그레이션이 아니라 스크립트).
