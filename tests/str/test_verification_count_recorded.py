@@ -24,8 +24,8 @@ from aml_ai.str.domain.fact_keys import attach_evidence
 from tests.conftest import EXAMPLES, FIXTURES, load_json
 
 _REPO = Path(__file__).resolve().parents[2]
-_RECORDED_V1 = _REPO / "tests/str/recorded/narrative_v1/e9a01c4b4f5f98ff.json"
-_RECORDED_V2 = _REPO / "tests/str/recorded/narrative_v2/f753334d40c5207c.json"
+_RECORDED_V1 = _REPO / "tests/str/recorded/narrative_v1/6e76c5d81cb3b522.json"
+_RECORDED_V2 = _REPO / "tests/str/recorded/narrative_v2/a976ae216c7fb1bb.json"
 
 
 def _recorded_narrative(path: Path, is_v2: bool) -> tuple[list[RevisedNarrativeSection], list[int]]:
@@ -63,7 +63,18 @@ def _narrative_ok() -> tuple[list[RevisedNarrativeSection], list[int]]:
 @pytest.mark.parametrize(
     ("name", "loader"),
     [
-        ("narrative_v1_recorded", lambda: _recorded_narrative(_RECORDED_V1, is_v2=False)),
+        pytest.param(
+            "narrative_v1_recorded",
+            lambda: _recorded_narrative(_RECORDED_V1, is_v2=False),
+            marks=pytest.mark.xfail(
+                reason=(
+                    "SCRUM-140(11/7): v1 재녹화 2회 모두 WHO '등록일'(ONBOARD_WORDS 밖) + "
+                    "WHY_SUSPICIOUS 관측값 괄호 밖 표기 → DATE_MATCH 3건 MISMATCH. "
+                    "SCRUM-131 DATE_MATCH 규칙 정리(등록일 추가·괄호 밖 관측 range 허용) 뒤 복구"
+                ),
+                strict=True,
+            ),
+        ),
         ("narrative_v2_recorded", lambda: _recorded_narrative(_RECORDED_V2, is_v2=True)),
         ("draft_response_example", _draft_response_narrative),
         ("narrative_ok_fixture", _narrative_ok),

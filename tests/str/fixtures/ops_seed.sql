@@ -5,7 +5,7 @@
 -- 맨 위에서 막는다 (SCRUM-158): docs/shared/05_dev_setup.md 참고.
 --
 -- facts_fan_in.json 기존 칸 값이 그대로 떨어지도록 시드:
---   거래 3건(id 1·2·3), 전부 inbound to 010_8000EBD30, ACH, US Dollar
+--   거래 3건(id 1·2·3), 전부 inbound to 10_8000EBD30, ACH, US Dollar
 --   합 42,750.50 USD (12500 + 14000 + 16250.50), period 2022-09-02 00:14~22:51
 --   상대 3개 (020_C0000001·02·03, 전부 타행), subject entity 80062E240 Sole Proprietorship
 
@@ -56,9 +56,9 @@ CREATE TABLE IF NOT EXISTS ops.transactions (
     ts                timestamp,
     from_account_key  text,
     to_account_key    text,
-    amount_paid       numeric(20, 2),
+    amount_paid       numeric(20, 6),
     currency_paid     text,
-    amount_received   numeric(20, 2),
+    amount_received   numeric(20, 6),
     currency_received text,
     payment_format    text,
     is_self_transfer  boolean,
@@ -79,7 +79,7 @@ INSERT INTO ops.entities (entity_id, entity_name, entity_type) VALUES
 
 -- 대상 계좌 + 상대 3개(전부 bank_id 020 — 대상 010 과 달라 counterparty_banks.other_bank_accounts = 3)
 INSERT INTO ops.accounts (account_key, bank_name, entity_id) VALUES
-    ('010_8000EBD30', 'Portugal Bank #4507', '80062E240'),
+    ('10_8000EBD30', 'Portugal Bank #4507', '80062E240'),
     ('020_C0000001',  'Other Bank #0020',    'COUNTER-01'),
     ('020_C0000002',  'Other Bank #0020',    'COUNTER-02'),
     ('020_C0000003',  'Other Bank #0020',    'COUNTER-03');
@@ -91,15 +91,15 @@ INSERT INTO ops.customer_attributes (
     '80062E240', 'RETAIL', 'LOW', 'SALES_DEPOSIT', DATE '2021-03-14', 'PT'
 );
 
--- 거래 3건 — 모두 inbound to 010_8000EBD30, ACH, USD
+-- 거래 3건 — 모두 inbound to 10_8000EBD30, ACH, USD
 INSERT INTO ops.transactions (
     transaction_id, ts, from_account_key, to_account_key,
     amount_paid, currency_paid, amount_received, currency_received,
     payment_format, is_self_transfer
 ) VALUES
-    (1, '2022-09-02 00:14:00', '020_C0000001', '010_8000EBD30',
+    (1, '2022-09-02 00:14:00', '020_C0000001', '10_8000EBD30',
      12500.00, 'US Dollar', 12500.00, 'US Dollar', 'ACH', false),
-    (2, '2022-09-02 11:30:00', '020_C0000002', '010_8000EBD30',
+    (2, '2022-09-02 11:30:00', '020_C0000002', '10_8000EBD30',
      14000.00, 'US Dollar', 14000.00, 'US Dollar', 'ACH', false),
-    (3, '2022-09-02 22:51:00', '020_C0000003', '010_8000EBD30',
+    (3, '2022-09-02 22:51:00', '020_C0000003', '10_8000EBD30',
      16250.50, 'US Dollar', 16250.50, 'US Dollar', 'ACH', false);

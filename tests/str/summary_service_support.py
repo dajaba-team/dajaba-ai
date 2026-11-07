@@ -45,7 +45,7 @@ class StubReader:
                 transaction_id=tid,
                 ts=datetime(2022, 9, 2, i * 7, 14 if i == 0 else 51, 0),
                 from_account_key=f"OTHER_{tid}",
-                to_account_key="010_8000EBD30",
+                to_account_key="10_8000EBD30",
                 amount_paid=Decimal(amounts.get(tid, "14250.17")),
                 currency_paid="USD",
                 amount_received=Decimal(amounts.get(tid, "14250.17")),
@@ -58,12 +58,12 @@ class StubReader:
 
     def load_subject(self, alert, txs: list[Transaction]) -> Subject:  # noqa: ARG002
         return Subject(
-            account_key="010_8000EBD30",
+            account_key="10_8000EBD30",
             entity_id="80062E240",
             entity_name="Sole Proprietorship #50438",
             entity_type="SOLE_PROPRIETORSHIP",
             bank_name="Portugal Bank #4507",
-            account_entities={"010_8000EBD30": "80062E240"},
+            account_entities={"10_8000EBD30": "80062E240"},
             customer=Customer(
                 industry="RETAIL",
                 risk_level="LOW",

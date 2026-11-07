@@ -29,7 +29,7 @@ def _fan_in_request(sample: dict) -> DraftRequest:
     body = {**sample}
     body["alert"] = {
         **body["alert"],
-        "account_key": "010_8000EBD30",
+        "account_key": "10_8000EBD30",
         "entity_id": "80062E240",
         "transaction_ids": [1, 2, 3],
     }

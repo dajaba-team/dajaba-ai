@@ -7,7 +7,7 @@
       "entity_id": "E-PASS-03",
       "entity_name": "Individual #30003",
       "entity_type": "INDIVIDUAL",
-      "account_key": "010_SX00000C3"
+      "account_key": "10_SX00000C3"
     },
     "period": {"start": "2022-10-03T10:00:00", "end": "2022-10-03T15:30:00"},
     "inbound": {
@@ -59,7 +59,7 @@
     "unmapped_currencies": []
   },
   "summary_lines": [
-    "2022-10-03 보고 대상 계좌(010_****00C3)로 입금 2건이 들어옴.",
+    "2022-10-03 보고 대상 계좌(10_****00C3)로 입금 2건이 들어옴.",
     "같은 기간 출금 2건이 나감.",
     "입금 합계 30,000.00 USD, 출금 합계 29,800.00 USD임.",
     "상대 4개 계좌는 모두 타행이며, 결제 수단은 Wire임."

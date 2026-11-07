@@ -20,7 +20,7 @@ def _has_key(node: object, key: str) -> bool:
 
 
 def test_mask_account_key_keeps_bank_and_tail4() -> None:
-    assert mask_account_key("010_8000EBD30") == "010_****BD30"
+    assert mask_account_key("10_8000EBD30") == "10_****BD30"
 
 
 def test_mask_account_key_without_bank() -> None:  # 경계: '_' 없는 키
@@ -30,8 +30,8 @@ def test_mask_account_key_without_bank() -> None:  # 경계: '_' 없는 키
 def test_mask_for_llm_does_not_touch_original() -> None:
     facts = _facts()
     masked = mask_for_llm(facts)
-    assert masked["subject"]["account_key"] == "010_****BD30"
-    assert facts.subject.account_key == "010_8000EBD30"
+    assert masked["subject"]["account_key"] == "10_****BD30"
+    assert facts.subject.account_key == "10_8000EBD30"
     assert masked["inbound"]["by_currency"][0]["total"] == facts.inbound.by_currency[0].total
 
 

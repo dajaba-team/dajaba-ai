@@ -180,3 +180,6 @@ def test_won_symbol_leading_mismatch() -> None:
     """Codex adversarial [medium] #4 — `₩1,000` 앞쪽 기호도 쌍짓기, facts 에 KRW 없어 MISMATCH."""
     checks = amount(facts_fan_in(), SectionV1.SUMMARY, "₩1,000 입금")
     assert checks and all(not c.match and c.reason is CheckReason.MISMATCH for c in checks)
+
+
+# SCRUM-140 BTC 소수 테스트는 `test_verification_amount_btc.py` 로 분리 (관문 200 줄).

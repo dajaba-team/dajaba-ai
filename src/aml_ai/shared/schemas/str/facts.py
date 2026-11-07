@@ -117,7 +117,7 @@ class PaymentFormatCount(StrictModel):
 class AmountRange(StrictModel):
     """통화별 min/max 금액(SCRUM-47) — 매핑된 통화만, 환산·합산 없음.
 
-    min·max 는 Decimal 소수 2자리 문자열(`CurrencyTotal.total` 과 같은 규칙).
+    min·max 는 `FactAmount` — 소수 2~6자리 문자열(`CurrencyTotal.total` 과 같은 규칙, SCRUM-140).
     """
 
     currency: CurrencyCode

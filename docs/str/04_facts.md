@@ -53,7 +53,7 @@
 | `internal` | **S가 낀 거래** 중 상대 계좌의 `entity_id`가 S의 `entity_id`와 같은 것(S의 법인이 가진 다른 계좌와의 이동). S 없이 같은 법인 계좌끼리 오간 거래는 `indirect`. S의 `entity_id`가 없으면 internal 0건. inbound/outbound에 **넣지 않는다**. 금액 집계 없음(법인 안 이동이라 "입금"도 "출금"도 아님) — 건수와 ID만 |
 | `indirect` | **대상 계좌가 직접 참여하지 않은 경보 거래**(S가 from·to 어디에도 없음). 예: R04_CYCLE A→B→C→A, 대상 A일 때 B→C. `count`와 `transaction_ids`만 남긴다 — 버리지도 400으로 막지도 않고, 대상 계좌 관점 집계(inbound/outbound/counterparties/direction)에는 **섞지 않는다**. 금액 집계 없음. 인용 키 없음, LLM에 보내지 않음(마스킹에서 제거). 쓰임은 `period` 계산과 근거 범위뿐. **이 거래들이 어떤 순서로 이어진 경로인지는 여기서 다루지 않는다** — 그건 `paths`(아래 "경로" 절). (10/27 이름 `path`, 10/28 `indirect`로 변경) |
 | `paths` | `alert.rule_facts.paths`가 있을 때만. 확인 규칙·값은 아래 "경로" 절. 없거나 빈 배열이면 `null` |
-| `by_currency[].total` | Decimal 합, **문자열**, 소수 2자리 고정, 천 단위 구분 없음. 통화 간 **환산 없음**. (0절 "금액은 숫자"의 유일한 예외 — LLM·백엔드가 다르게 반올림하지 않도록) |
+| `by_currency[].total` | Decimal 합, **문자열**, **소수 2~6자리**(아래 규칙), 천 단위 구분 없음. 통화 간 **환산 없음**. (0절 "금액은 숫자"의 유일한 예외 — LLM·백엔드가 다르게 반올림하지 않도록) |
 | `currency` | ISO 4217 코드(`USD`, `EUR`, …). IBM 원천은 이름(`US Dollar`, `Euro`, …)이라 **`transaction_reader`가 읽을 때** 고정 표 `domain/constants.CURRENCY_CODES`로 바꾼다 — domain은 코드만 본다. HI-Small 15종(가정, 축소본 만들 때 `SELECT DISTINCT`로 확인): US Dollar→USD, Euro→EUR, Yuan→CNY, Shekel→ILS, Canadian Dollar→CAD, UK Pound→GBP, Ruble→RUB, Australian Dollar→AUD, Swiss Franc→CHF, Yen→JPY, Mexican Peso→MXN, Rupee→INR, Brazil Real→BRL, Saudi Riyal→SAR, **Bitcoin→BTC**(ISO 4217에 없음 — 규약 0절 예외). **표에 없는 이름**은 **에러 아님** → `unmapped_currencies` 로 보존(아래, SCRUM-47 · 미결 7) |
 | `unmapped_currencies` | 표에 없는 통화 이름이 섞여 있을 때 `[{name, count, transaction_ids}]` — 원문 이름 그대로. **`by_currency`·`amount_range` 금액 집계·통화 대조에는 섞지 않는다**(통화 간 환산·합산 금지). 상대 계좌 수는 통화와 무관하므로 **`counterparties` 와 inbound/outbound `count`·`transaction_ids` 에는 포함**. 서술에는 "{원문} … 대응 미확인"(05 규칙) |
 | `direction` | `inbound.count ≥ 2 × outbound.count` → `INBOUND`, 반대 → `OUTBOUND`, 그 밖 → `MIXED`. 둘 다 0이면(internal만) `INTERNAL` |
@@ -62,13 +62,32 @@
 | `counterparty_banks` | `counterparties` 집합 기준(internal 제외) `{same_bank_accounts, other_bank_accounts}` — 상대 `account_key` 의 `{bank_id}` 부분이 대상 계좌와 같으면 자행(same), 아니면 타행(other). 두 합 = `counterparties.count`. `account_key` 앞자리 0 통일은 적재에서 처리(5-1) (SCRUM-47 · 안건 6-2) |
 | `payment_formats` | distinct, 원본 문자열 그대로(ACH, Wire, Cash, …), 정렬 |
 | `payment_format_counts` | `[{format, count}]` — inbound ∪ outbound(self-transfer 제외) 원본 문자열별 건수. **건수 내림차순 → 이름순**(동률 안정화). 기존 `payment_formats`(distinct 목록) 는 v1 호환으로 남김 (SCRUM-47) |
-| `amount_range` | 통화별 `[{currency, min, max}]` — inbound ∪ outbound 중 **매핑된 통화만**(미등록 통화 제외), 통화 간 비교·합산 없음. min·max 는 Decimal 소수 2자리 **문자열**(`by_currency.total` 과 같은 규칙). 통화 코드 정렬. **거래마다 그 방향 금액 기준** — 입금은 `amount_received`·`currency_received`, 출금은 `amount_paid`·`currency_paid`(`inbound`·`outbound` 와 같음) (SCRUM-47 · 안건 6-2) |
+| `amount_range` | 통화별 `[{currency, min, max}]` — inbound ∪ outbound 중 **매핑된 통화만**(미등록 통화 제외), 통화 간 비교·합산 없음. min·max 는 Decimal **소수 2~6자리 문자열**(`by_currency.total` 과 같은 규칙). 통화 코드 정렬. **거래마다 그 방향 금액 기준** — 입금은 `amount_received`·`currency_received`, 출금은 `amount_paid`·`currency_paid`(`inbound`·`outbound` 와 같음) (SCRUM-47 · 안건 6-2) |
 | `typology` / `typology_source` | 요청 `alert.typology_hint` 그대로. `typology_source`는 `RULE` 고정(안건 8) |
 | `customer` | `customer_attributes` 행. 없으면 `null`. `onboarded_at`은 날짜(검증 `DATE_MATCH`가 "개설일"로 허용) |
 | `prior_alert_count` | 요청 그대로. 내용은 오지도 않는다 |
 | `observations[]` | 요청 `reasons`(안건 3 확정 구조)에서 **관측값만**: `{name, value, unit, window_start, window_end, basis, baseline}` ← `reasons[].name`, `observation.*`, `baseline.value`. `observation.value`가 `null`인 항목은 넣지 않는다. `contribution`(기여값·방법·척도)은 **넣지 않는다**. 관측 기간이 경보 창보다 넓어도 쓸 수 있지만 근거 거래는 붙이지 않고(인용 키 → `evidence_ids` 없음), 본문에는 "모델 관측값(24시간 기준)"처럼 기간을 밝혀 쓴다(05 규칙 11, 10/28 준영). `context_transaction_ids`는 facts에 넣지 않는다 |
 | `model_signals[]` | 요청 `reasons` 상위 3개의 피처 **이름만**. "모델이 주목한 점" 한 줄의 재료. 숫자 없음 |
 | 없는 값 | `null`. LLM에는 "확인되지 않음"으로 전달, 모르는 걸 지어내지 말라는 규칙(05)이 받는다 |
+
+### 금액 문자열 규칙 (`_money`, SCRUM-140 — 2026-11-07)
+
+- **스키마**: `^\d+\.\d{2,6}$` (`shared/schemas/common.FactAmount`). 소수부 **최소 2자리**(법정 통화 표기 보장), 최대 6자리(DB `numeric(20,6)` 과 일치, 규약 v0.4 1번).
+- **포맷 함수** `str/domain/facts._money` (의사 코드):
+  1. `q = x.quantize(Decimal("0.000001"), ROUND_HALF_EVEN)` — 6자리 scale로 맞춤 (방어선 포함).
+  2. `s = f"{q:f}"` — scale대로 6자리 문자열(`"42750.500000"`·`"0.000001"`). 지수 표기 안 나옴. `normalize()` 금지.
+  3. 소수점 기준 분해 → **소수부 뒤쪽 0만** `rstrip("0")` → 비거나 1자리면 `ljust(2, "0")` → 다시 결합. 정수부·앞쪽은 건드리지 않는다.
+- **소수부 길이 의미**: 끝에 의미 없는 0은 떼되 **법정 통화 표기(2자리)는 보장**. 입력 Decimal의 scale이 6이든 2든 결과가 같다 — DB(`numeric(20,6)`)에서 `42750.50`도 `42750.500000`도 둘 다 `"42750.50"`.
+- **입력 → 문자열 벡터** (양쪽 scale이 같은 결과를 내는지까지 봄):
+  - `Decimal('42750.50')` · `Decimal('42750.500000')` → `"42750.50"`
+  - `Decimal('320000000')` · `Decimal('320000000.000000')` → `"320000000.00"`
+  - `Decimal('0.0042')` · `Decimal('0.004200')` → `"0.0042"`
+  - `Decimal('0.000001')` → `"0.000001"`
+  - `Decimal('0.0000004')` → `"0.00"` (6자리 방어선, ROUND_HALF_EVEN)
+  - `Decimal('0.0000005')` → `"0.00"` · `Decimal('0.0000015')` → `"0.000002"` (HALF_EVEN 확인)
+- **7자리 이상 입력**: DB가 `numeric(20,6)` 이라 정상이면 안 오지만 방어선으로 6자리 `ROUND_HALF_EVEN` — 에러로 올리지 않음. 경계 확인 테스트 3건(`0.0000004`·`0.0000005`·`0.0000015`).
+- **facts build 경로 테스트**: 합계가 6자리 scale Decimal(`Decimal('42750.500000')`)로 들어와도 `by_currency[].total` 이 `"42750.50"` 으로 나오는지 — `ops_seed.sql` 이 `numeric(20,6)` 로 바뀌면 fixture 금액이 전부 6자리로 읽혀서 꼭 봐야 한다.
+- **이유**: 준혁님 11/5 확인 — HI-Small Bitcoin 입금 148,151건 중 25,947건(약 17.5%)이 `0.005 BTC` 미만. 소수 2자리 고정은 이 금액들을 `"0.00"` 으로 지워 보고서에 "0.00 BTC" 가 찍힘. LLM은 facts 숫자를 그대로 쓰므로 자릿수를 원본 가까이 보존해야 한다. 끝 0을 떼는 쪽을 고른 건 법정 통화 표기(`42750.50`)·계약 예시·few-shot을 안 바꾸면서 BTC 소수를 보존하기 위함(Jira "끝 0 다 떼기"는 `42750.50 → 42750.5` 로 가서 범위가 커졌음).
 
 ### 결정 사항 (바꾸려면 `09_decisions.md`에 적고)
 
