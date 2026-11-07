@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from decimal import Decimal
 from enum import StrEnum
 from typing import Annotated
 
@@ -23,9 +22,10 @@ AccountKey = Annotated[
 CurrencyCode = Annotated[
     str, StringConstraints(pattern=r"^[A-Z]{3}$"), Field(description="ISO 4217 코드. 예외 BTC (규약 0절)")
 ]
-Money = Annotated[Decimal, Field(decimal_places=2, description="소수 2자리 숫자. facts 금액만 문자열")]
 FactAmount = Annotated[
-    str, StringConstraints(pattern=r"^\d+\.\d{2}$"), Field(description="facts 금액 — 소수 2자리 고정 문자열")
+    str,
+    StringConstraints(pattern=r"^\d+\.\d{2,6}$"),
+    Field(description="facts 금액 — 소수 2~6자리 문자열 (SCRUM-140, docs/str/04)"),
 ]
 Sha256Hex = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 Timestamp = Annotated[datetime, Field(description="데이터 시각: ISO 8601, 초 단위, 시간대 없음 (IBM 원본)")]

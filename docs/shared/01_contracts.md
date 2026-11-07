@@ -22,7 +22,7 @@
 ## 공통 타입 규칙 (`schemas/common.py`, 규약 0절)
 
 - ID: 원칙 **문자열**. 예외 하나 — `transaction_id`는 **bigint, JSON 숫자**(안건 1). 적재 시 부여하는 순번이라 안전. 원본 파일 추적은 준혁의 `source_files` 테이블.
-- 금액: 소수 2자리 **숫자**(JSON number), 항상 `currency`와 쌍. `Money = Decimal(decimal_places=2)`. **facts 안의 금액만 문자열** — `str/04`.
+- 금액: AI 응답에서 금액을 담는 자리는 `facts` 안뿐이다 — **문자열**, 항상 `currency`와 쌍, **소수 2~6자리**(규약 v0.4 1번 DB `numeric(20,6)` 일치, SCRUM-140 11/7). 자세히는 `str/04` "금액 문자열 규칙". `shared/schemas/common.FactAmount` 가 패턴을 보장(`^\d+\.\d{2,6}$`). 요청·응답 다른 자리에 금액 숫자 필드는 없다(거래 금액은 AI 로더가 `ops.transactions` 에서 읽어 facts 로만 내보낸다).
 - 통화: ISO 4217 **코드** 문자열(`USD`). IBM 원천 이름(`US Dollar`)은 AI 로더가 고정 표로 바꾼다(`str/04`). **예외 `BTC`**(Bitcoin, ISO 4217에 없음). 표에 없는 이름은 **에러 아님** — `facts.unmapped_currencies: [{name, count, transaction_ids}]` 로 원문 보존, 집계·대조에는 안 섞음(SCRUM-47 · 미결 7). (안건 19는 회의 제외, 현값 유지)
 - 데이터 시각(`ts`, `window_*`, `reference_ts`, facts `period`, observation `window_*`): ISO 8601, 초 단위, 시간대 없음(IBM 원본 그대로). 기존 `Timestamp`의 입력 동작은 유지한다.
 - 시스템 시각(`produced_at`, `created_at`): `SystemTimestamp` — 시간대 있는 입력만 받고(`AwareDatetime`, naive 입력은 Pydantic ValidationError로 거절하고 기존 처리기가 400 `INVALID_REQUEST`로 응답), UTC로 변환한 뒤 microsecond를 버린다. JSON은 UTC + `Z`, 초 단위(예: `2026-10-30T05:12:00Z`). 근거: 노션 미결 27·규약 §0.

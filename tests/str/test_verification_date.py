@@ -118,7 +118,7 @@ def test_duration_hours_not_a_date() -> None:
 
 
 def test_account_id_not_a_date() -> None:
-    assert date(facts_fan_in(), SectionV1.WHO, "대상 계좌는 010_****BD30임") == []
+    assert date(facts_fan_in(), SectionV1.WHO, "대상 계좌는 10_****BD30임") == []
 
 
 def test_rule_id_not_a_date() -> None:

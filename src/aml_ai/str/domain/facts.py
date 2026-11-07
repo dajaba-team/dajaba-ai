@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Iterable
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, Decimal
 
 from aml_ai.shared.schemas.common import TypologySource
 from aml_ai.shared.schemas.scores import Reason
@@ -188,5 +188,12 @@ def _observations(reasons: list[Reason]) -> list[ObservationFacts]:
 
 
 def _money(x: Decimal) -> str:
-    """소수 2자리 고정 문자열, 천 단위 구분 없음. float 금지."""
-    return f"{x.quantize(MONEY_QUANT):f}"
+    """소수 2~6자리 문자열, 천 단위 구분 없음, float 금지 (SCRUM-140, docs/str/04).
+
+    6자리 scale 로 ROUND_HALF_EVEN 뒤 소수부 뒤쪽 0만 떼고 최소 2자리 보장 — 입력 scale 중립.
+    `Decimal('42750.50')` 과 `Decimal('42750.500000')` 둘 다 `"42750.50"` (DB numeric(20,6) 입력 보존).
+    """
+    s = f"{x.quantize(MONEY_QUANT, ROUND_HALF_EVEN):f}"
+    int_part, _, frac = s.partition(".")
+    frac = frac.rstrip("0").ljust(2, "0")
+    return f"{int_part}.{frac}"

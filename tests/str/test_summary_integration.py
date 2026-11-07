@@ -34,7 +34,7 @@ def _fan_in_body(sample: dict, *, case_no: str = "CASE-SCRUM129-01") -> dict:
     body["case_no"] = case_no
     body["alert"] = {
         **body["alert"],
-        "account_key": "010_8000EBD30",
+        "account_key": "10_8000EBD30",
         "entity_id": "80062E240",
         "transaction_ids": [1, 2, 3],
     }

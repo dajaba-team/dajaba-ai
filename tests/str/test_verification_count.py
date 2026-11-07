@@ -56,7 +56,7 @@ def test_count_match_passes_recorded_phrases(text: str) -> None:
 @pytest.mark.parametrize(
     "text",
     [
-        "010_****BD30",  # 계좌 식별자
+        "10_****BD30",  # 계좌 식별자
         "#50438",  # 엔티티 ID
         "42750.50 USD",  # 금액
         "2022-09-02T00:14:00",  # 시각

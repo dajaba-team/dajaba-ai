@@ -26,7 +26,7 @@ CURRENCY_CODES: dict[str, str] = {
     "Bitcoin": "BTC",
 }
 DIRECTION_RATIO = 2  # inbound ≥ 2 × outbound → INBOUND (진희 가정값, 축소본 분포 뒤 조정)
-MONEY_QUANT = Decimal("0.01")
+MONEY_QUANT = Decimal("0.000001")  # SCRUM-140 — 6자리 scale (DB numeric(20,6) 일치)
 PATH_RULE_KIND: dict[str, str] = {"R04_CYCLE": "CYCLE", "R05_STACK": "STACK"}  # rule_id → paths.kind
 PATH_MIN_TRANSACTIONS = 2
 MODEL_SIGNALS_TOP = 3  # reasons 상위 N개의 이름만 model_signals 로
