@@ -1,4 +1,4 @@
-# 04. facts — 정본 JSON과 계산 규칙 (규약 v0.2, 10/27)
+# 04. facts — 정본 JSON과 계산 규칙 (규약 v0.4, 11/6)
 
 정본: `str/domain/facts.py` `build_facts(req, txs, subject) -> Facts`, `attach_evidence(narrative, facts)`, `fact_keys(facts)`, `str/domain/masking.py` `mask_for_llm(facts) -> Facts`, `shared/schemas/str.py` `Facts`. 입력 dataclass(`Transaction`, `Subject`)는 `str/domain/models.py`, 읽기는 `str/infrastructure/transaction_reader.py`.
 
@@ -13,7 +13,7 @@
 ```json
 {
   "reporting_institution": "Portugal Bank #4507",
-  "subject": { "entity_id": "80062E240", "entity_name": "Sole Proprietorship #50438", "entity_type": "SOLE_PROPRIETORSHIP", "account_key": "010_8000EBD30" },
+  "subject": { "entity_id": "80062E240", "entity_name": "Sole Proprietorship #50438", "entity_type": "SOLE_PROPRIETORSHIP", "account_key": "10_8000EBD30" },
   "period": { "start": "2022-09-02T00:14:00", "end": "2022-09-02T22:51:00" },
   "inbound":  { "count": 47, "by_currency": [ { "currency": "USD", "total": "320000000.00", "count": 47, "transaction_ids": [104221, 104233, 104301] } ], "transaction_ids": [104221, 104233, 104301] },
   "outbound": { "count": 0,  "by_currency": [], "transaction_ids": [] },
@@ -144,7 +144,7 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 
 | 필드 | 처리 |
 |---|---|
-| `subject.account_key` | 뒤 4자리만 (`010_****BD30`) |
+| `subject.account_key` | 뒤 4자리만 (`10_****BD30`, 규약 v0.4 #4 — bank_id 앞 0 없음) |
 | `reporting_institution` (은행명) | 그대로 |
 | `subject.entity_name` (고객명) | 그대로 — IBM 합성 데이터라 실명이 아님. 실데이터 전환 시 여기서 가명화(MVP 정의서 8절 "한계" 4번) |
 | `subject.entity_id` | 그대로 (합성) |

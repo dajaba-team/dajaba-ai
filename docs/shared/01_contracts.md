@@ -1,6 +1,6 @@
-# 01. 규약과 코드를 맞추는 법 — 규약 v0.2 (10/27) 기준
+# 01. 규약과 코드를 맞추는 법 — 규약 v0.4 (11/6) 기준
 
-규약(「AML·STR 인터페이스 규약」 v0.2, Claude Docs)이 백엔드 ↔ AI 서버 사이의 JSON을 정한다. 코드에서 그 규약이 사는 자리는 세 곳이고, 셋이 항상 같아야 한다.
+규약(「AML·STR 인터페이스 규약」 v0.4, Claude Docs)이 백엔드 ↔ AI 서버 사이의 JSON을 정한다. 코드에서 그 규약이 사는 자리는 세 곳이고, 셋이 항상 같아야 한다.
 
 | 자리 | 무엇 | 누가 |
 |---|---|---|
@@ -27,7 +27,7 @@
 - 데이터 시각(`ts`, `window_*`, `reference_ts`, facts `period`, observation `window_*`): ISO 8601, 초 단위, 시간대 없음(IBM 원본 그대로). 기존 `Timestamp`의 입력 동작은 유지한다.
 - 시스템 시각(`produced_at`, `created_at`): `SystemTimestamp` — 시간대 있는 입력만 받고(`AwareDatetime`, naive 입력은 Pydantic ValidationError로 거절하고 기존 처리기가 400 `INVALID_REQUEST`로 응답), UTC로 변환한 뒤 microsecond를 버린다. JSON은 UTC + `Z`, 초 단위(예: `2026-10-30T05:12:00Z`). 근거: 노션 미결 27·규약 §0.
 - `ScoreResponse`, `VerifyResponse`, `DraftResponse`에 필수 `produced_at`을 둔다. 서비스는 공용 `shared/time_utils.py`의 `utc_now()` (`datetime.now(UTC).replace(microsecond=0)`)로 채우며 초안 재사용은 저장된 응답의 생성 시각을 유지한다.
-- 계좌 키: `account_key` = `{bank_id}_{account_no}`.
+- 계좌 키: `account_key` = `{bank_id}_{account_no}`. **규약 v0.4 #4 — `bank_id` 앞 0 제거**(`010_…` → `10_…`). `AccountKey` 스키마는 자릿수를 안 봄(min 3 유지) — 옛 데이터(`010_…`) 도 그대로 받음. 코드 검증은 앞 0 뗀 문자열로 비교(SCRUM-160, `str/06` ACCOUNT_ID_MATCH 절).
 - `null`은 생략하지 않고 보낸다. 빈 배열은 `[]`.
 - 열거값: 대문자 스네이크. `StrictModel(extra="forbid")` — 모르는 키가 오면 400.
 

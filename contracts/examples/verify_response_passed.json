@@ -18,7 +18,7 @@
     {"check": "COUNT_MATCH", "section": "METHOD", "draft_value": "3곳", "source_value": "{3}", "match": true, "reason": null},
     {"check": "COUNT_MATCH", "section": "METHOD", "draft_value": "3건", "source_value": "{3}", "match": true, "reason": null},
     {"check": "COUNT_MATCH", "section": "METHOD", "draft_value": "0건", "source_value": "{0}", "match": true, "reason": null},
-    {"check": "ACCOUNT_ID_MATCH", "section": "PLACE", "draft_value": "010_****BD30", "source_value": null, "match": true, "reason": null},
+    {"check": "ACCOUNT_ID_MATCH", "section": "PLACE", "draft_value": "10_****BD30", "source_value": null, "match": true, "reason": null},
     {"check": "EVIDENCE_IN_SCOPE", "section": "SUBJECT", "draft_value": null, "source_value": null, "match": true, "reason": null},
     {"check": "EVIDENCE_IN_SCOPE", "section": "DATE", "draft_value": null, "source_value": null, "match": true, "reason": null},
     {"check": "EVIDENCE_IN_SCOPE", "section": "PLACE", "draft_value": null, "source_value": null, "match": true, "reason": null},

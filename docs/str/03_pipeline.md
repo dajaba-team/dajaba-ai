@@ -1,4 +1,4 @@
-# 03. 처리 순서 — 세 엔드포인트 (규약 v0.2)
+# 03. 처리 순서 — 세 엔드포인트 (규약 v0.4)
 
 정본: `str/api/router.py`, `str/application/draft_service.py`·`verify_service.py`·`summary_service.py`, `str/infrastructure/*_repository.py`. 규약 5·6절을 함수 순서로 적은 것. 10/27 반영: `draft_id` 중복 방지(PROCESSING 선점), `generation_id`, AI 내부 재시도 삭제, 시간 예산, FAILED 행, cites → evidence_ids.
 

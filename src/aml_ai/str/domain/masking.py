@@ -12,7 +12,7 @@ _PATH_KEEP = ("kind", "count", "max_hops", "max_accounts")
 
 
 def mask_account_key(key: str) -> str:
-    """'010_8000EBD30' → '010_****BD30'. bank_id 는 남기고 계좌는 뒤 4자리만."""
+    """'10_8000EBD30' → '10_****BD30'. bank_id 는 남기고 계좌는 뒤 4자리만."""
     bank, _, acct = key.partition("_")
     if not acct:
         return "****" + key[-ACCOUNT_TAIL:]

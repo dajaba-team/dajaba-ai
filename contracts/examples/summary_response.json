@@ -3,7 +3,7 @@
   "case_no": "CASE-2022-000057",
   "generation_id": "g-2b7c91",
   "summary_lines": [
-    "2022-09-02 보고 대상 계좌(010_****BD30)로 서로 다른 3개 계좌에서 ACH 입금 3건이 들어옴.",
+    "2022-09-02 보고 대상 계좌(10_****BD30)로 서로 다른 3개 계좌에서 ACH 입금 3건이 들어옴.",
     "같은 날 입금 합계는 42,750.50 USD이며, 출금은 없음."
   ],
   "model_focus": "모델은 account_in_counterparties_24h 신호를 가장 크게 봄",
@@ -35,8 +35,8 @@
     {
       "check": "ACCOUNT_ID_MATCH",
       "section": null,
-      "draft_value": "010_****BD30",
-      "source_value": "subject.account_key=010_8000EBD30",
+      "draft_value": "10_****BD30",
+      "source_value": "subject.account_key=10_8000EBD30",
       "match": true,
       "reason": null
     }

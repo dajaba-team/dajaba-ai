@@ -4,7 +4,7 @@
 
 `dajaba-AI`는 백엔드 `dajaba`와 **별도 리포**다. 코드는 `src/aml_ai/`, 백엔드와 같은 4계층(`api/application/domain/infrastructure`) — `str/02_structure.md`.
 
-팀 공유 문서(Claude Docs)의 「AML AI 설계 문서」는 **왜**를 설명하고, 여기 md는 **정확히 무엇을** 코드로 만드는지 적는다. 둘이 다르면 여기가 정본이고, Claude Docs 쪽을 고친다. 규약은 「인터페이스 규약 v0.2」(10/27 회의 반영)가 정본이고 `shared/01`이 코드와 잇는다.
+팀 공유 문서(Claude Docs)의 「AML AI 설계 문서」는 **왜**를 설명하고, 여기 md는 **정확히 무엇을** 코드로 만드는지 적는다. 둘이 다르면 여기가 정본이고, Claude Docs 쪽을 고친다. 규약은 「인터페이스 규약 v0.4」(11/6 반영)가 정본이고 `shared/01`이 코드와 잇는다.
 
 **10/27 상태**: 회의 결정과 설계 검토 2건을 문서에 먼저 반영했다(①~⑦). **코드는 아직 10/26 뼈대 그대로** — 문서와 코드가 다른 곳은 아래 상태표의 "코드 반영" 줄. 준영이 쓰는 칸(안건 3·5·6)은 비워 두고 "준영 작성"으로 표시.
 
@@ -15,7 +15,7 @@
 | 파일 | 내용 | 10/27 |
 |---|---|---|
 | `shared/00_server_rules.md` | 폴더 경계·schemas 한 벌·버전 표기·.env·에러 JSON·내부 인증 — 세 줄 규칙 | 안건 17 문구 |
-| `shared/01_contracts.md` | 규약 v0.2 ↔ `schemas/` ↔ `contracts/examples/`, 바뀐 필드 전부, **narrative 해시 규칙·테스트 벡터** | 개정 |
+| `shared/01_contracts.md` | 규약 v0.4 ↔ `schemas/` ↔ `contracts/examples/`, 바뀐 필드 전부, **narrative 해시 규칙·테스트 벡터** | 개정 |
 | `shared/02_ml_package.md` | `aml-ml` 패키지 계약 — `score()` 시그니처, 상태값 4종, **안건 3·5·6 확정**, ML 입력 범위·coverage·품질 판정 | 개정 |
 | `shared/03_ai_schema.md` | `ai` 스키마 8테이블, `generations` 선점·상태, `verification_runs` 해시, **pgvector superuser 절차**, Alembic 번호 계획 | 개정 |
 | `shared/04_versioning_logging.md` | 응답에 붙는 버전, 프롬프트 동결, `ai_call_logs`, request_id | 동결 규칙 |
@@ -44,11 +44,13 @@
 
 | 항목 | 상태 | 날짜 | 비고 |
 |---|---|---|---|
+| SCRUM-160 — [AI] 규약 v0.4 #4(은행 ID 앞 0 제거) AI 반영: 검증 비교 + 예시·문서 `010_` → `10_` | 진행 | 11/7 | md: `shared/01`·`str/03`·`str/04`·`str/06`·`str/08` 기준 버전 v0.4·`ACCOUNT_ID_MATCH` 앞 0 뗀 비교 규칙. 코드: `verification_account._norm_bank`(`lstrip("0") or "0"`) — `_subject_parts` 반환과 `_is_subject` 비교에 적용, `_Found.raw`·`draft_value`(응답 원문)는 그대로. `contracts/examples/*.json` 7개 바이트 교체(`010_` → `10_`) — 백엔드 리포 사본 맞춤은 진희 따로. few-shot·녹화·fixture·`ops_seed.sql` 은 **안 건드림(→ SCRUM-140 에서 금액 자릿수와 함께 재녹화)**. `facts_aggregations.counterparty_banks` 자행/타행 판정은 한 요청 안의 키끼리 비교라 문자열 비교 유지(옛 표기 섞이면 SCRUM-140 때 재검토). 테스트: `tests/str/test_verification_account.py` 에 7 케이스 추가(앞 0 뗀 비교·가린 표기·회귀·경계·전부 0). 테스트 숫자·관문은 ★C |
 | SCRUM-158 — [AI] `ops_seed.sql` 이 적재된 DB 를 지우지 못하게 막기 | 진행 | 11/6 | md: `shared/05` "로컬 DB 와 테스트 시드" 절 · `str/08` 통합 줄 가드 설명 + "V002 일부 칸만 있는 최소 DDL" 바로잡기 · `str/09` 결정 1줄(11/7). 코드: `tests/str/fixtures/ops_seed.sql` 맨 위 `DO $$ ... RAISE EXCEPTION $$` 가드 — `to_regclass('ops.source_files') IS NOT NULL` 이거나 `ops.transactions` 행 >3 이면 `TRUNCATE` 전에 멈춤. 테스트: `tests/str/test_ops_seed_guard.py`(`-m db`) — 임시 DB(`CREATE DATABASE` 뒤 `DROP`) 에서 ① source_files 가드 ② 행 수 가드 ③ 빈 DB 통과 회귀. 11/6 통신 테스트에서 적재 DB 에 손으로 `psql -f` 하다 `TRUNCATE ops.transactions, …` 로 지워질 뻔한 걸 파일 자체가 막음 |
 | 설계 md 세트 | 완료 | 10/26 | 3A·3A.7에서 옮김 |
 | 리포 뼈대 (`src/aml_ai` 4계층, shared, schemas, Alembic 0001, 계약 예시, 테스트 21) | 완료 | 10/26 | `uv run pytest`·`ruff check` 통과 |
 | ML 패키지 연결 방식 | 확정(B 패키지) | 10/26 | 준영 동의 |
 | 규약 v0.2 (Claude Docs) | **완료** | 10/28 | 3·5·6절 교체, 0·4절·미결 표. 준영 칸(3·5·6) 대기 |
+| 규약 v0.4 (11/6 반영) | 진행 | 11/7 | 검증 정규화·예시는 SCRUM-160, few-shot·fixture·녹화는 SCRUM-140 |
 | **문서 ①~⑦ 10/27 반영** | **완료** | 10/28 | 이 표 위 "10/27" 열. 코드 전 문서 먼저 |
 | 3차 설계 검토 반영 — 중복 방지 해시 비교·STALE 정리, ApprovalGate 세 조건, 통화별 근거·통화 코드, DATE 용도 분리, 한글 수사 UNPARSED, RAG 켬/끔 비교, 오류 주입 20개 | 완료 | 10/27 | 문서만(코드는 W2 수~목 반영 때). `shared/01·03`, `str/03·04·05·06·08·09·10` + 규약 Claude Docs 4절 전이·5.1 근거 범위·5.3 코드 5종·ApprovalGate·미결 표 통화 |
 | 4차 설계 검토 반영 — 선점 advisory lock·해시 재확인·finish 펜싱, 경로 거래 `path`, DATE 가까운 날짜 규칙, 예시 축약 표시, 오류 주입 22개 | 완료 | 10/27 | 문서만. `shared/03`, `str/03·04·06·08·09`. path 세부는 준혁 확인 대기 |
