@@ -2,7 +2,7 @@
 
 ## 위치 — 별도 리포
 
-`dajaba-AI`는 백엔드 `dajaba`와 **다른 리포, 다른 폴더**(`/Users/parkjinhee/AI/dajaba-AI`). 코드·문서·설정을 섞지 않는다. 만나는 곳은 둘: ① HTTP(규약 JSON) ② PostgreSQL — DB는 백엔드 compose가 띄우고(`db/init`이 `app_ai` 계정·`ai` 스키마를 만든다), AI 서버는 거기 붙는다. `.env`는 리포마다 따로지만 변수 이름은 노션 한 페이지에서 같이 관리(`APP_AI_PASSWORD`, `AI_INTERNAL_KEY`는 양쪽 같은 값). 준영 ML 리포 `aml-ml`도 별도.
+`dajaba-AI`는 백엔드 `dajaba`와 **다른 리포, 다른 폴더**. **백엔드 폴더 이름은 무엇이든 돼요** — compose `name: dajaba` 가 네트워크 `dajaba_default`·볼륨 `dajaba_aml-db-data`·컨테이너 `aml-db` 를 고정한다(SCRUM-124). 코드·문서·설정을 섞지 않는다. 만나는 곳은 둘: ① HTTP(규약 JSON) ② PostgreSQL — DB는 백엔드 compose가 띄우고(`db/init/01_roles.sh` 가 `app_ai` 계정·`ai` 스키마를 만들고 `db/init/00_extensions.sql` 이 pgvector 를 superuser 로 설치), AI 서버는 거기 붙는다. `.env`는 리포마다 따로지만 변수 이름은 노션 한 페이지에서 같이 관리(`APP_AI_PASSWORD`, `AI_INTERNAL_KEY`는 양쪽 같은 값). 준영 ML 리포 `aml-ml`도 별도. 계정 정본은 백엔드 `docs/03_shared.md §11`.
 
 ## 도구
 
@@ -13,10 +13,10 @@
 ## 처음
 
 ```bash
-# 1) 백엔드 리포에서 DB 만 띄운다
-cd ../dajaba && docker compose up db        # app_ai 계정·ai 스키마는 db/init/01_roles.sh 가 만든다
+# 1) 백엔드 리포에서 DB 만 띄운다 (폴더 이름 무엇이든 OK — compose name: dajaba)
+cd <백엔드 폴더> && docker compose up db    # app_ai 계정·ai 스키마는 db/init/01_roles.sh 가 만든다
 # 2) 이 리포
-cd ../dajaba-AI
+cd <이 리포 폴더>
 # .env — 노션 「다자바 환경변수」의 AI 서버 부분 (아래 표). 커밋 금지
 uv sync                                     # aml-ml 은 tag 가 생긴 뒤 pyproject 에 추가
 uv run alembic upgrade head
@@ -26,36 +26,94 @@ open http://localhost:8000/docs
 
 `GET /v1/health` → `{status, server_version, model_version|null, llm: ok|missing_key, db: ok}`. 백엔드는 기동 시 이걸 한 번 부른다(`AiHealthCheck`).
 
-pgvector(W4, RAG 전): 확장 생성은 superuser만 된다(`shared/03`). 백엔드 compose db 이미지가 `pgvector/pgvector:pg16`으로 바뀐 뒤, **이미 만들어 둔 DB 볼륨**에는 손으로 1회:
+pgvector: 확장 생성은 superuser만 된다(`shared/03`). 새 볼륨은 백엔드 `db/init/00_extensions.sql` (image `pgvector/pgvector:0.8.2-pg16-trixie`) 이 처음 기동 때 설치해 둔다 — SCRUM-124 로 들어감. **이미 만들어 둔 DB 볼륨**은 손으로 1회:
 
 ```bash
-cd ../dajaba && docker compose exec db psql -U postgres -d aml -c "CREATE EXTENSION IF NOT EXISTS vector;"
+docker exec aml-db psql -U postgres -d aml -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
 
-새로 만드는 DB는 `db/init/00_extensions.sql`이 해 준다. `alembic upgrade head`가 "pgvector 확장 없음"으로 멈추면 이 명령.
+`docker exec` 쪽은 백엔드 폴더가 아니어도 돈다(컨테이너 이름 `aml-db` 로 직접). `docker compose exec db …` 는 백엔드 폴더·같은 compose 프로젝트(`name: dajaba`) 에서만. `alembic upgrade head`가 "pgvector 확장 없음"으로 멈추면 위 명령.
 
-compose로: 이 리포의 `compose.yaml`은 `ai` 서비스 하나이고 백엔드 compose의 네트워크(`dajaba_default`, external)에 붙는다. 백엔드에서 `docker compose up db` → 여기서 `docker compose up --build`. 백엔드 `.env`의 `AI_BASE_URL=http://ai:8000`.
+compose로: 이 리포의 `compose.yaml`은 `ai` 서비스 하나이고 백엔드 compose의 네트워크(`dajaba_default`, external)에 붙는다 — `dajaba_default` 는 백엔드 compose `name: dajaba` 가 늘 만든다. 백엔드에서 `docker compose up db` → 여기서 `docker compose up --build`. 백엔드 `.env`의 `AI_BASE_URL=http://ai:8000`.
 
-## `.env` 변수 (값은 노션)
+**DB 들여다보기 (읽기 전용)** — 컨테이너 안 접속은 비밀번호 없이:
 
-| 변수 | 내용 |
-|---|---|
-| `APP_AI_PASSWORD` | DB 계정 `app_ai` (백엔드 `.env`와 같은 변수) |
-| `DATABASE_URL` | `postgresql+psycopg://app_ai:${APP_AI_PASSWORD}@localhost:5432/aml` (compose 안에서는 host `db`) |
-| `AI_INTERNAL_KEY` | 백엔드와 같은 값. `X-Internal-Key` 검사 |
-| `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL_GENERATE`, `LLM_MODEL_JUDGE` | 생성·평가자 모델. 평가자는 다른 모델이면 좋고, 같으면 프롬프트에서 역할 분리. `LLM_MODEL_JUDGE` 가 **비었거나 `LLM_MODEL_GENERATE` 와 같으면 기동 때 경고 한 줄**(`judge_model_fallback`, `AI_LLM_MOCK=false` 일 때만, 기동 실패 아님) + 생성 모델로 폴백(SCRUM-92). `LLM_PROVIDER`는 지금 `openai` 하나만 구현 |
-| `LLM_API_BASE` (기본 `https://api.openai.com/v1`) | Responses API 엔드포인트. Azure OpenAI·호환 게이트웨이 쓸 때만 바꿈 — 모델·키는 그대로 `.env`에만 |
-| `LLM_TEMPERATURE_SUPPORTED` (기본 `false`), `LLM_REASONING_EFFORT` (기본 `low`) | 결정성 — `true`면 `temperature=0`, 아니면 `reasoning.effort=<값>`(추론 모델). 호출마다 폴백하지 않음(SCRUM-15 10/29). OpenAI 지원값은 `low/medium/high/xhigh/max` |
-| `NARRATIVE_PROMPT` (기본 `narrative_v2`) | 활성 서술 버전 — `narrative_v1`\|`narrative_v2`. 이 값 하나로 프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더가 같이 바뀜(SCRUM-47). **2026-11-06 SCRUM-62 에서 기본값 v2** (채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날). 평소엔 `.env` 에 `NARRATIVE_PROMPT` 줄 없이 둔다(기본 v2). v1 로 되돌리려면 `.env` 에 `NARRATIVE_PROMPT=narrative_v1` 한 줄 추가. 이미 그 줄이 있는 사람은 지울 것(승인본·해시 호환 경로는 그대로 열려 있음) |
-| `LLM_TIMEOUT_S` (기본 **35**), `DRAFT_BUDGET_S` (기본 80), `REGEN_MIN_REMAINING_S` (기본 40), `VERIFY_BUDGET_S` (기본 80 — 백엔드 공유 90초 − 10, SCRUM-92), `LLM_DAILY_TOKEN_BUDGET` | 시간 예산(`str/03`) — W2 수 실측 전 가정값. 기동 때 `VERIFY_BUDGET_S >= LLM_TIMEOUT_S` 불변식 검증 |
-| `STALE_PROCESSING_S` (기본 **110**) | 오래된 PROCESSING 정리 기준(초), `DRAFT_BUDGET_S + 30` (`shared/03`) |
-| `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_DIM` | RAG(W4). 멀티링구얼 1종 |
-| `AI_SCORING_MOCK` | `true`면 `aml_ml` 없이 고정 점수(W2~W3) |
-| `AI_LLM_MOCK` | `true`면 LLM 호출 대신 녹화된 응답(`tests/str/recorded/`). 백엔드 로컬 연동용 |
-| `RAG_ENABLED` | `true`면 retriever 가 pgvector 검색 (W4). `false`면 references=[] — 안건 22 되돌림 스위치 |
-| `SERVER_VERSION` | 빌드 시 git 짧은 해시 주입 (Dockerfile ARG). 로컬은 `dev` |
-| `INDEX_PROMPTS_ON_STARTUP` | 기동 시 prompts/*.md 해시를 prompt_versions 에 색인. 테스트에서 false |
-| `CORPUS_DIR` | 코퍼스 PDF 위치(리포 밖) |
+```bash
+# ops — 앱과 같은 계정, 읽기 전용 세션
+docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -U app_backend -d aml
+# ai — app_backend 로는 못 봐서 슈퍼유저, 읽기 전용 세션
+docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -U postgres -d aml
+```
+
+## `.env` 변수 (값은 노션, 변수명은 `config.py` 의 alias 기준)
+
+변수가 없으면 아래 default 로 돌아간다 — 커밋 금지 파일이라 리포에는 변수명·설명만, 값은 노션 「다자바 환경변수」.
+
+### DB · 인증
+
+| 변수 | 기본 | 내용 |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+psycopg://app_ai@localhost:5432/aml` | SQLAlchemy URL. **비밀번호를 URL 에 넣지 않아도 됨** — `config.py` 가 URL 에 비밀번호가 없으면 `APP_AI_PASSWORD` 를 끼운다(SCRUM-22 에서 compose health `db: ok` 확인, 11/7). compose 안에서는 host `db` (`compose.yaml` 가 세팅) |
+| `APP_AI_PASSWORD` | `""` | DB 계정 `app_ai` 비밀번호. 백엔드 `.env` 와 같은 값 |
+| `AI_INTERNAL_KEY` | `""` | 백엔드와 같은 값. `X-Internal-Key` 검사 (`/v1/health` 만 예외) |
+
+### LLM
+
+| 변수 | 기본 | 내용 |
+|---|---|---|
+| `LLM_PROVIDER` | `openai` | 현재 `openai` 한 종만 구현 |
+| `LLM_API_KEY` | `""` | OpenAI API 키 |
+| `LLM_API_BASE` | `https://api.openai.com/v1` | Responses API 엔드포인트. Azure OpenAI·호환 게이트웨이 쓸 때만 바꿈 |
+| `LLM_MODEL_GENERATE` | `""` | 생성 모델 |
+| `LLM_MODEL_JUDGE` | `""` | 평가자 모델. **비었거나 `LLM_MODEL_GENERATE` 와 같으면 기동 때 경고 한 줄**(`judge_model_fallback`, `AI_LLM_MOCK=false` 일 때만, 기동 실패 아님) + 생성 모델로 폴백 (SCRUM-92) |
+| `LLM_TIMEOUT_S` | `35.0` | 호출 타임아웃(초). `VERIFY_BUDGET_S >= LLM_TIMEOUT_S` 기동 때 불변식 검증 |
+| `LLM_TEMPERATURE_SUPPORTED` | `false` | `true` 면 `temperature=0`, 아니면 아래 `reasoning.effort`. 호출마다 폴백 안 함(SCRUM-15) |
+| `LLM_REASONING_EFFORT` | `low` | 추론 모델용. OpenAI 지원값 `low/medium/high/xhigh/max` |
+| `LLM_DAILY_TOKEN_BUDGET` | `2_000_000` | 하루 토큰 한도 |
+
+### 프롬프트·예산 (시간은 `str/03`, W2 실측 전 가정값)
+
+| 변수 | 기본 | 내용 |
+|---|---|---|
+| `NARRATIVE_PROMPT` | `narrative_v2` | 활성 서술 버전 — `narrative_v1`\|`narrative_v2`. 프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더가 같이 바뀜(SCRUM-47). **2026-11-06 SCRUM-62 에서 기본값 v2** (채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날). 평소엔 `.env` 에 이 줄 없이 둠 |
+| `DRAFT_BUDGET_S` | `80.0` | 초안 시간 예산 (백엔드 공유 90 − 10) |
+| `VERIFY_BUDGET_S` | `80.0` | 검증 시간 예산 (SCRUM-92) |
+| `SUMMARY_BUDGET_S` | `40.0` | 요약 시간 예산 (SCRUM-129) |
+| `REGEN_MIN_REMAINING_S` | `40.0` | 재생성 최소 남은 시간(초안) |
+| `SUMMARY_REGEN_MIN_REMAINING_S` | `15.0` | 재생성 최소 남은 시간(요약) |
+| `SUMMARY_LLM_TIMEOUT_S` | `15.0` | 요약 호출 타임아웃 |
+| `STALE_PROCESSING_S` | `110.0` | 오래된 PROCESSING 정리 기준, `DRAFT_BUDGET_S + 30` (`shared/03`) |
+
+### RAG · 임베딩 (W4)
+
+| 변수 | 기본 | 내용 |
+|---|---|---|
+| `EMBEDDING_PROVIDER` | `openai` | 임베딩 provider |
+| `EMBEDDING_MODEL` | `""` | 멀티링구얼 1종 |
+| `EMBEDDING_DIM` | `1536` | 벡터 차원. 바꾸면 `reference_chunks` 테이블 비우고 전부 재적재 (`shared/03`) |
+| `RAG_ENABLED` | `false` | `true` 면 retriever 가 pgvector 검색. `false` 면 `references=[]` — 안건 22 되돌림 스위치 |
+| `CORPUS_DIR` | `corpus` | 코퍼스 PDF 위치(리포 밖) |
+
+### 목업 스위치 — 평소 `true`, 실제 LLM/점수 때 `false`
+
+| 변수 | 기본 | 내용 |
+|---|---|---|
+| `AI_SCORING_MOCK` | `true` | `true` 면 `aml_ml` 없이 고정 점수(W2~W3). 준영 tag 뒤 실측은 `false` |
+| `AI_LLM_MOCK` | `false` | `true` 면 LLM 호출 대신 녹화된 응답 (`tests/str/recorded/`). 백엔드 로컬 연동·CI 는 `true`, 실제 호출은 `false` |
+
+### 기타
+
+| 변수 | 기본 | 내용 |
+|---|---|---|
+| `SERVER_VERSION` | `dev` | 빌드 시 git 짧은 해시 주입 (Dockerfile ARG) |
+| `LOG_LEVEL` | `INFO` | 로깅 레벨 |
+
+### 테스트·녹화 전용
+
+| 변수 | 기본 | 내용 |
+|---|---|---|
+| `INDEX_PROMPTS_ON_STARTUP` | `true` | 기동 시 `prompts/*.md` 해시를 `prompt_versions` 에 색인. 테스트에서 `false` |
+| `RECORDED_DIR` | `tests/str/recorded` | `AI_LLM_MOCK=true` 일 때 녹화 응답을 읽는 자리. 테스트·녹화 재생성에서만 바꿈 |
 
 ## 테스트
 
