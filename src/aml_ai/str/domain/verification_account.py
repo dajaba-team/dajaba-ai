@@ -73,7 +73,7 @@ def _find_ids(text: str) -> list[_Found]:
 
 
 def _parse_full(raw: str) -> _Found:
-    """`010_8000EBD30` 또는 `010_****BD30`. bank_id + 꼬리 분리."""
+    """`10_8000EBD30` 또는 `10_****BD30`. bank_id + 꼬리 분리."""
     bank, _, body = raw.partition("_")
     tail = body[-4:] if body else ""
     # 뒤 4자가 전부 `*` 또는 글자가 아니면 못 읽음
@@ -97,9 +97,14 @@ def _parse_tail_ko(raw: str, group1: str) -> _Found:
 
 
 def _subject_parts(account_key: str) -> tuple[str, str]:
-    """`010_8000EBD30` → ("010", "BD30")."""
+    """`10_8000EBD30` → ("10", "BD30"). bank_id 는 앞 0 뗀 문자열(규약 v0.4 #4, SCRUM-160)."""
     bank, _, body = account_key.partition("_")
-    return bank, body[-4:].upper()
+    return _norm_bank(bank), body[-4:].upper()
+
+
+def _norm_bank(bank: str) -> str:
+    """bank_id 앞 0 제거 — 규약 v0.4 #4(SCRUM-160). 전부 0 이면 `"0"`."""
+    return bank.lstrip("0") or "0"
 
 
 def _is_subject(found: _Found, subject_bank: str, subject_tail: str) -> bool:
@@ -107,7 +112,7 @@ def _is_subject(found: _Found, subject_bank: str, subject_tail: str) -> bool:
         return False  # 뒤쪽 `*` 로 가려 못 읽는 모양
     if found.tail != subject_tail:
         return False
-    return not (found.bank_id is not None and found.bank_id != subject_bank)
+    return not (found.bank_id is not None and _norm_bank(found.bank_id) != subject_bank)
 
 
 __all__ = ["account_id_match"]

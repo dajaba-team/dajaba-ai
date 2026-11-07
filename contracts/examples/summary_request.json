@@ -2,7 +2,7 @@
   "case_no": "CASE-2022-000057",
   "alert": {
     "alert_id": "ALT-20220903-000142",
-    "account_key": "010_8000EBD30",
+    "account_key": "10_8000EBD30",
     "entity_id": "80062E240",
     "rule_id": "R02_FAN_IN_24H",
     "rule_version": "1",

@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import pytest
 
-from aml_ai.shared.schemas.str import CodeCheckName
+from aml_ai.shared.schemas.str import CodeCheckName, Facts
 from aml_ai.str.domain.verification import run_summary_code_checks
+from tests.conftest import FIXTURES, load_json
 from tests.str.facts_support import CASES, build
 
 
@@ -46,3 +47,18 @@ def test_wrong_amount_caught(facts) -> None:
     checks = run_summary_code_checks(facts, lines, transaction_ids=[1])
     amount_checks = [c for c in checks if c.check == CodeCheckName.AMOUNT_MATCH]
     assert any(c.match is False for c in amount_checks)
+
+
+def test_summary_account_id_normalizes_leading_zero() -> None:
+    """SCRUM-160 — 요약도 ACCOUNT_ID_MATCH 에서 bank_id 앞 0 정규화를 거침.
+
+    경로: summary_service → run_summary_code_checks → account_id_match → _subject_parts/_is_subject → _norm_bank.
+    대상 `10_8000EBD30` + 요약 줄 `010_****BD30` (옛 표기) → match.
+    """
+    data = load_json(FIXTURES / "facts_fan_in.json")
+    data["subject"]["account_key"] = "10_8000EBD30"
+    facts = Facts.model_validate(data)
+    lines = ["보고 대상 계좌(010_****BD30)로 ACH 입금 3건"]
+    checks = run_summary_code_checks(facts, lines, transaction_ids=[1, 2, 3])
+    account_checks = [c for c in checks if c.check == CodeCheckName.ACCOUNT_ID_MATCH]
+    assert account_checks and all(c.match for c in account_checks)
