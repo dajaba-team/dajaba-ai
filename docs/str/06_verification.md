@@ -54,6 +54,10 @@
 
 > **`NO_UNSUPPORTED_CLAIM` 예외 (SCRUM-127, 2026-11-09)**: `"자료 없음"`·`"확인되지 않음"` 같은 **부재 표기**는 사실 주장이 아니므로 **감점하지 않는다**. 부재 표기에 새 정황을 붙이면(예: `"~가 없어 급히 옮긴 것으로 보임"`) 그 정황만큼 감점. narrative 프롬프트가 FACTS 에 없는 값을 "자료 없음" 으로 쓰라 지시한 것과 충돌 해소. judge_v3 프롬프트에도 같은 문장.
 
+## 초안 안 평가자 (SCRUM-147, 2026-11-10 — 고쳐 쓰기 판단용)
+
+`draft_service._generate` 는 `attach_evidence` 뒤 `draft_rewrite.try_rewrite` 에서 평가자(`judge_v3`)를 **고쳐 쓰기 판단용**으로 한 번 부른다. 이 호출의 결과는 **검증 결과가 아니다** — 초안 응답 `verification` 은 그대로 `null` (안건 17 유지), `verification_runs` 저장도 없다. 초안 안 평가자의 점수·comment·토큰·지연은 `generations.response` 의 `generation_meta.rewrite.critique_*` 에만 저장한다. 조사역이 "검증" 버튼을 누르면 `/v1/str/verify` 가 평가자를 **다시** 부른다 — 초안 안 평가자는 작성 보조이고, 검증은 승인 요청의 공식 근거라 분리한다(중복 비용은 감수, 09 "알고 남김"). 초안 흐름은 `03_pipeline.md` 단계 8b.
+
 ## passed·status (안건 9 확정)
 
 ```
