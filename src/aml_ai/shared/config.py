@@ -15,14 +15,14 @@ class Settings(BaseSettings):
 
     # DB — 백엔드 compose 의 PostgreSQL. 계정 app_ai (ops 읽기, ai 쓰기)
     database_url: str = Field(default="postgresql+psycopg://app_ai@localhost:5432/aml", alias="DATABASE_URL")
-    app_ai_password: str = Field(default="", alias="APP_AI_PASSWORD")
+    app_ai_password: str = Field(default="", alias="APP_AI_PASSWORD", repr=False)
 
     # 백엔드 ↔ AI 내부 인증
-    ai_internal_key: str = Field(default="", alias="AI_INTERNAL_KEY")
+    ai_internal_key: str = Field(default="", alias="AI_INTERNAL_KEY", repr=False)
 
     # LLM
     llm_provider: str = Field(default="openai", alias="LLM_PROVIDER")
-    llm_api_key: str = Field(default="", alias="LLM_API_KEY")
+    llm_api_key: str = Field(default="", alias="LLM_API_KEY", repr=False)
     llm_api_base: str = Field(default="https://api.openai.com/v1", alias="LLM_API_BASE")
     llm_model_generate: str = Field(default="", alias="LLM_MODEL_GENERATE")
     llm_model_judge: str = Field(default="", alias="LLM_MODEL_JUDGE")

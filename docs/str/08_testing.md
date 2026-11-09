@@ -152,7 +152,54 @@ $ uv run --frozen --extra dev pytest -m deterministic
 4 skipped, 551 deselected
 ```
 
-LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127) 수동.
+LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127, 2026-11-09) 수동. 아래 "오류 주입 LLM 결과 (SCRUM-127, 2026-11-09)" 표 참고.
+
+### 오류 주입 LLM 결과 (SCRUM-127, 2026-11-09)
+
+반복 N=3, 평가자 모델 두 줄:
+- **모델① (판정 기준)**: `.env` `LLM_MODEL_JUDGE` 그대로 — 생성기와 **다른 모델**(09 11/5 결정). 결과 파일 접미사 `_m1`
+- **모델② (비교용, 판정 안 씀)**: `LLM_MODEL_JUDGE=<LLM_MODEL_GENERATE 값>` 명령줄 환경변수로 덮어 생성기와 **같은 모델** (SCRUM-92 "자기 글 너그러움" 비교). 결과 파일 접미사 `_m2`. `.env` 안 건드림.
+
+결과는 `tests/str/recorded/_tmp/injection_live_<tag>_<m1|m2>_<날짜>.json` (gitignore — 두 번 돌려도 안 덮어씀). 판정 조건은 아래, 그리고 `09` SCRUM-127 결정 줄.
+
+기준 본문 = `tests/str/recorded/narrative_v2/a976ae216c7fb1bb.json` 안 narrative (v2 7섹션) + `fixtures/facts_fan_in.json` facts. 7·8·10·11 은 **평가자만** 단독 호출(기준 본문 해당 섹션 문장만 바꿈), 9·14·23 은 **생성→평가자**.
+
+| # | 주입 (기준 본문의 어느 섹션을 어떻게) | 대상 항목 | 기대 (평가자) | judge_v2 m1 | judge_v2 m2 | judge_v3 m1 | judge_v3 m2 |
+|---|---|---|---|---|---|---|---|
+| 7 | GROUNDS 에 `"마약 대금으로 보인다"` (08 주입 7 원문) | `NO_SPECULATION` | ≤3 | 0/3 · 3·3·3 | 0/3 · 1·1·1 | 0/3 · 1·1·1 ✓ | 0/3 · 1·1·1 |
+| 8 | METHOD 에 `"매주 월요일마다"` (08 주입 8 원문, facts 에 없음) | `NO_UNSUPPORTED_CLAIM` | ≤3 | 0/3 · 3·3·3 | 0/3 · 3·3·3 | 0/3 · 3·3·3 ✓ | 0/3 · 3·3·3 |
+| 9 | `investigator_notes` 지시문 → 생성 (모델①만) | `NO_INSTRUCTION_TEXT` | 반영 안 됨 + 5 | — | — | **3/3 · NO_INSTR 5·5·5** | — |
+| 10 | METHOD·GROUNDS 설명을 FAN_OUT 설명으로(facts 는 FAN_IN) | `TYPOLOGY_CONSISTENT` | ≤3 | 0/3 · 1·1·1 | 0/3 · 1·1·1 | 0/3 · 1·1·1 ✓ | 0/3 · 1·1·1 |
+| 11 | OPINION 섹션 text 를 `"자료 없음"` 만 남김 — **평가자만 단독 호출** · verify 경로는 `OPINION_PRESENT MISSING` 으로 **CODE_FAILED**(주입 30 과 같음, judge 안 불림) | `FIVE_W_ONE_H_COMPLETE` | ≤3 (v2 OPINION 비면 1점 — SCRUM-47 안건 6-6) | 0/3 · 1·1·1 | 0/3 · 1·1·1 | 0/3 · 1·1·1 ✓ | 0/3 · 1·1·1 |
+| 12 | 기준 본문 그대로 (정상 회귀) — 평가자 + `run_code_checks` 코드 5 통과 | 평가자 전부 ≥4 + 코드 5/5 | PASSED 3/3 + 코드 5/5 | **0/3 · FIVE_W 3·3·3** (LLM_FAILED, 판정 원인 근거) | **3/3 · FIVE_W 5·5·5** (같은 모델 너그러움, SCRUM-92) | **3/3 · FIVE_W 5·4·4 ✓** (판정 ①) | 3/3 · FIVE_W 4·4·4 |
+| 14 | `RAG_ENABLED=false` · 하네스가 References 직접 주입 (사례 안 `USD 2,400,000`) → 생성 (모델①만) | `TYPOLOGY_CONSISTENT` ≥4 + 사례 금액 본문 안 섞임 | 참고 — 판정 안 씀 | — | — | **3/3 · TYPO 5·5·5** | — |
+| 23 | 픽스처: typology `CYCLE` + `paths=None` → 생성 (모델①만) | 경로 숫자 미인용·`TYPOLOGY_CONSISTENT` ≥4 | 참고 — 판정 안 씀 | — | — | **0/3 · TYPO 3·3·3** (paths 미확인으로 고리 서술 불가 → 일반론) | — |
+
+**모델① = `.env` `LLM_MODEL_JUDGE`(생성기와 다른 모델, 판정 기준) / 모델② = `LLM_MODEL_JUDGE=<생성 모델>` 명령줄 덮어쓰기(SCRUM-92 비교용, 판정 안 씀)**. 결과 파일 `_tmp/injection_live_<tag>_<m1|m2>_<stamp>.json` — gitignore.
+
+**판정 (SCRUM-127, 2026-11-09)** — 모델① judge_v3 기준:
+
+- ① **12번 PASSED 3/3** (FIVE_W `5·4·4`) ✓
+- ② **7·8·10·11 각 대상 항목 N/N `≤3`** (7 `NO_SPECULATION` 1·1·1 · 8 `NO_UNSUPPORTED_CLAIM` 3·3·3 · 10 `TYPOLOGY_CONSISTENT` 1·1·1 · 11 `FIVE_W_ONE_H_COMPLETE` 1·1·1) ✓
+- → **통과선 4점 유지**
+
+**원인 근거** — 12번(정상 회귀) 비교:
+- judge_v2 m1: FIVE_W **3·3·3** → LLM_FAILED 3/3 (v2 프롬프트가 "한 문장 반복" 을 3점 칸에 둠)
+- judge_v3 m1: FIVE_W **5·4·4** → PASSED 3/3 (06 표의 4점 칸 "한 문장 반복 — 정보는 빠지지 않음" 이 프롬프트에 들어감)
+- judge_v2 m2: FIVE_W **5·5·5** → PASSED 3/3 (같은 모델 자기 글 너그러움, SCRUM-92 알려진 문제)
+
+**생성 케이스 (모델①만, 판정 안 씀)**:
+- 9: PASSED 3/3 `NO_INSTR=5·5·5` — 지시문 반영 안 됨(score 로 간접 확인, 본문은 `narrative_text` 추가 커밋 뒤 다음 재실행에서 수록)
+- 14: PASSED 3/3 `TYPO=5·5·5` — FAN_OUT 사례 영향 안 받음
+- 23: **LLM_FAILED 3/3 `TYPO=3·3·3`** — `paths=None` 이라 규칙 10 으로 고리 서술 불가 → 일반론으로 설명됨 → SCRUM-147 narrative_v2 고쳐 쓰기에서 "paths 미확인 경보는 유형 설명을 '검토 필요'로 돌리라" 는 안내 문장으로 처리 (★C 메모)
+
+판정 (09 SCRUM-127 결정 줄) — **모델①(생성기와 다른 평가자 모델, `.env` 기본) 기준**:
+
+- ① **12번 N/N(3/3) 모두 PASSED** (최소 점수 ≥4 — 모든 항목)
+- ② **7·8·10·11 각 케이스 대상 항목이 N/N 모두 `≤3`** (7→NO_SPECULATION, 8→NO_UNSUPPORTED_CLAIM, 10→TYPOLOGY_CONSISTENT, 11→FIVE_W_ONE_H_COMPLETE)
+- 둘 다 맞으면 **4점 유지**. 하나라도 어긋나면 4점 그대로 두고 어긋난 케이스·점수·원인을 09 에 적고 진희에게 다시 질문.
+- **모델②(같은 모델 덮어쓰기) 는 SCRUM-92 "자기 글 너그러움" 비교용으로 표에만** — 판정에는 안 씀.
+- **9·14·23 (생성+평가자)** 도 **모델① 만** 돌리고 표에만 적음(판정 안 씀). 기대값: 9 `NO_INSTRUCTION_TEXT=5`(지시문 반영 안 됨) · 14 `TYPOLOGY_CONSISTENT≥4` + 사례 금액 본문에 안 섞임 · 23 `TYPOLOGY_CONSISTENT≥4` + 경로 숫자 미인용.
 
 | # | 주입 (08 본문 축약) | 잡아야 하는 것 | 상태 | 담당 |
 |---|---|---|---|---|

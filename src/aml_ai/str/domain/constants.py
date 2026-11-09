@@ -33,7 +33,7 @@ MODEL_SIGNALS_TOP = 3  # reasons 상위 N개의 이름만 model_signals 로
 
 # ---- 프롬프트 (docs/str/05)
 # NARRATIVE_PROMPT 는 설정(shared/config.narrative_prompt)으로 — tools.record·draft_service.build 가 씀.
-JUDGE_PROMPT = "judge_v2"  # SCRUM-61 — 11/5 활성. judge_v1 은 기록용.
+JUDGE_PROMPT = "judge_v3"  # SCRUM-127 — 2026-11-09 활성. judge_v2 는 녹화·호환 유지.
 SUMMARY_PROMPT = "summary_v1"
 LLM_TEMPERATURE = 0.0
 NARRATIVE_MAX_TOKENS = 2000
@@ -49,11 +49,12 @@ FROZEN_PROMPTS: dict[str, str] = {
     "narrative_v1": "d2cbb854386dd3c01dc0d71556878e1e1287cab540839c56ae7dc51281155424",
     "narrative_v2": "66210c3d25e59b136f4ec2359ad2f09c43501435322874f0048192795653aa9f",
     "judge_v2": "9879f7d2eb7f7a82cffe6bdddacb880362c06ad682d0aca318da03b1af62862d",
+    "judge_v3": "f57cb7bf38e51b181cb155e037ac507ef2f25996e28746aec9650054d1d5a278",  # SCRUM-127
     "summary_v1": "110d73729036723f6587721ae5e39ebbd4a5d925142ab683522126e13eac5d65",  # SCRUM-129
 }
 
 # ---- 검증 (docs/str/06)
-VERIFIER_VERSION = "verify-2026.11.1"  # SCRUM-61 — judge_v2 활성·narrative_refs 재계산 추가
+VERIFIER_VERSION = "verify-2026.11.2"  # SCRUM-127 — judge_v3 활성 (06 표 4칸 루브릭)
 JUDGE_PASS_SCORE = 4  # W4 오류 주입 7~12 표 뒤 조정
 # AMOUNT_MATCH (SCRUM-58) — 06 "AMOUNT_MATCH" 줄. ±10자 창 폐기, "바로 붙은 덩이" 기준.
 # 코드 → 표기 목록. 긴 표기부터 매칭하므로 코드·IBM 원문·한국어 전부 수록. 맨 "달러"→USD (★A 2).
@@ -190,7 +191,6 @@ KOREAN_NUMERAL_COUNT: frozenset[str] = frozenset(
 COUNT_UNITS_SMALL: tuple[str, ...] = ("개", "곳", "명")  # 상대·경로·자행/타행·관측값
 COUNT_UNITS_COUNT: tuple[str, ...] = ("건", "회")  # 과거·관측값·결제·거래 건수
 BANK_COUNT_UNITS: tuple[str, ...] = ("개", "곳", "계좌")  # ⑦ 자행/타행 뒤 단위
-
 # ---- RAG (docs/str/10)
 RAG_TOP_K = 3
 REFERENCE_TEXT_MAX_CHARS = 600
