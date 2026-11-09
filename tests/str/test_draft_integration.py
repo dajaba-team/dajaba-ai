@@ -51,6 +51,27 @@ def _fan_in_body(sample: dict, *, draft_id: str = "DRF-SCRUM20-01", notes_extra:
 # 선행 facts == fixture 는 `test_draft_integration_seed.py` 로 분리(200줄 관문).
 
 
+def _assert_rewrite_meta_by_prompt(out: DraftResponse, prompt_name: str, body: dict) -> None:
+    """SCRUM-147 — v2 fan_in: 평가자 녹화 judge_v3/510cf822675f9727 재생 → 전부 5점 → not_triggered.
+    v1 fan_in: rewrite_v1 출력 스키마가 v2 7섹션이라 v1 초안엔 아예 안 탐 → rewrite is None.
+    """
+    rewrite = out.generation_meta.rewrite
+    if prompt_name == "narrative_v2":
+        assert rewrite is not None, "SCRUM-147 — v2 초안은 rewrite 칸 반드시 채움"
+        assert rewrite.skipped_reason == "not_triggered", (
+            f"fan_in v2 평가자 녹화 재생 → 전부 5점 기대. 실제: {rewrite.skipped_reason!r}. "
+            f"render_judge_user 계약·masking 차이가 원인일 수 있음 — 로그 보고 수정."
+        )
+        assert rewrite.critique_scores is not None
+        assert len(rewrite.critique_scores) == 5
+        assert all(s == 5 for s in rewrite.critique_scores.values())
+        return
+    assert rewrite is None, (
+        f"SCRUM-147 — v1 초안은 rewrite 안 탐 (v2 7섹션 스키마 호환 안 됨). 실제: {rewrite!r}"
+    )
+    _ = body  # 호환용 — v1 경로에서는 body 를 더 쓰지 않음
+
+
 # ───────── 정상 ─────────
 
 
@@ -84,6 +105,7 @@ def test_draft_success_through_recorded_llm(
         text("SELECT status FROM ai.generations WHERE draft_id=:d"), {"d": body["draft_id"]}
     ).one()
     assert row.status == "SUCCEEDED"
+    _assert_rewrite_meta_by_prompt(out, prompt_name, body)
 
 
 # ───────── 기본값 경로 (SCRUM-62) — env 없으면 narrative_v2 ─────────

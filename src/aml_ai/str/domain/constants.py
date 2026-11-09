@@ -44,14 +44,8 @@ FEWSHOT_SAME_TYPOLOGY = 1
 FEWSHOT_OTHER_TYPOLOGY = 2
 SCHEMA_RETRY = 1  # 스키마 실패 시 재생성 횟수 (재시도가 아니라 생성 절차의 일부)
 
-# ---- 동결 (docs/str/05, shared/04) — 녹화 커밋에 파일 sha256 박음. 기동 때 해시 다르면 실패(SCRUM-15 10/29).
-FROZEN_PROMPTS: dict[str, str] = {
-    "narrative_v1": "d2cbb854386dd3c01dc0d71556878e1e1287cab540839c56ae7dc51281155424",
-    "narrative_v2": "66210c3d25e59b136f4ec2359ad2f09c43501435322874f0048192795653aa9f",
-    "judge_v2": "9879f7d2eb7f7a82cffe6bdddacb880362c06ad682d0aca318da03b1af62862d",
-    "judge_v3": "f57cb7bf38e51b181cb155e037ac507ef2f25996e28746aec9650054d1d5a278",  # SCRUM-127
-    "summary_v1": "110d73729036723f6587721ae5e39ebbd4a5d925142ab683522126e13eac5d65",  # SCRUM-129
-}
+# ---- 동결 (docs/str/05, shared/04) — 재export (실제 dict 은 frozen_prompts.py, 파일 길이 가드)
+from aml_ai.str.domain.frozen_prompts import FROZEN_PROMPTS  # noqa: E402, F401
 
 # ---- 검증 (docs/str/06)
 VERIFIER_VERSION = "verify-2026.11.2"  # SCRUM-127 — judge_v3 활성 (06 표 4칸 루브릭)

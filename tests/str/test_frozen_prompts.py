@@ -10,9 +10,9 @@ from aml_ai.str.infrastructure.narrative_generator import PROMPTS_DIR
 from aml_ai.str.infrastructure.prompt_index import FrozenPromptMismatch, check_frozen_prompts
 
 
-@pytest.mark.parametrize("name", ["narrative_v1", "narrative_v2"])
+@pytest.mark.parametrize("name", ["narrative_v1", "narrative_v2", "rewrite_v1"])
 def test_narrative_prompt_is_registered_in_frozen_prompts(name: str) -> None:
-    """녹화 커밋 뒤 상태 — FROZEN_PROMPTS 에 활성 프롬프트 반드시 등록 (SCRUM-15 M4, SCRUM-20 v2 동결)."""
+    """녹화 커밋 뒤 상태 — FROZEN_PROMPTS 에 활성 프롬프트 반드시 등록 (SCRUM-15 M4, SCRUM-20 v2 동결, SCRUM-147 rewrite_v1)."""
     from aml_ai.str.domain.constants import FROZEN_PROMPTS
 
     assert name in FROZEN_PROMPTS, f"녹화를 커밋했으면 FROZEN_PROMPTS 에 {name} sha256 을 박아야 한다"

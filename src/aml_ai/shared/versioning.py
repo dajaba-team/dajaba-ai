@@ -52,9 +52,13 @@ def generation_meta(
     tokens_in: int,
     tokens_out: int,
     latency_ms: int,
+    rewrite: dict[str, object] | None = None,
 ) -> dict[str, object]:
-    """STR 응답 generation_meta (규약 5절). 필드 이름이 바뀌면 schemas/str.py 와 같이."""
-    return {
+    """STR 응답 generation_meta (규약 5절). 필드 이름이 바뀌면 schemas/str.py 와 같이.
+
+    `rewrite` 는 SCRUM-147 — 초안 생성 안 작성자–비평가 고쳐 쓰기 결과. 생략하면 응답에서 제외됨.
+    """
+    out: dict[str, object] = {
         "llm_model": llm_model,
         "prompt_version": prompt_version,
         "few_shot_ids": few_shot_ids,
@@ -65,6 +69,9 @@ def generation_meta(
         "tokens_out": tokens_out,
         "latency_ms": latency_ms,
     }
+    if rewrite is not None:
+        out["rewrite"] = rewrite
+    return out
 
 
 def stable_json(obj: object) -> str:

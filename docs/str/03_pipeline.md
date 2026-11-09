@@ -42,9 +42,28 @@
       성공 시 tokens_in·tokens_out·latency_ms 는 호출한 횟수의 합(재생성 뒤 성공해도 두 호출 합)
       연결 실패·타임아웃 → LlmUnavailable (502). ★ AI 안에서 연결 재시도 없음 — 재시도는 백엔드 AiClient 1회만
 8  narrative = domain.facts.attach_evidence(gen.narrative, facts)            순수 — cites의 fact 키 → 거래 ID 합집합 = evidence_ids
+8b (SCRUM-147) rewrite_meta, narrative, gen = draft_rewrite.try_rewrite(req, facts, facts_masked, fact_keys, examples, references, notes,
+      original_narrative=narrative, original_gen=gen, judge=judge, rewriter=rewriter, clock=clock, deadline=deadline, settings=settings)
+      **v2 전용** — `gen.prompt_version != "narrative_v2"` 면 `try_rewrite` 가 `None` 반환해 고쳐 쓰기 skip·`generation_meta.rewrite=None` (rewrite_v1 출력 스키마가 v2 7섹션이라 v1 초안엔 쓰면 섹션 집합이 바뀜).
+      초안 생성 안에서 작성자–비평가 고쳐 쓰기 1회. 단계:
+        ① 원본 코드 검사(`run_code_checks`) 실패 → skipped_reason="code_failed", 원본 반환 (평가자 안 부름 — 비용)
+        ② 남은 < LLM_TIMEOUT_S → skipped_reason="budget", 원본 반환
+        ③ 평가자(judge_v3) 1회 — 입력 (facts_masked, narrative). 예외(연결·스키마·기타) → skipped_reason="critique_error", 원본
+        ④ 모든 점수 ≥ JUDGE_PASS_SCORE → skipped_reason="not_triggered", critique_scores 채움, 원본
+        ⑤ 남은 < LLM_TIMEOUT_S → skipped_reason="budget", critique_scores 채움, 원본
+        ⑥ 고쳐 쓰기(rewrite_v1) 1회 — 입력 (facts_masked, fact_keys, examples, references, notes, original_narrative(evidence_ids 제외), critique(score < JUDGE_PASS_SCORE 항목만, 평가자 순서 유지), paths_notice(경로형 룰 + paths 미확인일 때만 코드가 채움, 05)).
+            스키마 실패 재생성 **0회** → skipped_reason="schema", 원본 반환
+            **연결·타임아웃·BudgetExceeded·기타 예외 → skipped_reason="rewrite_error", 원본 반환** (고쳐 쓰기는 덤 단계라 호출 실패해도 원본은 멀쩡함 — 초안 전체를 502 로 만들지 않음. critique_scores 는 채움, 평가자는 돌았음). **실패한 고쳐 쓰기 호출의 토큰은 최상위 `tokens_in/out/latency_ms` 합에 안 더함** (SCRUM-45 "실패 호출 토큰 기록 안 함").
+        ⑦ 고친 본문 attach_evidence 재계산 → 코드 검사. 실패 → skipped_reason="rewrite_code_failed", 원본. 통과 → rewrite applied=true, 고친 본문·합산 토큰 반환
+      최대 LLM 호출 **4** (생성 2 + 평가자 1 + 고쳐 쓰기 1).
+      토큰·지연 합산 규칙(★A 4, SCRUM-147 추가 검토 뒤 통일): **응답(usage) 받은 생성 모델 호출은 합산**, 예외로 usage 를 못 받은 호출만 미합산. `rewrite_code_failed` 와 **usage 가 있는** `schema` 실패는 본문만 원본·토큰은 합산. `rewrite_error`(연결·타임아웃·기타, usage 없음) 는 미합산.
+      평가자는 다른 모델이라 `generation_meta.rewrite.critique_tokens_in/out·critique_latency_ms` 로 분리 — `verification_runs.judge_*`(SCRUM-92) 와 같은 패턴. **평가자 예외에 `judge_meta` 가 붙어 오면**(Judge 가 스키마 실패 때 첨부, SCRUM-144) `critique_llm_model·critique_tokens_*·critique_latency_ms` 는 보존, `critique_scores=None`.
+      **초안용 Judge 는 `schema_retry=0`** — verify 경로(1회) 와 분리해 생성 2 + 평가자 1 + 고쳐 쓰기 1 = **최대 4** 호출 상한 유지.
+      초안 안의 평가자는 **검증 결과 아님**(안건 17 유지) — `verification=null`, `verification_runs` 안 건드림. `generations.response`(JSON) 안 `generation_meta.rewrite` 에만 저장.
+      end_read 규칙(SCRUM-122): 평가자·고쳐 쓰기 LLM 호출 앞에도 DB 읽기 없음 — `_generate` 가 이미 end_read 뒤라 그 상태 유지.
 9  generation_repository.finish(generation_id, SUCCEEDED, facts, response, meta)
       UPDATE … WHERE generation_id=$1 AND status='PROCESSING' — 0행이면(STALE로 이미 닫힘) 결과 버림, 500 INTERNAL (shared/03 펜싱)
-10 응답 DraftResponse: {draft_id, generation_id, facts(원본), narrative(cites+evidence_ids), generation_meta, verification: null}
+10 응답 DraftResponse: {draft_id, generation_id, facts(원본), narrative(cites+evidence_ids, 최종본), generation_meta(rewrite 포함), verification: null}
 ```
 
 - 어느 단계든 예외 → `generation_repository.finish(generation_id, FAILED, error=code+message)` 뒤 에러 응답(같은 `status='PROCESSING'` 조건). **FAILED 행은 지우지 않는다**(재처리·비용 추적).
@@ -122,6 +141,8 @@
 | 죽은 PROCESSING 판정 | 예산 + 30초 = **110초** | `STALE_PROCESSING_S` |
 | LLM 호출 1회 | **35초** | `LLM_TIMEOUT_S=35` |
 | 스키마 실패 재생성 | 남은 예산 **≥ 40초**일 때만 | `REGEN_MIN_REMAINING_S=40` |
+| 고쳐 쓰기 평가자 (SCRUM-147) | **≤ 35초**, 남은 ≥ `LLM_TIMEOUT_S` 일 때만. 아니면 `rewrite.skipped_reason="budget"` | `LLM_TIMEOUT_S` 공용 |
+| 고쳐 쓰기 재작성 (SCRUM-147) | **≤ 35초**, 평가자 뒤 남은 ≥ `LLM_TIMEOUT_S` 일 때만. 스키마 실패 재생성 **0회** → `skipped_reason="schema"` | `LLM_TIMEOUT_S` 공용 |
 | loader | 1초 | — |
 | retrieval (임베딩 1회 + pgvector) | 1~2초 | `RETRIEVAL_TIMEOUT_S=3` |
 | judge (verify) | 5~20초 | `LLM_TIMEOUT_S` 공용 |

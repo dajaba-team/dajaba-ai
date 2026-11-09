@@ -83,6 +83,7 @@ class Judge:
         *,
         request_sections: list[str] | None = None,
         clock: Callable[[], float] = time.monotonic,
+        schema_retry: int = JUDGE_SCHEMA_RETRY,  # SCRUM-147 — 초안용 Judge 는 0 (verify 는 기본 1)
     ) -> None:
         self._llm = llm
         self._s = settings
@@ -90,6 +91,7 @@ class Judge:
         self.prompt_version = prompt_name
         self._system, self._user_tpl = load_prompt(prompt_name)
         self._request_sections = list(request_sections) if request_sections is not None else None
+        self._schema_retry = schema_retry
 
     def run(
         self,
@@ -115,7 +117,7 @@ class Judge:
         self, user: str, model: str, request_sections: list[str], deadline: float | None
     ) -> JudgeResult:
         results: list[LlmResult] = []
-        for attempt in range(JUDGE_SCHEMA_RETRY + 1):
+        for attempt in range(self._schema_retry + 1):
             calls = attempt + 1  # SCRUM-144 — 보낸 호출 수(실패 포함)
             try:
                 res = self._llm.complete_json(
@@ -138,7 +140,7 @@ class Judge:
             except LlmInvalidOutput as exc:
                 log.warning("judge_invalid_output", extra={"reason": type(exc).__name__})
                 exc.judge_meta = meta
-                if attempt == JUDGE_SCHEMA_RETRY or (
+                if attempt == self._schema_retry or (
                     deadline is not None and deadline - self._clock() < self._s.llm_timeout_s
                 ):
                     raise

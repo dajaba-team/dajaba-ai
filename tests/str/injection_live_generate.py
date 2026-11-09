@@ -136,3 +136,16 @@ def run_generate_case(case: int, n: int, prompt_name: str) -> list[dict[str, Any
 # EXPECTS 는 support 에 judge-only 만 들어있고, generate 쪽은 여기 EXPECTS_GENERATE 분리.
 # 결과 JSON 소비 쪽(표 작성) 은 둘 다 같은 dict 모양이므로 섞어 저장 가능.
 _ = EXPECTS  # mypy: 사용 표시 (support 재사용 — 관문 import 검사용)
+
+
+def run_generate_rewrite_case(case: int, n: int, prompt_name: str) -> list[dict[str, Any]]:
+    """SCRUM-147 live (draft_service 흐름 — DB 없이 조립):
+    생성 → attach_evidence → try_rewrite(Judge schema_retry=0 + NarrativeRewriter) → 최종 본문
+    → run_code_checks + verify 경로 평가자(judge_v3, 기본 재시도 1회) 로 후 점수 측정.
+
+    결과 JSON: rewrite 메타 전체(전 점수=critique_scores)·후 평가 점수·후 코드 검사·호출별
+    latency/tokens(생성·평가자·고쳐 쓰기·후 평가자)·초안 전체 latency·최종 narrative_text.
+    """
+    from tests.str.injection_live_rewrite import run_rewrite_case
+
+    return run_rewrite_case(case, n=n, prompt_name=prompt_name, setups=SETUPS, expects=EXPECTS_GENERATE)

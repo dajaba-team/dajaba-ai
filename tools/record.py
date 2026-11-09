@@ -1,13 +1,8 @@
-"""실제 LLM 1회 호출 → tests/str/recorded/{prompt_version}/{key}.json 저장.
+"""실제 LLM 1회 호출 → tests/str/recorded/{prompt_version}/{key}.json 저장 (docs/str/08·05).
 
-생성(narrative): `uv run python -m tools.record --case fan_in`
-평가자(judge, SCRUM-61): `uv run python -m tools.record --judge --case fan_in --from-recorded narrative_v1/<key>.json`
-요약(summary, SCRUM-129): `uv run python -m tools.record --summary --case fan_in`
-- `.env` 의 LLM_API_KEY · LLM_MODEL_GENERATE·LLM_MODEL_JUDGE 필요(AI_LLM_MOCK 은 무시 — 실제 호출)
-- 저장 전: 해당 출력 스키마 검증(요약은 1~6줄·한 줄 ≤80자·숫자 신호 이름 통과 정책 그대로).
-- 저장 내용: {"text": "<LLM 응답 JSON 문자열>", "model": "<모델 ID>"} — API 키·헤더·토큰 수 안 들어감
-
-녹화 파일 커밋 = 템플릿 동결 시점(docs/str/05). `FROZEN_PROMPTS` 에 파일 sha256 을 같은 커밋에 박는다.
+모드: --case <fan_in> (생성) / --judge --from-recorded (SCRUM-61) / --summary (SCRUM-129) /
+--rewrite --from-recorded --from-judge (SCRUM-147, rule_id 자동 추론). AI_LLM_MOCK 은 무시.
+저장 내용 {"text", "model"} — API 키·헤더·토큰 수 안 들어감. `FROZEN_PROMPTS` 에 해시는 같은 커밋.
 """
 
 from __future__ import annotations
@@ -45,6 +40,10 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     if args.judge:
         return _record_judge(settings, facts, args.from_recorded)
+    if args.rewrite:
+        from tools.record_rewrite import record_rewrite
+
+        return record_rewrite(settings, facts, args.from_recorded, args.from_judge, save=_save, print_ok=_print_ok)  # fmt: skip  # noqa: E501
     if args.summary:
         from tools.record_summary import record_summary
 
@@ -186,7 +185,9 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     p.add_argument("--case", required=True, help="tests/str/fixtures/facts_<case>.json")
     p.add_argument("--judge", action="store_true", help="평가자 녹화 (SCRUM-61)")
     p.add_argument("--summary", action="store_true", help="요약 녹화 (SCRUM-129)")
-    p.add_argument("--from-recorded", help="평가자 녹화 입력 — tests/str/recorded/<prompt>/<key>.json")
+    p.add_argument("--rewrite", action="store_true", help="고쳐 쓰기 녹화 (SCRUM-147)")
+    p.add_argument("--from-recorded", help="narrative 녹화 입력 — tests/str/recorded/<prompt>/<key>.json")
+    p.add_argument("--from-judge", help="평가자 녹화 입력 — tests/str/recorded/judge_v?/<key>.json")
     return p.parse_args(argv)
 
 
