@@ -1,9 +1,4 @@
-"""오류 주입 (docs/str/08 표).
-
-SCRUM-58 로 1·2·15·17·18·29 활성. SCRUM-59 로 3·16·19·21·22 활성. SCRUM-60 로 4·5·6·20·24~28·30·31 활성
-+ 도우미를 `run_code_checks` 로 바꿈(모듈 docstring 약속). 남은 skip: 13(RAG)·32·33·34(생성·평가자).
-LLM 층(7~12·14·23)은 -m live.
-"""
+"""오류 주입 (docs/str/08 표). 활성/skip/live 세부는 08 표."""
 
 from __future__ import annotations
 
@@ -186,4 +181,18 @@ def test_injection_live_generate(case: int) -> None:
         pytest.skip("generate 케이스는 모델① 만 돌림 (SCRUM-127 — 판정 안 씀, 08 표용)")
     results = run_generate_case(case, n=3, prompt_name="judge_v3")
     path = save_results(results, f"gen_c{case:02d}")
+    assert path.exists() and len(results) == 3, f"saved to {path}"
+
+
+@pytest.mark.live
+@pytest.mark.parametrize("case", [23])
+def test_injection_live_rewrite(case: int) -> None:
+    """SCRUM-147 live — 고쳐 쓰기(draft_service 흐름, DB 없이) 뒤 TYPO 재측정 (모델① N=3)."""
+    from tests.str.injection_live_generate import run_generate_rewrite_case
+    from tests.str.injection_live_support import model_slot, save_results
+
+    if model_slot() == "m2":
+        pytest.skip("rewrite 케이스는 모델① 만 돌림 (판정 재료)")
+    results = run_generate_rewrite_case(case, n=3, prompt_name="judge_v3")
+    path = save_results(results, f"rewrite_c{case:02d}")
     assert path.exists() and len(results) == 3, f"saved to {path}"
