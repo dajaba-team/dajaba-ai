@@ -84,6 +84,21 @@ def test_draft_success_through_recorded_llm(
         text("SELECT status FROM ai.generations WHERE draft_id=:d"), {"d": body["draft_id"]}
     ).one()
     assert row.status == "SUCCEEDED"
+    # SCRUM-147 — rewrite 분기: v2 fan_in 은 평가자 녹화 judge_v3/510cf822675f9727 재생 → 전부 5점 → not_triggered.
+    # v1 fan_in 은 평가자 녹화 없음 → LlmUnavailable → critique_error.
+    # 녹화 키가 안 맞아 v2 가 critique_error 로 떨어지면 render_judge_user 계약·masking 차이가 원인 — 로그 보고 수정.
+    assert out.generation_meta.rewrite is not None, "SCRUM-147 — rewrite 칸 반드시 채워짐"
+    if prompt_name == "narrative_v2":
+        assert out.generation_meta.rewrite.skipped_reason == "not_triggered", (
+            "fan_in v2 평가자 녹화(510cf822675f9727) 재생 → 전부 5점"
+        )
+        assert out.generation_meta.rewrite.critique_scores is not None
+        assert len(out.generation_meta.rewrite.critique_scores) == 5
+        assert all(s == 5 for s in out.generation_meta.rewrite.critique_scores.values())
+    else:
+        assert out.generation_meta.rewrite.skipped_reason == "critique_error", (
+            "fan_in v1 평가자 녹화 없음 → LlmUnavailable → critique_error"
+        )
 
 
 # ───────── 기본값 경로 (SCRUM-62) — env 없으면 narrative_v2 ─────────
