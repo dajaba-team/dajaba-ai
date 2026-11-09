@@ -12,8 +12,6 @@ import json
 import re
 from pathlib import Path
 
-import pytest
-
 from aml_ai.shared.schemas.str import Facts
 from aml_ai.shared.schemas.str.verify import LlmCheckName
 from aml_ai.str.domain import fact_keys as fact_keys_domain
@@ -27,6 +25,13 @@ FIXTURE_FAN_IN = REPO_ROOT / "tests" / "str" / "fixtures" / "facts_fan_in.json"
 
 def _facts(path: Path) -> Facts:
     return Facts.model_validate(json.loads(path.read_text()))
+
+
+def _fake_sections():
+    """JudgeOutV2.sections 최소 6개 — v2 7개 섹션으로 채움."""
+    from aml_ai.shared.schemas.str.narrative import NarrativeRefLlm, SectionV2
+
+    return [NarrativeRefLlm(section=s, cites=[]) for s in SectionV2]
 
 
 def test_rewrite_prompt_file_has_no_typology_name_hardcoded() -> None:
@@ -90,7 +95,7 @@ def test_critique_only_below_pass_score_in_judge_order() -> None:
         LlmCheck(check=LlmCheckName.NO_SPECULATION, comment="", score=5),
         LlmCheck(check=LlmCheckName.NO_INSTRUCTION_TEXT, comment="", score=5),
     ]
-    judge = JudgeOutV2(checks=checks, sections=[])
+    judge = JudgeOutV2(checks=checks, sections=_fake_sections())
     critique = assemble_critique(judge, pass_score=JUDGE_PASS_SCORE)
     # 통과 항목은 빠짐
     assert "NO_UNSUPPORTED_CLAIM" not in critique
@@ -107,7 +112,7 @@ def test_critique_empty_when_all_pass() -> None:
     from aml_ai.str.domain.constants import JUDGE_PASS_SCORE
 
     checks = [LlmCheck(check=name, comment="", score=5) for name in LlmCheckName]
-    judge = JudgeOutV2(checks=checks, sections=[])
+    judge = JudgeOutV2(checks=checks, sections=_fake_sections())
     critique = assemble_critique(judge, pass_score=JUDGE_PASS_SCORE)
     assert critique.strip() == ""
 
@@ -135,44 +140,46 @@ def test_original_narrative_serialization_omits_evidence_ids() -> None:
     assert not re.search(r"\b1\b|\b2\b|\b3\b", serialized)
 
 
-def test_rewriter_assembles_user_with_all_blocks() -> None:
-    """NarrativeRewriter.render_user 가 facts·fact_keys·notes·references·original_narrative·critique·paths_notice 전부 넣는다."""
-    from aml_ai.shared.schemas.str import JudgeOutV2, LlmCheck, NarrativeSection
+def _one_three_judge():  # type: ignore[no-untyped-def]
+    from aml_ai.shared.schemas.str import JudgeOutV2, LlmCheck
+
+    checks = [LlmCheck(check=n, comment="", score=5) for n in LlmCheckName]
+    checks[0] = LlmCheck(check=LlmCheckName.FIVE_W_ONE_H_COMPLETE, comment="", score=5)
+    checks[1] = LlmCheck(check=LlmCheckName.TYPOLOGY_CONSISTENT, comment="경로 일반론", score=3)
+    return JudgeOutV2(checks=checks, sections=_fake_sections())
+
+
+def test_rewrite_prompts_assembled_system_and_user() -> None:
+    """render_rewrite_prompts → (system, user). system 에 paths_notice, user 에 나머지 블록."""
+    from aml_ai.shared.schemas.str import NarrativeSection
     from aml_ai.shared.schemas.str.narrative import SectionV2
-    from aml_ai.str.application.draft_rewrite import render_rewrite_user
+    from aml_ai.str.application.draft_rewrite import render_rewrite_prompts
 
     facts = _facts(FIXTURE_CYCLE)
-    masked = facts  # 테스트 단위라 masking 대신 facts 원본
     keys = list(fact_keys_domain.fact_keys(facts).keys())
     original = [
-        NarrativeSection(
-            section=s, text=f"t:{s.value}", cites=["subject.entity_type"], evidence_ids=[]
-        )
+        NarrativeSection(section=s, text=f"t:{s.value}", cites=["subject.entity_type"], evidence_ids=[])
         for s in SectionV2
     ]
-    checks = [
-        LlmCheck(check=LlmCheckName.TYPOLOGY_CONSISTENT, comment="경로 일반론", score=3),
-        LlmCheck(check=LlmCheckName.FIVE_W_ONE_H_COMPLETE, comment="", score=5),
-        LlmCheck(check=LlmCheckName.NO_UNSUPPORTED_CLAIM, comment="", score=5),
-        LlmCheck(check=LlmCheckName.NO_SPECULATION, comment="", score=5),
-        LlmCheck(check=LlmCheckName.NO_INSTRUCTION_TEXT, comment="", score=5),
-    ]
-    user = render_rewrite_user(
-        facts_masked=masked,
+    system, user = render_rewrite_prompts(
+        facts_masked={"typology": facts.typology},
         fact_keys=keys,
         examples=[],
         references=[],
         notes=None,
         original_narrative=original,
-        critique=JudgeOutV2(checks=checks, sections=[]),
+        critique=_one_three_judge(),
         paths_notice="10a. ... 경로는 확인 필요",
     )
-    assert "FACTS:" in user
-    assert "FACT_KEYS" in user
-    assert "<investigator_notes>" in user
-    assert "REFERENCES" in user
-    assert "<original_narrative>" in user
-    assert "<critique>" in user
-    assert "TYPOLOGY_CONSISTENT" in user
-    assert "경로는 확인 필요" in user
+    assert "경로는 확인 필요" in system  # paths_notice 치환
+    for token in (
+        "FACTS:",
+        "FACT_KEYS",
+        "<investigator_notes>",
+        "REFERENCES",
+        "<original_narrative>",
+        "<critique>",
+        "TYPOLOGY_CONSISTENT",
+    ):
+        assert token in user
     assert "evidence_ids" not in user

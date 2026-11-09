@@ -51,6 +51,36 @@ def _fan_in_body(sample: dict, *, draft_id: str = "DRF-SCRUM20-01", notes_extra:
 # 선행 facts == fixture 는 `test_draft_integration_seed.py` 로 분리(200줄 관문).
 
 
+def _assert_rewrite_meta_by_prompt(out: DraftResponse, prompt_name: str, body: dict) -> None:
+    """SCRUM-147 — v2 fan_in: 평가자 녹화 judge_v3/510cf822675f9727 재생 → 전부 5점 → not_triggered.
+    v1 fan_in: 녹화 본문이 DATE_MATCH 로 코드 검사 실패(SCRUM-131 'v1 CODE_FAILED') → code_failed → 평가자 0.
+    """
+    assert out.generation_meta.rewrite is not None, "SCRUM-147 — rewrite 칸 반드시 채워짐"
+    rewrite = out.generation_meta.rewrite
+    if prompt_name == "narrative_v2":
+        assert rewrite.skipped_reason == "not_triggered", (
+            f"fan_in v2 평가자 녹화 재생 → 전부 5점 기대. 실제: {rewrite.skipped_reason!r}. "
+            f"render_judge_user 계약·masking 차이가 원인일 수 있음 — 로그 보고 수정."
+        )
+        assert rewrite.critique_scores is not None
+        assert len(rewrite.critique_scores) == 5
+        assert all(s == 5 for s in rewrite.critique_scores.values())
+        return
+    from aml_ai.str.domain.verification import run_code_checks
+
+    v1_failures = [
+        f"{c.check.value}({c.section.value if c.section else '-'},{c.reason})"
+        for c in run_code_checks(out.facts, out.narrative, body["evidence_transaction_ids"])
+        if not c.match
+    ]
+    assert rewrite.skipped_reason == "code_failed", (
+        f"fan_in v1 녹화 본문은 code_failed 기대 (SCRUM-131 'v1 CODE_FAILED'). "
+        f"실제: {rewrite.skipped_reason!r}. 원본 코드 검사 실패 항목: {v1_failures or '없음'}"
+    )
+    assert rewrite.critique_scores is None, "code_failed 면 평가자 호출 0 → critique_scores 는 None"
+    assert rewrite.critique_llm_model is None
+
+
 # ───────── 정상 ─────────
 
 
@@ -84,21 +114,7 @@ def test_draft_success_through_recorded_llm(
         text("SELECT status FROM ai.generations WHERE draft_id=:d"), {"d": body["draft_id"]}
     ).one()
     assert row.status == "SUCCEEDED"
-    # SCRUM-147 — rewrite 분기: v2 fan_in 은 평가자 녹화 judge_v3/510cf822675f9727 재생 → 전부 5점 → not_triggered.
-    # v1 fan_in 은 평가자 녹화 없음 → LlmUnavailable → critique_error.
-    # 녹화 키가 안 맞아 v2 가 critique_error 로 떨어지면 render_judge_user 계약·masking 차이가 원인 — 로그 보고 수정.
-    assert out.generation_meta.rewrite is not None, "SCRUM-147 — rewrite 칸 반드시 채워짐"
-    if prompt_name == "narrative_v2":
-        assert out.generation_meta.rewrite.skipped_reason == "not_triggered", (
-            "fan_in v2 평가자 녹화(510cf822675f9727) 재생 → 전부 5점"
-        )
-        assert out.generation_meta.rewrite.critique_scores is not None
-        assert len(out.generation_meta.rewrite.critique_scores) == 5
-        assert all(s == 5 for s in out.generation_meta.rewrite.critique_scores.values())
-    else:
-        assert out.generation_meta.rewrite.skipped_reason == "critique_error", (
-            "fan_in v1 평가자 녹화 없음 → LlmUnavailable → critique_error"
-        )
+    _assert_rewrite_meta_by_prompt(out, prompt_name, body)
 
 
 # ───────── 기본값 경로 (SCRUM-62) — env 없으면 narrative_v2 ─────────

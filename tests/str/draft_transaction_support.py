@@ -82,6 +82,44 @@ class _FakeGenerator:
 
 
 @dataclass
+class _FakeJudge:
+    """SCRUM-147 — 평가자 호출 안 나게 전부 5점. 트랜잭션 경계 테스트는 이 분기까지 안 와도 됨."""
+
+    session: Session
+    in_tx_at_call: list[bool] = field(default_factory=list)
+
+    def run(self, facts_masked, narrative, *, deadline, fact_keys=None):  # type: ignore[no-untyped-def]
+        self.in_tx_at_call.append(self.session.in_transaction())
+        from aml_ai.shared.schemas.str import JudgeMeta, LlmCheck
+        from aml_ai.shared.schemas.str.verify import LlmCheckName
+        from aml_ai.str.infrastructure.judge import JudgeResult
+
+        checks = [LlmCheck(check=n, comment="", score=5) for n in LlmCheckName]
+        meta = JudgeMeta(
+            llm_model="stub", prompt_version="judge_v3", tokens_in=0, tokens_out=0, latency_ms=0, attempts=1
+        )
+        return JudgeResult(checks=checks, meta=meta, sections=[])
+
+
+@dataclass
+class _FakeRewriter:
+    """SCRUM-147 — try_rewrite 가 not_triggered 로 떨어지면 호출 안 됨. 호출되면 noop GenerationResult."""
+
+    session: Session
+
+    def rewrite(self, **kwargs):  # type: ignore[no-untyped-def]
+        narrative = [LlmNarrativeSection(section=s, text="x", cites=[]) for s in SectionV2]
+        return GenerationResult(
+            narrative=narrative,
+            llm_model="stub",
+            prompt_version="rewrite_v1",
+            tokens_in=0,
+            tokens_out=0,
+            latency_ms=0,
+        )
+
+
+@dataclass
 class _FakeGenRepo:
     """claim → ClaimNew, finish/fail 는 기록만."""
 
@@ -120,6 +158,8 @@ def run_generate_with_fakes(session: Session) -> tuple[_FakeGenerator, _FakeRetr
         fewshot=fewshot,
         retriever=retriever,
         generator=generator,
+        judge=_FakeJudge(session),
+        rewriter=_FakeRewriter(session),
         generations=gens_repo,
     )
     svc._generate(req, generation_id="g" * 32, deadline=time.monotonic() + 100)

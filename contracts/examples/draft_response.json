@@ -187,7 +187,23 @@
     "server_version": "a1b2c3d",
     "tokens_in": 3800,
     "tokens_out": 950,
-    "latency_ms": 21400
+    "latency_ms": 21400,
+    "rewrite": {
+      "attempted": false,
+      "applied": false,
+      "skipped_reason": "not_triggered",
+      "critique_llm_model": "(API가 돌려준 평가자 모델 ID)",
+      "critique_scores": {
+        "FIVE_W_ONE_H_COMPLETE": 5,
+        "TYPOLOGY_CONSISTENT": 5,
+        "NO_UNSUPPORTED_CLAIM": 5,
+        "NO_SPECULATION": 5,
+        "NO_INSTRUCTION_TEXT": 5
+      },
+      "critique_tokens_in": 1800,
+      "critique_tokens_out": 300,
+      "critique_latency_ms": 6200
+    }
   },
   "verification": null
 }

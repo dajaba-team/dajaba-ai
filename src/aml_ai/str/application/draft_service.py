@@ -17,12 +17,14 @@ from aml_ai.shared.infrastructure.llm_client import make_llm_client
 from aml_ai.shared.schemas.str import DraftRequest, DraftResponse, Facts, Reference
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.shared.versioning import generation_meta
+from aml_ai.str.application.draft_rewrite import NarrativeRewriter, try_rewrite
 from aml_ai.str.domain import fact_keys as fact_keys_domain
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain import masking
 from aml_ai.str.domain.request_hash import request_hash
 from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.generation_repository import ClaimReuse, GenerationRepository
+from aml_ai.str.infrastructure.judge import Judge
 from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
 from aml_ai.str.infrastructure.retriever import Retriever
 from aml_ai.str.infrastructure.transaction_reader import TransactionReader
@@ -38,6 +40,8 @@ class DraftService:
     fewshot: FewshotStore
     retriever: Retriever
     generator: NarrativeGenerator
+    judge: Judge  # SCRUM-147 — 초안 안 작성자–비평가 평가자 (고쳐 쓰기 판단용)
+    rewriter: NarrativeRewriter  # SCRUM-147 — rewrite_v1 호출
     generations: GenerationRepository
     clock: Callable[[], float] = time.monotonic
 
@@ -53,6 +57,8 @@ class DraftService:
             fewshot=FewshotStore(session, prompt_name=settings.narrative_prompt),
             retriever=Retriever(session, make_embedding_client(settings), enabled=settings.rag_enabled),
             generator=NarrativeGenerator(llm, settings, settings.narrative_prompt, clock=clock),
+            judge=Judge(llm, settings, clock=clock),
+            rewriter=NarrativeRewriter(llm, settings, clock=clock),
             generations=GenerationRepository(session, settings),
             clock=clock,
         )
@@ -92,28 +98,48 @@ class DraftService:
         if not facts_domain.has_reportable(txs):
             raise InvalidRequest("no reportable transactions")
         subject = self.reader.load_subject(req.alert, txs)
-        # 3·4 — 순수
         facts = facts_domain.build_facts(req.to_facts_input(), txs, subject)
         facts_masked = masking.mask_for_llm(facts)
-        # 5
         examples = self.fewshot.pick_examples(facts.typology)
         # SCRUM-122 — LLM/임베딩 호출 전 연결 반납. end_read 와 LLM 사이에 DB 읽기 금지.
         end_read(self.session)
         references = self._references(facts)
         end_read(self.session)  # 지금은 RAG 꺼져 no-op, 125에서 _search 가 짧은 트랜잭션
+        fact_keys = list(fact_keys_domain.fact_keys(facts).keys())
         gen = self.generator.generate(
-            facts_masked,
-            list(fact_keys_domain.fact_keys(facts).keys()),
-            examples,
-            references,
-            req.investigator_notes,
-            deadline=deadline,
+            facts_masked, fact_keys, examples, references, req.investigator_notes, deadline=deadline
         )
-        # 8 — 순수: cites 의 fact 키 → evidence_ids
         narrative = fact_keys_domain.attach_evidence(gen.narrative, facts)
-        return self._build_response(req, generation_id, facts, narrative, gen, examples, references)
+        # 8b (SCRUM-147) — 작성자–비평가 고쳐 쓰기 1회. 실패 경로 전부 원본, verification=null 유지.
+        rewrite_meta, narrative, gen = self._try_rewrite(
+            req, facts, facts_masked, fact_keys, examples, references, narrative, gen, deadline
+        )
+        return self._build_response(
+            req, generation_id, facts, narrative, gen, examples, references, rewrite_meta
+        )
 
-    def _build_response(self, req, generation_id, facts, narrative, gen, examples, references):
+    def _try_rewrite(
+        self, req, facts, facts_masked, fact_keys, examples, references, narrative, gen, deadline
+    ):  # type: ignore[no-untyped-def]  # noqa: E501
+        return try_rewrite(
+            facts=facts,
+            facts_masked=facts_masked,
+            fact_keys=fact_keys,
+            examples=examples,
+            references=references,
+            notes=req.investigator_notes,
+            alert_rule_id=req.alert.rule_id,
+            evidence_scope=req.evidence_transaction_ids,
+            original_narrative=narrative,
+            original_gen=gen,
+            judge=self.judge,
+            rewriter=self.rewriter,
+            clock=self.clock,
+            deadline=deadline,
+            settings=self.settings,
+        )
+
+    def _build_response(self, req, generation_id, facts, narrative, gen, examples, references, rewrite_meta):
         meta = generation_meta(
             self.settings,
             llm_model=gen.llm_model,
@@ -123,6 +149,7 @@ class DraftService:
             tokens_in=gen.tokens_in,
             tokens_out=gen.tokens_out,
             latency_ms=gen.latency_ms,
+            rewrite=rewrite_meta.model_dump(mode="json") if rewrite_meta is not None else None,
         )
         return DraftResponse(
             produced_at=utc_now(),
