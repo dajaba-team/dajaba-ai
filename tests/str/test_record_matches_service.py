@@ -55,6 +55,46 @@ def test_record_and_service_produce_same_recording_key(prompt_name: str) -> None
     assert recording_key(r_system, r_user) == recording_key(s_system, s_user)
 
 
+def test_record_rewrite_matches_service_recording_key() -> None:
+    """SCRUM-147 — tools.record_rewrite.build_rewrite_prompt 가 draft_rewrite(= narrative_rewriter)
+    가 호출하는 render_rewrite_prompts 와 **같은 (system, user)** 를 조립한다 — 녹화 키 일치.
+    """
+    from tools.record_rewrite import build_rewrite_prompt
+
+    from aml_ai.shared.schemas.str import JudgeOutV2
+    from aml_ai.str.application.draft_rewrite import build_paths_notice, render_rewrite_prompts
+    from aml_ai.str.domain import masking
+
+    facts = Facts.model_validate(
+        json.loads((REPO_ROOT / "tests/str/fixtures/facts_cycle_nopaths.json").read_text(encoding="utf-8"))
+    )
+    narrative_rec = json.loads(
+        (REPO_ROOT / "tests/str/recorded/narrative_v2/a976ae216c7fb1bb.json").read_text(encoding="utf-8")
+    )["text"]
+    from aml_ai.shared.schemas.str import NarrativeOut
+
+    narrative = NarrativeOut.model_validate_json(narrative_rec).narrative
+    judge_text = json.loads(
+        (REPO_ROOT / "tests/str/recorded/judge_v3/510cf822675f9727.json").read_text(encoding="utf-8")
+    )["text"]
+    judge_out = JudgeOutV2.model_validate_json(judge_text)
+
+    r_system, r_user, r_keys = build_rewrite_prompt(facts, narrative, judge_out, "R04_CYCLE")
+    s_system, s_user = render_rewrite_prompts(
+        facts_masked=masking.mask_for_llm(facts),
+        fact_keys=r_keys,
+        examples=[],
+        references=[],
+        notes=None,
+        original_narrative=narrative,
+        critique=judge_out,
+        paths_notice=build_paths_notice(alert_rule_id="R04_CYCLE", facts=facts),
+    )
+    assert r_system == s_system
+    assert r_user == s_user
+    assert recording_key(r_system, r_user) == recording_key(s_system, s_user)
+
+
 def test_record_masks_input_facts_transaction_ids() -> None:
     """지금 녹화하는 입력 facts 의 transaction_ids 는 masked dict 에서 사라져야 (예시 facts 는 범위 밖)."""
     facts = Facts.model_validate(
