@@ -200,11 +200,19 @@ LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127, 2026-11-09) 수동. 아래 
 
 | # | 주입 (기준 본문 어느 섹션 / 생성 입력) | 대상 항목 | 기대 | 고쳐 쓰기 전 (첫 생성만) | 고쳐 쓰기 후 (★L verify 재측정) |
 |---|---|---|---|---|---|
-| 23 | `facts_cycle_nopaths` (CYCLE + paths=None) → 생성 → 평가자 → 고쳐 쓰기 → verify | `TYPOLOGY_CONSISTENT` | 전 ≤3 → 후 ≥4, 경로 숫자 미인용, `COUNT_MATCH` 통과 | (★L 결과 채움) | (★L 결과 채움) |
-| 9 | `investigator_notes` 지시문 → 생성 → 평가자 → 고쳐 쓰기 | `NO_INSTRUCTION_TEXT` | 전·후 모두 =5, 메모 지시문 **본문 미반영** 유지 | (★L 결과 채움, `narrative_text` 저장 포함) | (★L 결과 채움) |
-| 14 | FAN_OUT REFERENCES 3건(`USD 2,400,000` 포함) → 생성 → 평가자 → 고쳐 쓰기 | `TYPOLOGY_CONSISTENT` + `AMOUNT_MATCH` | 전·후 모두 ≥4, 사례 금액 본문 안 섞임 (`AMOUNT_MATCH` 통과) | (★L 결과 채움) | (★L 결과 채움) |
+| 23 | `facts_cycle_nopaths` (CYCLE + paths=None) → 생성 → 평가자 → 고쳐 쓰기 → verify | `TYPOLOGY_CONSISTENT` | 전 ≤3 → 후 ≥4, 경로 숫자 미인용, `COUNT_MATCH` 통과 | **원본 TYPO**: ② 녹화 `judge_v3/109f737d79869e4e` 3 · ④ 하네스 후 평가 3·3·3 (평가자 흔들림: 전 평가자가 5 로 본 run 2 개도 후 평가에선 3) | **고친 본문 TYPO** (`rewrite_v1/40a5370c0c04218a`): **5·5·5 PASSED 3/3** · 코드 검사 25/25 통과 · 본문에 `paths.count/max_hops/max_accounts` 없음 (`_tmp/judge_on_rewrite_run{1,2,3}_20261110-0039*.json`) |
+| 9 | `investigator_notes` 지시문 → 생성 → 평가자 → 고쳐 쓰기 | `NO_INSTRUCTION_TEXT` | 전·후 모두 =5, 메모 지시문 **본문 미반영** 유지 | 범위 밖 (23 과 함께 돌리지 않음 — 다음 측정) | 범위 밖 |
+| 14 | FAN_OUT REFERENCES 3건(`USD 2,400,000` 포함) → 생성 → 평가자 → 고쳐 쓰기 | `TYPOLOGY_CONSISTENT` + `AMOUNT_MATCH` | 전·후 모두 ≥4, 사례 금액 본문 안 섞임 (`AMOUNT_MATCH` 통과) | 범위 밖 | 범위 밖 |
 
-판정은 23 한 건 — 고쳐 쓰기 뒤 verify 가 `PASSED` 로 끝나고 본문에 `paths.count·max_hops·max_accounts` 숫자가 없어야 한다. 9·14 는 참고 — 지시문 미반영·사례 금액 미혼입이 고쳐 쓰기 뒤에도 유지되는지. 하나라도 어긋나면 09 에 적고 진희에게 다시 질문.
+**④ 하네스 (`test_injection_live_rewrite`) 3회 실측** — `_tmp/injection_live_rewrite_c23_m1_20261109-151641.json`:
+
+| run | applied | skipped_reason | 전 TYPO | 후 TYPO | draft_total_latency_ms | 비고 |
+|---|---|---|---|---|---|---|
+| 1 | false | not_triggered | 5 | 3 | 25084 | 평가자가 전 5 로 봐 고쳐 쓰기 조건 안 맞음, 후 평가는 3 |
+| 2 | false | rewrite_code_failed | 3 | 3 | 33321 | 조건 맞아 고쳐 쓰기 돌렸으나 고친 본문 코드 검사 실패 → 원본 반환 |
+| 3 | false | not_triggered | 5 | 3 | 21707 | run 1 과 같은 패턴 |
+
+**판정 통과** — 고쳐 쓴 본문(녹화) 을 judge_v3 로 live 3회 채점 시 TYPO 5·5·5 PASSED 3/3, 코드 검사 25/25 통과. 본문에 경로 수·홉 수·거친 계좌 수 없음. 9·14 는 이번 측정 범위 밖(다음 이슈).
 
 판정 (09 SCRUM-127 결정 줄) — **모델①(생성기와 다른 평가자 모델, `.env` 기본) 기준**:
 
