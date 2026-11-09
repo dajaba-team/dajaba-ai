@@ -54,7 +54,7 @@ INSERT (PROCESSING, request_hash)      ← LLM 호출 전 선점 (순서는 아�
 |---|---|---|
 | **새 DB**(compose 처음 띄울 때) | 백엔드 리포 `db/init/00_extensions.sql`이 `CREATE EXTENSION IF NOT EXISTS vector;` — postgres 이미지가 superuser 로 볼륨 첫 기동 때 1회 실행. db 이미지는 `pgvector/pgvector:0.8.2-pg16-trixie`(버전 고정, 기존 `postgres:16` trixie 볼륨과 collation 그대로) | 백엔드 리포 (SCRUM-124, 완료) |
 | **이미 있는 DB**(팀원 로컬·시연 서버 — 볼륨이 이미 떠 있어 `db/init/`이 안 돈다) | 손으로 1회: `docker exec aml-db psql -U postgres -d aml -c "CREATE EXTENSION IF NOT EXISTS vector;"` — 백엔드 폴더 아니어도 돈다(컨테이너 이름으로 직접). `docker compose exec db …` 는 백엔드 폴더·같은 compose 프로젝트(`name: dajaba`)에서만 | 각자 |
-| Alembic `0005_reference_chunks` | 확장을 **만들지 않고 확인만**: `SELECT 1 FROM pg_extension WHERE extname='vector'` 없으면 `RuntimeError("pgvector 확장 없음 — shared/03 절차")`로 멈춘다. 조용히 넘어가지 않는다 | 진희, W4 |
+| Alembic `0004_reference_chunks` | 확장을 **만들지 않고 확인만**: `SELECT 1 FROM pg_extension WHERE extname='vector'` 없으면 `RuntimeError("pgvector 확장 없음 — shared/03 절차")`로 멈춘다. 조용히 넘어가지 않는다 | 진희, W4 |
 
 차원 N은 임베딩 모델에 따라 `.env`의 `EMBEDDING_DIM`. 모델을 바꾸면 테이블을 비우고 전부 재적재(마이그레이션이 아니라 스크립트).
 
@@ -73,5 +73,7 @@ INSERT (PROCESSING, request_hash)      ← LLM 호출 전 선점 (순서는 아�
 | `0001_str_tables` | `generations`(status·request_hash·partial UNIQUE 포함), `prompt_versions`, `fewshot_examples` | 진희, W2 (뼈대에 있음 — 10/27 변경 반영 필요) |
 | `0002_verification_runs` | `verification_runs`(revision_no·narrative_sha256·request_id 포함) | 진희, W3 (SCRUM-57, 2026-11-01) |
 | `0003_verification_judge_meta` | `verification_runs` 에 `judge_llm_model`·`judge_tokens_in`·`judge_tokens_out`·`judge_latency_ms`·`judge_attempts` 5칸 (전부 NULL 허용) | 진희, W3 (SCRUM-92, 2026-11-04) |
-| `0004_scoring_tables` | `model_versions`, `alert_features`, `predictions` | 준영, W3 |
-| `0005_reference_chunks` | pg_extension 확인 → `reference_chunks` + HNSW·GIN | 진희, W4 (pgvector 뒤) |
+| `0004_reference_chunks` | pg_extension 확인 → `reference_chunks` + HNSW·GIN | 진희, W4 (SCRUM-125, pgvector 뒤) |
+| `0005_scoring_tables` | `model_versions`, `alert_features`, `predictions` | 준영, W4 (SCRUM-83) — `down_revision = "0004_reference_chunks"` |
+
+**11/9 번호 바꿈**: 11/4(SCRUM-92) 계획은 `0004_scoring_tables`(준영) → `0005_reference_chunks`(진희)였는데, 준영 쪽 파일이 아직 없어 `0005` 를 먼저 만들면 `0004` 가 비어 체인이 끊긴다. 먼저 만드는 쪽(RAG, 11/10~)이 `0004`, 점수 쪽이 `0005`. 둘 중 늦게 만드는 쪽이 앞 번호를 `down_revision` 으로 가리켜 head 하나 유지(머지 마이그레이션 안 만듦). `09` 2026-11-09 (SCRUM-125) 줄
