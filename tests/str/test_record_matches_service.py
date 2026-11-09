@@ -59,7 +59,7 @@ def test_record_rewrite_matches_service_recording_key() -> None:
     """SCRUM-147 — tools.record_rewrite.build_rewrite_prompt 가 draft_rewrite(= narrative_rewriter)
     가 호출하는 render_rewrite_prompts 와 **같은 (system, user)** 를 조립한다 — 녹화 키 일치.
     """
-    from tools.record_rewrite import build_rewrite_prompt
+    from tools.record_rewrite import build_rewrite_prompt, rule_id_from_facts
 
     from aml_ai.shared.schemas.str import JudgeOutV2
     from aml_ai.str.application.draft_rewrite import build_paths_notice, render_rewrite_prompts
@@ -79,7 +79,9 @@ def test_record_rewrite_matches_service_recording_key() -> None:
     )["text"]
     judge_out = JudgeOutV2.model_validate_json(judge_text)
 
-    r_system, r_user, r_keys = build_rewrite_prompt(facts, narrative, judge_out, "R04_CYCLE")
+    rule_id = rule_id_from_facts(facts)
+    assert rule_id == "R04_CYCLE", f"CYCLE typology → R04_CYCLE 기대. 실제: {rule_id!r}"
+    r_system, r_user, r_keys = build_rewrite_prompt(facts, narrative, judge_out, rule_id)
     s_system, s_user = render_rewrite_prompts(
         facts_masked=masking.mask_for_llm(facts),
         fact_keys=r_keys,
@@ -88,7 +90,7 @@ def test_record_rewrite_matches_service_recording_key() -> None:
         notes=None,
         original_narrative=narrative,
         critique=judge_out,
-        paths_notice=build_paths_notice(alert_rule_id="R04_CYCLE", facts=facts),
+        paths_notice=build_paths_notice(alert_rule_id=rule_id, facts=facts),
     )
     assert r_system == s_system
     assert r_user == s_user

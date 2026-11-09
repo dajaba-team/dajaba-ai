@@ -1,7 +1,7 @@
 """실제 LLM 1회 호출 → tests/str/recorded/{prompt_version}/{key}.json 저장 (docs/str/08·05).
 
 모드: --case <fan_in> (생성) / --judge --from-recorded (SCRUM-61) / --summary (SCRUM-129) /
---rewrite --from-recorded --from-judge [--rule-id] (SCRUM-147). AI_LLM_MOCK 은 무시.
+--rewrite --from-recorded --from-judge (SCRUM-147, rule_id 자동 추론). AI_LLM_MOCK 은 무시.
 저장 내용 {"text", "model"} — API 키·헤더·토큰 수 안 들어감. `FROZEN_PROMPTS` 에 해시는 같은 커밋.
 """
 
@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.rewrite:
         from tools.record_rewrite import record_rewrite
 
-        return record_rewrite(settings, facts, args.from_recorded, args.from_judge, args.rule_id, save=_save, print_ok=_print_ok)  # fmt: skip  # noqa: E501
+        return record_rewrite(settings, facts, args.from_recorded, args.from_judge, save=_save, print_ok=_print_ok)  # fmt: skip  # noqa: E501
     if args.summary:
         from tools.record_summary import record_summary
 
@@ -188,7 +188,6 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     p.add_argument("--rewrite", action="store_true", help="고쳐 쓰기 녹화 (SCRUM-147)")
     p.add_argument("--from-recorded", help="narrative 녹화 입력 — tests/str/recorded/<prompt>/<key>.json")
     p.add_argument("--from-judge", help="평가자 녹화 입력 — tests/str/recorded/judge_v?/<key>.json")
-    p.add_argument("--rule-id", default="", help="alert.rule_id (rewrite paths_notice 조건용)")
     return p.parse_args(argv)
 
 
