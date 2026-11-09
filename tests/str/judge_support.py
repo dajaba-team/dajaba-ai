@@ -68,12 +68,15 @@ def make_judge(
     *,
     prompt_name: str = "judge_v1",
     request_sections: list[str] | None = None,
+    schema_retry: int | None = None,
 ) -> Judge:
     """SCRUM-91 회귀 테스트 기본값은 v1 — v2 는 호출 측에서 `prompt_name="judge_v2"` 명시(SCRUM-61)."""
     get_settings.cache_clear()
     kwargs: dict = {"prompt_name": prompt_name}
     if request_sections is not None:
         kwargs["request_sections"] = request_sections
+    if schema_retry is not None:
+        kwargs["schema_retry"] = schema_retry
     return Judge(stub, get_settings(), **kwargs)
 
 

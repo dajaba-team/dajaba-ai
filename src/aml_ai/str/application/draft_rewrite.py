@@ -38,6 +38,7 @@ __all__ = [
 
 log = logging.getLogger(__name__)
 _DEFAULT_LLM_TIMEOUT_S = 35
+_SUPPORTED_PROMPT = "narrative_v2"  # SCRUM-147 — rewrite_v1 출력 스키마가 v2 7섹션
 
 _Result = tuple[RewriteMeta, list[NarrativeSectionBase], GenerationResult]
 
@@ -64,55 +65,88 @@ class _Ctx:
 
 
 def _skip(
-    ctx: _Ctx, reason: RewriteSkipReason, *, critique: dict[str, Any] | None = None, attempted: bool = False
+    ctx: _Ctx,
+    reason: RewriteSkipReason,
+    *,
+    critique: dict[str, Any] | None = None,
+    attempted: bool = False,
+    gen: GenerationResult | None = None,
 ) -> _Result:
     meta = RewriteMeta(attempted=attempted, applied=False, skipped_reason=reason, **(critique or {}))
-    return meta, ctx.original_narrative, ctx.original_gen
+    return meta, ctx.original_narrative, gen if gen is not None else ctx.original_gen
+
+
+def _critique_from_meta(meta) -> dict[str, Any]:  # type: ignore[no-untyped-def]
+    return {
+        "critique_llm_model": meta.llm_model,
+        "critique_tokens_in": meta.tokens_in,
+        "critique_tokens_out": meta.tokens_out,
+        "critique_latency_ms": meta.latency_ms,
+    }  # noqa: E501
 
 
 def _critique_fields(judge_result: JudgeResult) -> dict[str, Any]:
-    m = judge_result.meta
-    return {
-        "critique_llm_model": m.llm_model,
-        "critique_scores": {c.check: c.score for c in judge_result.checks},
-        "critique_tokens_in": m.tokens_in,
-        "critique_tokens_out": m.tokens_out,
-        "critique_latency_ms": m.latency_ms,
-    }
+    out = _critique_from_meta(judge_result.meta)
+    out["critique_scores"] = {c.check: c.score for c in judge_result.checks}
+    return out
 
 
-def _run_judge(ctx: _Ctx) -> JudgeResult | None:
-    """평가자 호출. 예외면 None (critique_error 경로)."""
+def _run_judge(ctx: _Ctx) -> tuple[JudgeResult | None, dict[str, Any]]:
+    """평가자 호출. 실패면 (None, partial critique) — exc.judge_meta 있으면 모델·토큰·지연 보존."""
     try:
         return ctx.judge.run(
             ctx.facts_masked, ctx.original_narrative, deadline=ctx.deadline, fact_keys=ctx.fact_keys
-        )
+        ), {}
     except Exception as exc:
         log.warning("rewrite_critique_error", extra={"reason": type(exc).__name__})
+        jm = getattr(exc, "judge_meta", None)
+        return None, _critique_from_meta(jm) if jm is not None else {"critique_llm_model": None}
+
+
+def _merge_tokens(original: GenerationResult, rewrite_gen: GenerationResult | None) -> GenerationResult:
+    """응답(usage) 받은 생성 모델 호출은 합산 — 본문은 호출자가 결정."""
+    if rewrite_gen is None:
+        return original
+    return replace(
+        original,
+        tokens_in=original.tokens_in + rewrite_gen.tokens_in,
+        tokens_out=original.tokens_out + rewrite_gen.tokens_out,
+        latency_ms=original.latency_ms + rewrite_gen.latency_ms,
+    )
+
+
+def _usage_from_exc(exc: Exception, prompt_version: str) -> GenerationResult | None:
+    """스키마 실패 예외에 첨부된 LlmResult → 토큰 합산용 GenerationResult (본문 없음)."""
+    res = getattr(exc, "llm_result", None)
+    if res is None:
         return None
+    return GenerationResult(
+        narrative=[],
+        llm_model=res.model,
+        prompt_version=prompt_version,
+        tokens_in=res.tokens_in,
+        tokens_out=res.tokens_out,
+        latency_ms=res.latency_ms,
+    )  # noqa: E501
 
 
 def _call_rewriter(
     ctx: _Ctx, judge_result: JudgeResult
-) -> tuple[GenerationResult | None, RewriteSkipReason | None]:
+) -> tuple[GenerationResult | None, RewriteSkipReason | None, GenerationResult | None]:
+    """고쳐 쓰기 호출. (gen, fail_reason, usage_gen) — usage_gen 은 schema 실패 때 토큰만 있는 결과."""
     try:
         gen = ctx.rewriter.rewrite(
-            facts_masked=ctx.facts_masked,
-            fact_keys=ctx.fact_keys,
-            examples=ctx.examples,
-            references=ctx.references,
-            notes=ctx.notes,
-            original_narrative=ctx.original_narrative,
-            critique=judge_result,
+            facts_masked=ctx.facts_masked, fact_keys=ctx.fact_keys, examples=ctx.examples,
+            references=ctx.references, notes=ctx.notes, original_narrative=ctx.original_narrative,
+            critique=judge_result, deadline=ctx.deadline,
             paths_notice=build_paths_notice(alert_rule_id=ctx.alert_rule_id, facts=ctx.facts),
-            deadline=ctx.deadline,
-        )
-    except LlmInvalidOutput:
-        return None, "schema"
+        )  # fmt: skip
+    except LlmInvalidOutput as exc:
+        return None, "schema", _usage_from_exc(exc, ctx.rewriter.prompt_version)
     except Exception as exc:
         log.warning("rewrite_call_error", extra={"reason": type(exc).__name__})
-        return None, "rewrite_error"
-    return gen, None
+        return None, "rewrite_error", None
+    return gen, None, None
 
 
 def _phase_critique(ctx: _Ctx) -> _Result | tuple[JudgeResult, dict[str, Any]]:
@@ -121,9 +155,9 @@ def _phase_critique(ctx: _Ctx) -> _Result | tuple[JudgeResult, dict[str, Any]]:
         return _skip(ctx, "code_failed")
     if ctx.deadline - ctx.clock() < ctx.llm_timeout_s:
         return _skip(ctx, "budget")
-    judge_result = _run_judge(ctx)
+    judge_result, critique_on_fail = _run_judge(ctx)
     if judge_result is None:
-        return _skip(ctx, "critique_error", critique={"critique_llm_model": None})
+        return _skip(ctx, "critique_error", critique=critique_on_fail)
     return judge_result, _critique_fields(judge_result)
 
 
@@ -134,24 +168,19 @@ def _phase_rewrite(ctx: _Ctx, judge_result: JudgeResult, critique: dict[str, Any
         return _skip(ctx, "not_triggered", critique=critique)
     if ctx.deadline - ctx.clock() < ctx.llm_timeout_s:
         return _skip(ctx, "budget", critique=critique)
-    rewrite_gen, fail = _call_rewriter(ctx, judge_result)
+    rewrite_gen, fail, usage_gen = _call_rewriter(ctx, judge_result)
     if rewrite_gen is None:
         assert fail is not None
-        return _skip(ctx, fail, critique=critique, attempted=True)
+        # SCRUM-147 — schema 실패여도 usage 있으면 토큰·지연 합산. rewrite_error(usage 없음)는 미합산.
+        merged = _merge_tokens(ctx.original_gen, usage_gen)
+        return _skip(ctx, fail, critique=critique, attempted=True, gen=merged)
     rewrite_narrative = attach_evidence(rewrite_gen.narrative, ctx.facts)
+    merged = _merge_tokens(ctx.original_gen, rewrite_gen)
     if not all(c.match for c in run_code_checks(ctx.facts, rewrite_narrative, ctx.evidence_scope)):
-        return _skip(ctx, "rewrite_code_failed", critique=critique, attempted=True)
-    merged = replace(
-        ctx.original_gen,
-        tokens_in=ctx.original_gen.tokens_in + rewrite_gen.tokens_in,
-        tokens_out=ctx.original_gen.tokens_out + rewrite_gen.tokens_out,
-        latency_ms=ctx.original_gen.latency_ms + rewrite_gen.latency_ms,
-    )
-    return (
-        RewriteMeta(attempted=True, applied=True, skipped_reason=None, **critique),
-        rewrite_narrative,
-        merged,
-    )
+        # SCRUM-147 — 응답 받은 호출은 본문 원본이어도 토큰·지연 합산 (★A 4 규칙 통일).
+        return _skip(ctx, "rewrite_code_failed", critique=critique, attempted=True, gen=merged)
+    meta = RewriteMeta(attempted=True, applied=True, skipped_reason=None, **critique)
+    return meta, rewrite_narrative, merged
 
 
 def _run(ctx: _Ctx) -> _Result:
@@ -162,7 +191,9 @@ def _run(ctx: _Ctx) -> _Result:
     return _phase_rewrite(ctx, judge_result, critique)
 
 
-def try_rewrite(*, settings: Settings | None, **kw: Any) -> _Result:  # type: ignore[valid-type]
-    """초안 생성 안 작성자–비평가 고쳐 쓰기 1회 (03 단계 8b). kw 는 _Ctx 필드와 같음."""
+def try_rewrite(*, settings: Settings | None, **kw: Any) -> _Result | None:  # type: ignore[valid-type]
+    """초안 생성 안 작성자–비평가 고쳐 쓰기 1회 (03 단계 8b). v2 초안에만 적용."""
+    if kw["original_gen"].prompt_version != _SUPPORTED_PROMPT:
+        return None  # SCRUM-147 — v1 초안은 고쳐 쓰기 안 함 (rewrite_v1 출력 스키마가 v2 7섹션)
     kw["llm_timeout_s"] = settings.llm_timeout_s if settings is not None else _DEFAULT_LLM_TIMEOUT_S
     return _run(_Ctx(**kw))

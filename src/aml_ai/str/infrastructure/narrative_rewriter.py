@@ -103,7 +103,10 @@ class NarrativeRewriter:
             out = llm_output_model(self.prompt_version).model_validate_json(res.text)
             _check_cites_in_scope(out, fact_keys)
         except (ValidationError, ValueError) as exc:
-            raise LlmInvalidOutput("rewrite failed schema validation") from exc
+            # SCRUM-147 — usage 받은 스키마 실패는 호출자가 토큰 합산할 수 있게 LlmResult 첨부.
+            new_exc = LlmInvalidOutput("rewrite failed schema validation")
+            new_exc.llm_result = res
+            raise new_exc from exc
         return GenerationResult(
             narrative=out.narrative,
             llm_model=res.model,

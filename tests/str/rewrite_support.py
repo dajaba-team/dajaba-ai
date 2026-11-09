@@ -50,28 +50,35 @@ class JudgeOut:
 
 
 class FakeJudge:
-    def __init__(self, result: JudgeOut | Exception) -> None:
+    def __init__(self, result: JudgeOut | Exception, judge_meta=None) -> None:  # type: ignore[no-untyped-def]
         self._result = result
+        self._judge_meta = judge_meta  # SCRUM-147 — 예외에 붙일 JudgeMeta (SCRUM-144 패턴)
         self.calls = 0
 
     def run(self, facts_masked, narrative, *, deadline, fact_keys=None):  # type: ignore[no-untyped-def]
         self.calls += 1
         if isinstance(self._result, Exception):
+            if self._judge_meta is not None:
+                self._result.judge_meta = self._judge_meta  # type: ignore[attr-defined]
             raise self._result
         return self._result.as_result()
 
 
 class FakeRewriter:
+    prompt_version = "rewrite_v1"
+
     def __init__(
         self,
         narrative: list[LlmNarrativeSection] | None = None,
         raise_exc: Exception | None = None,
+        raise_usage=None,  # type: ignore[no-untyped-def]  # SCRUM-147 — LlmInvalidOutput 에 llm_result 첨부
         tokens_in: int = 1000,
         tokens_out: int = 400,
         latency_ms: int = 4500,
     ) -> None:
         self._narrative = narrative
         self._raise = raise_exc
+        self._raise_usage = raise_usage
         self.tokens_in = tokens_in
         self.tokens_out = tokens_out
         self.latency_ms = latency_ms
@@ -80,6 +87,8 @@ class FakeRewriter:
     def rewrite(self, **_kwargs) -> GenerationResult:  # type: ignore[no-untyped-def]
         self.calls += 1
         if self._raise is not None:
+            if self._raise_usage is not None:
+                self._raise.llm_result = self._raise_usage  # type: ignore[attr-defined]
             raise self._raise
         return GenerationResult(
             narrative=self._narrative,

@@ -56,7 +56,7 @@
 
 ## 초안 안 평가자 (SCRUM-147, 2026-11-10 — 고쳐 쓰기 판단용)
 
-`draft_service._generate` 는 `attach_evidence` 뒤 `draft_rewrite.try_rewrite` 에서 평가자(`judge_v3`)를 **고쳐 쓰기 판단용**으로 한 번 부른다. 이 호출의 결과는 **검증 결과가 아니다** — 초안 응답 `verification` 은 그대로 `null` (안건 17 유지), `verification_runs` 저장도 없다. 초안 안 평가자의 점수·comment·토큰·지연은 `generations.response` 의 `generation_meta.rewrite.critique_*` 에만 저장한다. 조사역이 "검증" 버튼을 누르면 `/v1/str/verify` 가 평가자를 **다시** 부른다 — 초안 안 평가자는 작성 보조이고, 검증은 승인 요청의 공식 근거라 분리한다(중복 비용은 감수, 09 "알고 남김"). 초안 흐름은 `03_pipeline.md` 단계 8b.
+`draft_service._generate` 는 `attach_evidence` 뒤 `draft_rewrite.try_rewrite` 에서 평가자(`judge_v3`)를 **고쳐 쓰기 판단용**으로 한 번 부른다. **v2 전용** — v1 초안(`prompt_version="narrative_v1"`) 은 `try_rewrite` 가 None 반환해 아예 안 탐(rewrite_v1 출력 스키마가 v2 7섹션). 이 호출의 결과는 **검증 결과가 아니다** — 초안 응답 `verification` 은 그대로 `null` (안건 17 유지), `verification_runs` 저장도 없다. **초안용 Judge 는 `schema_retry=0`** — verify 경로의 1회 재시도와 분리해 초안 LLM 호출 상한 4 를 지킨다. 초안 안 평가자의 점수·comment·토큰·지연은 `generations.response` 의 `generation_meta.rewrite.critique_*` 에만 저장한다. 조사역이 "검증" 버튼을 누르면 `/v1/str/verify` 가 평가자를 **다시** 부른다 — 초안 안 평가자는 작성 보조이고, 검증은 승인 요청의 공식 근거라 분리한다(중복 비용은 감수, 09 "알고 남김"). 초안 흐름은 `03_pipeline.md` 단계 8b.
 
 ## passed·status (안건 9 확정)
 

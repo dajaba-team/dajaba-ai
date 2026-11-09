@@ -57,7 +57,7 @@ class DraftService:
             fewshot=FewshotStore(session, prompt_name=settings.narrative_prompt),
             retriever=Retriever(session, make_embedding_client(settings), enabled=settings.rag_enabled),
             generator=NarrativeGenerator(llm, settings, settings.narrative_prompt, clock=clock),
-            judge=Judge(llm, settings, clock=clock),
+            judge=Judge(llm, settings, clock=clock, schema_retry=0),  # SCRUM-147 — 초안 호출 상한 ≤4
             rewriter=NarrativeRewriter(llm, settings, clock=clock),
             generations=GenerationRepository(session, settings),
             clock=clock,
@@ -110,10 +110,13 @@ class DraftService:
             facts_masked, fact_keys, examples, references, req.investigator_notes, deadline=deadline
         )
         narrative = fact_keys_domain.attach_evidence(gen.narrative, facts)
-        # 8b (SCRUM-147) — 작성자–비평가 고쳐 쓰기 1회. 실패 경로 전부 원본, verification=null 유지.
-        rewrite_meta, narrative, gen = self._try_rewrite(
+        # 8b (SCRUM-147) — 작성자–비평가 고쳐 쓰기 1회. v2 전용 (v1 은 None 으로 skip).
+        rewrite_result = self._try_rewrite(
             req, facts, facts_masked, fact_keys, examples, references, narrative, gen, deadline
         )
+        rewrite_meta = None
+        if rewrite_result is not None:
+            rewrite_meta, narrative, gen = rewrite_result
         return self._build_response(
             req, generation_id, facts, narrative, gen, examples, references, rewrite_meta
         )
