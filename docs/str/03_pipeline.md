@@ -52,7 +52,7 @@
         ⑤ 남은 < LLM_TIMEOUT_S → skipped_reason="budget", critique_scores 채움, 원본
         ⑥ 고쳐 쓰기(rewrite_v1) 1회 — 입력 (facts_masked, fact_keys, examples, references, notes, original_narrative(evidence_ids 제외), critique(score < JUDGE_PASS_SCORE 항목만, 평가자 순서 유지), paths_notice(경로형 룰 + paths 미확인일 때만 코드가 채움, 05)).
             스키마 실패 재생성 **0회** → skipped_reason="schema", 원본 반환
-            연결·타임아웃·기타 LlmUnavailable → 올라와 502(원본 안 돌림; 생성 실패와 같은 모양으로 FAILED 저장)
+            **연결·타임아웃·BudgetExceeded·기타 예외 → skipped_reason="rewrite_error", 원본 반환** (고쳐 쓰기는 덤 단계라 호출 실패해도 원본은 멀쩡함 — 초안 전체를 502 로 만들지 않음. critique_scores 는 채움, 평가자는 돌았음). **실패한 고쳐 쓰기 호출의 토큰은 최상위 `tokens_in/out/latency_ms` 합에 안 더함** — SCRUM-45 "실패 호출 토큰 기록 안 함" 과 같음, `verification_runs.judge_latency_ms` 와 같은 패턴.
         ⑦ 고친 본문 attach_evidence 재계산 → 코드 검사. 실패 → skipped_reason="rewrite_code_failed", 원본. 통과 → rewrite applied=true, 고친 본문·합산 토큰 반환
       최대 LLM 호출 **4** (생성 2 + 평가자 1 + 고쳐 쓰기 1).
       토큰·지연: 최상위 tokens_in/out/latency_ms = 생성 모델 호출 합(첫 생성 + 스키마 재시도 + 고쳐 쓰기).

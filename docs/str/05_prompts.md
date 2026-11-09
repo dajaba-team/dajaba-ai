@@ -126,6 +126,7 @@ v1 과 겹치지 않는 7항목(SUBJECT·DATE·PLACE·INSTRUMENT·METHOD·GROUND
 - **용어 정리**: "항목" = 평가 기준(FIVE_W·TYPOLOGY·NO_UNSUPPORTED·NO_SPECULATION·NO_INSTRUCTION), "섹션" = 7항목(SUBJECT~OPINION). 혼용하지 않음 — FIVE_W_ONE_H_COMPLETE 지적은 OPINION 같은 섹션을 고쳐야 풀림
 - **섹션·출력 스키마**: `NarrativeOutV2` 재사용 (`_LLM_OUTPUT_MODELS["rewrite_v1"] = NarrativeOutV2`). 섹션 7개, cites·FACT_KEYS 규칙 같음
 - **온도·토큰 한도·재시도**: 온도 0, `NARRATIVE_MAX_TOKENS` 공용. **스키마 실패 재생성 0회** (SCRUM-147, 시간 예산) → 스키마 실패 시 `LlmInvalidOutput` → 원본 반환, `rewrite.skipped_reason="schema"`
+- **호출 실패 처리**: 연결·타임아웃 `LlmUnavailable`·`BudgetExceeded`·기타 예외 → 원본 반환, `rewrite.skipped_reason="rewrite_error"` (고쳐 쓰기는 덤 단계라 호출 실패해도 원본은 멀쩡함, 502 로 올리지 않음). 평가자는 돌았으므로 `critique_scores` 는 채움. 실패 호출 토큰은 최상위 합에 안 더함 (SCRUM-45 패턴)
 - **활성 모델**: `.env` `LLM_MODEL_GENERATE` (첫 생성과 같은 모델, 응답 `generation_meta.llm_model` 가 같은 값을 가리키게)
 - **녹화·동결**: `FROZEN_PROMPTS["rewrite_v1"]` sha256 (녹화 커밋과 같은 커밋). 녹화 폴더 `recorded/rewrite_v1/<key>.json`
 - **template 변수 (narrative_v2 공통 + 추가)**
