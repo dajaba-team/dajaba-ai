@@ -164,7 +164,7 @@
 | 규약 §3·§6.3에 `/v1/scores` 항목별 실패·`failure_code`·`DB_UNAVAILABLE` 반영 | 진희, 규약 변경 요청 → 다음 월요일 |
 | `reasons` 정렬·동률·기여 척도, `feature_version` 실제 이름 | 준영, 모델 검증 뒤 |
 | 시간 예산 80/35/40초, `direction` 2배 규칙 | W2 수 첫 실측·축소본 분포 뒤 |
-| 평가자 통과 기준 4점 유지 여부 | W4 오류 주입 7~12 표 뒤 |
+| 평가자 통과 기준 4점 유지 여부 | **SCRUM-127 완료**(2026-11-09) — judge_v3(06 표 5·4·3·1 4칸) 오류 주입 LLM 실행 뒤 **4점 유지**로 닫음. 결정 표 2026-11-09 줄 참조 |
 | RAG 최소 유사도 상수 초기값 | W4 청크 평가 표 뒤 |
 | `aml-ml` 시그니처 세부(`ScoreResult` 필드, 실패 처리, polars) | 준영 첫 tag |
 | KoFIU 서식 항목명 ↔ 섹션 6개 대응 확정 | W3, 특금법 시행규칙 별지 확인 |
@@ -179,7 +179,7 @@
 | self-transfer만 남는 경보 400 유지 여부, `STALE_PROCESSING_S` 110초 | 축소본 분포·W2 실측 뒤 |
 | 코드 검사 4종 구현 — `AMOUNT_MATCH`·`DATE_MATCH`(시각 형식 포함)·`COUNT_MATCH`(결제 방식별 ⑥·자행/타행 ⑦)·`ACCOUNT_ID_MATCH`. SCRUM-47 — **AMOUNT·ACCOUNT SCRUM-58(2026-11-02), DATE SCRUM-59(2026-11-03), COUNT SCRUM-60(2026-11-05) 완료** | 진희 |
 | 미결 26 AI 몫 — `paths` 누락·합집합 불일치·R04 4홉 → `UNVERIFIED`·경로 숫자 미인용 테스트 고정 | **SCRUM-60 완료**(2026-11-05) — 결정 표 참조. `paths.status == UNVERIFIED`·`None` 에서 경로 단어 숫자는 MISMATCH, VERIFIED 일 때만 `paths.count·max_hops·max_accounts` 인용 |
-| **v3 후보** — 보고서 표기 형식(ISO T 결합 시각·쉼표 없는 금액 `42750.50`·실수 `3.0`·영문 enum `SOLE_PROPRIETORSHIP·RETAIL`)을 자연어 쪽으로 다듬을지, 코드 검사가 전부 받을지 결정. 지금은 녹화 두 개 본문이 이 형식을 쓰고 코드가 다 받음 | 진희, v3 서술 버전 설계할 때 (SCRUM-60 Jira) |
+| **v3 후보** — 보고서 표기 형식(ISO T 결합 시각·쉼표 없는 금액 `42750.50`·실수 `3.0`·영문 enum `SOLE_PROPRIETORSHIP·RETAIL`)을 자연어 쪽으로 다듬을지, 코드 검사가 전부 받을지 결정. 지금은 녹화 두 개 본문이 이 형식을 쓰고 코드가 다 받음. 같이 볼 후보(SCRUM-132, 11/9 정리): ① OPINION 이 METHOD·GROUNDS 를 되풀이(SCRUM-140, 11/7 — judge_v3 는 통과시키지만 문체 품질 문제는 남음) · ② `paths` 미확인일 때 안내 한 문장(오류 주입 23 → SCRUM-147) · ③ WHO "등록일"·관측값을 괄호 없이 쓰는 표기(SCRUM-131 `DATE_MATCH` 오탐) · ④ 요약의 ISO 시각·영문 코드·"0건" 나열이 딱딱함(11/7 요약 녹화 메모). **후보 목록만 — 마감 전 v3 전환 안 함**, 지금 활성은 narrative_v2·judge_v3 | 진희, v3 서술 버전 설계할 때 (SCRUM-60·SCRUM-132 Jira) |
 | v2 녹화·동결·녹화 재생 통합 테스트 — `NARRATIVE_PROMPT=narrative_v2` 로 실제 LLM 1회·`FROZEN_PROMPTS` 에 `narrative_v2` 해시·호출 시간·출력 토큰 실측 | **SCRUM-20 완료** (2026-11-01) — 위 결정 표 2026-11-01 (SCRUM-20) 줄 참조 |
 | 11/6 반영일 PR — `NARRATIVE_PROMPT` 기본값만 `narrative_v2` 로 | **SCRUM-62 완료**(2026-11-06) — 위 결정 표 2026-11-06 줄 참조. 설정 한 줄 + 함수 기본 인자 두 자리 |
 | `kind=VERIFY` generations 행 | **SCRUM-61 완료**(2026-11-05) — 안 남김으로 닫음 |
