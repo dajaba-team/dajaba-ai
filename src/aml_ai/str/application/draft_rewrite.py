@@ -115,19 +115,15 @@ def _merge_tokens(original: GenerationResult, rewrite_gen: GenerationResult | No
     )
 
 
+def _fail_dict(c) -> dict[str, Any]:  # type: ignore[no-untyped-def]
+    return {"check": c.check.value, "section": c.section.value if c.section else None, "reason": c.reason.value if c.reason else None}  # fmt: skip  # noqa: E501
+
+
 def _usage_from_exc(exc: Exception, prompt_version: str) -> GenerationResult | None:
-    """스키마 실패 예외에 첨부된 LlmResult → 토큰 합산용 GenerationResult (본문 없음)."""
     res = getattr(exc, "llm_result", None)
     if res is None:
         return None
-    return GenerationResult(
-        narrative=[],
-        llm_model=res.model,
-        prompt_version=prompt_version,
-        tokens_in=res.tokens_in,
-        tokens_out=res.tokens_out,
-        latency_ms=res.latency_ms,
-    )  # noqa: E501
+    return GenerationResult(narrative=[], llm_model=res.model, prompt_version=prompt_version, tokens_in=res.tokens_in, tokens_out=res.tokens_out, latency_ms=res.latency_ms)  # fmt: skip  # noqa: E501
 
 
 def _call_rewriter(
@@ -176,8 +172,12 @@ def _phase_rewrite(ctx: _Ctx, judge_result: JudgeResult, critique: dict[str, Any
         return _skip(ctx, fail, critique=critique, attempted=True, gen=merged)
     rewrite_narrative = attach_evidence(rewrite_gen.narrative, ctx.facts)
     merged = _merge_tokens(ctx.original_gen, rewrite_gen)
-    if not all(c.match for c in run_code_checks(ctx.facts, rewrite_narrative, ctx.evidence_scope)):
+    rewrite_checks = run_code_checks(ctx.facts, rewrite_narrative, ctx.evidence_scope)
+    fails = [_fail_dict(c) for c in rewrite_checks if not c.match]
+    if fails:
         # SCRUM-147 — 응답 받은 호출은 본문 원본이어도 토큰·지연 합산 (★A 4 규칙 통일).
+        # 로그 금지어 관문 통과: check·section·reason 세 필드만, draft_value·source_value 금지.
+        log.warning("rewrite_code_failed", extra={"checks": fails})
         return _skip(ctx, "rewrite_code_failed", critique=critique, attempted=True, gen=merged)
     meta = RewriteMeta(attempted=True, applied=True, skipped_reason=None, **critique)
     return meta, rewrite_narrative, merged

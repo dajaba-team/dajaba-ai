@@ -7,6 +7,7 @@ injection_live_generate.run_generate_rewrite_case(23) 가 이 모듈을 호출.
 
 from __future__ import annotations
 
+import logging
 import time
 from typing import Any
 
@@ -21,6 +22,18 @@ from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.judge import Judge
 from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
 from tests.str.injection_live_support import JudgeRun, invoke_judge, ok
+
+
+class _RewriteCodeFailedCapture(logging.Handler):
+    """draft_rewrite.rewrite_code_failed 로그에서 extra.checks 를 수집 (본문·값 없음, 세 필드만)."""
+
+    def __init__(self) -> None:
+        super().__init__(level=logging.WARNING)
+        self.checks: list[dict] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if record.name == "aml_ai.str.application.draft_rewrite" and record.msg == "rewrite_code_failed":
+            self.checks.extend(getattr(record, "checks", []))
 
 
 def _generate_phase(setup, settings, llm):  # type: ignore[no-untyped-def]
@@ -46,15 +59,21 @@ def _run_single(setup, prompt_name: str) -> dict[str, Any]:  # type: ignore[no-u
     gen_before, gen_latency, facts_masked, keys, examples, deadline = _generate_phase(setup, settings, llm)
     narrative = attach_evidence(gen_before.narrative, facts)
     scope = list({*facts.inbound.transaction_ids, *facts.outbound.transaction_ids})
-    rewrite_meta, final_narrative, final_gen = try_rewrite(
-        settings=settings, facts=facts, facts_masked=facts_masked, fact_keys=keys,
-        examples=examples, references=setup.references, notes=setup.notes,
-        alert_rule_id=_rule_id(facts), evidence_scope=scope,
-        original_narrative=narrative, original_gen=gen_before,
-        judge=Judge(llm, settings, prompt_name="judge_v3", schema_retry=0, clock=time.monotonic),
-        rewriter=NarrativeRewriter(llm, settings, clock=time.monotonic),
-        clock=time.monotonic, deadline=deadline,
-    )  # type: ignore[misc]  # fmt: skip
+    cap = _RewriteCodeFailedCapture()
+    rw_logger = logging.getLogger("aml_ai.str.application.draft_rewrite")
+    rw_logger.addHandler(cap)
+    try:
+        rewrite_meta, final_narrative, final_gen = try_rewrite(
+            settings=settings, facts=facts, facts_masked=facts_masked, fact_keys=keys,
+            examples=examples, references=setup.references, notes=setup.notes,
+            alert_rule_id=_rule_id(facts), evidence_scope=scope,
+            original_narrative=narrative, original_gen=gen_before,
+            judge=Judge(llm, settings, prompt_name="judge_v3", schema_retry=0, clock=time.monotonic),
+            rewriter=NarrativeRewriter(llm, settings, clock=time.monotonic),
+            clock=time.monotonic, deadline=deadline,
+        )  # type: ignore[misc]  # fmt: skip
+    finally:
+        rw_logger.removeHandler(cap)
     rev = [RevisedNarrativeSection.model_validate(s.model_dump()) for s in final_narrative]
     code_checks = run_code_checks(facts, final_narrative, scope)
     post_judge: JudgeRun = invoke_judge(facts, rev, prompt_name)
@@ -67,6 +86,7 @@ def _run_single(setup, prompt_name: str) -> dict[str, Any]:  # type: ignore[no-u
         prompt_name=prompt_name, rewrite_meta=rewrite_meta, final_gen=final_gen, gen_before=gen_before,
         gen_latency=gen_latency, post_judge=post_judge, code_checks=code_checks,
         narrative=final_narrative, draft_total_latency=draft_total,
+        rewrite_code_failed_checks=cap.checks or None,
     )  # fmt: skip
 
 
@@ -121,6 +141,7 @@ def _assemble_result(**kw) -> dict[str, Any]:  # type: ignore[no-untyped-def]
             kw["gen_before"], kw["final_gen"], kw["gen_latency"], kw["rewrite_meta"], kw["post_judge"]
         ),
         "draft_total_latency_ms": kw["draft_total_latency"],
+        "rewrite_code_failed_checks": kw.get("rewrite_code_failed_checks"),
         "narrative_text": {s.section.value: s.text for s in kw["narrative"]},
     }
 
