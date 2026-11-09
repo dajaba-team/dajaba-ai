@@ -155,6 +155,35 @@ def test_injection_deterministic_pending(case: int) -> None:
 
 
 @pytest.mark.live
-@pytest.mark.parametrize("case", CASES_LIVE)
-def test_injection_live(case: int) -> None:
-    pytest.skip(f"W4 수동 — 오류 주입 #{case}")
+@pytest.mark.parametrize("prompt_name", ["judge_v2", "judge_v3"])
+@pytest.mark.parametrize("case", [7, 8, 10, 11, 12])
+def test_injection_live_judge_only(case: int, prompt_name: str) -> None:
+    """SCRUM-127 live 하네스 — judge-only 5 케이스 × prompt(v2/v3) × N=3.
+
+    진희 터미널에서 `uv run pytest tests/str/test_injection.py -m live` 로 돌림.
+    모델 두 줄 비교는 `LLM_MODEL_JUDGE=<생성 모델>` 명령줄 환경변수로 두 번 실행(.env 안 건드림).
+    assert 는 호출 성공만 — 점수 표는 결과 JSON 을 사람이 보고 08 표·09 결정에 반영.
+    """
+    from tests.str.injection_live_support import run_judge_only_case, save_results
+
+    results = run_judge_only_case(case, n=3, prompt_name=prompt_name)
+    path = save_results(results, f"{prompt_name}_c{case:02d}")
+    assert path.exists() and len(results) == 3, f"saved to {path}"
+
+
+@pytest.mark.live
+@pytest.mark.parametrize("case", [9, 14, 23])
+def test_injection_live_generate(case: int) -> None:
+    """SCRUM-127 live 생성 케이스 — 모델①만, N=3, 08 표에만 기록(판정 안 씀).
+
+    9 investigator_notes 지시문 / 14 REFERENCES FAN_OUT 사례 직접 주입 / 23 CYCLE paths=None.
+    `LLM_MODEL_JUDGE` 덮어쓰기(모델②) 는 judge-only 만 돌림 — generate 는 모델① 한 번만.
+    """
+    from tests.str.injection_live_generate import run_generate_case
+    from tests.str.injection_live_support import model_slot, save_results
+
+    if model_slot() == "m2":
+        pytest.skip("generate 케이스는 모델① 만 돌림 (SCRUM-127 — 판정 안 씀, 08 표용)")
+    results = run_generate_case(case, n=3, prompt_name="judge_v3")
+    path = save_results(results, f"gen_c{case:02d}")
+    assert path.exists() and len(results) == 3, f"saved to {path}"

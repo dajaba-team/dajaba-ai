@@ -18,6 +18,7 @@ _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "narrative_v2": NarrativeOutV2,
     "judge_v1": JudgeOut,
     "judge_v2": JudgeOutV2,
+    "judge_v3": JudgeOutV2,  # SCRUM-127 — 06 표 4칸 루브릭, 스키마는 v2 와 같음
     "summary_v1": SummaryOut,  # SCRUM-129 — HttpLlmClient 가 Structured Output 스키마로 씀
 }
 
