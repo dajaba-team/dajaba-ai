@@ -69,6 +69,7 @@
 | 응답 `facts` | **구조 전면 교체** — 대상 계좌 관점 `inbound/outbound/internal` 통화별 집계 + `indirect`(대상 계좌 미참여 거래) + `paths`(경로형 경보, 10/28) + `observations[]` + `model_signals[]`. 정본 `str/04` |
 | 응답 `narrative[].cites: list[str]` | 추가 — LLM이 쓴 **fact 키**. `evidence_ids`는 코드가 cites에서 합친 것 |
 | 응답 `verification` | 항상 `null` (안건 17) — 타입은 `None` 고정 |
+| 응답 `generation_meta.references[].chunk_id: str \| None` | **추가 (SCRUM-125, 11/11)** — 청크 내용 해시 `sha256(doc_id + "\n" + page + "\n" + text_norm)`. 다시 적재해도 같은 값(평가 단위). 선택 칸·기본 `None` 이라 옛 저장 응답과 하위 호환 — 백엔드 `AiDtos` 는 `references` 안 읽음 |
 | `facts.typology_source` | `RULE`만 (안건 8) |
 
 ### 검증 요청·응답 (규약 5.3)
@@ -81,7 +82,7 @@
 | 응답 `generation_id`, `revision_no`, `narrative_sha256` | 추가 — 백엔드 `ApprovalGate`가 `generation_id` + 해시로 "이 생성본·이 본문의 검증이 passed"를 확인(채영 V009, 세 조건은 `str/03`) |
 | 응답 `code_checks[].reason` | 추가 — `UNPARSED` 등. `match=false`일 때만 |
 | `status` | `PASSED / CODE_FAILED / LLM_FAILED / VERIFY_UNAVAILABLE` 유지 (안건 9) |
-| 응답 `narrative_refs: list[{section, cites, evidence_ids}] \| None` | **추가 (안건 23 세부 (a), 10/28)** — 검증한 본문 기준으로 다시 계산한 섹션별 근거. 평가자(`judge_v2`)가 섹션별 `cites`를 내고 코드가 `attach_evidence`로 `evidence_ids`를 만든다. 평가자를 안 돌린 경우(`CODE_FAILED`·`VERIFY_UNAVAILABLE`)는 `null` → 백엔드는 기존 값 유지. 백엔드(채영)는 값이 오면 수정본 저장에 반영. 본문 해시는 section·text만 보므로 영향 없음 |
+| 응답 `narrative_refs: list[{section, cites, evidence_ids}] \| None` | **추가 (안건 23 세부 (a), 10/28)** — 검증한 본문 기준으로 다시 계산한 섹션별 근거. 평가자(`judge_v2`)가 섹션별 `cites`를 내고 코드가 `attach_evidence`로 `evidence_ids`를 만든다. 평가자를 안 돌린 경우(`CODE_FAILED`·`VERIFY_UNAVAILABLE`)는 `null` → 백엔드는 기존 값 유지. 백엔드는 **저장하지 않고 읽을 때 반영** — 지금 본문 해시와 같은 `narrative_sha256` 의 최신 검증에 `narrative_refs` 가 있으면 그 근거, 없으면 수정본 값(백엔드 #95 `CurrentNarrative`, 11/10 진희). 본문 해시는 section·text만 보므로 영향 없음 |
 | 응답 `judge_meta: JudgeMeta \| None` | **추가 (SCRUM-92, 11/4)** — 평가자 호출 메타. `JudgeMeta { llm_model, prompt_version, tokens_in, tokens_out, latency_ms, attempts }`. 이름은 초안 응답 `GenerationMeta` 와 맞춤. `tokens_in`·`tokens_out`·`latency_ms` 는 시도 전체 합(실패한 1번째도 포함), `llm_model` 은 마지막 값, `attempts` 는 1 또는 2. **PASSED·LLM_FAILED 만 채움**, `CODE_FAILED`·`VERIFY_UNAVAILABLE` 은 `null`(`llm_checks` 와 같은 규칙) — 단 `VERIFY_UNAVAILABLE` 로 끝나도 DB `verification_runs.judge_*` 에는 실패 토큰까지 포함해 남긴다(응답은 null, 비용 추적 NFR-APR-03). 백엔드 `AiDtos.VerifyResponse.raw(JsonNode)` 로 들어가 `FAIL_ON_UNKNOWN_PROPERTIES` 영향 없음 |
 
 ### 요약 요청·응답 (규약 §6.1, SCRUM-129)
