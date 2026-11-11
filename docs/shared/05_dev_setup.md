@@ -126,11 +126,13 @@ uv run pytest tests/str/test_injection.py -m deterministic   # 오류 주입 1~6
 RAG 코퍼스 적재 (SCRUM-125, pgvector 확장이 있는 DB 에서만 — 위 수동 명령 1회 뒤):
 
 ```bash
-uv run alembic upgrade head                                           # 0004_reference_chunks
-uv run python -m tools.ingest_corpus --verify                         # manifest sha256·쪽수 확인만
-uv run python -m tools.ingest_corpus                                  # 적재 (멱등, content_hash 로 중복 방지)
-uv run python -m tools.ingest_corpus --truncate                       # 임베딩 모델 바꿨을 때 비우고 다시
+uv run --frozen --extra dev --extra corpus alembic upgrade head                    # 0004_reference_chunks
+uv run --frozen --extra dev --extra corpus python -m tools.ingest_corpus --verify  # manifest sha256·쪽수 확인만
+uv run --frozen --extra dev --extra corpus python -m tools.ingest_corpus           # 적재 (멱등, content_hash 로 중복 방지)
+uv run --frozen --extra dev --extra corpus python -m tools.ingest_corpus --truncate # 임베딩 모델 바꿨을 때 비우고 다시
 ```
+
+`corpus` extra 는 `pymupdf` 하나(AGPL·용량) — 운영 이미지에 안 넣고 적재·테스트 때만 활성.
 
 LLM을 실제로 부르는 테스트(7~12, 14)와 검색 평가(hit@3)는 `-m live`로만, CI에서는 안 돈다.
 

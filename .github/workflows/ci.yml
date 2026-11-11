@@ -32,7 +32,7 @@ jobs:
           enable-cache: true
 
       - name: 의존성 설치 (uv.lock 그대로)
-        run: uv sync --frozen --extra dev
+        run: uv sync --frozen --extra dev --extra corpus
 
       - name: ruff check
         run: uv run --frozen ruff check .
