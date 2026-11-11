@@ -84,15 +84,15 @@ docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -
 | `SUMMARY_LLM_TIMEOUT_S` | `15.0` | 요약 호출 타임아웃 |
 | `STALE_PROCESSING_S` | `110.0` | 오래된 PROCESSING 정리 기준, `DRAFT_BUDGET_S + 30` (`shared/03`) |
 
-### RAG · 임베딩 (W4)
+### RAG · 임베딩 (SCRUM-125 — 활성)
 
 | 변수 | 기본 | 내용 |
 |---|---|---|
-| `EMBEDDING_PROVIDER` | `openai` | 임베딩 provider |
-| `EMBEDDING_MODEL` | `""` | 멀티링구얼 1종 |
-| `EMBEDDING_DIM` | `1536` | 벡터 차원. 바꾸면 `reference_chunks` 테이블 비우고 전부 재적재 (`shared/03`) |
-| `RAG_ENABLED` | `false` | `true` 면 retriever 가 pgvector 검색. `false` 면 `references=[]` — 안건 22 되돌림 스위치 |
-| `CORPUS_DIR` | `corpus` | 코퍼스 PDF 위치(리포 밖) |
+| `EMBEDDING_PROVIDER` | `openai` | 임베딩 provider. 지금은 `openai` 한 종 |
+| `EMBEDDING_MODEL` | `""` | 멀티링구얼 1종 — **값은 노션 「다자바 환경변수」** (SCRUM-125, 2026-11-11). `RAG_ENABLED=true` 인데 비어 있으면 기동 경고 1줄(`embedding_model_missing`), retriever 는 `RetrievalUnavailable` → `[]` |
+| `EMBEDDING_DIM` | `1536` | 벡터 차원. 마이그레이션 `embedding vector(1536)` 은 **고정**(Settings import 안 함) — 바꾸려면 `reference_chunks` 테이블 비우고 전부 재적재 + 다음 번호 마이그레이션 (`shared/03`·`str/10`) |
+| `RAG_ENABLED` | `false` | **코드 기본 `false` 유지**(SCRUM-125) — 녹화·CI 안정, `.env` 에서만 `true` 로 켬. 켜면 user 프롬프트의 `{{references}}` 가 바뀌어 녹화 키 깨짐 → 녹화 통합 테스트는 꺼진 상태 전제. 안건 22 되돌림 스위치 |
+| `CORPUS_DIR` | `corpus` | 코퍼스 PDF 위치 |
 
 ### 목업 스위치 — 평소 `true`, 실제 LLM/점수 때 `false`
 
@@ -121,6 +121,15 @@ docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -
 uv run pytest                      # 단위 + 계약 (LLM 호출 없음, 녹화 응답)
 uv run pytest -m db                # Alembic + 저장 (Docker 필요)
 uv run pytest tests/str/test_injection.py -m deterministic   # 오류 주입 1~6, 13
+```
+
+RAG 코퍼스 적재 (SCRUM-125, pgvector 확장이 있는 DB 에서만 — 위 수동 명령 1회 뒤):
+
+```bash
+uv run alembic upgrade head                                           # 0004_reference_chunks
+uv run python -m tools.ingest_corpus --verify                         # manifest sha256·쪽수 확인만
+uv run python -m tools.ingest_corpus                                  # 적재 (멱등, content_hash 로 중복 방지)
+uv run python -m tools.ingest_corpus --truncate                       # 임베딩 모델 바꿨을 때 비우고 다시
 ```
 
 LLM을 실제로 부르는 테스트(7~12, 14)와 검색 평가(hit@3)는 `-m live`로만, CI에서는 안 돈다.
