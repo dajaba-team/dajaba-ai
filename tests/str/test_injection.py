@@ -16,8 +16,9 @@ from aml_ai.shared.schemas.str import (
 from aml_ai.str.domain import verification
 from tests.conftest import FIXTURES, load_json
 
-ACTIVE = [1, 2, 3, 4, 5, 6, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31]
-SKIPPED_DET = [13, 32, 33, 34]
+# ACTIVE·SKIPPED_DET 는 활성/skip 상수 — 각 번호는 독립 함수. test_retriever_failure.py 가 활성 전환을 참조.
+ACTIVE = [1, 2, 3, 4, 5, 6, 13, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31]
+SKIPPED_DET = [32, 33, 34]
 CASES_LIVE = [7, 8, 9, 10, 11, 12, 14, 23]
 
 
@@ -140,13 +141,14 @@ def test_injection_22_range_with_onboard_unparsed() -> None:
 
 
 # ---------- SCRUM-60 활성(4·5·6·20·24~28·30·31)은 `test_injection_count.py` ----------
-# ---------- 아직 skip (SCRUM-61 뒤 활성 또는 생성·평가자 영역) ----------
+# ---------- SCRUM-125 활성(13 — RAG 실패)은 `test_injection_rag.py` ----------
+# ---------- 아직 skip (생성·평가자 영역) ----------
 
 
 @pytest.mark.deterministic
 @pytest.mark.parametrize("case", SKIPPED_DET)
 def test_injection_deterministic_pending(case: int) -> None:
-    pytest.skip(f"SCRUM-61/W4 — 오류 주입 #{case} (docs/str/08: RAG·스키마·생성·평가자)")
+    pytest.skip(f"W4 — 오류 주입 #{case} (docs/str/08: 생성·평가자)")
 
 
 @pytest.mark.live

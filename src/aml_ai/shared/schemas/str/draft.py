@@ -30,6 +30,7 @@ RewriteSkipReason = Literal[
 class Reference(StrictModel):
     """RAG 참고 사례 (docs/str/10). 응답 generation_meta.references."""
 
+    chunk_id: str | None = None
     doc_id: str
     doc_title: str
     page: int
