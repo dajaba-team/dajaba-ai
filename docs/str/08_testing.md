@@ -8,7 +8,8 @@
 |---|---|---|
 | 단위 | `test_facts.py`(계산 규칙 표 한 줄 = 테스트 하나, `fact_keys`·`attach_evidence` 포함), `test_masking.py`, `test_verification.py`(유형별 추출·정규화·판정·UNPARSED — SCRUM-58 로 `amount_match`·`account_id_match` 활성), `test_verification_date.py`(SCRUM-59: 날짜 용도 분류 — 괄호 안 관측·개설·거래·범위, 시각 쌍 period 양 끝, ISO T·초 환원, `오전/오후` 변환, 월만·시간대 UNPARSED, `신규` 개설 단어 유지, 녹화 v1·v2 본문·`narrative_ok` 전부 통과), `test_verification_count.py`(SCRUM-60: 단위 선검색 + 거리 최근접 종류 단어, 과거 경보·관측값·경로·상대·거래·결제·자행/타행, `송금` 방향 뺌, 한글 수사 UNPARSED, `facts_cycle(VERIFIED/UNVERIFIED)` 경로 검증, 녹화 v1·v2 본문·`draft_response`·`narrative_ok` 전부 통과), `test_judge.py`(SCRUM-91: `Judge.run` 정상 5개 + 4개·중복·bad JSON → `LlmInvalidOutput`, `llm_output_model("judge_v1") is JudgeOut`·`json_schema_for(JudgeOut, name="judge_v1")` strict, `narrative_v1/v2` 매핑 회귀·모르는 이름 `ValueError`), `test_judge_retry.py`(SCRUM-92: 1회 재시도·메타·`JUDGE_MAX_TOKENS`), `test_verify_service.py`(SCRUM-91, 가짜 repo·judge: PASSED·CODE_FAILED·judge 가 `RuntimeError` → **500 아님** `VERIFY_UNAVAILABLE`·`LlmUnavailable` 회귀·`LlmInvalidOutput`·경고 로그 `reason` 은 `AiError.code` 또는 예외 클래스 이름만), `test_logging_middleware.py`(SCRUM-58: `X-Request-Id` 64자 통과·65자 처리 — 새 ID 발급·`request_id_replaced` 경고), `test_hashing.py`(테스트 벡터) | 매 커밋, CI |
 | 계약 | `tests/contract/` — `examples/*.json` ↔ `schemas/`, `narrative_hash.json` ↔ `shared/hashing.py` | 매 커밋, CI |
-| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 15~22, 24~31 (SCRUM-58 로 1·2·15·17·18·29, **SCRUM-59 로 3·16·19·21·22, SCRUM-60 로 4·5·6·20·24·25·26·27·28·30·31 활성**). **도우미를 `run_code_checks` 로** 바꿈(SCRUM-60) — 해당 `check` 이름만 골라 단언. 13(RAG)·32·33·34(생성·평가자)는 성격이 달라 남음 | 매 커밋, CI |
+| 오류 주입 (결정적) | `test_injection.py -m deterministic` — 1~6, 13, 15~22, 24~31 (SCRUM-58 로 1·2·15·17·18·29, **SCRUM-59 로 3·16·19·21·22, SCRUM-60 로 4·5·6·20·24·25·26·27·28·30·31 활성**, **SCRUM-125 로 13 활성** — `RAG_ENABLED=false` 또는 embedder 가 `RetrievalUnavailable` → `references=[]` 로 초안이 끝까지 돎). **도우미를 `run_code_checks` 로** 바꿈(SCRUM-60) — 해당 `check` 이름만 골라 단언. 32·33·34(생성·평가자)는 성격이 달라 남음 | 매 커밋, CI |
+| 검색 (SCRUM-125, `-m db`) | `tests/str/test_retriever_search.py` — 유형 필터 결정적 판: FAN_IN 질의에 FAN_OUT 태그 청크가 안 나옴(오류 주입 14 의 코드 측 전제) · 맞는 청크 1개면 1건(백필 없음) · `MIN_SIMILARITY` 미만 뺌 · 최대 3건 · `typology=None` → `[]` · `RAG_ENABLED=false` 면 임베딩·DB 호출 0 | `-m db`, CI |
 | 오탐 테스트(정상 본문 통과) | `test_verification_count.py` 안 — `recorded/narrative_v1/*.json`·`recorded/narrative_v2/*.json`·`contracts/examples/draft_response.json`·`fixtures/narrative_ok.json` 네 본문이 `run_code_checks` 를 전부 통과(SCRUM-60). 61 verify 녹화 통합 테스트 PASSED 의 전제 | 매 커밋, CI |
 | 오류 주입 (LLM) | `test_injection.py -m live` — 7~12, 14, 23 | W4 손으로, 표로 남김 |
 | 검색 평가 | `retrieval_eval.json` → hit@3(주)·precision@3·recall@3 (청크 단위, `10`) | W4, 11/11 전 |
@@ -55,7 +56,7 @@ facts 하나(`fixtures/facts_fan_in.json`)와 정상 narrative(`fixtures/narrati
 | 10 | FAN_IN facts에 FAN_OUT 설명 | `TYPOLOGY_CONSISTENT` ≤ 3 | LLM |
 | 11 | CONCLUSION 비움 | `FIVE_W_ONE_H_COMPLETE` ≤ 3 | LLM |
 | 12 | 정상 초안 그대로 | 코드 5 통과, 평가자 5개 ≥ 4, `passed = true` | LLM |
-| 13 | REFERENCES 빈 배열(검색 결과 없음·임베딩 실패)로 **생성** | 초안 정상 생성, 코드 5 통과 — RAG 장애가 초안을 막지 않음 | 결정적(생성은 녹화) |
+| 13 | REFERENCES 빈 배열(검색 결과 없음·임베딩 실패)로 **생성** | 초안 정상 생성, 코드 5 통과 — RAG 장애가 초안을 막지 않음 | 결정적(생성은 녹화, SCRUM-125 활성) |
 | 14 | FAN_IN facts에 FAN_OUT 사례 3건만 REFERENCES로, 사례 안에 `USD 2,400,000` 포함해 **생성** | `TYPOLOGY_CONSISTENT` ≥ 4 유지 + 사례 금액이 본문에 안 섞임(`AMOUNT_MATCH` 통과) | LLM |
 | 15 | 금액은 맞고 통화만 틀림 `320,000,000 EUR` | `AMOUNT_MATCH` MISMATCH (통화 쌍 검사) | 결정적 (SCRUM-58 활성) |
 | 16 | WHO에 개설일 `2021년 3월 14일` (facts `customer.onboarded_at`) | **통과해야 함** — 1차 검토가 잡은 오탐 | 결정적 |
@@ -230,7 +231,7 @@ LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127, 2026-11-09) 수동. 아래 
 | 4 | 상대 수 `13개 계좌` | `COUNT_MATCH` MISMATCH | 활성 | SCRUM-60 |
 | 5 | `cites` 밖 키 또는 `evidence_ids` 범위 밖 | `EVIDENCE_IN_SCOPE` OUT_OF_SCOPE | 활성 | SCRUM-60 |
 | 6 | 모든 섹션 `cites` 빈 배열 | `EVIDENCE_IN_SCOPE` MISSING | 활성 | SCRUM-60 |
-| 13 | REFERENCES 빈 배열로 생성 (RAG 장애) | 초안 정상 생성·코드 5 통과 | skip | RAG(SCRUM-125) |
+| 13 | REFERENCES 빈 배열로 생성 (RAG 장애) | 초안 정상 생성·코드 5 통과 | 활성 | SCRUM-125 |
 | 15 | 통화만 틀림 `320,000,000 EUR` | `AMOUNT_MATCH` MISMATCH | 활성 | SCRUM-58 |
 | 16 | WHO 개설일 `2021년 3월 14일` (정답) | 통과 | 활성 | SCRUM-59 |
 | 17 | 금액 `약 3억`·`삼억 이천만 US Dollar` | `AMOUNT_MATCH` UNPARSED | 활성 | SCRUM-58 |

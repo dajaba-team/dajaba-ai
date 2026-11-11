@@ -38,7 +38,8 @@ def _pg_container() -> Iterator[object]:
     from testcontainers.postgres import PostgresContainer
 
     try:
-        container = PostgresContainer("postgres:16", driver="psycopg")
+        # SCRUM-125 — 0004 가 pgvector 확장을 요구함. 백엔드 compose 이미지와 같은 태그.
+        container = PostgresContainer("pgvector/pgvector:0.8.2-pg16-trixie", driver="psycopg")
         container.start()
     except Exception as exc:  # Docker 미기동 등 — 로컬에서는 조용히 넘어간다
         pytest.skip(f"Docker 로 Postgres 를 띄울 수 없음: {exc}", allow_module_level=False)
@@ -58,6 +59,8 @@ def _db_engine(_pg_container) -> Engine:
     get_settings.cache_clear()
     engine = create_engine(url, future=True)
     with engine.begin() as conn:
+        # SCRUM-125 — 0004 가 pg_extension 를 확인함. superuser 권한으로 미리 활성(shared/05 절차 모사).
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         conn.execute(text("CREATE SCHEMA IF NOT EXISTS ai"))
     from alembic import command
     from alembic.config import Config

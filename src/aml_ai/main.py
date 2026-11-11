@@ -31,6 +31,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     if not logging.getLogger().handlers:
         setup_logging(settings)
+    if settings.rag_enabled and not settings.embedding_model:
+        log.warning("embedding_model_missing")
     check_frozen_prompts()  # docs/str/05 동결 강제 — 파일 해시가 다르면 기동 실패
     _, reason = judge_model_decision(settings)
     if reason is not None:

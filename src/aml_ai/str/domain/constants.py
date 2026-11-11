@@ -187,8 +187,12 @@ COUNT_UNITS_COUNT: tuple[str, ...] = ("건", "회")  # 과거·관측값·결제
 BANK_COUNT_UNITS: tuple[str, ...] = ("개", "곳", "계좌")  # ⑦ 자행/타행 뒤 단위
 # ---- RAG (docs/str/10)
 RAG_TOP_K = 3
+RAG_CANDIDATES = 10  # SCRUM-125 — relaxed_order 후보 수 (바깥에서 다시 정렬)
+MIN_SIMILARITY = 0.0
 REFERENCE_TEXT_MAX_CHARS = 600
 CHUNK_TOKENS = 500
 CHUNK_OVERLAP_TOKENS = 50
 EMBED_BATCH = 64
+TOKEN_CHARS = 4
+CJK_PATTERN = r"[가-힣぀-ヿ一-鿿]"
 RECALL_AT_K_MIN = 0.7
