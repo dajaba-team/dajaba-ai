@@ -93,7 +93,7 @@ else:                      status = LLM_FAILED,         passed = False
 1. 평가자 `judge_v2`가 루브릭 5개와 함께 섹션별 `cites`(검사한 본문이 실제로 쓴 fact 키)를 낸다(`05`). **sections 섹션 집합은 요청 본문과 정확히 같게**(v1 6 또는 v2 7, 섹션마다 1회) — 다르면 `LlmInvalidOutput` → 기존 1회 재시도(SCRUM-92) → 실패면 `VERIFY_UNAVAILABLE`(SCRUM-61 ★A 1).
 2. 코드가 `fact_keys(draft.facts)` **밖** 키를 버리고 `attach_evidence(요청 본문 text + 버린 뒤 cites, facts)`로 `evidence_ids`를 만든다 — 생성 때와 같은 함수. **버린 키는 `log.warning("judge_cites_dropped", extra={"section": …, "count": …})` 로 한 줄만**(섹션당 한 번, 키 이름·본문 안 찍음 — CLAUDE.md 로그 금지어, SCRUM-61 ★A 3). 응답 모양은 그대로(규약 5.3 변경 없음).
 3. 검증 응답 `narrative_refs: [{section, cites, evidence_ids}]`(**요청 섹션 순서 유지**, v1 6 또는 v2 7)에 담는다. **빈 cites 허용**(평가자가 그 섹션엔 근거 없다고 판단). 평가자를 안 돌린 경우(`CODE_FAILED` — 코드 검사에서 멈춤, `VERIFY_UNAVAILABLE` — 평가자 호출 실패)는 `null`. **`LLM_FAILED`** 는 **값 있음**(평가자는 돌았음, 점수가 미달일 뿐).
-4. 백엔드(채영)는 `narrative_refs`가 오면 그 값을 수정본 저장에 반영하고, `null`이면 기존 값을 유지한다. 조사역은 문장만 고치고 근거 번호는 서버가 관리한다.
+4. 백엔드는 **저장하지 않고 읽을 때 반영한다**. 수정본·S4 이력은 사람이 고친 기록만 담고, 근거는 조회할 때 지금 본문 해시와 같은 `narrative_sha256` 의 최신 검증 `narrative_refs` 를 우선 쓰고, 그 값이 `null` 이면 수정본에 저장된 `cites`·`evidence_ids` 로 대체한다(백엔드 #95 `CurrentNarrative`, 11/10 진희). 조사역은 문장만 고치고 근거 번호는 서버가 관리한다.
 
 본문 해시는 section·text만 보므로 `cites`가 바뀌어도 `ApprovalGate`에는 영향이 없다. `EVIDENCE_IN_SCOPE` 코드 검사는 그대로 요청에 담긴 수정본의 `cites`·`evidence_ids`를 본다(재계산 전 값). 테스트: 재계산 결과가 범위 안인지, 목록 밖 키가 버려지는지, `CODE_FAILED`·`VERIFY_UNAVAILABLE`이면 `null`·`LLM_FAILED` 면 값 있음인지(`08` 단위).
 
