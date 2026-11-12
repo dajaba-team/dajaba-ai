@@ -40,6 +40,34 @@
 
 평가자 호출이 **스키마 실패**(`LlmInvalidOutput`)면 남은 예산 안에서 **1회만** 다시 부른다. **그 외 모든 예외**(연결·타임아웃 `LlmUnavailable`·일 토큰 한도 등)는 재시도하지 않고 바로 올라와 `VERIFY_UNAVAILABLE` 로 끝난다 — 35초 타임아웃을 한 번 더 기다리면 백엔드 공유 90초를 넘기고, 조사역이 "다시 검증" 을 누르는 흐름이 이미 있음(안건 9). 남은 예산이 `LLM_TIMEOUT_S`(35초) 미만이면 재시도하지 않고 바로 `LlmUnavailable("verify budget exceeded")` 로 올려 `VERIFY_UNAVAILABLE` 로 끝난다 — draft 의 예산 초과 처리와 같은 모양(`str/03` "예산 초과는 LlmUnavailable"). 예산은 verify 요청 시작에 `verify_service` 가 정하고(`str/03` 시간 예산 표) `Judge` 는 남은 시간만 본다 — `domain/` 은 시계를 만지지 않는다(`01`). 두 번 다 스키마 실패면 호출은 **2번**(3번 아님), `LlmInvalidOutput` 그대로 올라와 `VERIFY_UNAVAILABLE`. 실패한 1번째 시도의 토큰·지연도 합산해 저장한다(비용 추적 NFR-APR-03). **SCRUM-144 (2026-11-05)**: 2차가 스키마가 아닌 다른 예외(연결 `LlmUnavailable`·HTTP 4xx `LlmInvalidOutput`·`BudgetExceeded`·예상 못 한 예외) 로 끝나도 같은 규칙 — 1차 결과가 있으면 그 값으로 `judge_meta` 를 붙여 던지고, `verify_service` 가 DB 에 남긴다. `judge_attempts` 는 **보낸 호출 수**(2), `judge_latency_ms` 는 결과 받은 호출만(실패 호출 지연은 `judge_unavailable` 로그로만).
 
+### N회 중앙값 — verify 경로만 (SCRUM-207, 2026-11-12)
+
+같은 본문을 N 번 채점해 **항목별 중앙값** 으로 판정한다 (`JUDGE_VOTES=3`, `str/domain/constants`). run 간 흔들림(SCRUM-147 같은 본문 TYPO 5→3, 08 204행 · SCRUM-207 ★L-1 case 23 TYPO draft 1·3·3·3·3) 을 흡수한다. `Judge` 생성자 `votes: int = 1` 이 기본값이고 `verify_service.build` 만 `votes=JUDGE_VOTES` 로 만든다 — **초안 안 평가자**(`draft_service.build` 의 `Judge(... schema_retry=0)`)는 `votes=1` 그대로 유지(초안 호출 상한 4 와 "작성 보조는 빠르게" 원칙, 09 2026-11-12 알고 남김).
+
+**집계 규칙**:
+- 성공한 호출(스키마 재시도 1 포함) **≥ 2** → 항목별 중앙값. 짝수(2 성공)면 **두 값 중 낮은 점수** (평가자는 엄격 쪽).
+- 성공 **< 2** → `VERIFY_UNAVAILABLE` ("중앙값" 효과 소실, 이름과 다른 판정은 안 함).
+- `BudgetExceeded` (`insufficient_quota`) 한 호출이라도 → **즉시 전체 중단 · `VERIFY_UNAVAILABLE`** (일 토큰 한도는 재시도로 안 풀림, 남은 future `cancel`).
+- `LlmUnavailable` (429 rate_limit·연결 오류) 한 호출 → 그 호출만 포기, 남은 호출로 집계 진행.
+
+**comment·sections**:
+- comment: 항목별로 "그 항목 점수 = 중앙값" 을 낸 호출 중 **run 번호 작은 쪽** (`run 1→2→3` 순서). 항목마다 다른 호출 comment 가 섞일 수 있음 — 한 항목 = 한 호출 comment 라 모델 섞임 아님.
+- `narrative_refs(sections)`: **run 1 호출의 sections** 그대로. judge_v2 cites 는 "검사한 본문이 실제로 쓴 fact 키" 라 셋 중 어느 것이든 fact_keys 밖은 코드가 버림 — 하나 고정이 집계 규칙 복잡하게 안 함.
+
+**`judge_meta`** (SCRUM-144·92 규칙 그대로 확장):
+- `tokens_in`·`tokens_out`: **응답 받은 호출 전부(스키마 실패 포함) 합**. 각 호출 `JudgeResult.meta` 또는 `exc.judge_meta` 의 토큰 더함.
+- `latency_ms`: **가장 긴 호출의 지연** (병렬 wall-clock 과 같음).
+- `attempts`: submit 수 + 각 호출의 재시도 추가분 합 (각 1~2, 범위 3~6).
+- `llm_model`·`prompt_version`: 같은 모델이라 그대로, 혹시 달라지면 run 1 값.
+- `verification_runs.judge_*` 저장값은 같은 규칙 (스키마 변경 없음).
+- **성공 < 2 (`VERIFY_UNAVAILABLE`) 와 `BudgetExceeded` 경로**도 같은 방식으로 **응답 받은 호출의 meta 를 예외에 붙여** 올린다(`run_votes` 가 `exc.judge_meta` 로 attach, SCRUM-207 Codex 재검토). `verify_service._decide` 가 `getattr(exc, "judge_meta", None)` 으로 받아 `verification_runs.judge_*` 에 저장 — 비용 기록이 null 로 끊기지 않음.
+
+**병렬 · deadline**: `concurrent.futures.ThreadPoolExecutor(max_workers=JUDGE_VOTES)` 를 **직접** 만들고 `try/finally` 로 **`shutdown(wait=False, cancel_futures=True)`**. `with` 블록은 나갈 때 돌고 있는 스레드를 기다려 deadline 을 넘긴다. `as_completed(futures, timeout=남은_시간)` 로 모으고 TimeoutError 면 미완료 future 는 `cancel()` — **이미 돌고 있는 호출은 cancel 로 안 멈추므로 httpx 타임아웃**(`llm_timeout_s`) 으로 자른다. 늦게 돌아오는 호출의 토큰은 집계에 안 섞임(이미 verify 응답이 나간 뒤이고 future 결과를 안 읽으니 공급자 로그로만 남음 — 09 알고 남김 ④).
+
+각 submit 은 **`contextvars.copy_context()` 를 지녀** ballot 스레드까지 `request_id` ContextVar 가 전파된다(SCRUM-207 Codex 재검토). 세 호출의 `llm_call`·`judge_invalid_output` 로그가 상위 request_id 와 묶여 `verification_runs.request_id` 와 교차 조회 가능.
+
+**녹화**: 같은 user → `recording_key` 같음 → 세 호출 다 같은 응답. 녹화 재생 테스트는 그대로 통과(`judge_attempts=3` 만 바뀜). 중앙값·집계·실패 분기는 가짜 LLM 로 단위 테스트(`test_judge_votes.py`·`test_judge_votes_deadline.py`).
+
 ### 모델·토큰 기록 (SCRUM-92, 11/4)
 
 평가자 호출 메타는 `verification_runs` 같은 행의 다섯 칸에 — `judge_llm_model`(OpenAI 가 돌려준 모델명 또는 녹화면 `"recorded"`), `judge_tokens_in`·`judge_tokens_out`(**시도 전체 합**), `judge_latency_ms`(시도 전체 합), `judge_attempts`(1 또는 2). 응답에는 **같은 값을 `judge_meta: JudgeMeta | null`** 로 담는다 — `JudgeMeta { llm_model, prompt_version, tokens_in, tokens_out, latency_ms, attempts }`. 이름은 초안 응답 `GenerationMeta` 와 맞춤(`shared/04`). **PASSED·LLM_FAILED 는 채우고**, `CODE_FAILED`·`VERIFY_UNAVAILABLE` 은 응답 `judge_meta=null`(평가자 결과가 "쓸 값" 이 아니므로 — `llm_checks` 와 같은 규칙). 단 **`VERIFY_UNAVAILABLE` 인데 1번째 시도가 스키마 실패로 토큰을 쓴 경우 DB 에는 그 토큰까지 포함해 남긴다** — 응답에는 null, 저장은 유지(감사·비용 추적). 백엔드 `AiDtos.VerifyResponse.raw(JsonNode)` 가 모르는 필드를 통째로 담아 `FAIL_ON_UNKNOWN_PROPERTIES` 영향 없음 — DTO 변경 없이도 깨지지 않는다.
@@ -67,6 +95,8 @@ elif judge 호출 실패:       status = VERIFY_UNAVAILABLE, llm_checks = None, 
 elif all(s >= 4):          status = PASSED,             passed = True
 else:                      status = LLM_FAILED,         passed = False
 ```
+
+평가자 **N회 중앙값** (SCRUM-207, verify 경로만, 2026-11-12) — 위 "N회 중앙값" 소단락. `JUDGE_PASS_SCORE=4` 는 그대로 항목 **중앙값** 에 적용.
 
 평가자 기준 **4점**은 SCRUM-127(2026-11-09) 로 결정 — 08 오류 주입 LLM 결과 표(7·8·10·11·12, N=3, 모델 2줄) 를 보고 유지 여부 확정(09 결정 줄). 바꾸려면 `domain/constants.JUDGE_PASS_SCORE` · 이 문서 · `09`. 프롬프트 루브릭은 **judge_v3** 가 06 표와 같은 **5·4·3·1 4칸** (SCRUM-127 — judge_v2 는 5·3·1 3칸이라 4점 범위를 3점으로 떨어뜨렸음, 동결 상태로 녹화·호환 유지).
 

@@ -30,7 +30,7 @@ from aml_ai.shared.schemas.str import (
 )
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain import masking, verification
-from aml_ai.str.domain.constants import JUDGE_PASS_SCORE, VERIFIER_VERSION
+from aml_ai.str.domain.constants import JUDGE_PASS_SCORE, JUDGE_VOTES, VERIFIER_VERSION
 from aml_ai.str.domain.fact_keys import fact_keys as domain_fact_keys
 from aml_ai.str.domain.models import StoredDraft
 from aml_ai.str.infrastructure.generation_repository import GenerationRepository
@@ -58,7 +58,7 @@ class VerifyService:
             session=session,
             generations=GenerationRepository(session),
             verifications=VerificationRepository(session),
-            judge=Judge(make_llm_client(settings), settings, clock=clock),
+            judge=Judge(make_llm_client(settings), settings, clock=clock, votes=JUDGE_VOTES),
             clock=clock,
         )
 

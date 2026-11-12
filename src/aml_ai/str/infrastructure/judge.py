@@ -2,6 +2,9 @@
 
 v2 (SCRUM-61, 11/5 활성): 입력에 FACT_KEYS, 출력에 섹션별 cites. sections 집합이 요청과 다르면
 `LlmInvalidOutput` 로 기존 1회 재시도(SCRUM-92) → 또 실패면 호출 측(`verify_service`)이 VERIFY_UNAVAILABLE.
+
+SCRUM-207 (2026-11-12): verify 경로만 `votes=JUDGE_VOTES`(=3) 병렬 중앙값. 집계 규칙은 docs/str/06
+"N회 중앙값" 소단락 — 짝수 성공은 낮은 점수, 성공 <2 → VERIFY_UNAVAILABLE, BudgetExceeded 즉시 중단.
 """
 
 from __future__ import annotations
@@ -28,6 +31,7 @@ from aml_ai.shared.schemas.str import (
     llm_output_model,
 )
 from aml_ai.str.domain.constants import JUDGE_MAX_TOKENS, JUDGE_PROMPT, JUDGE_SCHEMA_RETRY
+from aml_ai.str.infrastructure.judge_vote import run_votes
 from aml_ai.str.infrastructure.narrative_generator import load_prompt
 
 log = logging.getLogger(__name__)
@@ -84,6 +88,7 @@ class Judge:
         request_sections: list[str] | None = None,
         clock: Callable[[], float] = time.monotonic,
         schema_retry: int = JUDGE_SCHEMA_RETRY,  # SCRUM-147 — 초안용 Judge 는 0 (verify 는 기본 1)
+        votes: int = 1,  # SCRUM-207 — verify 경로만 JUDGE_VOTES(=3), 그 외 기본 1 (집계 구현은 다음 단계)
     ) -> None:
         self._llm = llm
         self._s = settings
@@ -92,6 +97,7 @@ class Judge:
         self._system, self._user_tpl = load_prompt(prompt_name)
         self._request_sections = list(request_sections) if request_sections is not None else None
         self._schema_retry = schema_retry
+        self._votes = votes
 
     def run(
         self,
@@ -101,7 +107,10 @@ class Judge:
         deadline: float | None = None,
         fact_keys: list[str] | None = None,
     ) -> JudgeResult:
-        """스키마 실패만 예산 안에서 재시도하고 소비한 토큰을 합산한다."""
+        """스키마 실패만 예산 안에서 재시도하고 소비한 토큰을 합산한다.
+
+        `votes > 1` 이면 N 병렬 호출 → 항목별 중앙값 집계 (SCRUM-207, verify 경로만).
+        """
         request_sections = self._request_sections or [s.section.value for s in narrative]
         user = render_judge_user(
             self._user_tpl,
@@ -111,7 +120,15 @@ class Judge:
             request_sections=request_sections,
         )
         model, _ = judge_model_decision(self._s)
-        return self._call_with_retry(user, model, request_sections, deadline)
+        if self._votes == 1:
+            return self._call_with_retry(user, model, request_sections, deadline)
+        return run_votes(
+            votes=self._votes,
+            call_once=lambda: self._call_with_retry(user, model, request_sections, deadline),
+            clock=self._clock,
+            deadline=deadline,
+            prompt_version=self.prompt_version,
+        )
 
     def _call_with_retry(
         self, user: str, model: str, request_sections: list[str], deadline: float | None

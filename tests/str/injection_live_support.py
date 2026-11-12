@@ -22,11 +22,16 @@ from aml_ai.shared.config import get_settings
 from aml_ai.shared.infrastructure.llm_client import HttpLlmClient
 from aml_ai.shared.schemas.str import Facts, RevisedNarrativeSection
 from aml_ai.shared.schemas.str.narrative_version import llm_output_model
-from aml_ai.str.domain import masking
 from aml_ai.str.domain.constants import JUDGE_MAX_TOKENS
-from aml_ai.str.domain.fact_keys import fact_keys
-from aml_ai.str.infrastructure.judge import render_judge_user
-from aml_ai.str.infrastructure.narrative_generator import load_prompt
+from tests.str.judge_input_support import CASE_FIXTURES, render_judge_user_for
+
+__all__ = [
+    "CASE_FIXTURES",  # 재export — 호환 (judge_stability_live.py 가 여기서 import)
+    "FIXTURES",
+    "RECORDED_V2",
+    "TMP_DIR",
+    "render_judge_user_for",
+]
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RECORDED_V2 = REPO_ROOT / "tests/str/recorded/narrative_v2/a976ae216c7fb1bb.json"
@@ -117,16 +122,7 @@ def invoke_judge(
     prompt_name: str,
 ) -> JudgeRun:
     settings = get_settings()
-    system, user_tpl = load_prompt(prompt_name)
-    keys = list(fact_keys(facts).keys())
-    sections_list = [s.section.value for s in narrative]
-    user = render_judge_user(
-        user_tpl,
-        facts_masked=masking.mask_for_llm(facts),
-        narrative=narrative,
-        fact_keys=keys,
-        request_sections=sections_list,
-    )
+    system, user, _ = render_judge_user_for(facts, narrative, prompt_name)
     model = settings.llm_model_judge or settings.llm_model_generate
     t0 = time.monotonic()
     res = HttpLlmClient(settings).complete_json(
