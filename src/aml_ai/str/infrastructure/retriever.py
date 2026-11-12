@@ -34,13 +34,27 @@ TYPOLOGY_KO = {
     "DORMANT_BURST": "휴면 후 급증",
 }
 
+# SCRUM-126 — 유형별 영문 패턴 한 문장. 코퍼스가 영문이라 유형 이름만으로는 임베딩 매칭이 약함.
+# ★L-1 baseline(유형 이름만 + model_signals): FAN_OUT·CYCLE hit 0, FAN_IN precision 0.33.
+TYPOLOGY_PATTERN_EN = {
+    "FAN_IN": "many senders deposit into one account",
+    "FAN_OUT": "one account sends funds to many beneficiaries",
+    "CYCLE": "funds move through accounts and return to the originating account",
+    "SCATTER_GATHER": "funds are split across intermediate accounts and later consolidated into one account",
+    "GATHER_SCATTER": "funds are pooled into one account and then distributed to many accounts",
+}
+
 
 def build_query(facts: Facts) -> str:
-    """'{유형 한국어} {유형 영문 코드} {model_signals 이름} {industry}' — 코퍼스가 영문이라 코드도 넣는다."""
+    """'{유형 한국어} {유형 영문 코드} {영문 패턴} {model_signals 이름} {industry}'.
+
+    SCRUM-126 — 유형별 영문 패턴 한 문장 추가 (코퍼스 임베딩과 매칭 강화).
+    """
     code = facts.typology.value if facts.typology else ""
+    pattern = TYPOLOGY_PATTERN_EN.get(code, "")
     signals = " ".join(facts.model_signals)
     industry = facts.customer.industry if facts.customer and facts.customer.industry else ""
-    return " ".join(p for p in (TYPOLOGY_KO.get(code, ""), code, signals, industry) if p)
+    return " ".join(p for p in (TYPOLOGY_KO.get(code, ""), code, pattern, signals, industry) if p)
 
 
 class Retriever:

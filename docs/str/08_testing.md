@@ -322,12 +322,18 @@ LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127, 2026-11-09) 수동. 아래 
 - **경계**: 같은 `draft_id`·같은 본문 재요청 → 저장 결과 그대로(`ClaimReuse`, 녹화 클라이언트 호출 0회), `generations` 행 수 그대로.
 - **실패 4종**: 없는 `transaction_id` → 400 `INVALID_REQUEST`, 같은 `draft_id` 다른 본문 → 400, 녹화 없는 입력(`investigator_notes` 한 줄 추가 → user 프롬프트 바뀜 → 녹화 키 miss) → 502 `LLM_UNAVAILABLE` + generations `FAILED`(지어내지 않음), `X-Internal-Key` 없음 → 401.
 
-## 검색 평가 (`retrieval_eval.json`)
+## 검색 평가 (`retrieval_eval.json`, SCRUM-126 2026-11-12)
 
-```json
-[{"query_facts": "fixtures/facts_fan_in.json", "expect_chunk_ids": ["fincen-funnel-2014#p2-c1", "fincen-funnel-2014#p3-c0"], "note": "펀넬 계정 정의·적색신호"}, ...]
+질의 10개 (**FAN_IN 4·FAN_OUT 2·CYCLE 2·빈 집합 2** — SCATTER_GATHER·GATHER_SCATTER 는 태그 0청크·빈 결과 정답). `expected_set` ∈ `{"FAN_IN","FAN_OUT","CYCLE", null}`·`expected_sets` 2단계 점수 `{"2": [...], "1": [...]}`. 지표 두 벌 — 엄격(2점만) · 넓은(1점 이상). 자세히 `10`.
+
+측정 명령 (손 실행, `RAG_ENABLED=true` 진희 터미널):
+```bash
+uv run --frozen --extra dev python -m tests.str.rag_eval_live                   # ★L-1 검색 평가
+uv run --frozen --extra dev python -m tests.str.rag_onoff_live                  # ★L-2 켬/끔 비교 (블라인드 md·key 함께)
+uv run --frozen --extra dev python -m tests.str.rag_onoff_unsupported_post ../_claude/ai/rag_onoff_blind_SCRUM-126.md  # 사후 unsupported_candidate_count
 ```
-질의 10개(유형 8 + 혼합 2), 기대는 **청크**. `hit@3` = 기대 청크 중 하나라도 top-3에 든 질의 비율(목표 0.7), `precision@3` = top-3 중 기대 청크·같은 문서 같은 절 비율, `recall@3` = 질의별 찾은 기대 청크 ÷ 전체 기대 청크의 평균(보조, 계산식은 `10`). 미달이면 태깅·청크 크기·`MIN_SIMILARITY` 조정(`10`). **11/11까지 표가 없으면 안건 22 되돌림 조건.**
+
+~~**11/11까지 표가 없으면 안건 22 되돌림 조건.**~~ → **11/3 결정으로 폐기**(RAG 필수·낮으면 고침). ★L-2 결과 "프롬프트 역할 좁힘" — `10` 켬/끔 비교 표.
 
 ## CI
 

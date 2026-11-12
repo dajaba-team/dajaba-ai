@@ -1,0 +1,102 @@
+{
+  "reporting_institution": "Portugal Bank #4507",
+  "subject": {
+    "entity_id": "80062E240",
+    "entity_name": "Sole Proprietorship #50438",
+    "entity_type": "SOLE_PROPRIETORSHIP",
+    "account_key": "10_8000EBD30"
+  },
+  "period": {
+    "start": "2022-09-02T00:14:00",
+    "end": "2022-09-02T22:51:00"
+  },
+  "inbound": {
+    "count": 0,
+    "by_currency": [],
+    "transaction_ids": []
+  },
+  "outbound": {
+    "count": 3,
+    "by_currency": [
+      {
+        "currency": "USD",
+        "total": "42750.50",
+        "count": 3,
+        "transaction_ids": [
+          1,
+          2,
+          3
+        ]
+      }
+    ],
+    "transaction_ids": [
+      1,
+      2,
+      3
+    ]
+  },
+  "internal": {
+    "count": 0,
+    "transaction_ids": []
+  },
+  "indirect": {
+    "count": 0,
+    "transaction_ids": []
+  },
+  "paths": null,
+  "excluded_self_transfer_count": 0,
+  "direction": "OUTBOUND",
+  "counterparties": {
+    "count": 3,
+    "transaction_ids": [
+      1,
+      2,
+      3
+    ]
+  },
+  "counterparty_banks": {
+    "same_bank_accounts": 0,
+    "other_bank_accounts": 3
+  },
+  "payment_formats": [
+    "ACH"
+  ],
+  "payment_format_counts": [
+    {
+      "format": "ACH",
+      "count": 3
+    }
+  ],
+  "amount_range": [
+    {
+      "currency": "USD",
+      "min": "12500.00",
+      "max": "16250.50"
+    }
+  ],
+  "typology": "FAN_OUT",
+  "typology_source": "RULE",
+  "customer": {
+    "industry": "RETAIL",
+    "risk_level": "LOW",
+    "account_purpose": "SALES_DEPOSIT",
+    "onboarded_at": "2021-03-14",
+    "country_code": "PT"
+  },
+  "prior_alert_count": 1,
+  "observations": [
+    {
+      "name": "distinct_recipients_24h",
+      "value": 3,
+      "unit": "count",
+      "window_start": "2022-09-02T00:00:00",
+      "window_end": "2022-09-03T00:00:00",
+      "basis": "distinct_outbound_counterparties",
+      "baseline": null
+    }
+  ],
+  "model_signals": [
+    "distinct_recipients_24h"
+  ],
+  "unmapped_currencies": []
+}
