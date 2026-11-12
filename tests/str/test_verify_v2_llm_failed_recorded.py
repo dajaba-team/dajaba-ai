@@ -59,7 +59,8 @@ def test_verify_v2_passed_through_recorded(
         ),
         {"g": draft.generation_id},
     ).one()
-    assert row.status == "PASSED" and row.judge_attempts == 1
+    # SCRUM-207 — verify 경로 N 중앙값(JUDGE_VOTES=3) 이라 녹화 재생 3회 submit → attempts=3
+    assert row.status == "PASSED" and row.judge_attempts == 3
     assert row.judge_llm_model and row.judge_tokens_in is not None
 
 

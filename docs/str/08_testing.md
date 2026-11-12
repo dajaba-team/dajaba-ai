@@ -223,6 +223,59 @@ LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127, 2026-11-09) 수동. 아래 
 - **모델②(같은 모델 덮어쓰기) 는 SCRUM-92 "자기 글 너그러움" 비교용으로 표에만** — 판정에는 안 씀.
 - **9·14·23 (생성+평가자)** 도 **모델① 만** 돌리고 표에만 적음(판정 안 씀). 기대값: 9 `NO_INSTRUCTION_TEXT=5`(지시문 반영 안 됨) · 14 `TYPOLOGY_CONSISTENT≥4` + 사례 금액 본문에 안 섞임 · 23 `TYPOLOGY_CONSISTENT≥4` + 경로 숫자 미인용.
 
+### 평가자 흔들림 1단계 측정 (SCRUM-207, 2026-11-12, N=5, judge_v3, 모델① `gpt-6.1-terra`)
+
+두 경로 user sha256 **동일**(저장·전송 왕복 포함, `tests/str/judge_stability_live.py --dry-run` 확인 — case 12 `1f695833…`·case 23 `387277e8…`, fact_keys 26 개 순서 동일). ★L-1 live 결과 `tests/str/recorded/_tmp/judge_stability_live_m1_20261112-014034.json` → `_claude/ai/judge_stability_m1.json` 사본.
+
+| case | 경로 | FIVE_W(5회) | TYPOLOGY(5회) | 나머지 3항목 | status |
+|---|---|---|---|---|---|
+| 12 (fan_in) | draft_inside | 5·5·5·5·5 | 5·5·5·5·5 | 전부 5 | PASSED 5/5 |
+| 12 | verify | 5·**4**·5·5·5 | 5·5·5·5·5 | 전부 5 | PASSED 5/5 |
+| 23 (cycle_nopaths) | draft_inside | 4·5·4·4·5 | **1**·3·3·3·3 | 전부 5 | LLM_FAILED 5/5 |
+| 23 | verify | 5·4·4·4·5 | 3·3·3·3·3 | 전부 5 | LLM_FAILED 5/5 |
+
+호출당 latency median 7.4s · max 11.7s · tokens avg 3710 in / 470 out. SCRUM-147 "초안 안 5 / 검증 3" 은 **같은 run 안 같은 본문·두 번 호출** 간 흔들림(`injection_live_rewrite.py:79`, 08 204행 `not_triggered`).
+
+### 평가자 흔들림 2단계 재측정 (★L-2, SCRUM-207, 2026-11-12, verify 경로 N=3 집계 · iteration N=5)
+
+207 적용 뒤 `verify_service` 가 `Judge(votes=JUDGE_VOTES=3)` 로 돌리는 집계 결과. `tests/str/judge_stability_live.py --verify-votes --cases 12,23 --n 5 --prompt judge_v3`. 결과 `tests/str/recorded/_tmp/judge_stability_verify_m1_20261112-024041.json` → `_claude/ai/judge_stability_m2.json` 사본. **집계 median 만 저장** (세 호출 raw 는 126·131 재측정 때 보강, 측정 도구 TODO 라인).
+
+| case | iter | FIVE_W median | TYPO median | 나머지 3항목 median | status | wall-clock(ms) | tokens_in (3호출 합) |
+|---|---|---|---|---|---|---|---|
+| 12 (fan_in) | 1 | 5 | 5 | 전부 5 | PASSED | 7654 | 11070 |
+| 12 | 2 | 5 | 5 | 전부 5 | PASSED | 7545 | 11070 |
+| 12 | 3 | 5 | 5 | 전부 5 | PASSED | 7346 | 11070 |
+| 12 | 4 | 5 | 5 | 전부 5 | PASSED | 6291 | 11070 |
+| 12 | 5 | 5 | 5 | 전부 5 | PASSED | 6592 | 11070 |
+| 23 (cycle_nopaths) | 1 | 5 | **3** | 전부 5 | LLM_FAILED | 7868 | 11181 |
+| 23 | 2 | 5 | **3** | 전부 5 | LLM_FAILED | 8211 | 11181 |
+| 23 | 3 | 4 | **3** | 전부 5 | LLM_FAILED | 7583 | 11181 |
+| 23 | 4 | 4 | **3** | 전부 5 | LLM_FAILED | 7903 | 11181 |
+| 23 | 5 | 5 | **3** | 전부 5 | LLM_FAILED | 9698 | 11181 |
+
+**확인된 사실**(그리고 확인된 것만 적음):
+- case 12 verify PASSED **5/5** · case 23 verify LLM_FAILED **5/5** — 상태 10/10 ★L-1 과 같음
+- case 23 verify **TYPO median 5/5회 3** — 통과선 미달로 LLM_FAILED 사유
+- case 23 verify **FIVE_W median 5·5·4·4·5 — 여전히 움직임** (통과선 4 안이라 status 에는 영향 없음)
+- 호출당 tokens: case 12 3690 in · case 23 3727 in (★L-1 과 동일)
+- wall-clock 3 병렬: median 7.6s · min 6.3 · max **9.7s** · 2 case × 5 iter ≈ 77s (예산 80s 안)
+
+★L-1 verify 5회(1회 호출 raw) 분포와 ★L-2 집계(3 병렬 median) 분포가 case 23 에서 **같은 상태**(LLM_FAILED)·**같은 TYPO 분포**(3 안정). 두 측정은 호출 단위가 달라 "분포 비교" 가 아니라 "207 적용 뒤에도 같은 본문의 승인 판단이 유지된다"는 확인 (SCRUM-131 재측정으로 코드 통과 경로 복구 뒤 종합).
+
+### 평가자 N=3 중앙값 단위 테스트 (SCRUM-207)
+
+`tests/str/test_judge_votes.py` (10 testcases) + `tests/str/test_judge_votes_deadline.py` — 가짜 LLM 로 집계 규칙 확인:
+- 세 호출 다른 점수(1·3·3·5·5) → 항목별 median · `attempts=3`
+- 3 중 1 스키마 실패/LlmUnavailable → 성공 2 집계, 짝수라 두 값 중 낮은 점수
+- 3 중 2 실패 → `LlmUnavailable` → verify 쪽 `VERIFY_UNAVAILABLE`
+- 한 호출 `BudgetExceeded` → 전체 중단
+- comment: 항목별 median 낸 호출 중 run 번호 작은 쪽(run 1 이 median 과 다르면 run 2 선택)
+- `narrative_refs(sections)` = run 1 호출
+- `judge_meta`: tokens 는 응답 받은 호출 전부(스키마 실패 포함) 합 · latency max · attempts 합
+- 느린 호출(Event 대기) 있을 때 — 걸린 시간 ≤ deadline + 0.5s · `tokens_in` = 응답 받은 2개 합(세 호출 합 아님) · `shutdown(wait=False, cancel_futures=True)` 호출 (spy 로 확인)
+
+회귀: `test_judge_retry.py` 3 시나리오(SCRUM-144) 는 votes=1 기본이라 그대로 통과. `test_verify_v2_passed_through_recorded` 의 `judge_attempts` 기대값 **1→3** 갱신(녹화 재생 3 회 submit). `verifier_version` 은 `endswith("+judge_v3")` 만 보니 prefix `verify-2026.11.3+judge_v3` 로 바뀌어도 통과. `test_draft_call_cap.py` 는 draft 경로 Judge 가 `votes=1`·`schema_retry=0` 유지(총 호출 ≤ 4) 가드 — 내부 속성 X, 호출 수 로만.
+
 | # | 주입 (08 본문 축약) | 잡아야 하는 것 | 상태 | 담당 |
 |---|---|---|---|---|
 | 1 | 금액 값 틀림 (`32,000,000 US Dollar`) | `AMOUNT_MATCH` MISMATCH | 활성 | SCRUM-58 |

@@ -40,6 +40,7 @@ NARRATIVE_MAX_TOKENS = 2000
 JUDGE_MAX_TOKENS = 4000
 SUMMARY_MAX_TOKENS = 1500  # SCRUM-129 — 1~6줄·model_focus 1줄 + 사고 토큰. fewshot 2개
 JUDGE_SCHEMA_RETRY = 1
+JUDGE_VOTES = 3  # SCRUM-207 — verify 경로 N 중앙값. draft 경로는 Judge(votes=1) 기본 (06 N회 중앙값)
 FEWSHOT_SAME_TYPOLOGY = 1
 FEWSHOT_OTHER_TYPOLOGY = 2
 SCHEMA_RETRY = 1  # 스키마 실패 시 재생성 횟수 (재시도가 아니라 생성 절차의 일부)
@@ -48,7 +49,7 @@ SCHEMA_RETRY = 1  # 스키마 실패 시 재생성 횟수 (재시도가 아니�
 from aml_ai.str.domain.frozen_prompts import FROZEN_PROMPTS  # noqa: E402, F401
 
 # ---- 검증 (docs/str/06)
-VERIFIER_VERSION = "verify-2026.11.2"  # SCRUM-127 — judge_v3 활성 (06 표 4칸 루브릭)
+VERIFIER_VERSION = "verify-2026.11.3"  # SCRUM-207 — verify 경로 N 중앙값 (06 "N회 중앙값")
 JUDGE_PASS_SCORE = 4  # W4 오류 주입 7~12 표 뒤 조정
 # AMOUNT_MATCH (SCRUM-58) — 06 "AMOUNT_MATCH" 줄. ±10자 창 폐기, "바로 붙은 덩이" 기준.
 # 코드 → 표기 목록. 긴 표기부터 매칭하므로 코드·IBM 원문·한국어 전부 수록. 맨 "달러"→USD (★A 2).
