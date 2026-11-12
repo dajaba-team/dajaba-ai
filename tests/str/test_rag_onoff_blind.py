@@ -38,6 +38,7 @@ def _sample_result(retrieval_status: str, refs: int = 0) -> dict:
         "no_unsupported_claim": 2,
         "grounds_signal_mentions": 1,
         "unsupported_candidate_count": 0,
+        "fact_coverage": {"covered": 0, "required": 0, "missing": []},  # SCRUM-225
         "status": "PASSED",
         "few_shot_ids": ["ex_1"],
         "prompt_version": "narrative_v2",
@@ -51,7 +52,7 @@ def test_record_blind_has_no_rag_key():
     rec = _record_blind("case_1_fan_in", "FAN_IN", "A", _sample_result("ok"))
     assert "rag" not in rec
     assert rec["side"] == "A"
-    assert rec["retrieval_status"] == "ok"
+    assert "retrieval_status" not in rec  # SCRUM-225 — 진단 파일로 분리
 
 
 def test_record_blind_side_b_also_no_rag():

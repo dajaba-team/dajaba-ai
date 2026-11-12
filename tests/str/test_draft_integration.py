@@ -2,7 +2,7 @@
 
 흐름 — HTTP → DraftService → 선점 → ops 읽기 → facts → 마스킹 → few-shot → RecordedLlmClient
 → attach_evidence → 펜싱 저장 → 응답. `AI_LLM_MOCK=true`·`RAG_ENABLED=false`.
-`NARRATIVE_PROMPT` 를 `narrative_v1`·`narrative_v2` 둘 다 파라미터.
+`NARRATIVE_PROMPT` 를 `narrative_v1`·`narrative_v2`·`narrative_v3` 파라미터. v3 코드 검사는 `test_draft_integration_v3.py`.
 """
 
 from __future__ import annotations
@@ -54,6 +54,7 @@ def _fan_in_body(sample: dict, *, draft_id: str = "DRF-SCRUM20-01", notes_extra:
 def _assert_rewrite_meta_by_prompt(out: DraftResponse, prompt_name: str, body: dict) -> None:
     """SCRUM-147 — v2 fan_in: 평가자 녹화 judge_v3/510cf822675f9727 재생 → 전부 5점 → not_triggered.
     v1 fan_in: rewrite_v1 출력 스키마가 v2 7섹션이라 v1 초안엔 아예 안 탐 → rewrite is None.
+    v3 fan_in: 고쳐 쓰기 미적용(SCRUM-225, `_SUPPORTED_PROMPT` 는 v2 만) → rewrite is None.
     """
     rewrite = out.generation_meta.rewrite
     if prompt_name == "narrative_v2":
@@ -66,10 +67,8 @@ def _assert_rewrite_meta_by_prompt(out: DraftResponse, prompt_name: str, body: d
         assert len(rewrite.critique_scores) == 5
         assert all(s == 5 for s in rewrite.critique_scores.values())
         return
-    assert rewrite is None, (
-        f"SCRUM-147 — v1 초안은 rewrite 안 탐 (v2 7섹션 스키마 호환 안 됨). 실제: {rewrite!r}"
-    )
-    _ = body  # 호환용 — v1 경로에서는 body 를 더 쓰지 않음
+    assert rewrite is None, f"SCRUM-147·225 — v1·v3 초안은 rewrite 안 탐. 실제: {rewrite!r}"
+    _ = body  # 호환용 — v1·v3 경로에서는 body 를 더 쓰지 않음
 
 
 # ───────── 정상 ─────────
@@ -77,7 +76,7 @@ def _assert_rewrite_meta_by_prompt(out: DraftResponse, prompt_name: str, body: d
 
 @pytest.mark.parametrize(
     ("prompt_name", "section_count"),
-    [("narrative_v1", 6), ("narrative_v2", 7)],
+    [("narrative_v1", 6), ("narrative_v2", 7), ("narrative_v3", 7)],
 )
 def test_draft_success_through_recorded_llm(
     integration_client: TestClient,

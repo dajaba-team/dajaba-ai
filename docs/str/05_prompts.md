@@ -19,7 +19,7 @@
 ## 버전·동결 규칙
 
 - 파일명이 버전: `narrative_v1.md`·`narrative_v2.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 동결 전에는 자유 수정, 동결 뒤에는 새 버전 파일(`narrative_vN.md`). `prompt_versions.frozen_at`에 동결 시각.
-- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`, 기본 `narrative_v2`(SCRUM-62, 11/6 — 그 전은 v1)). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
+- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`|`narrative_v3`, 기본 `narrative_v2`(SCRUM-62, 11/6 — 그 전은 v1). `narrative_v3`(SCRUM-225)는 켬/끔 비교용으로 env 로만 켬 — 기본값 전환은 성공 기준 결과를 보고 따로 정함). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
 - 기동 시 파일 sha256을 `ai.prompt_versions`에 색인. 동결된 버전의 해시가 파일과 다르면 **기동 실패**(경고가 아니라). 응답 `prompt_version`에 파일명.
 - **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29). **narrative_v2 는 SCRUM-20 녹화 커밋 시점에 동결** — `FROZEN_PROMPTS` 에 `narrative_v2` sha256 추가, `test_frozen_prompts` 가 `narrative_v2` 등록 강제. **2026-11-06 SCRUM-62 에서 기본값 v2** (채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날).
 - 바꾼 뒤엔 오류 주입 12번(정상 초안)과 7~11을 다시 돌려 표로 남긴다(`08`). 표 없이 v2를 서빙하지 않는다.
@@ -38,7 +38,7 @@
 | `{{facts_json}}` | 마스킹한 facts JSON (들여쓰기 2, `transaction_ids` 제거됨) |
 | `{{fact_keys}}` | `fact_keys(facts)` 목록, 한 줄에 하나 — 인용 가능한 키 전체 |
 | `{{investigator_notes}}` | 메모 또는 `(없음)` |
-| `{{references}}` | `[n] {doc_title} p.{page}: {text}` 0~3줄 또는 `(없음)` |
+| `{{references}}` | v1·v2: `[n] {doc_title} p.{page}: {text}` 0~3줄 또는 `(없음)`. **v3**: `[n] {doc_title} p.{page}: {유형 패턴 문장 1~2개}` 0~2줄 또는 `(없음)` — 아래 narrative_v3 절 |
 | `{{few_shot}}` | 예시 3개(`pick_examples` — 같은 유형 `FEWSHOT_SAME_TYPOLOGY=1` + 다른 유형 `FEWSHOT_OTHER_TYPOLOGY=2`), 각각 `FACTS → NARRATIVE` JSON |
 
 ## narrative_v1 전문
@@ -100,6 +100,32 @@ v1 과 겹치지 않는 7항목(SUBJECT·DATE·PLACE·INSTRUMENT·METHOD·GROUND
 - few-shot: `fewshot/narrative_v2/002~006_*.json` 5개(풀, SCRUM-47에서 채움 — 호출마다 3개 고름) — FAN_IN·FAN_OUT·PASS_THROUGH·CYCLE + 근거 약한 예시(`typology: null`). 활성 버전 폴더만 `fewshot_store` 가 읽는다.
 
 **2026-11-06 SCRUM-62 에서 기본값 v2 전환 (한 줄 커밋).** 녹화·동결(`FROZEN_PROMPTS`) 은 **SCRUM-20** 에서 실제 LLM 1회 호출·해시 박기.
+
+## narrative_v3 (SCRUM-225, 2026-11-12 — 비교용, 기본값 아님) — 전문은 `str/prompts/narrative_v3.md`
+
+왜: SCRUM-126 RAG 켬/끔 블라인드(대조군 제외 12표: 끈 쪽 8·켠 쪽 2·같음 2)에서 고른 이유가 전부 "facts 를 더 구체적으로 씀"(금액 범위·계좌 목적·상대 거래 관계). 규칙 8 때문에 참고 사례가 보탤 수 있는 건 "이 유형이 왜 의심 지표인가" 한 문장뿐인데, 영문 청크 3개×600자를 통째로 넣어 프롬프트만 길어지고 facts 를 덜 씀(10_rag 「RAG 켬/끔 비교」).
+
+v2 를 복사하고 **아래만** 바꿈. 7섹션·출력 형식·규칙 1~7·9~11 은 그대로, LLM 출력 스키마는 `NarrativeOutV2` 그대로(`_LLM_OUTPUT_MODELS["narrative_v3"]`).
+
+- **규칙 8 좁힘** — REFERENCES 는 **GROUNDS 에서 "이 유형이 의심 지표로 쓰이는 이유" 한 문장에만** 일반 설명으로 반영. 다른 섹션에는 쓰지 않음. 출처명·숫자·이름·국가·기관·날짜·기준 금액은 쓰지 않음(그대로). REFERENCES 가 `(없음)` 이면 그 문장도 FACTS(유형·방향·상대 수)만으로 쓰고 지어내지 않음.
+- **규칙 12 신설 — facts 빠짐없이.** 아래 항목은 FACTS 에 값이 있으면 그 섹션에 **반드시** 씀. 값이 null 이면 "자료 없음", 목록이 비면 그 항목은 건너뜀. 표에 없는 값을 새로 쓰게 하지 않음(규칙 1 우선). cites 는 규칙 9 그대로.
+
+  | 섹션 | 필수 항목 (FACTS 키) | 값이 없을 때 |
+  |---|---|---|
+  | SUBJECT | `customer.account_purpose` · `customer.industry` · `customer.risk_level` · `prior_alert_count`(0이어도 "0건") | `customer` 가 null → "자료 없음" |
+  | INSTRUMENT | `payment_format_counts` 의 방식과 건수 전부 · 거래 통화(`by_currency.currency`; `unmapped_currencies` 는 규칙 2 "대응 미확인") | — |
+  | METHOD | `inbound.count`·`outbound.count` · 통화별 합계(`*.by_currency.total`) · `amount_range.{통화}.min/max` · **반대 방향 0건**(예: FAN_IN 이면 "출금 0건") · `internal.count`(0이어도 "내부 거래 0건") | `amount_range` 가 비면 범위는 쓰지 않음 |
+  | GROUNDS | `observations` 의 값 + `window_start`~`window_end`(규칙 11 표기) | `observations` 가 비면 "자료 없음" |
+
+  - `model_signals` 는 필수 아님 — v2 규칙 9 그대로(언급할 때만 cites). 필수로 두면 피처 이름 노출 여부(09 미결)를 이번에 정해 버림.
+  - `paths` 는 필수 아님 — 규칙 10 그대로(VERIFIED 일 때만).
+- **REFERENCES 렌더링 줄임**(코드, `str/infrastructure/reference_snippet.py`, 상수는 `str/domain/constants_references.py` — `constants.py` 가 200줄 한도라 따로 두고 쓰는 곳이 직접 import) — v3 일 때만:
+  - 사례 수 최대 `REFERENCES_PROMPT_MAX=2`(검색 순위 앞에서). `draft_service` 가 **한 번** 잘라 같은 리스트를 프롬프트와 `generation_meta.references` 에 씀 → v3 화면 "참고 사례 N건" 은 최대 3→2. 계약 모양(chunk_id·doc_id·doc_title·page·score)은 그대로.
+  - 본문은 청크 전체가 아니라 **유형 패턴 문장 최대 `REFERENCE_SNIPPET_SENTENCES=2`개** — 청크를 문장으로 나눠 `TYPOLOGY_PATTERN_EN[유형]`(retriever 상수, import 만) 과 영단어 겹침이 큰 순으로 고르고 원문 순서로 붙임. 추가 임베딩 호출 없음. 겹침 0 이거나 유형 패턴이 없으면 앞 `REFERENCE_SNIPPET_FALLBACK_CHARS=300`자.
+  - v1·v2 와 `rewrite_v1` 렌더링은 **바이트 단위 그대로**(녹화 키 보호 — 테스트로 묶음).
+- **few-shot**: `fewshot/narrative_v3/` 에 v2 예시 5개(002~006)를 복사하고 **본문(text·cites)만** 규칙 12 에 맞게 보완(facts·example_id 그대로). v2 폴더는 안 건드림.
+- **고쳐 쓰기 미적용** — `draft_rewrite._SUPPORTED_PROMPT` 는 `narrative_v2` 만. rewrite_v1 은 참고 사례 3건 전문을 다시 넣고 규칙 12 가 없어서 고쳐 쓰면 v3 의 두 변경이 되돌려짐. 기본값을 v3 로 바꿀 때 rewrite 프롬프트를 따로 맞춤(09).
+- 동결(2026-11-12): 녹화 `recorded/narrative_v3/42c985cb6b2e2770.json`(RAG 끈 상태, fan_in) + `FROZEN_PROMPTS["narrative_v3"]` — 같은 커밋. 재생 초안의 코드 검사에 알려진 검사기 오판 1건(PLACE 상대 계좌 총수 → 자행 수, 09 · SCRUM-131).
 
 ## judge_v1 (요지 — 전문은 파일)
 

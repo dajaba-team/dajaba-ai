@@ -333,6 +333,16 @@ uv run --frozen --extra dev python -m tests.str.rag_onoff_live                  
 uv run --frozen --extra dev python -m tests.str.rag_onoff_unsupported_post ../_claude/ai/rag_onoff_blind_SCRUM-126.md  # 사후 unsupported_candidate_count
 ```
 
+**2차 — narrative_v3 (SCRUM-225)**. 결과 파일은 `tests/str/recorded/_tmp/rag_onoff_*_<prompt>_<stamp>.*` — 공개용 JSON(A/B 지표·`fact_coverage`)·블라인드 md 만 먼저 보고, 진단(`rag_onoff_diag_*`)·키는 선택 확정 뒤 reveal 에서 엶(`10` 2차):
+```bash
+AI_LLM_MOCK=false NARRATIVE_PROMPT=narrative_v3 uv run --frozen --extra dev python -m tools.record --case fan_in        # ★L-1 녹화(RAG 끔)
+NARRATIVE_PROMPT=narrative_v3 uv run --frozen --extra dev python -m tests.str.rag_onoff_live                         # ★L-2 켬/끔 재비교
+uv run --frozen --extra dev python -m tests.str.rag_onoff_reveal <result.json> <key.json> <diag.json>               # 선택 확정 뒤
+uv run --frozen --extra dev python -m tests.str.rag_onoff_coverage <126 blind.md> <126 blind_key.json> [out.json]  # v2 끔 커버리지 소급
+```
+
+단위: `test_reference_snippet.py`(2건 자르기·문장 고르기·폴백·서비스 한 번 자르기) · `test_narrative_v3.py`(로드·스키마·설정·few-shot 규칙 12 커버리지·cites 범위) · `test_rag_onoff_coverage.py`(실제 생성 문장·누락·null·쉼표) · `test_rag_onoff_harness_v3.py`(공개 JSON 에 진단 없음·reveal 병합·여러 줄 파서 왕복) · `test_render_bytes_stable.py`(v2·rewrite_v1 렌더링 바이트 고정 + 기존 녹화 키 재계산) · `test_record_matches_service.py::test_record_v3_matches_service_recording_key_rag_off`(녹화 도구 v3 키 = 서비스 경로가 실제 LLM 에 넘기는 키, RAG 끔) · `test_recorded_replay.py` v3 · `test_frozen_prompts.py` v3 · `-m db` `test_draft_integration.py` v3(7섹션·rewrite 없음) + `test_draft_integration_v3.py`(코드 검사 불일치 = 알려진 PLACE 오판 1건만).
+
 ~~**11/11까지 표가 없으면 안건 22 되돌림 조건.**~~ → **11/3 결정으로 폐기**(RAG 필수·낮으면 고침). ★L-2 결과 "프롬프트 역할 좁힘" — `10` 켬/끔 비교 표.
 
 ## CI

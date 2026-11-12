@@ -104,3 +104,19 @@ def test_v1_mode_accepts_v1_response_after_v2_retry() -> None:
     g = _generator("narrative_v1", llm)
     _run(g)
     assert llm.calls == 2
+
+
+def test_v3_mode_rejects_v1_response_twice() -> None:
+    """SCRUM-225 — v3 는 v2 와 같은 7섹션 스키마. v1 집합 응답은 두 번 다 거부."""
+    llm = _StubLlm(responses=[json.dumps(_V1_NARRATIVE), json.dumps(_V1_NARRATIVE)])
+    g = _generator("narrative_v3", llm)
+    with pytest.raises(LlmInvalidOutput):
+        _run(g)
+    assert llm.calls == 2
+
+
+def test_v3_mode_accepts_v2_shape_response() -> None:
+    llm = _StubLlm(responses=[json.dumps(_V2_NARRATIVE)])
+    g = _generator("narrative_v3", llm)
+    _run(g)
+    assert llm.calls == 1
