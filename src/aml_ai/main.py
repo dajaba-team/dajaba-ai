@@ -18,7 +18,7 @@ from aml_ai.shared.config import Settings, get_settings
 from aml_ai.shared.db import ping as db_ping
 from aml_ai.shared.errors import install_exception_handlers
 from aml_ai.shared.logging import RequestIdMiddleware, setup_logging
-from aml_ai.shared.versioning import health_versions
+from aml_ai.shared.versioning import health_versions, scoring_mode
 from aml_ai.str.api.router import router as str_router
 from aml_ai.str.infrastructure.judge import judge_model_decision
 from aml_ai.str.infrastructure.prompt_index import check_frozen_prompts, index_prompt_files
@@ -66,6 +66,7 @@ def health(settings: Settings = Depends(get_settings)) -> dict[str, object]:
         "status": "ok",
         "db": db_ping(settings),
         "llm": "ok" if settings.llm_api_key or settings.ai_llm_mock else "missing_key",
+        "scoring_mode": scoring_mode(settings),
         **health_versions(settings),
     }
 

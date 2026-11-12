@@ -76,6 +76,15 @@ def features(
 
 - AI 서버 `pyproject.toml`: `aml-ml @ git+https://github.com/<org>/aml-ml.git@v0.1.0` — **tag로 고정**. `main` 브랜치를 가리키지 않는다.
 - 준영이 새 모델을 내면: 리포에 tag → 진희가 `pyproject.toml` 한 줄 바꾸는 PR → `MODEL_VERSION`이 바뀐 것을 `/v1/health`에서 확인 → `ai.model_versions`에 행 추가(준영).
+- **점수 모드 `/v1/health` `scoring_mode`** (SCRUM-130, 11/12) — 점수가 고정 점수인지 실제 모델인지 밖에서 보이게. 판단은 `shared/versioning.scoring_mode(settings)`:
+
+  | 조건 | `scoring_mode` |
+  |---|---|
+  | `AI_SCORING_MOCK=true` (기본) | `mock` |
+  | `false` + `score_service` 가 `aml_ml.score()` 를 실제로 부름 | `model` |
+  | `false` + 그 밖 | `unavailable` — `/v1/scores` 가 실패하는 상태 |
+
+  **지금(연결 전)은 `false` 면 패키지 유무와 상관없이 `unavailable`** — `score_service` 의 mock 아닌 분기가 아직 `NotImplementedError` 라, 패키지만 먼저 들어간 상태(tag → pyproject 한 줄 PR 직후)에 `model` 로 보이면 health 와 실제가 어긋남. **`model` 판단과 그 테스트는 `score_service` 연결 PR(SCRUM-130 나머지)에서 같이** 넣는다. 연결 뒤 순서: tag → pyproject PR → `AI_SCORING_MOCK=false` → `/v1/health` 에서 `scoring_mode: model`·`model_version` 확인. `status` 는 `scoring_mode` 와 상관없이 `ok`(기동 판단 안 바꿈, 경고는 백엔드 로그).
 - 모델 파일(`.json`/`.pkl`)은 **패키지 안에** 넣는다(수 MB). 패키지 import 시 로드. 100 MB를 넘기면 그때 릴리스 첨부 + 기동 시 다운로드로 바꾼다.
 - `MODEL_VERSION`과 `ai.model_versions.model_version`은 같은 문자열. 서빙되는 버전은 `is_serving=true` 한 행. `threshold`도 그 행에.
 

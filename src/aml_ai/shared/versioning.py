@@ -9,6 +9,14 @@ from pathlib import Path
 from aml_ai.shared.config import Settings
 
 
+def scoring_mode(settings: Settings) -> str:
+    """목업이면 mock, score_service 가 aml_ml 을 실제로 부르기 전에는 패키지 유무와 무관하게 unavailable.
+
+    model 판단은 연결 PR(SCRUM-130 나머지)에서 넣는다.
+    """
+    return "mock" if settings.ai_scoring_mock else "unavailable"
+
+
 def model_versions() -> tuple[str | None, str | None]:
     """aml_ml 이 설치돼 있으면 (MODEL_VERSION, FEATURE_VERSION), 아니면 (None, None)."""
     try:

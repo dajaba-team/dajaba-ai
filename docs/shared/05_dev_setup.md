@@ -24,7 +24,7 @@ uv run uvicorn aml_ai.main:app --reload --port 8000
 open http://localhost:8000/docs
 ```
 
-`GET /v1/health` → `{status, server_version, model_version|null, llm: ok|missing_key, db: ok}`. 백엔드는 기동 시 이걸 한 번 부른다(`AiHealthCheck`).
+`GET /v1/health`(인증 없음) → `{status: ok, db: ok|down:{예외 이름}, llm: ok|missing_key, scoring_mode: mock|model|unavailable, server_version, model_version|null, feature_version|null, retrieval_version|null}`. 백엔드는 기동 시 이걸 한 번 부른다(`AiHealthCheck`). `status` 는 다른 칸과 상관없이 `ok` — `db`·`llm`·`scoring_mode` 는 백엔드가 로그로 본다. `scoring_mode` 값은 `02_ml_package.md` 「설치·버전」(SCRUM-130).
 
 pgvector: 확장 생성은 superuser만 된다(`shared/03`). 새 볼륨은 백엔드 `db/init/00_extensions.sql` (image `pgvector/pgvector:0.8.2-pg16-trixie`) 이 처음 기동 때 설치해 둔다 — SCRUM-124 로 들어감. **이미 만들어 둔 DB 볼륨**은 손으로 1회:
 
