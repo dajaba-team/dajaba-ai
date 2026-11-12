@@ -1,0 +1,128 @@
+{
+  "_doc": "SCRUM-126 RAG 평가 질의·기대 집합. expected_sets 는 유형별 2단계 점수(2=그래프 패턴 / 1=관련 약함). expected_set=null 은 빈 집합 기대(SCATTER_GATHER·GATHER_SCATTER) — 지표 분모 밖.",
+  "queries": [
+    {
+      "id": "Q01",
+      "typology": "FAN_IN",
+      "model_signals": [
+        "account_in_counterparties_24h"
+      ],
+      "industry": "RETAIL",
+      "expected_set": "FAN_IN"
+    },
+    {
+      "id": "Q02",
+      "typology": "FAN_IN",
+      "model_signals": [
+        "distinct_senders_24h"
+      ],
+      "industry": "RETAIL",
+      "expected_set": "FAN_IN"
+    },
+    {
+      "id": "Q03",
+      "typology": "FAN_IN",
+      "model_signals": [
+        "account_in_counterparties_24h",
+        "distinct_senders_24h"
+      ],
+      "industry": "WHOLESALE",
+      "expected_set": "FAN_IN"
+    },
+    {
+      "id": "Q04",
+      "typology": "FAN_IN",
+      "model_signals": [
+        "account_in_counterparties_24h"
+      ],
+      "industry": null,
+      "expected_set": "FAN_IN"
+    },
+    {
+      "id": "Q05",
+      "typology": "FAN_OUT",
+      "model_signals": [
+        "distinct_recipients_24h"
+      ],
+      "industry": "WHOLESALE",
+      "expected_set": "FAN_OUT"
+    },
+    {
+      "id": "Q06",
+      "typology": "FAN_OUT",
+      "model_signals": [
+        "outflow_ratio_2h",
+        "distinct_recipients_24h"
+      ],
+      "industry": "TRADING",
+      "expected_set": "FAN_OUT"
+    },
+    {
+      "id": "Q07",
+      "typology": "CYCLE",
+      "model_signals": [],
+      "industry": "WHOLESALE",
+      "expected_set": "CYCLE"
+    },
+    {
+      "id": "Q08",
+      "typology": "CYCLE",
+      "model_signals": [],
+      "industry": "TRADING",
+      "expected_set": "CYCLE"
+    },
+    {
+      "id": "Q09",
+      "typology": "SCATTER_GATHER",
+      "model_signals": [
+        "inflow_outflow_ratio_2h"
+      ],
+      "industry": "WHOLESALE",
+      "expected_set": null
+    },
+    {
+      "id": "Q10",
+      "typology": "GATHER_SCATTER",
+      "model_signals": [],
+      "industry": "RETAIL",
+      "expected_set": null
+    }
+  ],
+  "expected_sets": {
+    "FAN_IN": {
+      "2": [
+        "8e5844fd50da27fa2b9dfd27ba32ff7d0385c9e7a6de1d9a13c959cd5b3fef11",
+        "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+        "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+        "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+        "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+        "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+        "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee",
+        "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+        "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d"
+      ],
+      "1": [
+        "23329a6d9054242eabe9715c0e5707d871e4e99ed7c77f401970b22184fab128",
+        "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+        "035ca6807e02817b3d3781eba2b1f2dc4855a73116e54411d9e05b4c885a2827",
+        "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129"
+      ]
+    },
+    "FAN_OUT": {
+      "2": [
+        "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d"
+      ],
+      "1": [
+        "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+        "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+      ]
+    },
+    "CYCLE": {
+      "2": [
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234"
+      ],
+      "1": []
+    }
+  }
+}

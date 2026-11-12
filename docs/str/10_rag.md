@@ -25,7 +25,7 @@ KoFIU 「자금세탁 의심거래 참고유형 사례집」은 금융회사 AML
 
 ### 코퍼스 태그 근거 (SCRUM-125, 2026-11-11)
 
-PDF 본문에서 v2 유형(FAN_IN·FAN_OUT·CYCLE·SCATTER_GATHER·GATHER_SCATTER) 근거 쪽을 찾은 문서만 태그. 못 찾으면 빈 태그(검색 결과에 안 나옴). **큰 문서(fatf-*)는 쪽 단위 태그** — manifest `typology_pages: {유형: [쪽, ...]}` 에 적힌 쪽에서 나온 청크만 그 태그, 나머지 청크는 빈 태그. **작은 문서(fincen-funnel-2014·ffiec-redflags)는 문서 단위** `typologies` 그대로. 절 단위 `sections` 맵은 SCRUM-146·126 으로.
+PDF 본문에서 v2 유형(FAN_IN·FAN_OUT·CYCLE·SCATTER_GATHER·GATHER_SCATTER) 근거 쪽을 찾은 문서만 태그. 못 찾으면 빈 태그(검색 결과에 안 나옴). **큰 문서(fatf-*)와 `ffiec-redflags`는 쪽 단위 태그** — manifest `typology_pages: {유형: [쪽, ...]}` 에 적힌 쪽에서 나온 청크만 그 태그, 나머지 청크는 빈 태그. 유일한 문서 단위 태그는 `fincen-funnel-2014`(전 쪽이 FAN_IN). 절 단위 `sections` 맵은 SCRUM-146 으로. **ffiec 는 SCRUM-125 때 문서 단위 3태그(FAN_IN·FAN_OUT·CYCLE) 였으나, 같은 청크가 세 유형 결과에 모두 올라와 precision 떨어뜨림(★L-1 baseline FAN_IN 0.33 · FAN_OUT·CYCLE 0) → SCRUM-126 에서 쪽 단위 재태그 (FAN_IN p2·3·8 / FAN_OUT p4·5·7 / CYCLE p6).**
 
 CYCLE 기준(R04 = "4홉 안에 시작 계좌로 돌아오는 거래", 백엔드 rules.md): "**계좌가 순환하는 서술**(같은 돈이 계좌들을 돌아 출발 계좌로)" 이 원문에 있을 때만. "범죄 수익을 범죄자·의뢰인에게 돌려준다"(통합 단계) 는 CYCLE 근거 아님 — fatf-tbml-2020 p14 · fatf-pml-2018 p21·27·29 · fatf-tbml-2006 p19·20(비유적 상품 재수출) 모두 CYCLE 에서 제외.
 
@@ -43,15 +43,16 @@ FAN_IN 기준: "여러 출처 → 한 계좌(또는 소수)" 집중 입금 서�
 | | | 2 | `"Multiple individuals acting on behalf of representatives of the criminal organization deposit the cash proceeds of narcotics sales into this account at different bank or credit union branches, often in multiple states geographically distant from the branch in which the account was opened or domiciled."` |
 | | | 3 | `"An account opened in one state (typically along the Southwest border) receives multiple cash deposits of less than $10,000 by unidentified persons at branches outside of the geographic region where the account is domiciled."` |
 | | | 5 | `"where the use of funnel accounts and or TBML is suspected in the laundering of criminal proceeds, including specific reference to the terms 'Funnel Account' and or 'TBML' in the Narrative and Suspicious Activity Information sections of SARs is also requested."` |
-| `ffiec-redflags` | `["FAN_IN", "FAN_OUT", "CYCLE"]` (문서 단위) | 2 (FAN_IN) | `"A customer deposits funds into several accounts, usually in amounts of less than $3,000, which are subsequently consolidated into a master account and transferred outside of the country"` |
+| `ffiec-redflags` | `typologies=[], typology_pages={"FAN_IN": [2, 3, 8], "FAN_OUT": [4, 5, 7], "CYCLE": [6]}` (SCRUM-126 쪽 단위 재태그) | 2 (FAN_IN) | `"A customer deposits funds into several accounts, usually in amounts of less than $3,000, which are subsequently consolidated into a master account and transferred outside of the country"` |
 | | | 2 (FAN_IN) | `"Many small, incoming transfers of funds are received, or deposits are made using checks and money orders. Almost immediately, all or most of the transfers or deposits are wired to another city or country in a manner inconsistent with the customer's business or history."` |
 | | | 3 (FAN_IN) | `"Unusual transfers of funds occur among related accounts or among accounts that involve the same or related principals."` |
-| | | 5 (FAN_OUT) | `"Unusually large number and variety of beneficiaries are receiving funds transfers from one company."` |
+| | | 4·5·7 (FAN_OUT) | `"Unusually large number and variety of beneficiaries are receiving funds transfers from one company."` (p5) + p4·p7 FAN_OUT bullet (★L-0 진희 확인) |
 | | | 6 (CYCLE) | `"Suspicious movements of funds occur from one bank to another, and then funds are moved back to the first bank."` (bank 수준이지만 돈이 "시작 은행" 으로 돌아오는 폐구조 서술) |
+| | | 8 (FAN_IN) | 추가 FAN_IN bullet (★L-0 진희 확인) |
 | `fincen-msb-ko-2007` | `[]` | — | 한국어 "분산" 매칭 전부 STRUCTURING(분할 거래) 뜻 (p50 "분산 거래" 정의로 확정). v2 그래프 유형 설명 없음 |
 | `fincen-money-mule-2020` | `[]` | — | pymupdf 로도 p6~7 머니 뮬 레드플래그 bullet 본문은 빈 줄로 추출. 뽑히는 본문(p5~6)은 분류·모집 수법 설명만 — 그래프 유형 매핑 없음 |
 
-**최종 태그 분포** (적재 8개 중 유형 태그가 붙어 검색에 나오는 문서는 3개): FAN_IN — `fincen-funnel-2014`(문서 단위) + `ffiec-redflags`(문서 단위, FAN_IN·FAN_OUT·CYCLE 셋) + `fatf-pml-2018` p43·44(쪽 단위). FAN_OUT·CYCLE 은 `ffiec-redflags` 만. 빈 태그 5 문서(sar-narrative·tbml-2020·tbml-2006·msb-ko·money-mule) + 큰 문서 2건의 목록 밖 쪽 전부. **SCATTER_GATHER·GATHER_SCATTER 태그 0건** — "pass-through"(다단 경유)·"collect and distribute"(사업 모델) 개념은 있지만 "한 계좌 → N개 → 한 계좌" 폐구조 교과서 사례 없음. R05·R06 경보 오면 `references=[]` (0~3건 허용, 알고 남김).
+**최종 태그 분포** (적재 8개 중 유형 태그가 붙어 검색에 나오는 문서는 3개, **SCRUM-126 재태그 뒤**): FAN_IN — `fincen-funnel-2014`(문서 단위) + `ffiec-redflags` p2·3·8(쪽 단위) + `fatf-pml-2018` p43·44(쪽 단위). FAN_OUT — `ffiec-redflags` p4·5·7(쪽 단위). CYCLE — `ffiec-redflags` p6(쪽 단위). 빈 태그 5 문서(sar-narrative·tbml-2020·tbml-2006·msb-ko·money-mule) + 큰 문서 2건과 ffiec 의 목록 밖 쪽 전부. **SCATTER_GATHER·GATHER_SCATTER 태그 0건** — "pass-through"(다단 경유)·"collect and distribute"(사업 모델) 개념은 있지만 "한 계좌 → N개 → 한 계좌" 폐구조 교과서 사례 없음. R05·R06 경보 오면 `references=[]` (0~3건 허용, 알고 남김).
 
 **옛 태그(PASS_THROUGH·STACK·STRUCTURING) 전부 폐기** — v2 룰 `typology_hint` 값이 아니라 검색 필터에 안 걸림(죽은 태그). 09 2026-11-11 결정 줄 참조. `FX_RELAY` 는 `Typology` enum 에 없고 R03 〔제안〕 — 182·193 로 넘김, 이번 PR 안 붙임.
 
@@ -193,10 +194,10 @@ REFERENCES 자리에 `[n] {doc_title} p.{page}: {text}` 0~3줄, 없으면 `(없�
 
 ## 평가
 
-**청크 단위**(2차 검토 반영 — 문서 단위 recall은 "맞는 문서의 엉뚱한 쪽"을 정답으로 친다). `tests/str/retrieval_eval.json`: 질의 10개(유형 8 + 혼합 2) × 기대 `chunk_id` 집합(적재 뒤 `content_hash`로 고정 — 재적재해도 같은 id). 지표 셋:
+**청크 단위**(2차 검토 반영 — 문서 단위 recall은 "맞는 문서의 엉뚱한 쪽"을 정답으로 친다). `tests/str/retrieval_eval.json`: 질의 10개(FAN_IN 4·FAN_OUT 2·CYCLE 2·빈 집합 2) × 2단계 점수(2=그래프 패턴 / 1=관련 약함) 기대 `chunk_id` 집합(적재 뒤 `content_hash`로 고정 — 재적재해도 같은 id). 지표 셋:
 
 - `hit@3` = 기대 청크 중 하나라도 top-3에 든 질의 비율 (주 지표, 목표 0.7)
-- `precision@3` = top-3 중 기대 청크 또는 같은 문서·같은 절의 청크 비율 (유형 오염 감시)
+- `precision@3` = top-3 중 기대 청크 비율. 기대 청크는 **2단계 점수**(2=그래프 패턴 문장 / 1=같은 유형 관련 약함) — 엄격(2점만) · 넓은(1점 이상) 두 벌로 계산 (SCRUM-126). **분모는 "돌려준 건수"**(0~3) — 위 "검색" 절 0~3건 표시 규칙과 같음. 3건 못 채워도 돌려준 건수 기준으로 나눔.
 - `recall@3` = 질의마다 `|기대 청크 ∩ top-3| ÷ |기대 청크|`, 질의 10개의 **단순 평균**(macro) (보조 지표 — MVP 정의서 4절 "hit@3·recall@3 표"). 기대 청크가 3개보다 많은 질의는 1에 닿을 수 없으니 표에 질의별 기대 청크 수를 같이 적는다
 - 검색 결과가 0건인 질의(유사도 미달)는 세 지표 모두 0으로 센다 — 0~3건 허용은 화면 표시 규칙이고, 평가에서 빼지 않는다
 
@@ -204,12 +205,23 @@ REFERENCES 자리에 `[n] {doc_title} p.{page}: {text}` 0~3줄, 없으면 `(없�
 
 ### RAG 켬/끔 비교 — 같은 사건 (3차 검토 반영)
 
-hit@3는 검색이 맞았는지만 본다. **초안이 실제로 나아졌는지**는 따로 본다. 픽스처 facts 5건(유형 5개) × `RAG_ENABLED=true/false` 각 1회 생성(온도 0, 같은 few-shot) → 표 한 장:
+hit@3는 검색이 맞았는지만 본다. **초안이 실제로 나아졌는지**는 따로 본다. 픽스처 facts 5건(유형 5개) × `RAG_ENABLED=true/false` 각 1회 생성(온도 0, 같은 few-shot, verify 평가자는 207 `votes=3` 중앙값) → 표 (SCRUM-126 ★L-2, 2026-11-12):
 
-| 사건 | RAG | 코드 5 통과 | `TYPOLOGY_CONSISTENT` | `NO_UNSUPPORTED_CLAIM` | WHY_SUSPICIOUS(v1)·GROUNDS(v2) 의 유형 지표 언급 수 | 사람 선호(블라인드) |
-|---|---|---|---|---|---|---|
+| 사건 | 유형 | 코드 5 통과 | `TYPOLOGY_CONSISTENT` | `NO_UNSUPPORTED_CLAIM` | `FIVE_W_ONE_H_COMPLETE` | GROUNDS 신호 언급 | status | 반입(unsupported) | references (ON) |
+|---|---|---|---|---|---|---|---|---|---|
+| case_1_fan_in | FAN_IN | ON ✓ · OFF ✓ | 5 · 5 | 5 · 5 | **4 · 5** | 1 · 0 | PASSED · PASSED | 0 · 0 | fincen-funnel p.3·p.2·p.1 |
+| case_2_fan_in | FAN_IN | ON ✓ · OFF ✓ | 5 · 5 | 5 · 5 | 5 · 5 | 0 · 0 | PASSED · PASSED | 0 · 0 | fincen-funnel p.3·p.2, ffiec p.2 |
+| case_3_fan_out | FAN_OUT | ON ✓ · OFF ✓ | 5 · 5 | 5 · 5 | **4 · 5** | 0 · 0 | PASSED · PASSED | 0 · 0 | ffiec p.5·p.7·p.7 |
+| case_4_cycle | CYCLE | ON ✓ · OFF ✓ | 3 · 3 | 5 · 5 | 4 · 4 | 0 · 0 | LLM_FAILED · LLM_FAILED | 0 · 0 | ffiec p.6·p.6 |
+| case_5_scatter_gather (대조군) | SCATTER_GATHER | ON ✓ · OFF ✓ | **3 · 5** | 5 · 5 | **5 · 4** | 1 · 1 | **LLM_FAILED · PASSED** | 0 · 0 | — (태그 0청크·입력 동일) |
 
-사람 선호는 진희·준영이 어느 쪽이 RAG인지 모르고 두 초안 중 고른다. RAG를 켠 쪽이 `NO_UNSUPPORTED_CLAIM`을 떨어뜨리면(사례 정황 반입) 규칙 8부터 고친다. 되돌림 조건(11/11 hit@3 표)은 그대로고, 이 표는 "RAG를 왜 넣었나"에 답하는 재료 — 켠 쪽이 나은 게 없으면 회의에서 2차 전환을 다시 꺼낸다. 결과는 `08`과 발표 자료에.
+**사람 선호 (블라인드)** — 세 사람(**AI 보조 판단(진희 확인)** · 준영 · 채영) 이 어느 쪽이 RAG 인지 모르고 A/B 중 고름. 선택표 4칸: 선택·유형 설명·반입(규칙 8 금지)·한 줄 이유. 대조군 SG(case_5) 제외 **12표** 집계: **끈 쪽 8 · 켠 쪽 2 · 같음 2**. case_2·case_3 는 세 사람 모두 끈 쪽(3/3). **반입 0** — 세 사람 모두 "A·B 어느 쪽도 참고 사례 금액·이름·국가 반입 없음". `unsupported_candidate_count`(영문 대문자·숫자) 도 10 초안 전부 0.
+
+**대조군 SG 쌍 차이 = 흔들림 기준선** — 입력 동일(`references=[]`·query 는 SG 태그 0청크 적중)인데 TYPO 3 vs 5, status LLM_FAILED vs PASSED 로 갈림. 207 case 23 verify 흔들림과 같은 성격. SCRUM-131 재검토.
+
+**결론 (★B)** — "지금 프롬프트에선 RAG 가 초안을 낫게 하지 않음(facts 를 덜 씀, FIVE_W case_1·3 ON 쪽 1점 낮음) — 반입은 없음. 프롬프트 v3 로 참고 사례 역할 좁혀 재비교(후속 이슈), 화면 참고 사례는 유지. SG 대조군 판정 흔들림은 SCRUM-131."
+
+해석 전제: **n=5·1회, 방향성 근거, SG 쌍 차이(흔들림)와 비교**. 1차 판단자는 AI 보조(진희 확인), 2차는 준영·채영. RAG 를 켠 쪽이 `NO_UNSUPPORTED_CLAIM` 을 떨어뜨리진 않음(5·5·5·5·5 일치) — 규칙 8 반입 방어는 유지됨. 되돌림 조건(11/11 hit@3 표)은 **11/3 결정으로 폐기**(2차 전환 아님 — 프롬프트 역할 좁힘). 결과 `08`·발표 자료에 반영.
 
 ## 버전
 
