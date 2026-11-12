@@ -70,17 +70,23 @@ def _parse_case_body(body: str) -> dict[str, list[NarrativeSection]]:
 
 
 def _bullets_to_sections(block: str) -> list[NarrativeSection]:
-    out: list[NarrativeSection] = []
+    """섹션 글머리 한 줄 + 둘째 줄부터 다음 글머리·구분자(`---`) 전까지 이어 붙임 (SCRUM-225)."""
+    parts: list[tuple[str, list[str]]] = []
     for line in block.splitlines():
         m = BULLET_RE.match(line)
-        if not m:
-            continue
-        name, text = m.group(1), m.group(2).strip()
+        if m:
+            parts.append((m.group(1), [m.group(2).strip()]))
+        elif line.strip() == "---":
+            break
+        elif parts:
+            parts[-1][1].append(line)
+    out: list[NarrativeSection] = []
+    for name, lines in parts:
         try:
             sec = SectionV2(name)
         except ValueError:
             continue  # v1 섹션 이름 또는 미지원
-        out.append(NarrativeSection(section=sec, text=text, cites=[]))
+        out.append(NarrativeSection(section=sec, text="\n".join(lines).rstrip(), cites=[]))
     return out
 
 

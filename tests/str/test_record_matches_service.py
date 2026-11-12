@@ -106,3 +106,52 @@ def test_record_masks_input_facts_transaction_ids() -> None:
     # 입력 facts.inbound.transaction_ids = [1, 2, 3] → masked.inbound 에는 없다
     assert "transaction_ids" not in masked["inbound"]
     assert "transaction_ids" not in masked["outbound"]
+
+
+class _CaptureLlm:
+    """생성기가 LLM 에 넘기는 (system, user) 를 가로챔 — 응답은 v2 녹화(7섹션, v3 와 같은 스키마)."""
+
+    def __init__(self) -> None:
+        rec = REPO_ROOT / "tests/str/recorded/narrative_v2/a976ae216c7fb1bb.json"
+        self.text = json.loads(rec.read_text(encoding="utf-8"))["text"]
+        self.seen: list[tuple[str, str]] = []
+
+    def complete_json(self, *, system, user, model, max_tokens, tag, timeout_s=None):  # type: ignore[no-untyped-def]
+        from aml_ai.shared.infrastructure.llm_client import LlmResult
+
+        self.seen.append((system, user))
+        return LlmResult(text=self.text, model="stub", tokens_in=0, tokens_out=0, latency_ms=0)
+
+
+def test_record_v3_matches_service_recording_key_rag_off() -> None:
+    """SCRUM-225 — tools.record 의 narrative_v3 (system, user) 와 서비스 경로가 실제로 LLM 에 넘기는 값이 같다.
+
+    서비스 경로 = `DraftService._references`(RAG 꺼짐 → []) → `NarrativeGenerator.generate`(v3 렌더링 인자 포함).
+    재구성이 아니라 생성기가 부르는 LLM 입력을 가로채 비교한다.
+    """
+    import time
+    from types import SimpleNamespace
+
+    from aml_ai.shared.config import get_settings
+    from aml_ai.str.application.draft_service import DraftService
+    from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
+    from aml_ai.str.infrastructure.retriever import Retriever
+
+    facts = Facts.model_validate(
+        json.loads((REPO_ROOT / "tests/str/fixtures/facts_fan_in.json").read_text(encoding="utf-8"))
+    )
+    get_settings.cache_clear()
+    llm = _CaptureLlm()
+    gen = NarrativeGenerator(llm, get_settings(), "narrative_v3")
+    svc = SimpleNamespace(retriever=Retriever(None, None, enabled=False), generator=gen)  # type: ignore[arg-type]
+    references = DraftService._references(svc, facts)  # type: ignore[arg-type]
+    assert references == []
+    keys = list(fact_keys(facts).keys())
+    examples = FewshotStore(prompt_name="narrative_v3").pick_examples(facts.typology)
+    gen.generate(
+        masking.mask_for_llm(facts), keys, examples, references, None, deadline=time.monotonic() + 1000
+    )
+    r_system, r_user, r_keys = _build_prompt(facts, "narrative_v3")
+    assert llm.seen[0] == (r_system, r_user)
+    assert r_keys == keys
+    assert recording_key(*llm.seen[0]) == recording_key(r_system, r_user)

@@ -16,6 +16,7 @@ from aml_ai.shared.schemas.str.verify import JudgeOut, JudgeOutV2
 _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "narrative_v1": NarrativeOutV1,
     "narrative_v2": NarrativeOutV2,
+    "narrative_v3": NarrativeOutV2,  # SCRUM-225 — 7섹션 그대로, 규칙 8·12 만 다름
     "judge_v1": JudgeOut,
     "judge_v2": JudgeOutV2,
     "judge_v3": JudgeOutV2,  # SCRUM-127 — 06 표 4칸 루브릭, 스키마는 v2 와 같음

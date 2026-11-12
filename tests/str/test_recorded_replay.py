@@ -22,12 +22,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_FAN_IN = REPO_ROOT / "tests" / "str" / "fixtures" / "facts_fan_in.json"
 
 
-@pytest.mark.parametrize("prompt_name", ["narrative_v1", "narrative_v2"])
+@pytest.mark.parametrize("prompt_name", ["narrative_v1", "narrative_v2", "narrative_v3"])
 def test_recorded_fan_in_replays_in_service_path(prompt_name: str) -> None:
     """fan_in facts 로 조립한 user·system 이 커밋된 녹화 파일의 키와 매칭 → RecordedLlmClient 가 응답을 돌려줌.
 
     서비스 경로에서 쓰이는 `tools.record._build_prompt` 를 써서 "녹화 당시 조립 == 지금 조립" 을 보장.
-    v1·v2 둘 다(SCRUM-20).
+    v1·v2 둘 다(SCRUM-20), v3(SCRUM-225 — RAG 끈 녹화 42c985cb6b2e2770).
     """
     facts = Facts.model_validate(json.loads(FIXTURE_FAN_IN.read_text(encoding="utf-8")))
     system, user, _ = _build_prompt(facts, prompt_name)

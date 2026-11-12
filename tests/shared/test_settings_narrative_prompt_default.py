@@ -58,8 +58,8 @@ def test_narrative_prompt_rollback_to_v1_still_works() -> None:
 
 
 def test_fewshot_root_exists_for_both_versions() -> None:
-    """두 버전 폴더가 리포에 있어야 설정 전환이 안전(없으면 기동 때 깨짐)."""
-    for v in ("narrative_v1", "narrative_v2"):
+    """버전 폴더가 리포에 있어야 설정 전환이 안전(없으면 기동 때 깨짐). v3 — SCRUM-225."""
+    for v in ("narrative_v1", "narrative_v2", "narrative_v3"):
         assert (FEWSHOT_ROOT / v).is_dir(), f"{v} few-shot 폴더 없음"
 
 

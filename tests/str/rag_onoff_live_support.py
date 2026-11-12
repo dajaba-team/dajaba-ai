@@ -1,4 +1,4 @@
-"""SCRUM-126 ★L-2 — RAG 켬/끔 비교 공용 (초안 생성·verify 평가자 조립).
+"""SCRUM-126 ★L-2 · SCRUM-225 2차 — RAG 켬/끔 비교 공용 (초안 생성·verify 평가자 조립).
 
 규칙 (10_rag "RAG 켬/끔 비교" + INTENT Q4):
 - facts 5건 × `rag=True/False` 각 1회 = 10 초안
@@ -8,6 +8,7 @@
 - 결과 JSON 레코드에 두 쪽 다 `llm_model_generate`·`llm_model_judge`·`prompt_version`·
   `judge_prompt_version`·`retrieval_version`·`few_shot_ids` — 사후 변수 통제 확인
 - 본문 text 는 결과 JSON 에 안 넣음 (관문 6). 블라인드 md 에만.
+- SCRUM-225: 참고 사례는 서비스와 같은 `prompt_references` 로 자름(v3 2건) · 규칙 12 `fact_coverage` 지표 추가
 """
 
 from __future__ import annotations
@@ -27,7 +28,9 @@ from aml_ai.str.domain.verification import run_code_checks
 from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.judge import Judge
 from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
+from aml_ai.str.infrastructure.reference_snippet import prompt_references
 from aml_ai.str.infrastructure.retriever import Retriever
+from tests.str.rag_onoff_coverage import fact_coverage
 from tests.str.rag_onoff_unsupported import unsupported_candidate_count
 
 REPO = Path(__file__).resolve().parents[2]
@@ -131,6 +134,7 @@ def _build_result(
         "no_unsupported_claim": scores["NO_UNSUPPORTED_CLAIM"],
         "grounds_signal_mentions": _grounds_mentions_count(narrative, list(facts.model_signals)),
         "unsupported_candidate_count": unsupported_candidate_count(narrative, facts),
+        "fact_coverage": fact_coverage(narrative, facts),  # SCRUM-225 규칙 12
         "status": "PASSED" if passed else "LLM_FAILED",
         "few_shot_ids": [e.example_id for e in examples],
         "prompt_version": gen.prompt_version,
@@ -151,6 +155,7 @@ def generate_one(
 ) -> dict[str, Any]:
     """한 사건 × RAG on/off 1회 — 생성·코드검사·verify 평가자(votes=3) 집계."""
     references, retrieval_status = _get_references(facts, embedder, session, rag)
+    references = prompt_references(settings.narrative_prompt, references)  # 서비스 _references 와 같게
     facts_masked, fact_keys, examples, gen, narrative = _run_generate(facts, references, llm, settings)
     scope = list({*facts.inbound.transaction_ids, *facts.outbound.transaction_ids})
     code_checks = run_code_checks(facts, narrative, scope)

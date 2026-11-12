@@ -188,6 +188,8 @@ def retrieve(facts: Facts, k: int = 3) -> list[Reference]:
 
 REFERENCES 자리에 `[n] {doc_title} p.{page}: {text}` 0~3줄, 없으면 `(없음)`(`05`). system 규칙 8 이 숫자·이름 반입 금지. 응답 `generation_meta.references = [{chunk_id, doc_id, doc_title, page, score}]` → 화면 "참고 유형 사례 N건(출처·쪽)". `generations.references jsonb` 에 같은 값(재현).
 
+**narrative_v3 (SCRUM-225)** — 프롬프트에는 검색 결과 앞 **최대 2건**, 본문은 청크 전체 대신 **유형 패턴 문장 1~2개**(`TYPOLOGY_PATTERN_EN` 과 영단어 겹침 기준, 없으면 앞 300자) — `str/infrastructure/reference_snippet.py`, 자세히는 `05` narrative_v3 절. 자르기는 `draft_service` 한 번이라 **`generation_meta.references`·`generations.references` 도 같은 2건**(화면 "참고 사례 N건" 최대 3→2, 모양은 그대로). 검색(`retriever.py`·`RAG_TOP_K=3`)은 안 바뀜. v1·v2 는 0~3건·청크 전체 그대로.
+
 `Reference.chunk_id` 는 선택 칸(`str | None = None`, SCRUM-125) — 값은 `content_hash`(재적재해도 같은 id). 126 평가가 chunk_id 단위라 필요. 옛 저장 응답(chunk_id 없는 JSON) 은 라운드트립 그대로 통과. 백엔드 `AiDtos.java` 는 `references` 안 읽어 하위 호환.
 
 실패 처리(SCRUM-125): 임베딩 키 없음·`EMBEDDING_MODEL` 빈 값·배치 차원 불일치·DB 검색 예외 **전부 `RetrievalUnavailable` → `[]`**. 기동 때 `RAG_ENABLED=true` + `EMBEDDING_MODEL` 빈 값이면 경고 로그 한 줄만(`judge_model_fallback` 과 같은 모양, 기동 계속).
@@ -222,6 +224,54 @@ hit@3는 검색이 맞았는지만 본다. **초안이 실제로 나아졌는지
 **결론 (★B)** — "지금 프롬프트에선 RAG 가 초안을 낫게 하지 않음(facts 를 덜 씀, FIVE_W case_1·3 ON 쪽 1점 낮음) — 반입은 없음. 프롬프트 v3 로 참고 사례 역할 좁혀 재비교(후속 이슈), 화면 참고 사례는 유지. SG 대조군 판정 흔들림은 SCRUM-131."
 
 해석 전제: **n=5·1회, 방향성 근거, SG 쌍 차이(흔들림)와 비교**. 1차 판단자는 AI 보조(진희 확인), 2차는 준영·채영. RAG 를 켠 쪽이 `NO_UNSUPPORTED_CLAIM` 을 떨어뜨리진 않음(5·5·5·5·5 일치) — 규칙 8 반입 방어는 유지됨. 되돌림 조건(11/11 hit@3 표)은 **11/3 결정으로 폐기**(2차 전환 아님 — 프롬프트 역할 좁힘). 결과 `08`·발표 자료에 반영.
+
+### RAG 켬/끔 2차 — narrative_v3 (SCRUM-225)
+
+1차 결론을 받아 프롬프트를 고친 뒤(`05` narrative_v3 — 규칙 8 GROUNDS 한 문장으로 좁힘·규칙 12 facts 필수 항목·REFERENCES 2건×패턴 문장) **같은 facts 5건 × 켬/끔 1회**를 `NARRATIVE_PROMPT=narrative_v3` 로 다시 돌림. 모델·평가자(judge_v3, votes=3)·few-shot 선택 규칙·픽스처는 1차와 같음. `rag_onoff_live` 는 고쳐 쓰기를 거치지 않으므로 v3 고쳐 쓰기 미적용(`05`)은 비교에 영향 없음.
+
+**하네스 고침(재비교 전에)** — 1차에서 알고 남긴 두 건:
+
+- **결과 JSON 분리**: 선택 확정 전 공개용 `rag_onoff_<stamp>.json` 에는 A/B 지표(코드 검사·평가자 점수·커버리지·`unsupported_candidate_count`)만. `retrieval_status`·`references`·`references_count` 는 **진단 파일** `rag_onoff_diag_<stamp>.json` 으로 따로, reveal 단계에서 블라인드 키와 같이 엶. 결과에 `retrieval_status` 가 없는 새 형식은 reveal 에 진단 파일이 **필수**이고 모든 사건 × A/B 진단이 있어야 함 — 하나라도 없으면 멈춤(검색 실패 초안이 ON 표본으로 섞이지 않게, 추가 검토 1차). 126 옛 형식만 두 인자 호출 허용. 테스트: 공개용 JSON 만으로 A/B→ON/OFF 를 맞힐 수 있는 칸이 없음.
+- **사후 파서 여러 줄**: 블라인드 md 섹션 본문의 둘째 줄부터를 다음 섹션·구분자 전까지 이어 붙임. 테스트: `_blind_md` 로 쓴 md 를 다시 읽어 본문 글자와 `unsupported_candidate_count` 가 같음(둘째 줄에 영문 이름 넣은 경우 포함).
+
+**facts 커버리지**(`tests/str/rag_onoff_coverage.py` `fact_coverage(narrative, facts)` 순수 함수) — 규칙 12 필수 항목 중 본문에 나온 비율. 찾는 범위는 observations 값·관측 구간만 **GROUNDS 본문**, 나머지는 7섹션 전체(DATE 의 거래 날짜·다른 섹션 숫자가 관측값 누락을 가리지 않게 — 추가 검토 1차). 코드는 원문 일치(`SALES_DEPOSIT`), 숫자는 쉼표 무시(`42,750.50` = `42750.50`), 건수는 방향 낱말 뒤 20자 안의 첫 `{n}건`(예: "출금 거래는 0건이며"·"내부 거래는 0건") 또는 거꾸로 `{n}건` 바로 뒤 3자 안에서 시작하는 방향 낱말(예: "3건이 입금"·"0건 출금" — "0건이며 입금"처럼 더 멀면 안 셈, 입금·출금 숫자 섞임 방지), 관측 구간은 `window_start`·`window_end` 의 날짜. null·빈 항목은 분모에서 뺌. **한계**: 코드를 한국어로만 옮겨 쓴 경우("매출대금 입금")는 못 셈(09). 1차(v2 끔) 기준선은 결과 JSON 에 본문이 없어 블라인드 md + 키로 소급 계산.
+
+**성공 기준 (고치기 전에 고정 — 결과 보고 바꾸지 않음)**:
+
+1. ~~블라인드: v3 켬이 v3 끔과 **동률 이상**(대조군 제외 표 수)~~ → **이번엔 생략**(진희 11/12, ★L-2 결과 파일을 열기 전 기록). 팀원 의견상 v2·v3 모두 서술이 구체적이지 않아 켬/끔 사람 선호 비교는 의미가 없음. 사람 평가는 다음 버전(narrative_v4) vs v2 에서 함. 하네스가 만든 블라인드 md 는 그대로 두되 배포하지 않음. **판정은 기준 2·3·4 로만**
+2. 평가자: v3 켬 점수가 v3 끔·v2 끔보다 낮지 않음(`FIVE_W_ONE_H_COMPLETE` 포함), 코드 검사 전부 통과
+   - 비교 단위: 기준별(`TYPOLOGY_CONSISTENT`·`NO_UNSUPPORTED_CLAIM`·`FIVE_W_ONE_H_COMPLETE`) **5건 중앙값 점수의 합계**. v3 켬 합계 ≥ v3 끔 합계, v3 켬 합계 ≥ v2 끔 합계(1차 v2 끔: TYPO 23 · NO_UNSUPPORTED 25 · FIVE_W 23). `LLM_FAILED` 건도 점수 그대로 합산. 코드 검사는 5건 전부 통과
+   - COUNT_MATCH PLACE 에서 상대 계좌 총수를 자행 수로 읽은 불일치(09 검사기 오판)는 사건별로 따로 적고 판정에서 뺌. 그 외 코드 검사 불일치는 0 이어야 통과. v3 켬·v3 끔·v2 끔에 같은 규칙
+3. 반입 0 — ~~사람 "반입" 칸~~(블라인드 생략으로 없음) → **`unsupported_candidate_count` 0 + GROUNDS 유형 이유 문장·METHOD 문장 원문 확인**(참고 사례의 숫자·이름·기관·국가·날짜·기준 금액이 들어왔는지). 원문 확인은 "AI 보조 확인(진희 확인)"으로 표기(진희 11/12, 결과 열기 전 결정)
+4. 규칙 12 커버리지: v3 켬 ≥ v2 끔
+   - 비교 단위: 5건 합산 `covered ÷ required`
+5. 기준 2·3·4 중 하나라도 못 넘으면 초안 프롬프트엔 참고 사례를 넣지 않음(REFERENCES 렌더링 끔, 화면 표시는 유지) — 09 에 기록
+
+**표** (★L-2 `narrative_v3_20261112-141001`, 2026-11-12 — 숫자는 결과 파일 원본 값만. 평가자는 사건 1~5 순서 중앙값 · 합계):
+
+| 줄 | 코드 5 통과 | 검사기 오판 | TYPO | NO_UNSUPPORTED | FIVE_W | 커버리지 | 반입 | status |
+|---|---|---|---|---|---|---|---|---|
+| v3 켬 | 5/5 (오판 뺀 불일치 0) | 5 (사건마다 PLACE 1) | 5·5·5·4·5 (합 24) | 5 전부 (합 25) | 4·5·5·5·4 (합 23) | 70/70 | 0 | PASSED 5 |
+| v3 끔 | 5/5 (오판 뺀 불일치 0) | 5 (사건마다 PLACE 1) | 5·5·5·1·5 (합 21) | 5 전부 (합 25) | 4·4·4·4·4 (합 20) | 70/70 | 0 | PASSED 4 · LLM_FAILED 1 (case_4) |
+| v2 끔 (1차) | 5/5 | 0 | 5·5·5·3·5 (합 23) | 5 전부 (합 25) | 5·5·5·4·4 (합 23) | 65/70 (소급) | 0 | PASSED 4 · LLM_FAILED 1 |
+
+커버리지 소급(1차 블라인드 md + 키, 관측값 GROUNDS 한정으로 다시 셈 — 값 그대로): v2 끔 65/70 · 참고로 v2 켬 61/70 — 켠 쪽 누락은 계좌 목적 3·amount_range 4·내부 거래 1·반대 방향 0건 1.
+
+검색 진단: 켬 쪽 case_1~4 `ok`(참고 사례 2건씩 — case_1·2 fincen-funnel p.3·p.2, case_3 ffiec p.5·p.7, case_4 ffiec p.6·p.6), case_5 SG `empty`(태그 0청크, 대조군), 끔 쪽 5건 `disabled`, failed 0. 검사기 오판 10건 모두 `COUNT_MATCH PLACE draft "3개" / source {0}`("상대 계좌는 3개이며 자행 (계좌) 0개…").
+
+**성공 기준 판정** (기준 1 블라인드는 생략):
+
+- 기준 2 **통과** — v3 켬 vs v3 끔: TYPO 24 ≥ 21 · NO_UNSUPPORTED 25 ≥ 25 · FIVE_W 23 ≥ 20. v3 켬 vs v2 끔: TYPO 24 ≥ 23 · NO_UNSUPPORTED 25 ≥ 25 · FIVE_W 23 ≥ 23. 코드 검사 오판 뺀 불일치 0(5/5)
+- 기준 3 **통과** — `unsupported_candidate_count` 켬 0·0·0·0·0. 켬 쪽 GROUNDS 유형 이유·METHOD 원문에 참고 사례의 숫자·이름·기관·국가·날짜·기준 금액 없음 — AI 보조 확인(진희 확인)
+- 기준 4 **통과** — 커버리지 v3 켬 70/70 ≥ v2 끔 65/70
+
+**해석**:
+
+- 켬 쪽 GROUNDS 유형 이유 문장이 확인할 점(자금 출처·거래 목적 연관성, 사업활동 관련성, 수취인 식별정보)을 담고, 끔 쪽은 유형 설명의 동어반복 — v3 목표(참고 사례는 유형 이유 한 문장에만) 달성
+- TYPO 차이 +3 은 대부분 case_4 끔 LLM_FAILED 1건(TYPO 1, 1회 실행), FIVE_W 차이 +3 은 사건 2·3·4 에 고르게. 커버리지 상승(65→70)은 규칙 12 효과(v3 끔도 70/70)
+- 한계: n=5·1회, 픽스처 5건이 같은 고객·금액의 변형이라 다양성 낮음 — 방향성 근거
+
+METHOD 사람 대조(09 추가 검토 2차 ①): 켬·끔 10건 METHOD·INSTRUMENT·SUBJECT 원문의 건수·금액·코드가 모두 FACTS 값 — 커버리지 오탐 0.
 
 ## 버전
 

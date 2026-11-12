@@ -31,8 +31,8 @@ class Settings(BaseSettings):
     llm_temperature_supported: bool = Field(default=False, alias="LLM_TEMPERATURE_SUPPORTED")
     llm_reasoning_effort: str = Field(default="low", alias="LLM_REASONING_EFFORT")
     # 활성 서술 버전 (SCRUM-47) — 프롬프트 파일·LLM 출력 스키마·few-shot 폴더가 이 값 하나로 바뀜
-    # SCRUM-62 (2026-11-06) 로 기본값 v2. v1 은 승인본·해시 호환 경로로 그대로 받음.
-    narrative_prompt: Literal["narrative_v1", "narrative_v2"] = Field(
+    # SCRUM-62 (2026-11-06) 로 기본값 v2. v1 은 승인본·해시 호환 경로로 그대로 받음. v3 는 비교용(SCRUM-225)
+    narrative_prompt: Literal["narrative_v1", "narrative_v2", "narrative_v3"] = Field(
         default="narrative_v2", alias="NARRATIVE_PROMPT"
     )
     # 초안 요청 시간 예산 (SCRUM-45) — draft_service 가 요청 수신 즉시 deadline = clock() + draft_budget_s 결정,

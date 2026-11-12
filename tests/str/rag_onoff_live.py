@@ -1,4 +1,4 @@
-"""SCRUM-126 ★L-2 — RAG 켬/끔 비교 (손 실행, pytest 수집 X).
+"""SCRUM-126 ★L-2 · SCRUM-225 2차 — RAG 켬/끔 비교 (손 실행, pytest 수집 X).
 
 facts 5건 × `rag=True/False` 각 1회 = 10 초안. 평가자는 207 verify 경로 `Judge(votes=3)` 중앙값.
 **첫 생성만** (고쳐 쓰기 안 돌림 — RAG 효과·고쳐 쓰기 효과 섞임 방지).
@@ -7,13 +7,16 @@ facts 5건 × `rag=True/False` 각 1회 = 10 초안. 평가자는 207 verify 경
 키 파일은 진희 선택 확정 뒤에만 열어 `rag_onoff_reveal` 로 매핑한다. 생성 단계 결과만으로는
 평가자가 어느 쪽이 ON 인지 복원할 수 없어야 한다.
 
-사용 (진희 터미널, `AI_LLM_MOCK=false`·`RAG_ENABLED=true`):
+**진단 분리 (SCRUM-225)** — `retrieval_status`·`references`·`references_count` 는 ON/OFF 를 드러내므로
+공개용 결과 JSON 에서 빼고 진단 파일로. reveal 단계에서 키와 같이 엶.
+
+사용 (진희 터미널, `AI_LLM_MOCK=false`·`RAG_ENABLED=true`, v3 는 `NARRATIVE_PROMPT=narrative_v3`):
     uv run --frozen --extra dev python -m tests.str.rag_onoff_live
 
-결과:
-- `tests/str/recorded/_tmp/rag_onoff_SCRUM-126_<stamp>.json` — A/B 지표만 (rag 키 없음·본문 없음)
-- `tests/str/recorded/_tmp/rag_onoff_blind_SCRUM-126_<stamp>.md` — 사건마다 A/B 두 초안 본문만
-- `tests/str/recorded/_tmp/rag_onoff_blind_key_SCRUM-126_<stamp>.json` — A/B → rag 매핑 **진희 열람 전엔 CLI 가 열지 않음**
+결과 (`tests/str/recorded/_tmp/`, `<tag>` = `<prompt_version>_<stamp>`):
+- `rag_onoff_<tag>.json` — A/B 지표만 (rag·검색 진단 없음·본문 없음)
+- `rag_onoff_blind_<tag>.md` — 사건마다 A/B 두 초안 본문만
+- `rag_onoff_diag_<tag>.json` · `rag_onoff_blind_key_<tag>.json` — **진희 선택 확정 전엔 CLI 가 열지 않음**
 
 진희가 블라인드 md 보고 "case_N: A|B" 를 알려 주면, `tests.str.rag_onoff_reveal` 로 키 파일을
 열어 ON/OFF 매핑한 revealed JSON 을 만든다 (결과 표). 생성 단계는 매핑하지 않는다.
@@ -45,18 +48,15 @@ TMP_DIR = REPO / "tests" / "str" / "recorded" / "_tmp"
 
 
 def _record_blind(case_id: str, typology: str, side: str, result: dict) -> dict:
-    """결과 JSON 블라인드 레코드 — `rag` 키 **없음**, `side` ∈ {`A`,`B`} 만.
+    """결과 JSON 블라인드 레코드 — `rag` 키·검색 진단 **없음**, `side` ∈ {`A`,`B`} 만.
 
-    선택 확정 전 공개해도 ON/OFF 복원 불가능해야 함 (추가 검토 1차 반영).
+    선택 확정 전 공개해도 ON/OFF 복원 불가능해야 함 (추가 검토 1차·SCRUM-225 반영).
     narrative 본문은 담지 않음 (관문 6).
     """
     return {
         "case_id": case_id,
         "typology": typology,
         "side": side,
-        "references_count": result["references_count"],
-        "references": result["references"],
-        "retrieval_status": result["retrieval_status"],
         "code_checks_all_match": result["code_checks_all_match"],
         "code_checks_failed": result["code_checks_failed"],
         "judge_scores_median": result["judge_scores_median"],
@@ -64,6 +64,7 @@ def _record_blind(case_id: str, typology: str, side: str, result: dict) -> dict:
         "no_unsupported_claim": result["no_unsupported_claim"],
         "grounds_signal_mentions": result["grounds_signal_mentions"],
         "unsupported_candidate_count": result["unsupported_candidate_count"],
+        "fact_coverage": result["fact_coverage"],
         "status": result["status"],
         "few_shot_ids": result["few_shot_ids"],
         "prompt_version": result["prompt_version"],
@@ -73,8 +74,14 @@ def _record_blind(case_id: str, typology: str, side: str, result: dict) -> dict:
     }  # noqa: E501
 
 
+def _record_diag(case_id: str, side: str, result: dict) -> dict:
+    """진단 레코드 (SCRUM-225) — 검색 상태·참고 사례 id. reveal 때 키와 같이 엶."""
+    keys = ("retrieval_status", "references_count", "references")
+    return {"case_id": case_id, "side": side, **{k: result[k] for k in keys}}
+
+
 _BLIND_INTRO = [
-    "# SCRUM-126 켬/끔 블라인드 비교 (5 사건, A/B)",
+    "# RAG 켬/끔 블라인드 비교 (5 사건, A/B)",
     "",
     "**해석 전제 — n=5·1회, 방향성 근거, SG 쌍 차이(흔들림)와 비교.**",
     "",
@@ -118,7 +125,7 @@ def _blind_md(blind_pairs: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def _one_case(case_id: str, facts, rng, llm, embedder, session, settings, records, blind_pairs, blind_key):  # type: ignore[no-untyped-def]
+def _one_case(case_id: str, facts, rng, llm, embedder, session, settings, out):  # type: ignore[no-untyped-def]
     print(f"[rag_onoff] {case_id} ({facts.typology}) — RAG ON+OFF")
     r_on = generate_one(facts=facts, rag=True, llm=llm, embedder=embedder,
                         session=session, settings=settings)  # fmt: skip
@@ -128,42 +135,41 @@ def _one_case(case_id: str, facts, rng, llm, embedder, session, settings, record
         a, b, akey, bkey = r_on, r_off, True, False
     else:
         a, b, akey, bkey = r_off, r_on, False, True
-    records.append(_record_blind(case_id, facts.typology.value, "A", a))
-    records.append(_record_blind(case_id, facts.typology.value, "B", b))
-    blind_pairs.append({
+    for side, r in (("A", a), ("B", b)):
+        out["runs"].append(_record_blind(case_id, facts.typology.value, side, r))
+        out["diag"].append(_record_diag(case_id, side, r))
+    out["pairs"].append({
         "case_id": case_id, "typology": facts.typology.value,
         "narrative_A": a["narrative"], "narrative_B": b["narrative"],
     })  # fmt: skip
-    blind_key[case_id] = {"A_rag": akey, "B_rag": bkey}
+    out["key"][case_id] = {"A_rag": akey, "B_rag": bkey}
 
 
-def _save_outputs(stamp: str, result: dict, blind_pairs: list, blind_key: dict) -> None:
+def _save_outputs(tag: str, result: dict, out: dict) -> None:
     TMP_DIR.mkdir(parents=True, exist_ok=True)
-    out_json = TMP_DIR / f"rag_onoff_SCRUM-126_{stamp}.json"
-    out_json.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    out_md = TMP_DIR / f"rag_onoff_blind_SCRUM-126_{stamp}.md"
-    out_md.write_text(_blind_md(blind_pairs), encoding="utf-8")
-    out_key = TMP_DIR / f"rag_onoff_blind_key_SCRUM-126_{stamp}.json"
-    out_key.write_text(json.dumps(blind_key, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[rag_onoff] saved → {out_json}")
-    print(f"[rag_onoff] blind → {out_md}")
-    print(f"[rag_onoff] key(안 열림) → {out_key}")
+    files = {
+        f"rag_onoff_{tag}.json": json.dumps(result, ensure_ascii=False, indent=2),
+        f"rag_onoff_blind_{tag}.md": _blind_md(out["pairs"]),
+        f"rag_onoff_diag_{tag}.json": json.dumps({"runs": out["diag"]}, ensure_ascii=False, indent=2),
+        f"rag_onoff_blind_key_{tag}.json": json.dumps(out["key"], ensure_ascii=False, indent=2),
+    }
+    for name, body in files.items():
+        (TMP_DIR / name).write_text(body, encoding="utf-8")
+        print(f"[rag_onoff] saved → {TMP_DIR / name}")
+    print("[rag_onoff] diag·key 는 선택 확정 전 열지 않음")
 
 
 def main() -> int:
-    stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     settings = get_settings()
+    tag = f"{settings.narrative_prompt}_{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
     llm = make_llm_client(settings)
     embedder = make_embedding_client(settings)
     session_factory = sessionmaker(bind=get_engine(), expire_on_commit=False, future=True)
     rng = random.SystemRandom()  # 시드 고정 금지 — 배정은 key 파일에만 (진희 지시 2)
-    records: list[dict] = []
-    blind_pairs: list[dict] = []
-    blind_key: dict[str, dict[str, bool]] = {}
+    out: dict = {"runs": [], "diag": [], "pairs": [], "key": {}}
     with session_factory() as session:
         for case_id, facts in load_fixtures():
-            _one_case(case_id, facts, rng, llm, embedder, session, settings,
-                      records, blind_pairs, blind_key)  # fmt: skip
+            _one_case(case_id, facts, rng, llm, embedder, session, settings, out)
     result = {
         "retrieval_version": retrieval_version(settings),
         "embedding_model": settings.embedding_model,
@@ -171,9 +177,9 @@ def main() -> int:
         "llm_model_judge": settings.llm_model_judge,
         "prompt_version": settings.narrative_prompt,
         "judge_votes": 3,
-        "runs": records,
+        "runs": out["runs"],
     }
-    _save_outputs(stamp, result, blind_pairs, blind_key)
+    _save_outputs(tag, result, out)
     return 0
 
 

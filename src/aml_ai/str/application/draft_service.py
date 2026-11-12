@@ -26,6 +26,7 @@ from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.generation_repository import ClaimReuse, GenerationRepository
 from aml_ai.str.infrastructure.judge import Judge
 from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
+from aml_ai.str.infrastructure.reference_snippet import prompt_references
 from aml_ai.str.infrastructure.retriever import Retriever
 from aml_ai.str.infrastructure.transaction_reader import TransactionReader
 
@@ -165,8 +166,10 @@ class DraftService:
         )
 
     def _references(self, facts: Facts) -> list[Reference]:
+        """SCRUM-225 — v3 는 여기서 한 번 잘라 프롬프트와 generation_meta 가 같은 리스트를 씀."""
         try:
-            return self.retriever.retrieve(facts)
+            refs = self.retriever.retrieve(facts)
         except RetrievalUnavailable:
             log.warning("retrieval_unavailable")
             return []
+        return prompt_references(self.generator.prompt_version, refs)

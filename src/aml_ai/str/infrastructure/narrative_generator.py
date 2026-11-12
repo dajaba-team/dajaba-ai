@@ -20,6 +20,7 @@ from aml_ai.shared.infrastructure.llm_client import LlmClient, LlmResult
 from aml_ai.shared.schemas.str import NarrativeOut, Reference, llm_output_model
 from aml_ai.str.domain.constants import NARRATIVE_MAX_TOKENS, SCHEMA_RETRY
 from aml_ai.str.domain.models import Example, GenerationResult
+from aml_ai.str.infrastructure.reference_snippet import render_references, uses_snippet
 
 log = logging.getLogger(__name__)
 PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
@@ -42,11 +43,10 @@ def render_user(
     notes: str | None,
     references: list[Reference],
     examples: list[Example],
+    typology: str | None = None,
+    reference_snippet: bool = False,  # SCRUM-225 — v3 만 True. v1·v2·rewrite_v1 은 기본값(바이트 그대로)
 ) -> str:
-    refs = (
-        "\n".join(f"[{i + 1}] {r.doc_title} p.{r.page}: {r.text or ''}" for i, r in enumerate(references))
-        or "(없음)"
-    )
+    refs = render_references(references, typology, snippet_mode=reference_snippet)
     shots = "\n\n".join(
         f"FACTS:\n{json.dumps(e.facts.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
         f"NARRATIVE:\n{json.dumps({'narrative': [s.model_dump() for s in e.narrative]}, ensure_ascii=False)}"
@@ -93,6 +93,8 @@ class NarrativeGenerator:
             notes=notes,
             references=references,
             examples=examples,
+            typology=facts_masked.get("typology"),
+            reference_snippet=uses_snippet(self.prompt_version),
         )
         results: list[LlmResult] = []
         for attempt in range(1 + SCHEMA_RETRY):
