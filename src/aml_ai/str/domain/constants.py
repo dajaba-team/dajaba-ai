@@ -50,29 +50,10 @@ SCHEMA_RETRY = 1  # 스키마 실패 시 재생성 횟수 (재시도가 아니�
 from aml_ai.str.domain.frozen_prompts import FROZEN_PROMPTS  # noqa: E402, F401
 
 # ---- 검증 (docs/str/06)
-VERIFIER_VERSION = "verify-2026.11.3"  # SCRUM-207 — verify 경로 N 중앙값 (06 "N회 중앙값")
+VERIFIER_VERSION = "verify-2026.11.4"  # SCRUM-131 — 금액 한국어 통화·안전망·source_value (11.3 SCRUM-207)
 JUDGE_PASS_SCORE = 4  # W4 오류 주입 7~12 표 뒤 조정
 # AMOUNT_MATCH (SCRUM-58) — 06 "AMOUNT_MATCH" 줄. ±10자 창 폐기, "바로 붙은 덩이" 기준.
-# 코드 → 표기 목록. 긴 표기부터 매칭하므로 코드·IBM 원문·한국어 전부 수록. 맨 "달러"→USD (★A 2).
-# "원"·"₩" 은 facts 에 없어 늘 MISMATCH — 환산 금지 규칙(04).
-CURRENCY_ALIASES: dict[str, tuple[str, ...]] = {
-    "USD": ("USD", "US Dollar", "미국 달러", "달러", "$"),
-    "EUR": ("EUR", "Euro", "유로"),
-    "CNY": ("CNY", "Yuan", "위안"),
-    "ILS": ("ILS", "Shekel", "쉐켈"),
-    "CAD": ("CAD", "Canadian Dollar", "캐나다 달러"),
-    "GBP": ("GBP", "UK Pound", "영국 파운드", "파운드"),
-    "RUB": ("RUB", "Ruble", "루블"),
-    "AUD": ("AUD", "Australian Dollar", "호주 달러"),
-    "CHF": ("CHF", "Swiss Franc", "스위스 프랑", "프랑"),
-    "JPY": ("JPY", "Yen", "엔"),
-    "MXN": ("MXN", "Mexican Peso", "멕시코 페소", "페소"),
-    "INR": ("INR", "Rupee", "루피"),
-    "BRL": ("BRL", "Brazil Real", "브라질 레알", "레알"),
-    "SAR": ("SAR", "Saudi Riyal", "사우디 리얄", "리얄"),
-    "BTC": ("BTC", "Bitcoin", "비트코인"),
-    "KRW": ("KRW", "원", "₩"),
-}
+# 통화 표기 CURRENCY_ALIASES 는 constants_currency.py (SCRUM-131 — 200줄 한도).
 
 RE_AMOUNT_NUMBER = re.compile(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?")
 

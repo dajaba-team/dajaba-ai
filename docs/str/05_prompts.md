@@ -168,7 +168,7 @@ v2 를 복사하고 **아래만** 바꿈. 7섹션·출력 형식·규칙 1~7·9~
 - **cites·sections·comment-first·출력 형식·스키마** 는 v2 와 같음 (`JudgeOutV2` 재사용, `_LLM_OUTPUT_MODELS["judge_v3"] = JudgeOutV2`). 섹션 집합·재시도·녹화 키 계산 규칙 그대로.
 - **온도·토큰 한도·재시도** v2 와 같음 (`JUDGE_MAX_TOKENS=4000`·`JUDGE_SCHEMA_RETRY=1`). 평가자 모델은 `.env` `LLM_MODEL_JUDGE` — 생성기와 다른 OpenAI 모델(09 11/5 결정).
 - **녹화·동결**: `FROZEN_PROMPTS["judge_v3"]` sha256 (녹화 커밋과 같은 커밋에 박음).
-- **constants**: `JUDGE_PROMPT = "judge_v3"`·`VERIFIER_VERSION = "verify-2026.11.2"` (09 2026-11-09, SCRUM-127).
+- **constants**: `JUDGE_PROMPT = "judge_v3"`·`VERIFIER_VERSION = "verify-2026.11.2"` (09 2026-11-09, SCRUM-127). 현행 `VERIFIER_VERSION` 은 `verify-2026.11.4`(SCRUM-131 1/n, 11/16 — 금액 검사 한국어 통화·안전망·source_value. 11.3 은 SCRUM-207).
 
 ## judge_v2 (SCRUM-61, 11/5~11/9 활성 — 2026-11-09 SCRUM-127 로 judge_v3 로 대체, 녹화·호환 유지) — 전문은 `str/prompts/judge_v2.md`
 

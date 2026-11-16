@@ -9,7 +9,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from decimal import Decimal
 
-from aml_ai.str.domain.constants import CURRENCY_ALIASES
+from aml_ai.str.domain.constants_currency import CURRENCY_ALIASES
+from aml_ai.str.domain.verification_amount_gap import gap_before
 from aml_ai.str.domain.verification_amount_number import AmountPieces, parse_after, parse_before
 
 # 통화 표기 → ISO 코드. 긴 표기 우선 매칭(CAD "캐나다 달러" 가 USD "달러" 보다 먼저).
@@ -34,12 +35,23 @@ class AmountPair:
 
 
 def find_pairs(text: str) -> list[AmountPair]:
-    """통화 표기 각각에 금액 쌍 하나(없을 수도)."""
-    out: list[AmountPair] = []
+    """통화 표기 각각에 금액 쌍 하나(없을 수도). 안전망은 바로 붙은 금액을 다 짝지은 뒤에 —
+    이미 짝지은 숫자는 다시 쓰지 않는다(숫자 하나 = 한 줄, SCRUM-131 추가 검토)."""
+    found: list[AmountPair | tuple[int, str]] = []
+    used: list[tuple[int, int]] = []
     for start, end, code, alias in _iter_currency_matches(text):
-        pair = _pair_for(text, start, end, code, alias)
-        if pair is not None:
-            out.append(pair)
+        direct = _pair_for(text, start, end, code, alias)
+        if direct is None:
+            found.append((start, code))
+        else:
+            found.append(direct[0])
+            used.append(direct[1])
+    out: list[AmountPair] = []
+    for item in found:
+        if isinstance(item, AmountPair):
+            out.append(item)
+        elif (gap := gap_before(text, item[0], used)) is not None:
+            out.append(AmountPair(raw=gap, currency=item[1], value=None))
     return out
 
 
@@ -80,15 +92,19 @@ def _is_alnum(ch: str) -> bool:
     return bool(ch) and ch.isascii() and (ch.isalpha() or ch.isdigit())
 
 
-def _pair_for(text: str, start: int, end: int, code: str, alias: str) -> AmountPair | None:
-    """앞쪽(숫자 뒤 통화) 우선, 앞 금액 없으면 뒤쪽 영문 형태(★B)."""
+def _pair_for(
+    text: str, start: int, end: int, code: str, alias: str
+) -> tuple[AmountPair, tuple[int, int]] | None:
+    """앞쪽(숫자 뒤 통화) 우선, 앞 금액 없으면 뒤쪽 영문 형태(★B). 쌍과 금액 덩이 위치."""
     before = parse_before(text, start)
     if before is not None:
-        return _as_pair(before, code)
+        stop = len(text[:start].rstrip(" "))
+        return _as_pair(before, code), (stop - len(before.raw), stop)
     if alias in _LEADING_OK:
         after = parse_after(text, end)
         if after is not None:
-            return _as_pair(after, code)
+            begin = end + len(text[end:]) - len(text[end:].lstrip(" "))
+            return _as_pair(after, code), (begin, begin + len(after.raw))
     return None
 
 
