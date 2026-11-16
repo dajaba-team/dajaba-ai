@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
+from datetime import timedelta
 from typing import Any
 
 from aml_ai.shared.schemas.str import Facts, NarrativeSection
@@ -18,6 +19,9 @@ from tests.str.v4_blind_render import pair_md, side_metrics
 from tests.str.v4_slot_support import load_fixture
 
 Labels = dict[str, dict[str, str]]
+PARTIAL_BASELINE_FEATURE_NAMES = ("distinct_senders_24h", "inflow_outflow_ratio_2h")
+PARTIAL_BASELINE_WINDOW_HOURS = 2
+PARTIAL_BASELINE_VALUE = 1.0
 
 
 @dataclass(frozen=True)
@@ -29,16 +33,21 @@ class UnifyResult:
     unknown: list[str] = field(default_factory=list)  # 코드 모양인데 사전에 없어 그대로 둔 값
 
 
-def unify_notation(text: str, labels: Labels) -> UnifyResult:
+def unify_notation(text: str, labels: Labels, facts: Facts) -> UnifyResult:
     """v2 본문 → 표기 통일본.
 
     - 통화 코드(`USD`)·유형 코드(`FAN_IN`)는 `표기(코드)` 꼴(`미국 달러(USD)`·`자금 집중(FAN_IN)`)
     - 결제 방식 원문(`Wire`·`Credit Card`)·계좌 목적·업종·위험등급·엔티티 유형 코드는 표기로(`전신환`·`매출 대금 수납`)
-    - 숫자·날짜·금액은 한 글자도 안 바꿈(바꾸기 전·후 `\\d` 덩이 목록이 같음)
+    - 숫자·날짜·금액은 한 글자도 안 바꿈(바꾸기 전·후 `\\d` 덩이 목록이 같음 — 피처 이름 속 숫자는 이름째 바뀌어 제외)
     - 이미 표기로 쓰인 것·이미 `표기(코드)` 꼴은 다시 안 바꿈(멱등)
     - 코드 모양(영문 대문자·밑줄 3자 이상)인데 사전에 없는 값은 그대로 두고 `unknown` 에
+    - 피처 이름(`facts.observations[].name`·`facts.model_signals`) → 그 관측값 `basis` 의
+      `labels["observation_basis"]` 표기(basis 없음·사전 밖·같은 이름 관측값 없음이면 "관측 항목")
+    - 방향 코드: `입금(INBOUND)`→`입금`·`출금(OUTBOUND)`→`출금`, 맨 `INBOUND`·`OUTBOUND`·`INTERNAL`·`MIXED`
+      → `입금`·`출금`·`내부 거래`·`입금·출금 혼합`
+    - 바꾼 것은 모두 `replaced` 에 (원문, 표기)
     """
-    body, replaced, unknown = translate(text, labels)
+    body, replaced, unknown = translate(text, labels, facts)
     return UnifyResult(body, replaced, unknown)
 
 
@@ -47,6 +56,27 @@ class BlindCase:
     case_id: str  # 사람이 읽는 이름(버전 단서 없음) — 예 "fan_in"
     group: str | None  # 같은 고객 변형 묶음 표시(md 에 "같은 고객 묶음 X"로만), 없으면 None
     facts: Facts
+
+
+def _partial_baseline_observations(facts: Facts) -> Facts:
+    """서로 다른 기준의 관측값 둘로 구성하고 일부 비교 기준값 부재를 유지한다."""
+    first, second = facts.observations
+    observations = [
+        first.model_copy(update={"name": PARTIAL_BASELINE_FEATURE_NAMES[0], "value": PARTIAL_BASELINE_VALUE}),
+        second.model_copy(
+            update={
+                "name": PARTIAL_BASELINE_FEATURE_NAMES[1],
+                "value": 0.0,
+                "unit": "ratio",
+                "basis": "inflow_minus_outflow",
+                "window_start": facts.period.start,
+                "window_end": facts.period.start + timedelta(hours=PARTIAL_BASELINE_WINDOW_HOURS),
+            }
+        ),
+    ]
+    return facts.model_copy(
+        update={"observations": observations, "model_signals": list(PARTIAL_BASELINE_FEATURE_NAMES)}
+    )
 
 
 def blind_cases() -> list[BlindCase]:
@@ -66,6 +96,8 @@ def blind_cases() -> list[BlindCase]:
         facts = facts_for(**(args | changes))
         if facts is None:
             raise ValueError("사건 구성 실패")
+        if name == "partial_baseline":
+            facts = _partial_baseline_observations(facts)
         sources.append((name, facts))
     groups: dict[str, str] = {}
     cases = []

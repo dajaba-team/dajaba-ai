@@ -51,7 +51,7 @@ def draft_case(case: BlindCase, llm: Any, settings: Any) -> CaseDrafts:
         deadline=time.monotonic() + settings.draft_budget_s,
     )
     original = attach_evidence(result.narrative, case.facts)
-    unified = [unify_notation(s.text, labels) for s in original]
+    unified = [unify_notation(s.text, labels, case.facts) for s in original]
     sections = [s.model_copy(update={"text": u.text}) for s, u in zip(original, unified, strict=True)]
     replaced = list(dict.fromkeys(pair for u in unified for pair in u.replaced))
     unknown = list(dict.fromkeys(code for u in unified for code in u.unknown))
