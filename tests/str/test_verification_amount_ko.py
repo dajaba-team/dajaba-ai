@@ -158,12 +158,6 @@ def test_summary_path_catches_japanese_yen_mismatch() -> None:
     assert len(amounts) == 1 and amounts[0].reason is CheckReason.MISMATCH
 
 
-def test_verifier_version_bumped() -> None:
-    from aml_ai.str.domain.constants import VERIFIER_VERSION
-
-    assert VERIFIER_VERSION == "verify-2026.11.4"
-
-
 # ---------- 안전망 좁히기 (추가 검토 1차 — 본문·요약 둘 다) ----------
 
 USD = _facts("USD", "42750.50")

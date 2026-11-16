@@ -50,7 +50,7 @@ SCHEMA_RETRY = 1  # 스키마 실패 시 재생성 횟수 (재시도가 아니�
 from aml_ai.str.domain.frozen_prompts import FROZEN_PROMPTS  # noqa: E402, F401
 
 # ---- 검증 (docs/str/06)
-VERIFIER_VERSION = "verify-2026.11.4"  # SCRUM-131 — 금액 한국어 통화·안전망·source_value (11.3 SCRUM-207)
+VERIFIER_VERSION = "verify-2026.11.5"  # SCRUM-131 2/n — DATE `등록일`·개설 단어 같은 절 (11.4 1/n)
 JUDGE_PASS_SCORE = 4  # W4 오류 주입 7~12 표 뒤 조정
 # AMOUNT_MATCH (SCRUM-58) — 06 "AMOUNT_MATCH" 줄. ±10자 창 폐기, "바로 붙은 덩이" 기준.
 # 통화 표기 CURRENCY_ALIASES 는 constants_currency.py (SCRUM-131 — 200줄 한도).
@@ -132,7 +132,8 @@ TIME_OF_DAY_WORDS: tuple[str, ...] = ("아침", "점심", "저녁", "새벽", "�
 
 # 날짜 용도 분류 (★A 1·2).
 # ONBOARD_WORDS — ±DATE_CONTEXT_WINDOW 자 안 가장 가까운 날짜가 개설일 용도.
-ONBOARD_WORDS: tuple[str, ...] = ("개설", "가입", "신규", "거래 시작")
+# `등록일` 은 SCRUM-131 2/n(`등록` 단독은 X — `등록 업종`). 같은 절 날짜에만 붙음(verification_date_purpose).
+ONBOARD_WORDS: tuple[str, ...] = ("개설", "가입", "신규", "거래 시작", "등록일")
 DATE_CONTEXT_WINDOW = 10  # 글자 수(코드포인트)
 
 # OBSERVATION_WORDS — 괄호 안 또는 여는 괄호 바로 앞(공백 제외)에 있으면 observation 용도.

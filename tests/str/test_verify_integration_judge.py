@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 pytestmark = pytest.mark.db
 
 
-# ───────── v1 CODE_FAILED (SCRUM-140 재녹화 뒤 DATE_MATCH 3건 MISMATCH) ─────────
+# ───────── v1 CODE_FAILED (SCRUM-140 → SCRUM-131 2/n 뒤 DATE_MATCH 2건) ─────────
 
 
 def test_verify_v1_code_failed_through_recorded(
@@ -37,7 +37,10 @@ def test_verify_v1_code_failed_through_recorded(
     draft_request_sample: dict,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """v1 녹화 — DATE_MATCH 3건 MISMATCH → CODE_FAILED (SCRUM-140, SCRUM-131 뒤 LLM_FAILED 복구)."""
+    """v1 녹화 — WHY_SUSPICIOUS 괄호 없는 관측 기간 2건 DATE_MATCH MISMATCH → CODE_FAILED.
+
+    SCRUM-140 의 3건 중 WHO `등록일` 은 SCRUM-131 2/n 에서 고침. 괄호 없는 관측 범위는 인정 안 함(06 추가 검토 2차).
+    """
     monkeypatch.setenv("NARRATIVE_PROMPT", "narrative_v1")
     get_settings.cache_clear()
     draft = create_draft(integration_client, draft_request_sample, "DRF-V-CODE1R")
@@ -46,13 +49,14 @@ def test_verify_v1_code_failed_through_recorded(
     )
     assert res.status_code == 200, res.text
     out = VerifyResponse.model_validate(res.json())
-    assert out.status is VerifyStatus.CODE_FAILED
-    assert out.passed is False
+    bad = [(c.check.value, c.draft_value) for c in out.code_checks if not c.match]
+    assert bad == [("DATE_MATCH", "2022-09-02T00:00:00"), ("DATE_MATCH", "2022-09-03T00:00:00")]
+    assert out.status is VerifyStatus.CODE_FAILED and out.passed is False
     assert out.llm_checks is None  # judge 안 부름
     assert out.narrative_refs is None
     assert out.judge_meta is None
     row = db_session.execute(
-        text("SELECT status, judge_attempts FROM ai.verification_runs WHERE generation_id=:g"),
+        text("SELECT status FROM ai.verification_runs WHERE generation_id=:g"),
         {"g": draft.generation_id},
     ).one()
     assert row.status == "CODE_FAILED"
@@ -97,18 +101,7 @@ def test_verify_code_failed_from_bad_evidence(
 @pytest.mark.parametrize(
     ("prompt_name", "draft_id"),
     [
-        pytest.param(
-            "narrative_v1",
-            "DRF-V-UNAV1",
-            marks=pytest.mark.xfail(
-                reason=(
-                    "SCRUM-140(11/7): v1 녹화 본문이 DATE_MATCH 3건 MISMATCH 라 전제('코드 통과') 깨짐 "
-                    "→ VERIFY_UNAVAILABLE 가 아니라 CODE_FAILED 가 됨. "
-                    "SCRUM-131 규칙 정리 뒤 복구"
-                ),
-                strict=True,
-            ),
-        ),
+        # v1 은 녹화 본문이 코드 검사를 못 넘어(괄호 없는 관측 기간 DATE 2건) 전제가 안 섬 — SCRUM-131 2/n
         ("narrative_v2", "DRF-V-UNAV2"),
     ],
 )
