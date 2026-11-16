@@ -368,9 +368,9 @@ v4 가 v2 보다 조사역에게 쓸 만한지 사람 블라인드로 판가름�
 
 - **입력**: 사건 8 = 픽스처 5 + `build_facts` 3(내부 거래 있음·관측값 baseline 일부 null·고객 정보 없음) + 대조쌍 1(무작위 1건의 v4 를 두 번 — 키 파일에만 표시)
 - **생성**(`tests/str/v4_blind_live.py`, 진희 터미널 `AI_LLM_MOCK=false`): 사건마다 v2 첫 생성 1회(RAG 끔·고쳐 쓰기 안 함) → **표기 통일**(`v4_blind_support.unify_notation` — v2 본문 코드값을 `display_labels_v1.json` 표기로, 유형·통화는 `표기(코드)`, 숫자·날짜·금액 불변, 멱등, 사전 밖 코드는 그대로 두고 목록) → v4 조립(LLM 0) → 좌우 무작위(시드는 키 파일에만)
-- **출력**(`tests/str/recorded/_tmp/`, `<tag>` = `v4blind_<stamp>`): 배포용 `v4_blind_<tag>.md`(평가 방법 안내 + 사건마다 A·B 7섹션 본문 + 응답 칸: 선택 A/B/차이 없음 · 그대로 쓰려면 고칠 문장 수 · 틀린 문장 · 한 줄 이유) · `v4_blind_<tag>.json`(A/B 자동 지표만 — 코드 검사·글자 수·섹션별 문장 수, 버전 단서 칸 없음) · `v4_blind_key_<tag>.json`(A/B → v2/v4·시드·v2 원본·통일 때 바꾼 코드값 — 선택 확정 전 안 엶)
-- **공개**(`tests/str/v4_blind_reveal.py`): 평가자 응답 + 키 → 사건 단위 다수결·대조쌍 따로·평가자 일치율 → 09 기준 ①~③ 판정 → `v4_blind_revealed_<tag>.json` + md 표
-- **테스트**(`tests/str/test_v4_blind.py`, LLM·DB 0): 표기 통일 숫자 덩이 불변·멱등·사전 밖 코드 보고 · json·md 에 버전 단서 칸(prompt_version·generation_meta·llm_model·tokens) 없음 · 키 없이는 매핑 불가 · 대조쌍 표시는 키에만 · reveal 집계 왕복(가짜 응답 → 판정까지)
+- **출력**(`tests/str/recorded/_tmp/`, `<tag>` = `v4blind_<stamp>`): 배포용 `v4_blind_<tag>.md`(평가 방법 안내 + 사건마다 A·B 7섹션 본문 + 응답 칸: 선택 A/B/차이 없음 · 그대로 쓰려면 고칠 문장 수 · 틀린 문장 · 한 줄 이유) · `v4_blind_<tag>.json`(쌍 번호·같은 고객 묶음만 — A/B 지표 없음. 묶음은 md "같은 고객 묶음 1"·json `"g1"` — 좌우 초안 A·B 와 헷갈리지 않게 글자 대신 번호) · `v4_blind_responses_<tag>.json`(빈 응답 양식 — 평가자 3 × 쌍마다 한 줄: rater·pair_no·choice(A/B/same)·fix_a·fix_b·wrong_a·wrong_b(틀린 문장 원문 목록)·reason. 쌍 번호 밖 단서 없음, 채운 뒤 그대로 reveal 입력. 덜 채운 양식은 reveal 이 거부) · `v4_blind_diag_<tag>.json`(A/B 자동 지표 — 코드 검사 실패 수·글자 수·섹션별 문장 수. 공개물로 A/B 의 코드 검사·길이를 알 수 없게 진단 파일로 뺌, `rag_onoff_diag` 방식 — 키와 같이 선택 확정 뒤에만 엶) · `v4_blind_key_<tag>.json`(A/B → v2/v4·시드·v2 원본·통일 때 바꾼 코드값 — 선택 확정 전 안 엶)
+- **공개**(`tests/str/v4_blind_reveal.py`): 평가자 응답 + 키 + 진단 → 사건 단위 다수결(평가자 2명 이상 같은 쪽만 우세)·대조쌍 따로·평가자 일치율 · 틀린 문장 목록(원문과 함께, 확인 칸 — 진희 확인된 것만 ① 에 셈) → 09 기준 ①~③ 판정 → `v4_blind_revealed_<tag>.json` + md 표
+- **테스트**(`tests/str/test_v4_blind.py`, LLM·DB 0): 표기 통일 숫자 덩이 불변·멱등·사전 밖 코드 보고 · json·md 에 버전 단서 칸(prompt_version·generation_meta·llm_model·tokens) 없음 · 공개물만으로 A/B 코드 검사·길이 알 수 없음(지표는 진단 파일) · 다수결 2명 규칙(1:0:2 → 우세 없음) · 미확인 틀린 문장은 ① 을 깨지 않고 확인되면 깸 · 키 없이는 매핑 불가 · 대조쌍 표시는 키에만 · reveal 집계 왕복(가짜 응답 → 판정까지)
 - **알려진 한계**: v4 고정 문구(`내부 거래를 뺀 입금·출금의` 등)는 본문이라 감출 수 없음 — 09 에만 적고 평가 안내문에는 안 씀
 
 ~~**11/11까지 표가 없으면 안건 22 되돌림 조건.**~~ → **11/3 결정으로 폐기**(RAG 필수·낮으면 고침). ★L-2 결과 "프롬프트 역할 좁힘" — `10` 켬/끔 비교 표.
