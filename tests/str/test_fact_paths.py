@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from aml_ai.shared.schemas.str import LlmNarrativeSection, PathStatus, SectionV1
+from aml_ai.shared.schemas.str import LlmNarrativeSection, PathFacts, PathStatus, SectionV1
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain.fact_keys import attach_evidence, fact_keys
 from aml_ai.str.domain.masking import mask_for_llm
@@ -14,11 +14,11 @@ from tests.str.facts_support import CASES, build, make_req, make_subject, make_t
 # ---------- 경로 ----------
 
 
-@pytest.mark.parametrize("key", ["cycle", "stack"])
+@pytest.mark.parametrize("key", ["cycle", "scatter_gather"])
 def test_paths_verified(key: str) -> None:
     case = CASES[key]
     f = build(case, rule_id=case["rule_id"], paths=case["paths"])
-    exp = {k: v for k, v in case["expect"].items() if k != "indirect_ids"}
+    exp = {k: v for k, v in case["expect"].items() if k in PathFacts.model_fields}
     assert f.paths is not None
     assert f.paths.model_dump(mode="json", include=set(exp)) == exp
 

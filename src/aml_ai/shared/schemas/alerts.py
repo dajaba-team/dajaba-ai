@@ -18,7 +18,7 @@ from aml_ai.shared.schemas.common import (
 class RuleFacts(BaseModel):
     """룰이 계산한 사실. 키는 룰마다 다르다(규약 2절) — 모르는 키를 받는다.
 
-    정해진 키는 paths 하나: R04_CYCLE·R05_STACK 만, 경로별 시간순 거래 ID (10/28 준혁).
+    정해진 키는 paths 하나: R04_CYCLE·R05_SCATTER_GATHER 만 확인, 경로별 시간순 거래 ID (10/28 준혁, 룰 v2).
     확인 규칙은 facts 쪽(docs/str/04 "경로") — 여기서는 모양만.
     """
 
@@ -31,7 +31,7 @@ class Alert(StrictModel):
     alert_id: AlertId
     account_key: AccountKey = Field(description="경보 대상 계좌 — 경보 단위는 계좌")
     entity_id: str | None = Field(description="화면·STR용. AI 는 피처로 쓰지 않는다")
-    rule_id: str = Field(description="규약 2절 룰 ID 그대로, 예 R02_FAN_IN_24H")
+    rule_id: str = Field(description="규약 2절 룰 ID 그대로, 예 R02_FAN_IN")
     rule_version: str
     typology_hint: Typology | None = Field(description="패턴 라벨이 없는 룰은 null")
     window_start: Timestamp

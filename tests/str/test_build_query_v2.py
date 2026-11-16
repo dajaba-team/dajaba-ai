@@ -14,15 +14,13 @@ from aml_ai.str.infrastructure.retriever import TYPOLOGY_KO, build_query
 
 
 def test_typology_ko_has_v2_keys() -> None:
-    """룰 v2 typology_hint 6개 중 AI enum 에 있는 다섯: FAN_IN·FAN_OUT·CYCLE·SCATTER_GATHER·GATHER_SCATTER.
-
-    FX_RELAY 는 enum 에 없어 제외 (INTENT ★A 1(b), 182·193).
-    """
+    """룰 v2 typology_hint 6개 — FX_RELAY 는 SCRUM-182 에서 추가 (11/16 준혁 확정)."""
     assert TYPOLOGY_KO["FAN_IN"] == "집중 입금"
     assert TYPOLOGY_KO["FAN_OUT"] == "분산 송금"
     assert TYPOLOGY_KO["CYCLE"] == "순환 거래"
     assert TYPOLOGY_KO["SCATTER_GATHER"] == "흩었다 모으기"
     assert TYPOLOGY_KO["GATHER_SCATTER"] == "모았다 흩기"
+    assert TYPOLOGY_KO["FX_RELAY"] == "환전 중계"
 
 
 def test_build_query_scatter_gather_includes_korean_and_code(mixed: Facts) -> None:

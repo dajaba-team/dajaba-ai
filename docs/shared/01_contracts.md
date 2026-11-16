@@ -54,7 +54,8 @@
 
 | 필드 | 내용 |
 |---|---|
-| `alert.rule_facts.paths: list[list[int]] \| None` | R04_CYCLE·R05_STACK만. 배열 하나 = 경로 하나, 안은 **시간순 거래 ID**. 모든 ID는 `alert.transaction_ids` 안(아니면 초안 요청 400). `transaction_ids`는 그대로 전체 근거 목록. 홉 = 경로의 거래 개수(A→B→C→A = 3홉). CYCLE 대상 계좌 = 첫 거래 송금 계좌, STACK = 시작 계좌. 다른 룰은 키 없음 |
+| `alert.rule_facts.paths: list[list[int]] \| None` | R04_CYCLE·**R05_SCATTER_GATHER**만(룰 v2 11/9, `R05_STACK` 교체 — AI 11/16 SCRUM-182). R03_FX_RELAY `paths`는 모양이 아직 〔제안〕(rules.md)이라 받기만 하고 확인 안 함(`kind: null`·`UNVERIFIED`, 후속은 SCRUM-193 뒤). 배열 하나 = 경로 하나, 안은 **시간순 거래 ID**. 모든 ID는 `alert.transaction_ids` 안(아니면 초안 요청 400). `transaction_ids`는 그대로 전체 근거 목록. 홉 = 경로의 거래 개수(A→B→C→A = 3홉). CYCLE 대상 계좌 = 첫 거래 송금 계좌, SCATTER_GATHER 대상 계좌 = **모이는 계좌 T**(경로 하나 = [S→Mᵢ, Mᵢ→T] 정확히 2건). 경로 안 다음 거래는 **늦은 분만**(같은 분 불인정, rules.md 1절 9번). 다른 룰은 키 없음 |
+| `alert.typology_hint: Typology` 에 `FX_RELAY` | R03 typology_hint FX_RELAY(11/16 준혁 확정, AI 반영 SCRUM-182). enum 앞 6개 = v2 룰 typology_hint(rules.md 순서 FAN_OUT·FAN_IN·FX_RELAY·CYCLE·SCATTER_GATHER·GATHER_SCATTER), 뒤 = 원천 pattern_type·후보 값(안 지움). enum에 없으면 `StrictModel`이라 R03 경보 하나로 `/v1/scores` 묶음 전체·초안·요약이 400 — 그래서 미리 받음. 한국어 이름 "환전 중계"(`TYPOLOGY_KO`). 코퍼스 태그·영문 패턴 문장은 SCRUM-193 확정 뒤 |
 | 코드 | 지금 뼈대 `schemas/alerts.py` `Alert`에는 `rule_facts`가 아직 없다. schemas 규약 v0.2 반영(SCRUM-12) 때 `rule_facts`와 그 안의 `paths: list[list[int]] \| None = None`을 같이 넣는다 — `StrictModel`(`extra="forbid"`)이라 빠뜨리면 백엔드가 보낸 경보가 400. 점수 쪽(`aml_ml`)은 받기만 하고 쓰지 않아도 됨 — 피처로 쓸지는 준영 선택 |
 
 ### 초안 요청·응답 `schemas/str.py` (규약 5.1·5.2)

@@ -96,7 +96,7 @@ AMOUNT_MATCH 가 **잡아야** 하는 문장(앞쪽 영문 원문, ★B):
 - `US Dollar 32,000,000` → `MISMATCH`(앞쪽 영문 원문·값 다름)
 
 ACCOUNT_ID_MATCH 가 잡지 **말아야** 하는 표현:
-- `R04_CYCLE`·`R05_STACK` 룰 ID → 앞이 영문 R 이라 안 걸림
+- `R04_CYCLE`·`R05_SCATTER_GATHER` 룰 ID → 앞이 영문 R 이라 안 걸림
 - `2022-09-02` 날짜·`42,750.50` 금액 → 계좌 식별자 아님
 
 ### 정상 문장 오탐 테스트 (SCRUM-59 단위 — `test_verification_date.py`)

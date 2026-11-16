@@ -6,7 +6,7 @@
 
 10/27에 바뀐 것 — 1차 검토 지적 반영: ① "기준 통화 1개 + 총액" → **대상 계좌 관점 `inbound/outbound/internal`, 통화별 집계, 환산 없음**. ② `top_reasons` 문자열(SHAP 값을 관측값처럼 쓰던 것) → **`observations[]`(관측값) + `model_signals[]`(이름만)** 분리. ③ 각 집계에 `transaction_ids`를 붙이고 **fact 키 → 거래 ID**를 코드가 연결. ④ 뼈대 `facts.py`는 전부 다시 쓴다(W2 수).
 
-10/28에 바뀐 것 — 준혁 답(경로형 경보): ⑤ 대상 계좌가 안 낀 거래 묶음 `path` → **`indirect`**로 이름 변경(새 `paths`와 헷갈리지 않게). ⑥ R04_CYCLE·R05_STACK 경보가 주는 `rule_facts.paths`(경로별 거래 ID, 시간순)를 AI가 **확인만** 해서 **`paths`** fact로. 확인되면 인용 가능, 아니면 인용·LLM 전달 없음(아래 "경로" 절).
+10/28에 바뀐 것 — 준혁 답(경로형 경보): ⑤ 대상 계좌가 안 낀 거래 묶음 `path` → **`indirect`**로 이름 변경(새 `paths`와 헷갈리지 않게). ⑥ R04_CYCLE·R05_STACK(v2 11/9: R05_SCATTER_GATHER) 경보가 주는 `rule_facts.paths`(경로별 거래 ID, 시간순)를 AI가 **확인만** 해서 **`paths`** fact로. 확인되면 인용 가능, 아니면 인용·LLM 전달 없음(아래 "경로" 절).
 
 ## 정본 JSON (응답 `facts`와 같다, 규약 5.2)
 
@@ -99,12 +99,13 @@
 - 통화는 코드로(`USD`). 원천 이름 → 코드 변환은 로더 한 곳, 본문 표기(`달러`, `US Dollar`, `$`) 인식은 검증의 `CURRENCY_ALIASES`(06).
 - 경로는 detection이 준 순서 그대로 **확인만** 한다. 하나라도 어긋나면 전체 `UNVERIFIED` — AI가 경로를 다시 정렬하거나 이어 붙이지 않는다(10/28).
 
-## 경로 (`paths`) — 경로형 경보 R04·R05 (10/28 준혁 답)
+## 경로 (`paths`) — 경로형 경보 R04·R05 (10/28 준혁 답, 룰 v2 11/9 반영)
 
 입력은 `alert.rule_facts.paths`(규약 2절): **거래 ID 배열의 배열**. 배열 하나가 경로 하나이고, 안의 ID는 **시간순**. `alert.transaction_ids`는 그대로 전체 근거 목록(경로 거래 포함). 준혁 확정 사항:
 
-- R04_CYCLE: 대상 계좌 = 고리의 **시간상 첫 거래 송금 계좌**. 같은 룰·계좌·시간창의 고리 여러 개는 경보 하나로 묶이고, **묶인 고리에는 모두 대상 계좌가 있다**. 최대 3홉.
-- R05_STACK: 대상 계좌 = 경로의 **시작 계좌**(A→B→C→D면 A).
+- R04_CYCLE: 대상 계좌 = 고리의 **시간상 첫 거래 송금 계좌**. 같은 룰·계좌·시간창의 고리 여러 개는 경보 하나로 묶이고, **묶인 고리에는 모두 대상 계좌가 있다**. 최대 3홉(10/28) → **v2(11/9) 최대 4홉**(detection 보장, AI는 상한 없음).
+- R05_SCATTER_GATHER(v2 11/9, `R05_STACK` 교체): 출발 S → 서로 다른 중간 계좌 Mᵢ → 도착 T. 대상 계좌 = **모이는 계좌 T**. 경로 하나 = [S→Mᵢ, Mᵢ→T] **정확히 2건**(백엔드 rules.md 2.1).
+- 같은 분 거래는 앞뒤를 모른다 — "A 다음에 B"는 **B가 A보다 늦은 분**일 때만(rules.md 1절 9번, R03·R04·R05). AI 확인도 같은 기준.
 - **홉 = 경로의 거래 개수.** A→B→C→A는 3홉(마지막 복귀 거래 포함). 룰의 최대 홉은 detection 기준이라 AI는 길이를 제한하지 않고 값만 보고한다.
 
 ```json
@@ -116,17 +117,20 @@
 | # | 확인 | 어기면 |
 |---|---|---|
 | 1 | 경로의 모든 ID ∈ `alert.transaction_ids` | 400 `INVALID_REQUEST`("paths id not in transaction_ids") — 요청 안의 두 목록이 어긋난 것(위 "범위 확인"과 같은 성격) |
-| 2 | `kind` = `rule_id`로 정한다: `R04_CYCLE` → `CYCLE`, `R05_STACK` → `STACK` | 그 밖 룰에 `paths`가 오면 `kind: null`, `UNVERIFIED` |
+| 2 | `kind` = `rule_id`로 정한다: `R04_CYCLE` → `CYCLE`, `R05_SCATTER_GATHER` → `SCATTER_GATHER`(v2 11/16, `R05_STACK`·`STACK` 삭제) | 그 밖 룰(`R03_FX_RELAY`·옛 `R05_STACK` 포함)에 `paths`가 오면 `kind: null`, `UNVERIFIED` |
 | 3 | 경로마다 거래 2개 이상, 경로 안 ID 중복 없음, self-transfer 없음 | `UNVERIFIED` |
-| 4 | 시간순: 앞 거래 `ts` ≤ 다음 거래 `ts`(같은 분 허용) | `UNVERIFIED` |
+| 4 | 시간순: 앞 거래 `ts` **<** 다음 거래 `ts`(**늦은 분만**, 같은 분 불인정 — 11/16, 이전 `≤`) | `UNVERIFIED` |
 | 5 | 연결: 앞 거래 `to_account_key` = 다음 거래 `from_account_key` | `UNVERIFIED` |
-| 6 | 시작: 첫 거래 `from_account_key` = S | `UNVERIFIED` |
-| 7 | CYCLE이면 닫힘: 마지막 거래 `to_account_key` = S | `UNVERIFIED` |
+| 6 | CYCLE: 시작 = 첫 거래 `from_account_key` = 대상 계좌 | `UNVERIFIED` |
+| 7 | CYCLE: 닫힘 = 마지막 거래 `to_account_key` = 대상 계좌 | `UNVERIFIED` |
+| 8 | SCATTER_GATHER 경로 하나: 거래 **정확히 2건**, 둘째 거래 `to_account_key` = 대상 계좌(T). 첫 수신 = 둘째 송신 = Mᵢ는 규칙 5 | `UNVERIFIED` |
+| 9 | SCATTER_GATHER 경보 전체: 첫 거래 `from_account_key`(S)가 **모든 경로에서 같음**, Mᵢ가 **경로끼리 서로 다름** — 경로 하나로는 못 봐서 경로 검사 뒤 한 번 | `UNVERIFIED` |
 
 - **전부 통과해야 `VERIFIED`**, 한 경로라도 어긋나면 전체 `UNVERIFIED` — 경로 일부만 골라 쓰는 문장이 나오지 않게. 어긋난 이유(경로 번호·규칙 번호)는 `generations` 내부 기록에만, facts에는 `status`만.
 - 배열 순서를 **그대로** 확인한다. 순서가 틀리면 고쳐 주지 않고 `UNVERIFIED` — 순서를 추측하지 않는다(준혁님께 말한 "모르면 미확인으로 두고 보고서에 안 쓴다").
-- 값: `count` = 경로 수, `max_hops` = 가장 긴 경로의 거래 수, `max_accounts` = 경로 하나에 나오는 서로 다른 계좌 수의 최대(CYCLE A→B→C→A = 3, STACK A→B→C→D = 4), `transaction_ids` = 모든 경로 ID 합집합. `UNVERIFIED`여도 응답 facts에는 남긴다(감사·디버깅용).
+- 값: `count` = 경로 수, `max_hops` = 가장 긴 경로의 거래 수, `max_accounts` = 경로 하나에 나오는 서로 다른 계좌 수의 최대(CYCLE A→B→C→A = 3, SCATTER_GATHER S→M→T = 3), `transaction_ids` = 모든 경로 ID 합집합. `UNVERIFIED`여도 응답 facts에는 남긴다(감사·디버깅용).
 - `period`·`indirect`는 그대로 — 경로 ID는 이미 `alert.transaction_ids` 안이라 기간에 들어가 있다.
+- SCATTER_GATHER의 facts 분류는 따로 안 바꾼다: S→Mᵢ는 대상 T가 안 낀 거래라 `indirect`, Mᵢ→T는 `inbound`(상대 = Mᵢ). 경보 거래가 경로 합집합뿐이면 `counterparties.count` = Mᵢ 수 = `paths.count`.
 
 ## fact 키 — LLM이 인용하고 코드가 거래 ID로 바꾼다
 

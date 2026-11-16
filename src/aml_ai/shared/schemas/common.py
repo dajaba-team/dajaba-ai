@@ -45,15 +45,16 @@ SystemTimestamp = Annotated[
 class Typology(StrEnum):
     """경보 typology_hint 와 facts.typology 의 값.
 
-    규약 2절: typology_hint = 1.1 pattern_type 과 같은 열거값(앞 8개).
-    뒤 5개는 패턴 라벨이 없는 룰(R03·R07·R08·교체 후보)이 쓸 수 있는 값 — 룰 → 유형 매핑은 안건 20.
+    앞 6개 = v2 룰 typology_hint(백엔드 rules.md 순서, SCRUM-182).
+    뒤 = 원천 pattern_type·후보 값 — v2 룰이 안 써도 지우지 않는다(원천 데이터·옛 경보).
     """
 
-    FAN_IN = "FAN_IN"
     FAN_OUT = "FAN_OUT"
-    GATHER_SCATTER = "GATHER_SCATTER"
-    SCATTER_GATHER = "SCATTER_GATHER"
+    FAN_IN = "FAN_IN"
+    FX_RELAY = "FX_RELAY"  # R03_FX_RELAY (11/16 준혁 확정)
     CYCLE = "CYCLE"
+    SCATTER_GATHER = "SCATTER_GATHER"
+    GATHER_SCATTER = "GATHER_SCATTER"
     STACK = "STACK"
     BIPARTITE = "BIPARTITE"
     RANDOM = "RANDOM"

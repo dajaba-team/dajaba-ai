@@ -35,7 +35,7 @@ def make_subject(customer: Customer | None = None, entity_type: str | None = Non
 def make_req(
     rows: list[dict[str, Any]],
     *,
-    rule_id: str = "R02_FAN_IN_24H",
+    rule_id: str = "R02_FAN_IN",
     paths: list[list[int]] | None = None,
     evidence: list[int] | None = None,
     reasons: list[dict[str, Any]] | None = None,
