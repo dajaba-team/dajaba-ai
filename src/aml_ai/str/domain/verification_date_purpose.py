@@ -1,6 +1,7 @@
 """SCRUM-59 — DATE_MATCH 용도 분류 (docs/str/06 DATE_MATCH 줄).
 
-괄호 안/바로 앞 OBSERVATION_WORDS → OBSERVATION, 개설 단어 ±N → ONBOARD, 그 밖 TRANSACTION.
+괄호 안/바로 앞 OBSERVATION_WORDS → OBSERVATION, 같은 절 개설 단어 ±N → ONBOARD, 그 밖 TRANSACTION.
+괄호 없는 관측 범위는 인정 안 함(SCRUM-131 2/n 추가 검토 2차).
 괄호 안 관측 + 개설 둘 다 있거나 범위 표현에 개설 단어가 걸리면 UNPARSED.
 
 추출(regex) 은 `verification_date_scan.py`, 판정은 `verification_date.py`.
@@ -9,6 +10,7 @@
 from __future__ import annotations
 
 from aml_ai.str.domain.constants import (
+    COUNT_CLAUSE_SPLIT,
     DATE_CONTEXT_WINDOW,
     OBSERVATION_WORDS,
     ONBOARD_WORDS,
@@ -33,7 +35,8 @@ def assign_purpose(text: str, m: DateMention) -> DateMention:
             return _replace_purpose(m, DatePurpose.UNPARSED)
         if has_obs:
             return _replace_purpose(m, DatePurpose.OBSERVATION)
-    verdict = _onboard_verdict(text, m)
+    lo, hi = _clause_bounds(text, m.span)  # 개설 단어는 같은 절 날짜에만(SCRUM-131 2/n 추가 검토 1차)
+    verdict = _onboard_verdict(text[lo:hi], (m.span[0] - lo, m.span[1] - lo))
     if verdict == "UNPARSED":
         return _replace_purpose(m, DatePurpose.UNPARSED)
     if verdict == "ONBOARD":
@@ -90,21 +93,33 @@ def _bracket_has_observation(text: str, bracket: tuple[int, int]) -> bool:
     return any(before.endswith(w) for w in OBSERVATION_WORDS)
 
 
+def _clause_bounds(text: str, span: tuple[int, int]) -> tuple[int, int]:
+    """span 이 든 절(`COUNT_CLAUSE_SPLIT` — `.`·`,`·`;`·줄바꿈, 숫자 사이는 보존)의 [시작, 끝)."""
+    lo, hi = 0, len(text)
+    for m in COUNT_CLAUSE_SPLIT.finditer(text):
+        if m.end() <= span[0]:
+            lo = m.end()
+        elif m.start() >= span[1]:
+            hi = m.start()
+            break
+    return lo, hi
+
+
 def _text_has_word(text: str, words: tuple[str, ...]) -> bool:
     return any(w in text for w in words)
 
 
-def _onboard_verdict(text: str, m: DateMention) -> str:
-    """개설 단어가 가장 가까운 날짜 하나에만 붙는다. 범위에 걸리면·거리 같으면 UNPARSED."""
+def _onboard_verdict(text: str, span: tuple[int, int]) -> str:
+    """개설 단어가 가장 가까운 날짜 하나에만 붙는다(text = 날짜가 든 절). 범위에 걸리면·거리 같으면 UNPARSED."""
     for word in ONBOARD_WORDS:
         wlen = len(word)
         for idx in _find_all(text, word):
             word_span = (idx, idx + wlen)
-            if _in_range_expression(text, idx, m.span):
+            if _in_range_expression(text, idx, span):
                 return "UNPARSED"
-            if _distance(word_span, m.span) > DATE_CONTEXT_WINDOW:
+            if _distance(word_span, span) > DATE_CONTEXT_WINDOW:
                 continue
-            closer, equal = _rival_distance(text, word_span, m.span)
+            closer, equal = _rival_distance(text, word_span, span)
             if equal:
                 return "UNPARSED"
             if closer:

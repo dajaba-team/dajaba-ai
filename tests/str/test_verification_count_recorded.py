@@ -63,18 +63,6 @@ def _narrative_ok() -> tuple[list[RevisedNarrativeSection], list[int]]:
 @pytest.mark.parametrize(
     ("name", "loader"),
     [
-        pytest.param(
-            "narrative_v1_recorded",
-            lambda: _recorded_narrative(_RECORDED_V1, is_v2=False),
-            marks=pytest.mark.xfail(
-                reason=(
-                    "SCRUM-140(11/7): v1 재녹화 2회 모두 WHO '등록일'(ONBOARD_WORDS 밖) + "
-                    "WHY_SUSPICIOUS 관측값 괄호 밖 표기 → DATE_MATCH 3건 MISMATCH. "
-                    "SCRUM-131 DATE_MATCH 규칙 정리(등록일 추가·괄호 밖 관측 range 허용) 뒤 복구"
-                ),
-                strict=True,
-            ),
-        ),
         ("narrative_v2_recorded", lambda: _recorded_narrative(_RECORDED_V2, is_v2=True)),
         ("draft_response_example", _draft_response_narrative),
         ("narrative_ok_fixture", _narrative_ok),
@@ -92,3 +80,22 @@ def test_run_code_checks_passes_recorded_narratives(
     assert not bad, f"{name} 에서 {len(bad)} 개 실패: " + str(
         [(c.check, c.section, c.draft_value, c.source_value, c.reason) for c in bad[:10]]
     )
+
+
+def test_v1_recorded_only_unbracketed_observation_dates_fail() -> None:
+    """v1 녹화 — SCRUM-140 의 DATE 3건 중 WHO `등록일` 은 SCRUM-131 2/n 에서 개설일 match.
+
+    WHY_SUSPICIOUS 괄호 없는 관측 기간 2건은 거래 날짜 → 기간 밖 MISMATCH 로 **고정**(06 — 괄호 없는 관측 범위는
+    인정 안 함, 추가 검토 2차. 프롬프트 v4 SCRUM-228 에서 괄호 표기로). 그 밖은 전부 통과.
+    """
+    narrative, scope = _recorded_narrative(_RECORDED_V1, is_v2=False)
+    checks = verification.run_code_checks(_facts_from_fixture(), narrative, scope)
+    bad = [
+        (c.check.value, c.section.value if c.section else None, c.draft_value, c.match)
+        for c in checks
+        if not c.match
+    ]
+    assert bad == [
+        ("DATE_MATCH", "WHY_SUSPICIOUS", "2022-09-02T00:00:00", False),
+        ("DATE_MATCH", "WHY_SUSPICIOUS", "2022-09-03T00:00:00", False),
+    ]
