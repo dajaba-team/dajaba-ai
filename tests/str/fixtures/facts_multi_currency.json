@@ -1,0 +1,143 @@
+{
+  "reporting_institution": "Portugal Bank #4507",
+  "subject": {
+    "entity_id": "80062E240",
+    "entity_name": "Sole Proprietorship #50438",
+    "entity_type": "SOLE_PROPRIETORSHIP",
+    "account_key": "10_8000EBD30"
+  },
+  "period": {
+    "start": "2022-09-02T00:14:00",
+    "end": "2022-09-04T22:51:30"
+  },
+  "inbound": {
+    "count": 4,
+    "by_currency": [
+      {
+        "currency": "EUR",
+        "total": "9800.25",
+        "count": 1,
+        "transaction_ids": [
+          3
+        ]
+      },
+      {
+        "currency": "USD",
+        "total": "42750.50",
+        "count": 2,
+        "transaction_ids": [
+          1,
+          2
+        ]
+      }
+    ],
+    "transaction_ids": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "outbound": {
+    "count": 0,
+    "by_currency": [],
+    "transaction_ids": []
+  },
+  "internal": {
+    "count": 0,
+    "transaction_ids": []
+  },
+  "indirect": {
+    "count": 0,
+    "transaction_ids": []
+  },
+  "paths": null,
+  "excluded_self_transfer_count": 0,
+  "direction": "INBOUND",
+  "counterparties": {
+    "count": 4,
+    "transaction_ids": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "counterparty_banks": {
+    "same_bank_accounts": 1,
+    "other_bank_accounts": 3
+  },
+  "payment_formats": [
+    "ACH",
+    "Bitcoin",
+    "Wire"
+  ],
+  "payment_format_counts": [
+    {
+      "format": "ACH",
+      "count": 2
+    },
+    {
+      "format": "Bitcoin",
+      "count": 1
+    },
+    {
+      "format": "Wire",
+      "count": 1
+    }
+  ],
+  "amount_range": [
+    {
+      "currency": "EUR",
+      "min": "9800.25",
+      "max": "9800.25"
+    },
+    {
+      "currency": "USD",
+      "min": "12500.00",
+      "max": "30250.50"
+    }
+  ],
+  "typology": "FAN_IN",
+  "typology_source": "RULE",
+  "customer": {
+    "industry": null,
+    "risk_level": "HIGH",
+    "account_purpose": "OPERATIONS",
+    "onboarded_at": null,
+    "country_code": null
+  },
+  "prior_alert_count": 2,
+  "observations": [
+    {
+      "name": "account_in_counterparties_24h",
+      "value": 3,
+      "unit": "count",
+      "window_start": "2022-09-02T00:00:00",
+      "window_end": "2022-09-03T00:00:00",
+      "basis": "distinct_inbound_counterparties",
+      "baseline": null
+    },
+    {
+      "name": "inflow_ratio_window",
+      "value": 0.75,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": null,
+      "baseline": null
+    }
+  ],
+  "model_signals": [
+    "account_in_counterparties_24h"
+  ],
+  "unmapped_currencies": [
+    {
+      "name": "Peso Uruguay",
+      "count": 1,
+      "transaction_ids": [
+        4
+      ]
+    }
+  ]
+}

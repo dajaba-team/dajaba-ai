@@ -34,15 +34,16 @@ dajaba-AI/
 │  ├─ str/                             진희
 │  │  ├─ api/router.py                 POST /str/drafts, /str/verify, /cases/summary
 │  │  ├─ application/                  draft_service · verify_service · summary_service      (03)
-│  │  ├─ domain/                       models · constants · facts · fact_paths · fact_keys · facts_aggregations · masking · verification · verification_amount · verification_amount_scan · verification_amount_number · verification_amount_grammar · verification_account · verification_count · verification_count_scan · verification_count_kind · verification_count_distance · verification_date · verification_date_scan · verification_date_formats · verification_date_purpose · verification_date_time · request_hash    (04, 06)
+│  │  ├─ domain/                       models · constants · facts · fact_paths · fact_keys · facts_aggregations · masking · verification · verification_amount · verification_amount_scan · verification_amount_number · verification_amount_grammar · verification_account · verification_count · verification_count_scan · verification_count_kind · verification_count_distance · verification_date · verification_date_scan · verification_date_formats · verification_date_purpose · verification_date_time · request_hash · constants_v4 · display_format · display_labels_check · slot_types · display_slots · display_slots_method · derived_flags · opinion_checks · catalog_types · grounds_catalog · opinion_catalog · opinion_heads · narrative_plan · narrative_assembly(v4, 05)    (04, 06)
 │  │  ├─ infrastructure/               orm · transaction_reader · generation_repository · verification_repository
-│  │  │                                · fewshot_store · narrative_generator · judge · retriever · prompt_index
+│  │  │                                · fewshot_store · narrative_generator · narrative_v4_builder · display_labels · judge · retriever · prompt_index
 │  │  ├─ prompts/                      narrative_v1.md · narrative_v2.md · judge_v1.md · judge_v2.md — 동결 뒤 수정 금지 (05)
 │  │  └─ fewshot/                      예시 json (정본). DB fewshot_examples 는 사본
 │  └─ scoring/                         준영 — 같은 4계층. domain/ 은 비어 있음(로직은 aml_ml)
 │     ├─ api/router.py · application/score_service.py(AI_SCORING_MOCK) · infrastructure/
 ├─ migrations/versions/0001_str_tables.py        Alembic (docs/shared/03 번호 규칙)
 ├─ contracts/examples/                 규약 JSON 7개 — 백엔드와 같은 파일 (docs/shared/01)
+├─ contracts/display_labels_v1.json    narrative_v4 표기 사전 — 코드값 → 한글 (규약 아님, 05). Dockerfile 이 같이 복사
 ├─ corpus/manifest.json                RAG 문서 목록. pdf/ 는 .gitignore (10)
 ├─ tools/ingest_corpus.py              PDF → 청크 → 임베딩 → reference_chunks (10)
 ├─ docs/                               shared/ str/ scoring/

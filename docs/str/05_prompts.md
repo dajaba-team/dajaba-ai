@@ -19,7 +19,7 @@
 ## 버전·동결 규칙
 
 - 파일명이 버전: `narrative_v1.md`·`narrative_v2.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 동결 전에는 자유 수정, 동결 뒤에는 새 버전 파일(`narrative_vN.md`). `prompt_versions.frozen_at`에 동결 시각.
-- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`|`narrative_v3`, 기본 `narrative_v2`(SCRUM-62, 11/6 — 그 전은 v1). `narrative_v3`(SCRUM-225)는 켬/끔 비교용으로 env 로만 켬 — 기본값 전환은 성공 기준 결과를 보고 따로 정함). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
+- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`|`narrative_v3`|`narrative_v4`, 기본 `narrative_v2`(SCRUM-62, 11/6 — 그 전은 v1). `narrative_v3`(SCRUM-225)·`narrative_v4`(SCRUM-228, 코드 조립 — 프롬프트 파일 없음)는 비교용으로 env 로만 켬 — 기본값 전환은 성공 기준 결과를 보고 따로 정함). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
 - 기동 시 파일 sha256을 `ai.prompt_versions`에 색인. 동결된 버전의 해시가 파일과 다르면 **기동 실패**(경고가 아니라). 응답 `prompt_version`에 파일명.
 - **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29). **narrative_v2 는 SCRUM-20 녹화 커밋 시점에 동결** — `FROZEN_PROMPTS` 에 `narrative_v2` sha256 추가, `test_frozen_prompts` 가 `narrative_v2` 등록 강제. **2026-11-06 SCRUM-62 에서 기본값 v2** (채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날).
 - 바꾼 뒤엔 오류 주입 12번(정상 초안)과 7~11을 다시 돌려 표로 남긴다(`08`). 표 없이 v2를 서빙하지 않는다.
@@ -126,6 +126,143 @@ v2 를 복사하고 **아래만** 바꿈. 7섹션·출력 형식·규칙 1~7·9~
 - **few-shot**: `fewshot/narrative_v3/` 에 v2 예시 5개(002~006)를 복사하고 **본문(text·cites)만** 규칙 12 에 맞게 보완(facts·example_id 그대로). v2 폴더는 안 건드림.
 - **고쳐 쓰기 미적용** — `draft_rewrite._SUPPORTED_PROMPT` 는 `narrative_v2` 만. rewrite_v1 은 참고 사례 3건 전문을 다시 넣고 규칙 12 가 없어서 고쳐 쓰면 v3 의 두 변경이 되돌려짐. 기본값을 v3 로 바꿀 때 rewrite 프롬프트를 따로 맞춤(09).
 - 동결(2026-11-12): 녹화 `recorded/narrative_v3/42c985cb6b2e2770.json`(RAG 끈 상태, fan_in) + `FROZEN_PROMPTS["narrative_v3"]` — 같은 커밋. 재생 초안의 코드 검사에 알려진 검사기 오판 1건(PLACE 상대 계좌 총수 → 자행 수, 09 · SCRUM-131).
+
+## narrative_v4 (SCRUM-228 1/2, 2026-11-17 — 비교용, 기본값 아님) — 코드 조립, 프롬프트 파일 없음
+
+왜: v3 는 facts 를 빠짐없이 쓰지만 "요약 같다"(팀원 평가). 상한 테스트(11/17, 손으로 쓴 v4 2건 · 검토 답 3건, AI 보조 포함)에서 표기만 바꾼 초안은 "손볼 양 그대로", 사실끼리의 대조·확인 사항을 넣은 초안은 4/5. 처음엔 숫자 문장은 코드가, 해석 문장은 LLM 이 자유롭게 쓰고 정규식으로 거르게 했으나 **추가 검토 1·2차에서 자유 문장으로 숫자·날짜·플래그 사실이 조용히 들어가는 우회가 계속 나옴**(`三 곳`·`둘임`·`구월 구일`·`출금으로만 이루어짐`·`다른 금융기관 소속` — SCRUM-131 과 같은 길). → **LLM 이 쓴 문장이 검증 없이 사실로 나가지 않게 한다.** (1/2) 의 v4 는 **코드만으로 완성**(자유 문장 0): 슬롯 + **사유 카탈로그** + **종합의견 카탈로그**를 조건·우선순위로 고르고 엮는다. 나중에 LLM 은 **닫힌 부품을 고르고 엮는 편집자**로만 붙인다(아래 "순서 목록"). 평소 대비 기준값·건별 내역·직전 자금 유입이 facts 에 없어 "평소보다 얼마나 다른가"는 아직 못 씀(09 다음 facts 과제).
+
+**바꾸지 않는 것**: 응답 `narrative` 모양(7섹션 `{section, text, cites}` — `NarrativeOutV2` 와 같음, 백엔드 변경 없음) · `generation_meta` 칸 · facts 스키마·`fact_keys` · 06 검사기 · v1~v3·judge_v3·rewrite_v1·summary_v1 파일 · 기본값 `narrative_v2`. 슬롯·카탈로그 문장이 검사기를 못 지나면 **검사기가 아니라 문장을 바꾼다**.
+
+### 흐름 — (1/2) 기본 경로는 LLM 호출 없음
+
+```
+facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 슬롯(SUBJECT~GROUNDS 숫자·플래그 문장)
+             → ④ 사유 카탈로그: 조건 참인 항목 → 우선순위 상위 GROUNDS_ITEMS_MAX(3)개
+             → ⑤ 종합의견: 유형별 첫 문장 + 필수 확인 사항 전부 + 선택 확인 사항 상위 OPINION_OPTIONAL_MAX(2)개
+             → ⑥ 순서 목록(Plan, 코드가 만듦) → ⑦ 조립 → 7섹션 → attach_evidence → (기존 흐름: 코드 검사·verify 그대로)
+```
+
+- 프롬프트 파일·few-shot·`NarrativeOutV4`(자유 문장 모양)·자유 문장 생성 검증은 **없다**(추가 검토 2차에서 지움 — 동결 전이었음).
+- 고쳐 쓰기(rewrite_v1)는 v2 전용이라 v4 는 안 탐. **RAG 검색은 돌려 응답 `generation_meta.references` 는 채움**(화면 참고 사례 칸 유지, S4-07) — 본문에는 반입하지 않음(테스트). v2 와 같이 최대 3건(v3 의 2건 자르기 안 함).
+
+### 표기 사전 (`contracts/display_labels_v1.json`, ★A-2)
+
+- 모양: `{"version": "display-labels-v1", "entity_type": {...}, "industry": {...}, "account_purpose": {...}, "risk_level": {...}, "payment_format": {...}, "typology": {...}, "currency": {...}, "observation_basis": {...}, "observation_unit": {...}}` — 코드값 → 한글 표기만. 백엔드가 나중에 그대로 읽을 수 있는 단순 JSON(규약 아님, 백엔드 변경 없음).
+- 읽기는 `str/infrastructure/display_labels.py`(v4 일 때 생성기를 만들 때 한 번), domain 은 dict 를 인자로만 받음(01 — domain 은 파일을 안 만짐). 컨테이너는 `src` 만 복사하므로 Dockerfile 이 이 JSON 한 개를 `contracts/` 에 같이 복사.
+- **범위**(★A-6): `entity_type`·`typology` 는 Enum 전부. `industry`·`account_purpose`·`risk_level` 은 facts 에서 `str | None`(닫힌 Enum 아님)이라 **백엔드 V002 주석 목록 ∪ 픽스처·few-shot 값**(`TRADING`·`OPERATIONS`·`BUSINESS_SETTLEMENT` 포함). `observation_basis`·`observation_unit` 은 ML 쪽 자유 문자열이라 **지금 보이는 값**(basis 5개, unit 3개). `currency` 는 `constants_currency.CURRENCY_ALIASES` 의 코드 전부, `payment_format` 은 IBM 원문 7종. 전체 목록은 ① 운영 확인(백엔드 실제 시드·준영 basis 목록) — PR 본문에 "미확정".
+- **빈 값 없음**(★A-3): facts 에 나온 코드값이 사전에 없으면 **조립 전에** 생성 실패 → `INTERNAL`(500, 새 에러 코드 안 만듦 — 예외 클래스 `shared/errors.NarrativeAssemblyFailed`, 조립 1,200자 초과와 같은 것). 로그에는 칸 이름·코드값만(`display_label_missing`, 본문 없음). 조용히 원문 코드를 본문에 내보내지 않는다. `null` 은 사전을 안 거치고 "자료 없음" 문형으로.
+- **표기 원칙**:
+  - 검사기 종류 단어(`입금`·`출금`·`상대`·`자행`·`타행`·`경보`)가 들어간 표기는 피한다 — `SALES_DEPOSIT` → `매출 대금 수납`(준영 `code_labels.csv` 의 `매출 대금 입금` 과 다름 — PR 표에 둘 다).
+  - 통화 표기 ⊆ `CURRENCY_ALIASES[코드]` 의 한국어 표기(AMOUNT_MATCH 가 읽는 것만), 결제 방식 표기 ⊆ `PAYMENT_FORMAT_ALIASES[원문]`(COUNT_MATCH ⑥ 이 읽는 것만) — 테스트로 묶음. 그래서 `Wire` → `전신환`, `Credit Card` → `신용카드`(`code_labels.csv` 는 `전신송금`·`카드`).
+  - `PAYMENT_FORMAT_ALIASES` 에 없는 결제 방식(`Bitcoin`)은 **건수 없이 이름만** 쓴다 — COUNT_MATCH ⑥ 이 못 읽어 건수가 방향 없는 거래 건수로 대조되면 틀린 값이 다른 건수와 우연히 맞아 통과할 수 있음. 검사기는 안 바꿈.
+  - `ACH` 표기는 `ACH`(alias 가 `ACH` 하나뿐). 설명 `(자동결제망)` 은 데이터 정의 확인 뒤(09 미결).
+  - 유형·통화·결제 방식은 슬롯이 `한글(코드)` 로 씀(첫 등장 병기 — 섹션마다 첫 등장). **표기가 원문과 같으면 괄호 병기 생략**(`ACH(ACH)` 안 씀 — 단위 테스트).
+  - 관측 단위 표기: `count` → `개`, `ratio`·`amount`·`null` → 단위 없음(금액 단위에 통화 이름을 붙이면 AMOUNT_MATCH 가 facts 합계와 대조해 MISMATCH).
+- 사람 평가 전에 표기 목록을 채영 님께 한 번 공유(진희) — 서비스 표기와 평가 글이 달라지지 않게.
+
+### 슬롯 생성기 (`str/domain/display_slots.py`, 순수)
+
+`build_slots(facts_masked, labels) -> dict[SectionV2, list[SlotSentence]]` — `SlotSentence(text, cites)`. 계산은 **쉼표 넣기·날짜 형식 바꾸기만**(합산·환산·반올림 없음). 아래 문형은 초안이고 **슬롯 정상·변조 테스트(08)로 확정** — 테스트 때문에 문형이 바뀌면 이 표를 고친다.
+
+| 섹션 | 문형 | cites |
+|---|---|---|
+| SUBJECT | 보고 대상자는 {entity_name}({entity_type})임. · 업종은 {industry}임. · 고객 위험등급은 '{risk_level}'(으)로 분류되어 있음. · 계좌 목적은 {account_purpose}(으)로 등록되어 있음. · 계좌 개설일은 {YYYY년 M월 D일}임. · 과거 경보 이력은 {n}건임. — `customer` null → "고객 정보는 자료 없음." / 칸 하나가 null → 그 문장만 "{칸}은 자료 없음." | `subject`, `customer.*`(쓴 칸), `prior_alert_count` |
+| DATE | 거래 기간은 {YYYY년 M월 D일 HH:MM}부터 {YYYY년 M월 D일 HH:MM}까지임. — 초가 0이 아니면 `HH:MM:SS` | `period` |
+| PLACE | 거래 영업점은 자료 없음. · 대상 계좌는 {마스킹 계좌}임. · 상대 계좌는 {n}개임. · 이 가운데 자행 계좌는 {a}개, 타행 계좌는 {b}개임. — 상대 수와 자행/타행은 **문장을 나눔**(06 COUNT ⑦ 은행 단어 우선 오판 회피, SCRUM-131) | `subject`, `counterparties.count`, `counterparty_banks.*` |
+| INSTRUMENT | 내부 거래를 뺀 입금·출금의 결제 방식은 {표기}({원문}) {n}건{, …}임. (사전 alias 없는 방식은 `{표기}({원문})` 이름만) · 내부 거래를 뺀 입금·출금의 거래 통화는 {표기}({코드}){, …}임. · 미등록 통화: {원문} 통화 거래는 대응 미확인임.(있다는 주장이라 범위 구절 없음) — 셋 다 없으면(내부 거래만) "내부 거래를 뺀 입금·출금의 결제 방식은 자료 없음." **범위 구절 "내부 거래를 뺀 입금·출금의"**(`constants_v4.FLOW_SCOPE`, 쉼표 없음): 결제 방식·거래 통화·금액 범위는 내부 거래를 뺀 집계라 주어에 범위를 적음 — 내부 거래 0 이어도 같은 문구(조건 분기 없음) | `payment_format_counts.*`, `inbound/outbound.amount.*`, `unmapped_currencies.*` |
+| METHOD | {유형}({코드}) 유형으로 분류됨.(typology null 이면 안 씀) · 입금은 {n}건, 출금은 {m}건, 내부 거래는 {k}건임. · 방향마다 한 문장: {입금/출금} 합계는 {금액 쉼표} {통화 표기}{, {금액} {통화 표기}…}임. · 통화마다: 내부 거래를 뺀 입금·출금의 거래 금액은 최소 {…} {통화 표기}, 최대 {…} {통화 표기}임. (입금·출금 합계 문장은 주어가 이미 "입금"·"출금"이고 바로 앞 건수 문장이 내부 거래를 따로 세므로 범위 구절 없음) · paths `VERIFIED` 면: 확인된 경로는 {count}개임. · 가장 긴 경로는 {max_hops}홉임. · 경로 하나가 거친 계좌는 최대 {max_accounts}개임. (06 COUNT — `홉` 은 PATH_HOPS 전용, `회` 로 쓰면 거래 건수로 대조돼 MISMATCH) | `typology`, `*.count`, `*.amount.*`, `amount_range.*`, `paths.*` |
+| GROUNDS | observations 마다: 모델 관측값({window_start}~{window_end} 기준)에서 {basis 표기}는 {값}{단위}임. · **기준값 부재**: 모든 관측값 baseline 이 null(`is None`, 0.0 은 값 있음)일 때만 섹션 끝 "비교 기준값은 자료 없음." 한 문장, 일부만 null 이면 섹션 끝 문장 없이 그 관측값 문장 끝에 "이 관측값의 비교 기준값은 자료 없음." · observations 가 비면 → 모델 관측값은 자료 없음. | `observations.{name}` |
+| OPINION | (슬롯 없음) | — |
+
+- 관측 구간 괄호 안 날짜는 **ISO(`2022-09-02T00:00:00`)가 기본**(★A-4 — 이미 통과한 모양). 한글 모양(`2022년 9월 2일 00:00`)은 변조 테스트를 통과하면 채택. window 가 둘 다 null 이면 괄호 안을 `관측 구간 자료 없음`, 하나만 있으면 날짜 없이 `관측 구간 일부 자료 없음`(쉼표 없음 — 06 DATE 는 양 끝이 다 있는 관측값만 대조하고, 괄호 안 쉼표는 COUNT 절을 나눠 관측값을 상대 수로 읽음). basis 가 null 이면 `{basis 표기}는` 을 빼고 `모델 관측값(…)은 {값}임. 관측 항목 이름은 자료 없음.`. 서술 끝은 `~임`(`(으)로 관측됨` 대신 — 조사 자동 선택 줄임), 조사 은/는·으로/로는 받침으로 고름(`display_format`).
+- 관측값: 정수 값이면 `3`, 아니면 원값 그대로(반올림 금지).
+- **쓰지 않는 값은 내보내지 않는다**: 경과 일수·고객 국가·`model_signals`·`indirect` 는 슬롯에 안 넣음(상한 테스트(11/17, 손으로 쓴 v4 2건 · 검토 답 3건, AI 보조 포함) — 적혀만 있고 안 쓰이면 의문만 남김).
+
+### derived 플래그 (`str/domain/derived_flags.py`, 순수 — facts 스키마 아님)
+
+`derive_flags(facts) -> dict[str, bool]` — 숫자 값은 만들지 않는다. 플래그는 **카탈로그 조건**(G-PURPOSE-OUT·F3·O2)에 쓰고, 문장으로는 숫자 문장과 반복되지 않는 것만 낸다.
+
+| 플래그 | 조건 | 문장 |
+|---|---|---|
+| `single_day` | `period`(내부·간접 포함 전체 거래) 시작일 = 끝일 | 거래는 모두 같은 날 이루어짐. (DATE 슬롯) |
+| `outbound_only` | 출금 > 0 · 입금 0 · **내부 0** | 거래 기간 중 입금은 없고 출금만 있음. — **G-PURPOSE-OUT 이 GROUNDS 에서 쓸 때만** |
+| `all_other_bank` · `all_same_bank` · `inbound_only` | 자행 0·타행 > 0 / 타행 0·자행 > 0 / 입금 > 0·출금 0·**내부 0** | 문장 없음 — PLACE·METHOD 숫자 문장(자행 0개·타행 n개, 입금 n건·출금 0건)과 반복(조건으로만) |
+
+### 사유 카탈로그 (`str/domain/grounds_catalog.py`, 순수) — GROUNDS 슬롯 뒤에 붙음
+
+항목 = `id · 조건 · 종류(확인 안 됨 / 나란히 / 부합) · 우선순위(작을수록 먼저) · 변형 2~3개 · cites`. 변형은 **뜻·cites 가 같고 어순·어휘만** 다르다(사실 범위가 달라지면 안 됨 — 변형 전부 조립 후 코드 검사 실패 0). `~이나`·`~인데`·`반면` 연결과 "어긋남·상충" 판정은 쓰지 않는다. `{목적}` 은 사전 표기(`account_purpose`). 기본 경로는 조건 참인 항목을 우선순위·id 순으로 상위 3개, 변형 0.
+
+| id | 조건 | 종류 | 순위 | 변형 (0 / 1 / 2) | cites | requires |
+|---|---|---|---|---|---|---|
+| `G-CYCLE-PATH` | typology=CYCLE · NOT cycle_verified(경로 없음·UNVERIFIED·비순환 VERIFIED) | 확인 안 됨 | 1 | 자금 순환을 뒷받침하는 경로는 제공된 자료로 확인되지 않음. / 자금 순환을 뒷받침하는 경로가 있는지는 제공된 자료로 확인되지 않음. | `typology` | — (조건: NOT cycle_verified) |
+| `G-PURPOSE-IN` | 계좌 목적 있음 · 입금 > 0 | 확인 안 됨 | 1 | 계좌 목적은 {목적}(으)로 등록되어 있으며, 위 입금이 등록된 계좌 목적에 해당하는 거래인지는 제공된 자료로 확인되지 않음. / 위 입금이 계좌 목적으로 등록된 {목적}에 해당하는 거래인지는 제공된 자료로 확인되지 않음. / 등록된 계좌 목적은 {목적}이며, 위 입금과 계좌 목적의 관계는 제공된 자료로 확인되지 않음. | `customer.account_purpose`, `inbound.count` | has_purpose · has_inbound |
+| `G-PURPOSE-OUT` | 계좌 목적 있음 · `outbound_only` | 나란히 | 1 | 계좌 목적은 {목적}(으)로 등록되어 있음. 거래 기간 중 입금은 없고 출금만 있음. / 거래 기간 중 입금은 없고 출금만 있음. 계좌 목적은 {목적}(으)로 등록되어 있음. | `customer.account_purpose`, `inbound.count`, `outbound.count` | has_purpose · has_outbound |
+| `G-COUNTERPARTY` | 상대 계좌 > 0 | 확인 안 됨 | 2 | 해당 상대 계좌와 대상자의 거래 관계는 제공된 자료로 확인되지 않음. / 대상자와 해당 상대 계좌가 어떤 거래 관계인지는 제공된 자료로 확인되지 않음. / 해당 상대 계좌가 대상자의 거래처인지는 제공된 자료로 확인되지 않음. | `counterparties.count` | has_counterparty |
+| `G-PRIOR` | 과거 경보 > 0 | 확인 안 됨 | 3 | 과거 경보 이력이 있으며, 이번 거래와의 관련성은 제공된 자료로 확인되지 않음. / 과거 경보 이력과 이번 거래의 관련성은 제공된 자료로 확인되지 않음. / 이번 거래가 과거 경보와 어떤 관련이 있는지는 제공된 자료로 확인되지 않음. | `prior_alert_count` | has_prior |
+
+- `G-PURPOSE-IN`·`G-PURPOSE-OUT` 은 조건상 같이 켜지지 않음(입금 > 0 ↔ outbound_only).
+- 린트 예외 둘(플래그 주제 낱말을 쓰지만 조건이 그 사실을 보장): `G-PURPOSE-OUT` 의 `출금만`(outbound_only 슬롯 문장을 옮겨 온 것) · 종합의견 `B1` 의 `자행`(자행 > 0).
+- 유형 설명 문장은 (1/2) 에서 넣지 않음 — METHOD 유형 슬롯("… 유형으로 분류됨.")과 반복(★A 답 4).
+- `{목적}이며`·`{목적}이므로` 는 받침과 상관없이 `이며`·`이므로`(`투자이며`·`투자이므로`).
+- **묶기**: "확인 안 됨" 항목(G-CYCLE-PATH·G-PURPOSE-IN·G-COUNTERPARTY·G-PRIOR)이 GROUNDS 에 둘 이상 나오면 명사구를 이어 **한 문장**으로 — "{A}, {B}, {C}은(는) 제공된 자료로 확인되지 않음."(조사는 마지막 명사구 받침, 첫 묶인 항목 자리에, 그 항목의 연결어). 하나면 변형 문장 그대로. "나란히"(G-PURPOSE-OUT)는 묶지 않음. 짝 짧은 꼴 규칙은 묶인 항목에도 그대로. 명사구: G-CYCLE-PATH "자금 순환을 뒷받침하는 경로" · G-PURPOSE-IN "위 입금과 등록된 계좌 목적의 관계" · G-COUNTERPARTY "해당 상대 계좌와 대상자의 거래 관계" · G-PRIOR "이번 거래와 과거 경보의 관련성".
+- 자료를 지우면 문장이 더 세지지 않는다: 조건이 거짓이 되면 항목이 빠질 뿐, 남는 문장은 "확인되지 않음"·정의 문장뿐(테스트).
+
+**전제(requires, `constants_v4.PREMISES` 닫힌 목록)** — 문장이 깔고 있는 사실. 후보 = 조건 AND 전제 전부(마스킹본 기준): `has_inbound`(입금 > 0) · `has_outbound`(출금 > 0) · `has_counterparty`(상대 > 0) · `path_verified`(paths VERIFIED — 종류 무관) · `cycle_verified`(paths VERIFIED **그리고** `paths.kind == CYCLE`) · `has_purpose` · `has_customer` · `has_prior` · `has_same_bank`. 편집자 Plan 도 같은 후보로 검증(전제 거짓 항목 → `unknown_item`). "돌아온"(자금 복귀 전제)은 `cycle_verified` 항목(Y2)에만. 배타 주장("입금은 없고 출금만")은 내부 거래까지 0 일 때만(플래그 정의). "제공되지 않았" 꼴은 쓰지 않음 — UNVERIFIED 는 자료가 왔는데 확인이 안 된 것이라 거짓, 모든 "없음" 문구는 "제공된 자료로 확인되지 않" 꼴(린트).
+
+### 종합의견 카탈로그 (`str/domain/opinion_catalog.py`, 순수) — OPINION 은 이것만
+
+**첫 문장(유형별, 변형 2개, 필수)** — `{유형}` 은 사전 표기.
+
+| id | 조건 | 변형 0 / 1 |
+|---|---|---|
+| `O-HEAD-FAN_IN` | FAN_IN (입금 0 이면 "위 입금" 대신 "위 거래") | 자금 집중 유형으로 분류된 위 입금에 대해 자금세탁 의심 여부의 검토가 필요함. / 위 입금은 자금 집중 유형으로 분류되어 자금세탁 의심 여부를 검토할 필요가 있음. |
+| `O-HEAD-FAN_OUT` | FAN_OUT (출금 0 이면 "위 출금" 대신 "위 거래") | 자금 분산 유형으로 분류된 위 출금에 대해 자금세탁 의심 여부의 검토가 필요함. / 위 출금은 자금 분산 유형으로 분류되어 자금세탁 의심 여부를 검토할 필요가 있음. |
+| `O-HEAD-CYCLE` | CYCLE | 자금 순환 유형으로 분류된 위 거래에 대해 자금세탁 의심 여부의 검토가 필요함. / 위 거래는 자금 순환 유형으로 분류되어 자금세탁 의심 여부를 검토할 필요가 있음. |
+| `O-HEAD-OTHER` | 그 밖 유형 | {유형} 유형으로 분류된 위 거래에 대해 자금세탁 의심 여부의 검토가 필요함. / 위 거래는 {유형} 유형으로 분류되어 자금세탁 의심 여부를 검토할 필요가 있음. |
+| `O-HEAD-NONE` | typology null | 분류된 유형이 없는 거래임. 자금세탁 의심 여부는 추가 자료로 검토할 필요가 있음. / 유형 분류가 없는 거래임. 자금세탁 의심 여부는 추가 자료로 검토할 필요가 있음. |
+
+**확인 사항(C1~G1 + B1 → 문장 완성형 "〈사실〉이므로 〈확인할 것〉을 확인할 필요가 있음")** — 조건·필수는 아래 표(필수는 코드가 고정), 선택은 표 순서가 우선순위. 기본 경로: 필수 전부 + 선택 상위 2개, 변형 0. 면책 문장 없음.
+**짝 — 같은 사실을 두 섹션에 되풀이하지 않음**: 짝 사유 항목이 같은 초안 GROUNDS 에 나오면 확인 사항은 "제공된 자료로 확인되지 않으므로"를 뺀 **짧은 꼴**로 렌더(변형 대신, 코드가 정함). 짝: `G-COUNTERPARTY`↔F1·O1·G1 · `G-CYCLE-PATH`↔Y3 · `G-PRIOR`↔C1.
+
+| id | 조건 | 필수 | 변형 0 / 1 | 짧은 꼴(짝이 켜졌을 때) | cites | requires |
+|---|---|---|---|---|---|---|
+| C1 | `prior_alert_count` > 0 | 필수 | 과거 경보 이력이 있으므로 이전 경보와 이번 거래의 관련성을 확인할 필요가 있음. / 이전 경보 이력이 있으므로 이번 거래와의 관련성을 확인할 필요가 있음. | 이전 경보와 이번 거래의 관련성을 확인할 필요가 있음. | `prior_alert_count` | has_prior |
+| C2 | `customer` null | 필수 | 고객 정보가 제공된 자료로 확인되지 않으므로 고객 확인 자료(업종·계좌 목적)를 보완할 필요가 있음. / 고객 확인 자료가 제공된 자료로 확인되지 않으므로 업종과 계좌 목적을 확인해 보완할 필요가 있음. | — | — | — (조건: customer null) |
+| F1 | FAN_IN | 선택 | 송금인 정보가 제공된 자료로 확인되지 않으므로 송금인과 대상자의 거래 관계를 확인할 필요가 있음. / 송금인과 대상자의 거래 관계가 제공된 자료로 확인되지 않으므로 송금인 정보를 확인할 필요가 있음. | 송금인과 대상자의 거래 관계를 확인할 필요가 있음. | `counterparties.count` | has_inbound · has_counterparty |
+| F2 | FAN_IN · `account_purpose=SALES_DEPOSIT` | 선택 | 계좌 목적이 {목적}(으)로 등록되어 있으므로 위 입금에 대응하는 매출 증빙을 확인할 필요가 있음. / 등록된 계좌 목적이 {목적}이므로 위 입금과 매출 증빙의 대응 여부를 확인할 필요가 있음. | — | `customer.account_purpose` | has_inbound · has_purpose |
+| F3 | FAN_IN · `inbound_only` | 선택 | 위 입금의 이후 사용처가 제공된 자료로 확인되지 않으므로 이를 확인할 필요가 있음. / 입금된 자금이 이후 어디에 쓰였는지 제공된 자료로 확인되지 않으므로 사용처를 확인할 필요가 있음. | — | `inbound.count` | has_inbound |
+| O1 | FAN_OUT | 선택 | 수취인 정보가 제공된 자료로 확인되지 않으므로 수취인과 대상자의 거래 관계를 확인할 필요가 있음. / 수취인과 대상자의 거래 관계가 제공된 자료로 확인되지 않으므로 수취인 정보를 확인할 필요가 있음. | 수취인과 대상자의 거래 관계를 확인할 필요가 있음. | `counterparties.count` | has_outbound · has_counterparty |
+| O2 | FAN_OUT · `outbound_only` | 선택 | 출금 전 자금이 들어온 경위가 제공된 자료로 확인되지 않으므로 직전 입금 내역을 확인할 필요가 있음. / 위 출금에 쓰인 자금이 들어온 경위가 제공된 자료로 확인되지 않으므로 직전 입금 내역을 확인할 필요가 있음. | — | `outbound.count` | has_outbound |
+| O3 | FAN_OUT · `account_purpose=SALES_DEPOSIT` | 선택 | 계좌 목적이 {목적}(으)로 등록되어 있으므로 위 출금이 사업상 지급인지 근거 자료를 확인할 필요가 있음. / 등록된 계좌 목적이 {목적}이므로 위 출금이 사업상 지급에 해당하는지 근거 자료를 확인할 필요가 있음. | — | `customer.account_purpose`, `outbound.count` | has_outbound · has_purpose |
+| Y1 | CYCLE | 선택 | 경로상 계좌들과 대상자의 관계가 제공된 자료로 확인되지 않으므로 이를 확인할 필요가 있음. / 경로에 나타난 계좌들과 대상자가 어떤 관계인지 제공된 자료로 확인되지 않으므로 이를 확인할 필요가 있음. | — | `typology` | path_verified |
+| Y2 | CYCLE | 선택 | 자금이 출발 계좌로 돌아온 거래 목적이 제공된 자료로 확인되지 않으므로 이를 확인할 필요가 있음. / 출발 계좌로 자금이 되돌아온 거래 목적이 제공된 자료로 확인되지 않으므로 이를 확인할 필요가 있음. | — | `typology` | cycle_verified |
+| Y3 | CYCLE · NOT cycle_verified(경로 없음·UNVERIFIED·비순환 VERIFIED) | 선택 | 자금 순환을 뒷받침하는 경로가 제공된 자료로 확인되지 않으므로 경로 확인 자료를 보완할 필요가 있음. / 제공된 자료로는 자금 순환을 뒷받침하는 경로가 확인되지 않으므로 경로 확인 자료를 보완할 필요가 있음. | 경로 확인 자료를 보완할 필요가 있음. | `typology` | — (조건: NOT cycle_verified) |
+| G1 | 위 유형 밖(PASS_THROUGH·SCATTER_GATHER·GATHER_SCATTER·FX_RELAY·그 밖·null) | 선택 | 해당 상대 계좌와 대상자의 거래 관계가 제공된 자료로 확인되지 않으므로 이를 확인할 필요가 있음. / 대상자와 해당 상대 계좌의 거래 관계가 제공된 자료로 확인되지 않으므로 이를 확인할 필요가 있음. | 해당 상대 계좌와 대상자의 거래 관계를 확인할 필요가 있음. | `counterparties.count` | has_counterparty |
+| B1 | 자행 > 0 | 선택 | 상대 계좌 가운데 자행 계좌가 있으므로 해당 계좌의 고객 확인 자료를 함께 확인할 필요가 있음. / 상대 계좌에 자행 계좌가 있으므로 해당 계좌의 고객 확인 자료를 함께 확인할 필요가 있음. | — | `counterparty_banks.same_bank_accounts` | has_same_bank |
+
+### 연결어 (`constants_v4.CONNECTIVES`, 닫힌 목록)
+
+`none`(없음) · `또한` · `아울러` · `한편` — 문장 앞에 `"{연결어} "` 로 붙음. 인과·대립 연결어(`따라서`·`그러므로`·`반면`·`그러나`·`~이나`·`~인데`)는 목록에 없고 린트로 막음. **(1/2) 기본 경로는 모두 `none`**. 섹션 첫 부품은 연결어 없음.
+
+### 순서 목록(Plan)과 조립 (`str/domain/narrative_plan.py`·`narrative_assembly.py`, 순수)
+
+- `Pick(item_id, variant_id, connective_id)`, `Plan = {GROUNDS: [Pick…], OPINION: [Pick…]}`. 나머지 섹션은 슬롯 그대로(플랜 없음).
+- `default_plan(facts, flags)` — 코드가 만든다: GROUNDS = 조건 참 사유 항목 우선순위 상위 3 · OPINION = 첫 문장 + 필수 전부 + 선택 상위 2. 전부 변형 0·연결어 `none`.
+- `validate_plan(plan, candidates)` — 실패 사유 코드 목록: 후보 밖 id · 변형 범위 밖 · 연결어 목록 밖 · 섹션 첫 부품 연결어 · 같은 항목 중복 · OPINION 첫 부품이 첫 문장(O-HEAD) 아님 · 필수 확인 사항 누락 · 개수 범위(GROUNDS 0~3, OPINION 선택 0~2) 밖.
+- `assemble(slots, plan, catalog)` — 섹션 text = 슬롯 문장 + 플랜 순서대로 렌더한 카탈로그 문장(GROUNDS "확인 안 됨" 둘 이상은 위 묶기)(공백 하나로 이음), cites = 슬롯 cites ∪ 부품 cites(순서 유지 중복 제거). 1,200자 넘으면 `INTERNAL`.
+- **LLM 편집자(선택 — (1/2) 시간이 되면, 아니면 (2/2) 처음)**: 출력 스키마는 `Pick` 의 **id 열거형 배열만**(자유 텍스트 칸 없음), 입력에 메모를 넣지 않음. 코드가 `validate_plan` 으로 검증 → 실패·LLM 실패면 `default_plan` 으로 완성(로그에 사유 코드만, **v2 로 자동 전환 금지**). 붙이면 녹화 1건.
+
+### 메모(NOTES)·실패·기록
+
+- **v4 는 조사역 메모를 쓰지 않는다** — v2 대비 빠진 기능. 오류 주입 9번(메모 지시문)·요구사항 AI-04 는 v4 에서 "해당 없음(입력에 없음)". (2/2) 에서 "메모 읽기"로 되찾음: LLM 이 언급된 확인 항목 id + 메모 원문 구절을 내고, 코드가 구절이 메모에 그대로 있는지 확인, 본문엔 닫힌 표시만.
+- **실패**: 사전 누락·1,200자 초과는 500 `INTERNAL`(`NarrativeAssemblyFailed`). v4 실패 시 v2 로 자동 전환하지 않는다.
+- **★A-8 `generation_meta`·`generations` 칸(규약 칸은 그대로)**: 기본 경로는 LLM 호출이 없다. DB 칸(`llm_model`·`tokens_*`·`latency_ms`)은 전부 nullable, 응답 `GenerationMeta` 는 `llm_model: str`·`tokens_in/out: int`·`latency_ms: int` 필수 → **확정(★A-8): `llm_model="code"`, `tokens_in=tokens_out=0`, `latency_ms=0`, `prompt_version="narrative_v4"`, `few_shot_ids=[]`, `references`=검색 결과 그대로, `rewrite=None`**. 편집자를 붙이면 그 호출의 실제 값.
+
+### 붙일 곳
+
+- `shared/config.narrative_prompt` Literal 에 `narrative_v4`(기본값 v2 그대로). `NarrativeGenerator` 는 v4 면 프롬프트 파일을 읽지 않고 `str/infrastructure/narrative_v4_builder.py`(사전 읽기 → ①~⑦)로 결과를 만든다 — LLM 호출 0. `draft_service` 는 그대로(검색은 돌고 references 는 응답에만). **v1~v3 렌더·응답은 바이트 그대로**(기존 녹화 키 테스트).
+- `_LLM_OUTPUT_MODELS` 에 `narrative_v4` 없음(LLM 출력이 없으므로). `tools/record_v4.py`·하네스 v4 지표는 지움. 하네스 커버리지의 사전 표기 인정은 남김(v4 초안도 같은 함수로 셈).
+- 카탈로그 문장 린트(테스트): 모든 카탈로그 문장·변형·연결어가 한글·공백·기본 부호만, 한글 수 낱말+단위·금지 어간·플래그 주제 낱말·인과/대립 연결어에 안 걸림(예외는 `G-PURPOSE-OUT` 의 `출금만`·`B1` 의 `자행` — 조건이 보장). 1차 때의 정규식 검사 함수를 테스트 도우미로 옮겨 씀.
 
 ## judge_v1 (요지 — 전문은 파일)
 

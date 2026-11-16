@@ -92,6 +92,15 @@ class FencedOut(AiError):
     status, code = 500, "INTERNAL"
 
 
+class NarrativeAssemblyFailed(AiError):
+    """narrative_v4 — 표기 사전에 없는 코드값(LLM 호출 전) 또는 조립 섹션 1,200자 초과(docs/str/05 narrative_v4).
+
+    코드·사전 쪽 문제라 500 INTERNAL(새 에러 코드 안 만듦, 백엔드 재시도 대상 아님 — str/03 에러 표).
+    """
+
+    status, code = 500, "INTERNAL"
+
+
 def _body(code: str, message: str) -> dict[str, str]:
     return {"code": code, "message": message, "request_id": current_request_id()}
 
