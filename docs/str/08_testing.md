@@ -362,6 +362,17 @@ uv run --frozen --extra dev python -m tests.str.rag_onoff_coverage <126 blind.md
 
 ★L(진희 터미널): v4 는 LLM 이 없어 녹화·동결 없음. `rag_onoff_live` 픽스처 5건 v4 vs v2 끔 기준선 → 표(코드 검사·커버리지·judge_v3 점수(기록만)). 편집자를 붙이면 그 녹화 1건. 전환 기준은 결과 보기 전 09 에.
 
+## narrative_v4 블라인드 비교 하네스 (SCRUM-228 2/2 1단계, 2026-11-17)
+
+v4 가 v2 보다 조사역에게 쓸 만한지 사람 블라인드로 판가름할 자료를 만든다(기준은 09 2026-11-17 2/2 1단계 ★A 줄 — 결과 보기 전 확정). 손 실행 하네스, pytest 수집 안 함. 블라인드 분리는 RAG 켬/끔 하네스(`rag_onoff_live`·`rag_onoff_reveal`)와 같은 방식.
+
+- **입력**: 사건 8 = 픽스처 5 + `build_facts` 3(내부 거래 있음·관측값 baseline 일부 null·고객 정보 없음) + 대조쌍 1(무작위 1건의 v4 를 두 번 — 키 파일에만 표시)
+- **생성**(`tests/str/v4_blind_live.py`, 진희 터미널 `AI_LLM_MOCK=false`): 사건마다 v2 첫 생성 1회(RAG 끔·고쳐 쓰기 안 함) → **표기 통일**(`v4_blind_support.unify_notation` — v2 본문 코드값을 `display_labels_v1.json` 표기로, 유형·통화는 `표기(코드)`, 숫자·날짜·금액 불변, 멱등, 사전 밖 코드는 그대로 두고 목록) → v4 조립(LLM 0) → 좌우 무작위(시드는 키 파일에만)
+- **출력**(`tests/str/recorded/_tmp/`, `<tag>` = `v4blind_<stamp>`): 배포용 `v4_blind_<tag>.md`(평가 방법 안내 + 사건마다 A·B 7섹션 본문 + 응답 칸: 선택 A/B/차이 없음 · 그대로 쓰려면 고칠 문장 수 · 틀린 문장 · 한 줄 이유) · `v4_blind_<tag>.json`(A/B 자동 지표만 — 코드 검사·글자 수·섹션별 문장 수, 버전 단서 칸 없음) · `v4_blind_key_<tag>.json`(A/B → v2/v4·시드·v2 원본·통일 때 바꾼 코드값 — 선택 확정 전 안 엶)
+- **공개**(`tests/str/v4_blind_reveal.py`): 평가자 응답 + 키 → 사건 단위 다수결·대조쌍 따로·평가자 일치율 → 09 기준 ①~③ 판정 → `v4_blind_revealed_<tag>.json` + md 표
+- **테스트**(`tests/str/test_v4_blind.py`, LLM·DB 0): 표기 통일 숫자 덩이 불변·멱등·사전 밖 코드 보고 · json·md 에 버전 단서 칸(prompt_version·generation_meta·llm_model·tokens) 없음 · 키 없이는 매핑 불가 · 대조쌍 표시는 키에만 · reveal 집계 왕복(가짜 응답 → 판정까지)
+- **알려진 한계**: v4 고정 문구(`내부 거래를 뺀 입금·출금의` 등)는 본문이라 감출 수 없음 — 09 에만 적고 평가 안내문에는 안 씀
+
 ~~**11/11까지 표가 없으면 안건 22 되돌림 조건.**~~ → **11/3 결정으로 폐기**(RAG 필수·낮으면 고침). ★L-2 결과 "프롬프트 역할 좁힘" — `10` 켬/끔 비교 표.
 
 ## CI
