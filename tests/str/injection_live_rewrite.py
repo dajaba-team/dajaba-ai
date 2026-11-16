@@ -22,6 +22,7 @@ from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.judge import Judge
 from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
 from tests.str.injection_live_support import JudgeRun, invoke_judge, ok
+from tests.str.injection_rewrite_markers import strip_body
 
 
 class _RewriteCodeFailedCapture(logging.Handler):
@@ -156,5 +157,5 @@ def run_rewrite_case(case: int, n: int, prompt_name: str, setups, expects) -> li
             "case": case, "run": run, "expect": expect,
             "ok": ok(result["post_scores"], expect),  # 후 평가 점수로 판단
         })  # fmt: skip
-        out.append(result)
+        out.append(strip_body(case, result))
     return out

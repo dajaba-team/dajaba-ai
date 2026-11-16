@@ -187,9 +187,9 @@ def test_injection_live_generate(case: int) -> None:
 
 
 @pytest.mark.live
-@pytest.mark.parametrize("case", [23])
+@pytest.mark.parametrize("case", [9, 14, 23])
 def test_injection_live_rewrite(case: int) -> None:
-    """SCRUM-147 live — 고쳐 쓰기(draft_service 흐름, DB 없이) 뒤 TYPO 재측정 (모델① N=3)."""
+    """SCRUM-147 live — 고쳐 쓰기(draft_service 흐름, DB 없이) 뒤 재측정 (모델① N=3). 9·14 는 SCRUM-131 4/n."""
     from tests.str.injection_live_generate import run_generate_rewrite_case
     from tests.str.injection_live_support import model_slot, save_results
 
