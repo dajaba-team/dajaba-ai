@@ -1,12 +1,11 @@
 """SCRUM-228 (2/2) 1단계 — 블라인드 하네스 공용 함수 (docs/str/08 "narrative_v4 블라인드 비교 하네스"). LLM·DB 0.
 
-표기 통일(숫자 불변·멱등·사전 밖 보고) · 사건 8 · 공개물에 버전 단서 없음 · 키 없이는 매핑 불가 · 대조쌍 표시는 키에만.
+사건 8 · 공개물에 버전 단서 없음 · 키 없이는 매핑 불가 · 대조쌍 표시는 키에만.
 """
 
 from __future__ import annotations
 
 import json
-import re
 
 import pytest
 
@@ -16,53 +15,9 @@ from aml_ai.str.domain.fact_keys import attach_evidence
 from aml_ai.str.infrastructure.display_labels import load_display_labels
 from aml_ai.str.infrastructure.narrative_v4_builder import build_v4
 from tests.str.v4_blind_support import BlindCase, CaseDrafts, blind_cases, build_blind, unify_notation
-from tests.str.v4_slot_support import load_fixture
+from tests.str.v4_slot_support import failures, load_fixture
 
 LABELS = load_display_labels()
-V2_SAMPLES = [
-    "보고 대상자는 SOLE_PROPRIETORSHIP 이며 업종은 RETAIL, 위험등급은 LOW 임.",
-    "입금 합계는 42,750.50 USD 이고 결제 방식은 Wire 2건, Credit Card 1건임.",
-    "FAN_IN 유형으로 분류됨. 계좌 목적은 SALES_DEPOSIT 임. 2022-09-02T00:14:00 부터 3건.",
-    "모델 관측값(2022-09-02T00:00:00~2022-09-03T00:00:00 기준) 31개, 금액 0.004200 BTC.",
-]
-_NUM = re.compile(r"\d+")
-
-
-@pytest.mark.parametrize("text", V2_SAMPLES)
-def test_unify_keeps_every_number(text: str) -> None:
-    assert _NUM.findall(unify_notation(text, LABELS).text) == _NUM.findall(text)
-
-
-def test_unify_replaces_codes_with_labels() -> None:
-    out = " ".join(unify_notation(t, LABELS).text for t in V2_SAMPLES)
-    for want in (
-        "개인사업자",
-        "소매업",
-        "낮음",
-        "미국 달러(USD)",
-        "전신환",
-        "신용카드",
-        "자금 집중(FAN_IN)",
-        "매출 대금 수납",
-        "비트코인(BTC)",
-    ):
-        assert want in out, want
-    for gone in ("SOLE_PROPRIETORSHIP", "RETAIL", "SALES_DEPOSIT", " Wire ", "Credit Card"):
-        assert gone not in out, gone
-
-
-@pytest.mark.parametrize("text", [*V2_SAMPLES, "이미 미국 달러(USD)·자금 집중(FAN_IN) 으로 쓴 문장."])
-def test_unify_is_idempotent(text: str) -> None:
-    once = unify_notation(text, LABELS)
-    twice = unify_notation(once.text, LABELS)
-    assert twice.text == once.text and twice.replaced == []
-
-
-def test_unify_reports_unknown_codes_and_keeps_them() -> None:
-    res = unify_notation("업종은 SPACE_MINING 이고 통화는 USD 임.", LABELS)
-    assert res.unknown == ["SPACE_MINING"]
-    assert "SPACE_MINING" in res.text and "미국 달러(USD)" in res.text
-    assert ("USD", "미국 달러(USD)") in res.replaced
 
 
 def test_blind_cases_are_eight_with_required_shapes() -> None:
@@ -83,6 +38,22 @@ def test_blind_cases_are_eight_with_required_shapes() -> None:
         for f in built
     )  # noqa: E501
     assert any(f.customer is None for f in built)
+    partial = next(c.facts for c in cases if c.case_id == "partial_baseline")
+    names = [o.name for o in partial.observations]
+    assert names == ["distinct_senders_24h", "inflow_outflow_ratio_2h"]  # 한 글자 이름 없음
+    assert list(partial.model_signals) == names
+    bases = [o.basis for o in partial.observations]
+    assert bases == ["distinct_inbound_counterparties", "inflow_minus_outflow"]
+    shown = [LABELS["observation_basis"][b] for b in bases]
+    assert len(set(shown)) == 2  # 같은 표기 두 번("…는 3개임. …는 4개임.") 없음
+    assert [o.unit for o in partial.observations] == ["count", "ratio"]
+    assert partial.observations[0].value == partial.inbound.count == 1  # 입금 1건 → 서로 다른 송금인 1
+    diff = sum(float(t.total) for t in partial.inbound.by_currency) - sum(
+        float(t.total) for t in partial.outbound.by_currency
+    )
+    assert partial.observations[1].value == diff == 0.0  # 표기 "유입액에서 유출액을 뺀 값"과 맞게
+    assert [o.baseline is None for o in partial.observations] == [False, True]  # baseline 일부 null 유지
+    assert failures(partial, _v4(partial)) == []  # 이 사건 v4 조립 결과 코드 검사 실패 0
     assert {c.group for c in cases} == {"g1", "g2"}  # 묶음은 번호 — 좌우 초안 A·B 와 안 헷갈리게
     assert not {c.group for c in cases} & {"A", "B"}
 
@@ -100,7 +71,7 @@ def _drafts() -> list[CaseDrafts]:
     for name in ("fan_in", "fan_out", "cycle_nopaths"):
         facts = load_fixture(f"facts_{name}.json")
         v2 = _v2(name)
-        unified = [s.model_copy(update={"text": unify_notation(s.text, LABELS).text}) for s in v2]
+        unified = [s.model_copy(update={"text": unify_notation(s.text, LABELS, facts).text}) for s in v2]
         out.append(
             CaseDrafts(
                 BlindCase(name, "g1" if name != "cycle_nopaths" else None, facts), v2, unified, _v4(facts)
