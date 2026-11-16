@@ -19,13 +19,14 @@ from aml_ai.str.domain.constants import (
     REFERENCE_TEXT_MAX_CHARS,
 )
 
-TYPOLOGY_KO = {
-    "FAN_IN": "집중 입금",
+TYPOLOGY_KO = {  # 앞 6개 = v2 룰 순서(Typology 와 같게), 뒤 = 원천·후보 값
     "FAN_OUT": "분산 송금",
-    "PASS_THROUGH": "경유 송금",
+    "FAN_IN": "집중 입금",
+    "FX_RELAY": "환전 중계",
     "CYCLE": "순환 거래",
     "SCATTER_GATHER": "흩었다 모으기",
     "GATHER_SCATTER": "모았다 흩기",
+    "PASS_THROUGH": "경유 송금",
     "STACK": "다단계 경유",
     "BIPARTITE": "집단 간 교차 송금",
     "STRUCTURING": "분할 거래",

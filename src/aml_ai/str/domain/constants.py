@@ -27,8 +27,9 @@ CURRENCY_CODES: dict[str, str] = {
 }
 DIRECTION_RATIO = 2  # inbound ≥ 2 × outbound → INBOUND (진희 가정값, 축소본 분포 뒤 조정)
 MONEY_QUANT = Decimal("0.000001")  # SCRUM-140 — 6자리 scale (DB numeric(20,6) 일치)
-PATH_RULE_KIND: dict[str, str] = {"R04_CYCLE": "CYCLE", "R05_STACK": "STACK"}  # rule_id → paths.kind
+PATH_RULE_KIND: dict[str, str] = {"R04_CYCLE": "CYCLE", "R05_SCATTER_GATHER": "SCATTER_GATHER"}  # 룰 v2
 PATH_MIN_TRANSACTIONS = 2
+SCATTER_GATHER_PATH_TRANSACTIONS = 2  # [S→Mᵢ, Mᵢ→T] 정확히 2건 (백엔드 rules.md 2.1)
 MODEL_SIGNALS_TOP = 3  # reasons 상위 N개의 이름만 model_signals 로
 
 # ---- 프롬프트 (docs/str/05)

@@ -33,7 +33,7 @@ class EntityType(StrEnum):
 
 class PathKind(StrEnum):
     CYCLE = "CYCLE"
-    STACK = "STACK"
+    SCATTER_GATHER = "SCATTER_GATHER"  # SCRUM-182: R05_STACK → R05_SCATTER_GATHER
 
 
 class PathStatus(StrEnum):

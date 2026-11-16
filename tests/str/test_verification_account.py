@@ -51,7 +51,7 @@ def test_overlapping_single_row() -> None:
     "text",
     [
         "R04_CYCLE 룰로 탐지",  # 룰 ID (앞이 영문 R)
-        "R05_STACK 패턴",
+        "R05_SCATTER_GATHER 패턴",
         "2022-09-02 입금 발생",  # 날짜
         "합계 42,750.50 US Dollar 입금",  # 금액 자리
     ],
