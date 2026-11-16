@@ -1,0 +1,122 @@
+"""슬롯 생성기 — 숫자·날짜·금액·건수·계좌가 들어가는 문장은 전부 코드가 (docs/str/05 narrative_v4 "슬롯 생성기"). 순수.
+
+입력은 마스킹한 facts dict(LLM 이 보는 것과 같음 — UNVERIFIED paths·indirect 는 이미 빠짐)와 표기 사전.
+문형은 06 검사기를 지나도록 고른 것 — 못 지나면 검사기가 아니라 여기 문형을 바꾼다.
+METHOD·GROUNDS·결제 방식은 `display_slots_method.py`.
+"""
+
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import Any
+
+from aml_ai.shared.schemas.str.narrative import SectionV2
+from aml_ai.str.domain.constants_v4 import FLAG_SLOT_TEXT, FLOW_SCOPE
+from aml_ai.str.domain.derived_flags import derive_flags
+from aml_ai.str.domain.display_format import copula, ko_date, ko_datetime, label_with_code, with_ro
+from aml_ai.str.domain.display_labels_check import Labels
+from aml_ai.str.domain.display_slots_method import (
+    flow_currencies,
+    grounds_slots,
+    method_slots,
+    payment_parts,
+)
+from aml_ai.str.domain.slot_types import Slots, SlotSentence, no_data, slot
+
+
+def build_slots(facts: dict[str, Any], labels: Labels, flags: dict[str, bool] | None = None) -> Slots:
+    """섹션별 슬롯 문장. OPINION 은 늘 빈 목록. 플래그 문장은 `single_day` 만(05 — 나머지는 숫자 문장과 반복)."""
+    flags = derive_flags(facts) if flags is None else flags
+    single_day = [slot(FLAG_SLOT_TEXT["single_day"], "period")] if flags["single_day"] else []
+    return {
+        SectionV2.SUBJECT: subject_slots(facts, labels),
+        SectionV2.DATE: date_slots(facts) + single_day,
+        SectionV2.PLACE: place_slots(facts),
+        SectionV2.INSTRUMENT: instrument_slots(facts, labels),
+        SectionV2.METHOD: method_slots(facts, labels),
+        SectionV2.GROUNDS: grounds_slots(facts, labels),
+        SectionV2.OPINION: [],
+    }
+
+
+def subject_slots(facts: dict[str, Any], labels: Labels) -> list[SlotSentence]:
+    subj = facts["subject"]
+    name, etype = subj.get("entity_name"), subj.get("entity_type")
+    out: list[SlotSentence] = []
+    if name is None:
+        out.append(no_data("보고 대상자 이름", "subject"))
+    elif etype is None:
+        out.append(slot(f"보고 대상자는 {copula(name)}.", "subject", "subject.entity_name"))
+    else:
+        who = f"{name}({labels['entity_type'][etype]})"
+        out.append(
+            slot(f"보고 대상자는 {copula(who)}.", "subject", "subject.entity_name", "subject.entity_type")
+        )
+    out += _customer_slots(facts.get("customer"), labels)
+    out.append(slot(f"과거 경보 이력은 {facts['prior_alert_count']:,}건임.", "prior_alert_count"))
+    return out
+
+
+def _customer_slots(customer: dict[str, Any] | None, labels: Labels) -> list[SlotSentence]:
+    if customer is None:
+        return [no_data("고객 정보")]
+    industry, risk = customer.get("industry"), customer.get("risk_level")
+    purpose, onboarded = customer.get("account_purpose"), customer.get("onboarded_at")
+    out: list[SlotSentence] = []
+    if industry is None:
+        out.append(no_data("업종"))
+    else:
+        out.append(slot(f"업종은 {copula(labels['industry'][industry])}.", "customer.industry"))
+    if risk is None:
+        out.append(no_data("고객 위험등급"))
+    else:
+        lab = labels["risk_level"][risk]
+        particle = with_ro(lab)[len(lab) :]
+        out.append(slot(f"고객 위험등급은 '{lab}'{particle} 분류되어 있음.", "customer.risk_level"))
+    if purpose is None:
+        out.append(no_data("계좌 목적"))
+    else:
+        lab = labels["account_purpose"][purpose]
+        out.append(slot(f"계좌 목적은 {with_ro(lab)} 등록되어 있음.", "customer.account_purpose"))
+    if onboarded is None:
+        out.append(no_data("계좌 개설일"))
+    else:
+        day = ko_date(date.fromisoformat(str(onboarded)))
+        out.append(slot(f"계좌 개설일은 {copula(day)}.", "customer.onboarded_at"))
+    return out
+
+
+def date_slots(facts: dict[str, Any]) -> list[SlotSentence]:
+    start = ko_datetime(datetime.fromisoformat(facts["period"]["start"]))
+    end = ko_datetime(datetime.fromisoformat(facts["period"]["end"]))
+    return [slot(f"거래 기간은 {start}부터 {end}까지임.", "period")]
+
+
+def place_slots(facts: dict[str, Any]) -> list[SlotSentence]:
+    banks = facts["counterparty_banks"]
+    same, other = banks["same_bank_accounts"], banks["other_bank_accounts"]
+    return [
+        no_data("거래 영업점"),
+        slot(f"대상 계좌는 {copula(facts['subject']['account_key'])}.", "subject.account_key"),
+        slot(f"상대 계좌는 {facts['counterparties']['count']:,}개임.", "counterparties.count"),
+        slot(
+            f"이 가운데 자행 계좌는 {same:,}개, 타행 계좌는 {other:,}개임.",
+            "counterparty_banks.same_bank_accounts",
+            "counterparty_banks.other_bank_accounts",
+        ),
+    ]
+
+
+def instrument_slots(facts: dict[str, Any], labels: Labels) -> list[SlotSentence]:
+    out: list[SlotSentence] = []
+    parts, cites = payment_parts(facts, labels)
+    if parts:
+        out.append(slot(f"{FLOW_SCOPE} 결제 방식은 {copula(', '.join(parts))}.", *cites))
+    currencies = flow_currencies(facts)
+    if currencies:
+        names = ", ".join(label_with_code(labels["currency"][c], c) for c, _ in currencies)
+        keys = [k for _, ks in currencies for k in ks]
+        out.append(slot(f"{FLOW_SCOPE} 거래 통화는 {copula(names)}.", *keys))
+    for u in facts.get("unmapped_currencies", []):
+        out.append(slot(f"{u['name']} 통화 거래는 대응 미확인임.", f"unmapped_currencies.{u['name']}"))
+    return out or [no_data(f"{FLOW_SCOPE} 결제 방식")]  # 내부 거래만 — 집계 범위를 문장에

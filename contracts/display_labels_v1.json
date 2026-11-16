@@ -1,0 +1,92 @@
+{
+  "version": "display-labels-v1",
+  "entity_type": {
+    "CORPORATION": "법인",
+    "PARTNERSHIP": "단체",
+    "SOLE_PROPRIETORSHIP": "개인사업자",
+    "INDIVIDUAL": "개인",
+    "COUNTRY": "국가",
+    "DIRECT": "직접"
+  },
+  "industry": {
+    "RETAIL": "소매업",
+    "WHOLESALE": "도매업",
+    "MANUFACTURING": "제조업",
+    "SERVICE": "서비스업",
+    "FINANCE": "금융업",
+    "REAL_ESTATE": "부동산업",
+    "CONSTRUCTION": "건설업",
+    "OTHER": "기타",
+    "TRADING": "무역업"
+  },
+  "account_purpose": {
+    "SALES_DEPOSIT": "매출 대금 수납",
+    "PAYROLL": "급여 지급",
+    "INVESTMENT": "투자",
+    "TRADE": "무역",
+    "PERSONAL": "개인 용도",
+    "OTHER": "기타",
+    "OPERATIONS": "운영 자금",
+    "BUSINESS_SETTLEMENT": "사업 대금 결제"
+  },
+  "risk_level": {
+    "LOW": "낮음",
+    "MEDIUM": "보통",
+    "HIGH": "높음"
+  },
+  "payment_format": {
+    "ACH": "ACH",
+    "Wire": "전신환",
+    "Cash": "현금",
+    "Credit Card": "신용카드",
+    "Cheque": "수표",
+    "Reinvestment": "재투자",
+    "Bitcoin": "비트코인"
+  },
+  "typology": {
+    "FAN_OUT": "자금 분산",
+    "FAN_IN": "자금 집중",
+    "FX_RELAY": "환전 중계",
+    "CYCLE": "자금 순환",
+    "SCATTER_GATHER": "분산 후 집중",
+    "GATHER_SCATTER": "집중 후 분산",
+    "STACK": "다단계 이체",
+    "BIPARTITE": "양방향 묶음 거래",
+    "RANDOM": "무작위 거래",
+    "PASS_THROUGH": "자금 통과",
+    "STRUCTURING": "분할 거래",
+    "NEW_ACCOUNT_LARGE": "신규 계좌 고액 거래",
+    "HIGH_VALUE": "고액 거래",
+    "DORMANT_BURST": "휴면 계좌 재개 거래"
+  },
+  "currency": {
+    "USD": "미국 달러",
+    "EUR": "유로",
+    "CNY": "중국 위안",
+    "ILS": "이스라엘 셰켈",
+    "CAD": "캐나다 달러",
+    "GBP": "영국 파운드",
+    "RUB": "러시아 루블",
+    "AUD": "호주 달러",
+    "CHF": "스위스 프랑",
+    "JPY": "일본 엔",
+    "MXN": "멕시코 페소",
+    "INR": "인도 루피",
+    "BRL": "브라질 레알",
+    "SAR": "사우디 리얄",
+    "BTC": "비트코인",
+    "KRW": "원"
+  },
+  "observation_basis": {
+    "distinct_inbound_counterparties": "서로 다른 송금인 계좌 수",
+    "distinct_outbound_counterparties": "서로 다른 수취인 계좌 수",
+    "amount_received_over_amount_paid": "수취액 대 지급액 비율",
+    "inflow_minus_outflow": "유입액에서 유출액을 뺀 값",
+    "sum_inbound_amount_eur": "유로 환산 유입 합계"
+  },
+  "observation_unit": {
+    "count": "개",
+    "ratio": "",
+    "amount": ""
+  }
+}

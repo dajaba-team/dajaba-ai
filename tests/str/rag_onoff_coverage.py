@@ -3,7 +3,8 @@
 `fact_coverage(narrative, facts)` — 필수 항목 중 본문에 나온 수. 순수 함수, LLM 0.
 - 찾는 범위: observations 값·관측 구간은 **GROUNDS 본문만**(DATE 의 거래 날짜·다른 섹션 건수가 가리지 않게,
   추가 검토 1차), 나머지 항목은 7섹션 전체
-- 코드는 원문 일치(`SALES_DEPOSIT`), 숫자는 쉼표 무시(`42,750.50` = `42750.50`)
+- 코드는 원문 일치(`SALES_DEPOSIT`) **또는 v4 표기 사전 표기**(`매출 대금 수납`·`미국 달러`·`전신환`, SCRUM-228),
+  숫자는 쉼표 무시(`42,750.50` = `42750.50`). COUNT 별칭이 없는 결제 방식(`Bitcoin`)은 v4 가 건수 없이 쓰므로 이름만 셈
 - 건수는 방향 낱말 뒤 20자 안의 첫 `{n}건`("출금 거래는 0건이며"·"내부거래는 0건"), 또는 거꾸로 `{n}건` 바로 뒤
   3자 안에서 시작하는 방향 낱말("3건이 입금"·"0건 출금"). "0건이며 입금" 처럼 그보다 멀면 안 셈(섞임 방지)
 - 관측 구간은 window_start·window_end 의 날짜 둘 다
@@ -22,13 +23,16 @@ from pathlib import Path
 from typing import Any
 
 from aml_ai.shared.schemas.str import Facts
-from aml_ai.str.domain.constants import CURRENCY_CODES
+from aml_ai.str.domain.constants import CURRENCY_CODES, PAYMENT_FORMAT_ALIASES
+from aml_ai.str.infrastructure.display_labels import load_display_labels
 
 _NEAR = r"(?:(?!\d\s*건)[^.\n]){0,20}?"  # 다른 "{n}건" 을 건너뛰지 않음
 
 
-def _code(v: str) -> str:
-    return rf"(?<![A-Za-z_]){re.escape(v)}(?![A-Za-z_])"
+def _code(v: str, field: str | None = None) -> str:
+    raw = rf"(?<![A-Za-z_]){re.escape(v)}(?![A-Za-z_])"
+    label = load_display_labels().get(field or "", {}).get(v)
+    return f"{raw}|{re.escape(label)}" if label else raw  # SCRUM-228 사전 표기도 인정
 
 
 def _num(v: str) -> str:
@@ -47,13 +51,21 @@ def _value(x: float) -> str:
 
 def _currency(code: str) -> str:
     names = [code] + [name for name, iso in CURRENCY_CODES.items() if iso == code]
+    names += [n for n in [load_display_labels()["currency"].get(code)] if n]  # SCRUM-228
     return "|".join(re.escape(n) for n in names)
+
+
+def _payment(fmt: str, count: int) -> str:
+    name = _code(fmt, "payment_format")
+    if fmt not in PAYMENT_FORMAT_ALIASES:
+        return name  # v4 는 건수 없이 이름만(09 2026-11-17)
+    return rf"(?:{name}){_NEAR}(?<![\d,.]){count}\s*건"
 
 
 def _subject_items(facts: Facts) -> list[tuple[str, str]]:
     c = facts.customer
     items = [] if c is None else [
-        (f"customer.{k}", _code(v))
+        (f"customer.{k}", _code(v, k))
         for k in ("account_purpose", "industry", "risk_level")
         if (v := getattr(c, k))
     ]  # fmt: skip
@@ -62,7 +74,7 @@ def _subject_items(facts: Facts) -> list[tuple[str, str]]:
 
 def _flow_items(facts: Facts) -> list[tuple[str, str]]:
     items = [
-        (f"payment_format_counts.{p.format}", rf"{re.escape(p.format)}{_NEAR}(?<![\d,.]){p.count}\s*건")
+        (f"payment_format_counts.{p.format}", _payment(p.format, p.count))
         for p in facts.payment_format_counts
     ]
     flows = (("inbound", facts.inbound), ("outbound", facts.outbound))

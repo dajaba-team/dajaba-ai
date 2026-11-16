@@ -19,7 +19,10 @@ from aml_ai.shared.errors import LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.infrastructure.llm_client import LlmClient, LlmResult
 from aml_ai.shared.schemas.str import NarrativeOut, Reference, llm_output_model
 from aml_ai.str.domain.constants import NARRATIVE_MAX_TOKENS, SCHEMA_RETRY
+from aml_ai.str.domain.constants_v4 import NARRATIVE_V4
 from aml_ai.str.domain.models import Example, GenerationResult
+from aml_ai.str.infrastructure.display_labels import load_display_labels
+from aml_ai.str.infrastructure.narrative_v4_builder import generate_v4
 from aml_ai.str.infrastructure.reference_snippet import render_references, uses_snippet
 
 log = logging.getLogger(__name__)
@@ -62,6 +65,8 @@ def render_user(
 
 
 class NarrativeGenerator:
+    _labels: dict[str, dict[str, str]] | None = None  # v4 표기 사전(SCRUM-228) — v1~v3 는 None
+
     def __init__(
         self,
         llm: LlmClient,
@@ -73,6 +78,9 @@ class NarrativeGenerator:
         self._s = settings
         self._clock = clock
         self.prompt_version = prompt_name
+        if prompt_name == NARRATIVE_V4:  # SCRUM-228 — 코드 조립, 프롬프트 파일 없음
+            self._labels = load_display_labels()
+            return
         self._system, self._user_tpl = load_prompt(prompt_name)
 
     def generate(
@@ -85,6 +93,8 @@ class NarrativeGenerator:
         *,
         deadline: float,
     ) -> GenerationResult:
+        if self._labels is not None:
+            return generate_v4(facts_masked, self._labels, references, notes)  # LLM 호출 0
         self._preflight(deadline)
         user = render_user(
             self._user_tpl,

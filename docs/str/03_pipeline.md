@@ -41,6 +41,16 @@
       스키마 실패 → 남은 예산 ≥ 40초면 1회 재생성, 아니면 바로 → 또 실패 LlmInvalidOutput (502)
       성공 시 tokens_in·tokens_out·latency_ms 는 호출한 횟수의 합(재생성 뒤 성공해도 두 호출 합)
       연결 실패·타임아웃 → LlmUnavailable (502). ★ AI 안에서 연결 재시도 없음 — 재시도는 백엔드 AiClient 1회만
+7v4 (SCRUM-228, NARRATIVE_PROMPT=narrative_v4 일 때만 — 기본값 아님. 05 narrative_v4 절) 7(LLM) 대신 코드 조립, **LLM 호출 0**. 6 검색은 그대로 돌아 references 는 응답에만(본문 반입 없음):
+      a  표기 사전 검사          facts_llm 의 코드값이 contracts/display_labels_v1.json 에 다 있는지 — 없으면 500 INTERNAL, 행 FAILED
+                                 (로그 display_label_missing 에 칸 이름·코드값만). 사전은 생성기를 만들 때 infrastructure 가 한 번 읽음
+      b  flags = domain.derived_flags.derive_flags(facts_llm)              순수 — 참이면 코드 문장으로만
+         slots = domain.display_slots.build_slots(facts_llm, labels, flags) 순수 — 숫자·날짜·금액·건수·계좌·플래그 문장
+      c  plan  = domain.narrative_plan.default_plan(facts_llm, flags)       순수 — 사유 카탈로그 상위 3 · 종합의견(첫 문장 + 필수 + 선택 상위 2)
+         (편집자를 붙이면: LLM 이 같은 모양 plan(id 배열만)을 내고 validate_plan 통과 시 사용, 실패면 default_plan — v2 로 자동 전환 안 함)
+      d  조립 domain.narrative_assembly.assemble(slots, plan) — 7섹션(NarrativeOutV2 와 같은 모양). 섹션 1,200자 넘으면 500 INTERNAL
+      gen = GenerationResult(llm_model="code", tokens 0, latency 0, few_shot_ids=[], prompt_version="narrative_v4")   (★A-8)
+      그 뒤 8 부터 v2 와 같음. 8b 고쳐 쓰기는 v2 전용이라 v4 는 건너뜀(rewrite=None). 조사역 메모는 v4 에서 안 씀(05)
 8  narrative = domain.facts.attach_evidence(gen.narrative, facts)            순수 — cites의 fact 키 → 거래 ID 합집합 = evidence_ids
 8b (SCRUM-147) rewrite_meta, narrative, gen = draft_rewrite.try_rewrite(req, facts, facts_masked, fact_keys, examples, references, notes,
       original_narrative=narrative, original_gen=gen, judge=judge, rewriter=rewriter, clock=clock, deadline=deadline, settings=settings)
@@ -168,6 +178,6 @@
 | LLM 응답 스키마 위반(재생성 뒤에도) | 502 | `LLM_INVALID_OUTPUT` | 0 |
 | LLM 연결 실패·타임아웃·예산 초과 | 502 | `LLM_UNAVAILABLE` | **1** |
 | 일 토큰 한도 | 502 | `LLM_BUDGET_EXCEEDED` | 0 |
-| 그 밖 | 500 | `INTERNAL` | 0 |
+| 그 밖 — v4 표기 사전에 없는 코드값·조립 섹션 1,200자 초과 포함(SCRUM-228, v2 로 자동 전환 안 함) | 500 | `INTERNAL` | 0 (백엔드 `WebClientAiClient.RETRYABLE_AI_CODES` 에 없음 — 11/17 `592bf35` 확인) |
 
 재시도는 **백엔드 `AiClient` 한 곳, 1회**. AI 서버 안에는 LLM 연결 재시도가 없다(현재 `shared/infrastructure/llm_client.py`의 1회 연결 재시도는 **삭제** — 백엔드 1회와 겹쳐 실질 4회가 되기 때문). 스키마 실패 1회 재생성은 재시도가 아니라 생성 절차의 일부이고, 예산 안에서만.
