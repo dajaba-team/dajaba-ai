@@ -26,38 +26,57 @@ def amount_match(facts: Facts, narrative: list[NarrativeSectionBase]) -> list[Co
 
 
 def _judge(facts: Facts, section: NarrativeSectionBase, pair: AmountPair) -> CodeCheck:
+    entries = _currency_entries(facts, pair.currency)
     if pair.value is None:
-        return _make(section, pair, False, CheckReason.UNPARSED)
-    matched = _value_in_facts(facts, pair.currency, pair.value)
-    return _make(section, pair, matched, None if matched else CheckReason.MISMATCH)
+        return _make(
+            section, pair, _all_or_absent(facts, pair.currency, entries), False, CheckReason.UNPARSED
+        )
+    hit = next((label for label, lo, hi in entries if lo <= pair.value <= hi), None)
+    if hit is not None:
+        return _make(section, pair, hit, True, None)
+    return _make(section, pair, _all_or_absent(facts, pair.currency, entries), False, CheckReason.MISMATCH)
 
 
 def _make(
-    section: NarrativeSectionBase, pair: AmountPair, matched: bool, reason: CheckReason | None
+    section: NarrativeSectionBase,
+    pair: AmountPair,
+    source: str,
+    matched: bool,
+    reason: CheckReason | None,
 ) -> CodeCheck:
     return CodeCheck(
         check=CodeCheckName.AMOUNT_MATCH,
         section=section.section,
         draft_value=f"{pair.raw} ({pair.currency})",
-        source_value=None,
+        source_value=source,
         match=matched,
         reason=reason,
     )
 
 
-def _value_in_facts(facts: Facts, code: str, value: Decimal) -> bool:
-    """같은 통화 inbound·outbound total 정확 일치 또는 amount_range min ≤ v ≤ max.
+def _currency_entries(facts: Facts, code: str) -> list[tuple[str, Decimal, Decimal]]:
+    """같은 통화 값 (표시, 하한, 상한) — inbound·outbound total 은 정확 일치, amount_range 는 min~max.
 
-    통화 자체가 facts 에 없으면(KRW·EUR 등) 늘 False → MISMATCH (환산 금지 규칙, docs/str/04).
+    통화 자체가 facts 에 없으면(KRW·EUR 등) 빈 목록 → MISMATCH (환산 금지 규칙, docs/str/04).
     """
-    for flow in (facts.inbound, facts.outbound):
+    out: list[tuple[str, Decimal, Decimal]] = []
+    for name, flow in (("inbound", facts.inbound), ("outbound", facts.outbound)):
         for row in flow.by_currency:
-            if row.currency == code and value == Decimal(row.total):
-                return True
+            if row.currency == code:
+                out.append((f"{name}.amount.{code}={row.total}", Decimal(row.total), Decimal(row.total)))
     for rng in facts.amount_range:
-        if rng.currency == code and Decimal(rng.min) <= value <= Decimal(rng.max):
-            return True
-    return False
+        if rng.currency == code:
+            out.append((f"amount_range.{code}={rng.min}~{rng.max}", Decimal(rng.min), Decimal(rng.max)))
+    return out
+
+
+def _all_or_absent(facts: Facts, code: str, entries: list[tuple[str, Decimal, Decimal]]) -> str:
+    """MISMATCH·UNPARSED 의 source_value — 같은 통화 값 전부, 없으면 facts 에 있는 통화 코드."""
+    if entries:
+        return " · ".join(label for label, _, _ in entries)
+    rows = [*facts.inbound.by_currency, *facts.outbound.by_currency, *facts.amount_range]
+    codes = "·".join(dict.fromkeys(r.currency for r in rows))
+    return f"facts에 {code} 없음 ({codes})" if codes else f"facts에 {code} 없음"
 
 
 __all__ = ["amount_match"]
