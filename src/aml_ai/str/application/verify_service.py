@@ -30,7 +30,14 @@ from aml_ai.shared.schemas.str import (
 )
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain import masking, verification
-from aml_ai.str.domain.constants import JUDGE_PASS_SCORE, JUDGE_VOTES, VERIFIER_VERSION
+from aml_ai.str.domain.constants import (
+    JUDGE_PASS_SCORE,
+    JUDGE_PROMPT,
+    JUDGE_PROMPT_NARRATIVE_V4,
+    JUDGE_VOTES,
+    VERIFIER_VERSION,
+)
+from aml_ai.str.domain.constants_v4 import NARRATIVE_V4
 from aml_ai.str.domain.fact_keys import fact_keys as domain_fact_keys
 from aml_ai.str.domain.models import StoredDraft
 from aml_ai.str.infrastructure.generation_repository import GenerationRepository
@@ -48,18 +55,24 @@ class VerifyService:
     verifications: VerificationRepository
     judge: Judge
     clock: Callable[[], float] = time.monotonic
+    judge_for_v4: Judge | None = None  # SCRUM-268 — v4 초안 전용(스위치 꺼짐이면 None, 06 "judge_v4")
 
     @classmethod
     def build(
         cls, session: Session, settings: Settings, *, clock: Callable[[], float] = time.monotonic
     ) -> VerifyService:
+        llm = make_llm_client(settings)
+        for_v4 = None
+        if JUDGE_PROMPT_NARRATIVE_V4 != JUDGE_PROMPT:
+            for_v4 = Judge(llm, settings, JUDGE_PROMPT_NARRATIVE_V4, clock=clock, votes=JUDGE_VOTES)
         return cls(
             settings=settings,
             session=session,
             generations=GenerationRepository(session),
             verifications=VerificationRepository(session),
-            judge=Judge(make_llm_client(settings), settings, clock=clock, votes=JUDGE_VOTES),
+            judge=Judge(llm, settings, clock=clock, votes=JUDGE_VOTES),
             clock=clock,
+            judge_for_v4=for_v4,
         )
 
     def verify(self, req: VerifyRequest) -> VerifyResponse:
@@ -70,18 +83,25 @@ class VerifyService:
         sha = narrative_sha256(req.narrative)
         code_checks = verification.run_code_checks(draft.facts, req.narrative, draft.evidence_transaction_ids)
         code_ok = all(c.match for c in code_checks)
+        judge = self._judge_for(draft)
         # SCRUM-122 — LLM 호출 바로 앞. CODE_FAILED 경로도 end_read(저장은 autobegin).
         end_read(self.session)
-        status, llm_checks, judge_meta, narrative_refs = self._decide(draft, req, code_ok, deadline)
+        status, llm_checks, judge_meta, narrative_refs = self._decide(judge, draft, req, code_ok, deadline)
         return self._persist_and_respond(
-            draft, req, sha, code_checks, llm_checks, judge_meta, narrative_refs, status
+            judge, draft, req, sha, code_checks, llm_checks, judge_meta, narrative_refs, status
         )
 
+    def _judge_for(self, draft: StoredDraft) -> Judge:
+        """SCRUM-268 — v4 초안이고 스위치가 켜졌을 때만 judge_v4, 그 밖은 기존 평가자."""
+        if self.judge_for_v4 is not None and draft.prompt_version == NARRATIVE_V4:
+            return self.judge_for_v4
+        return self.judge
+
     def _persist_and_respond(
-        self, draft, req, sha, code_checks, llm_checks, judge_meta, narrative_refs, status
+        self, judge, draft, req, sha, code_checks, llm_checks, judge_meta, narrative_refs, status
     ):
         passed = status is VerifyStatus.PASSED
-        verifier_version = f"{VERIFIER_VERSION}+{self.judge.prompt_version}"
+        verifier_version = f"{VERIFIER_VERSION}+{judge.prompt_version}"
         rid = current_request_id()
         vid = self.verifications.save(
             generation_id=draft.generation_id,
@@ -112,16 +132,14 @@ class VerifyService:
         )
 
     def _decide(
-        self, draft: StoredDraft, req: VerifyRequest, code_ok: bool, deadline: float
+        self, judge: Judge, draft: StoredDraft, req: VerifyRequest, code_ok: bool, deadline: float
     ) -> tuple[VerifyStatus, list[LlmCheck] | None, JudgeMeta | None, list[NarrativeRef] | None]:
         if not code_ok:
             return VerifyStatus.CODE_FAILED, None, None, None
         facts_masked = masking.mask_for_llm(draft.facts)
         keys = domain_fact_keys(draft.facts)
         try:
-            result = self.judge.run(
-                facts_masked, req.narrative, deadline=deadline, fact_keys=list(keys.keys())
-            )
+            result = judge.run(facts_masked, req.narrative, deadline=deadline, fact_keys=list(keys.keys()))
         except Exception as exc:
             log.warning(
                 "judge_unavailable",

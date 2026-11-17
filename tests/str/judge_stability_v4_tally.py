@@ -61,8 +61,9 @@ def render_table(summary: dict[str, dict[str, Any]]) -> str:
 REGISTERED_N = 3  # 09 SCRUM-254 사전 기준 — 회차
 REGISTERED_V4 = 18  # 09 SCRUM-254 사전 기준 — v4 사건(시연 후보 2 포함). v2 대조 1 은 판정 밖
 # 09 SCRUM-254 사전 기준 ① 의 실행 조건(추가 검토 4차) — 실행 때 실제 쓴 값과 비교. 고정값(중앙값 집계·항목 5개·
-# 코드 검사 → 평가자 순서·실제 LLM 클라이언트)은 하네스 코드라 여기 없음
-REGISTERED: dict[str, Any] = {"prompt": "judge_v3", "votes": 3, "pass_score": 4, "n": REGISTERED_N,
+# 코드 검사 → 평가자 순서·실제 LLM 클라이언트)은 하네스 코드라 여기 없음. 프롬프트는 09 SCRUM-268 사전 기준 3 으로
+# judge_v4(1차 실측은 judge_v3 — 그 결과는 09·08 기록 그대로)
+REGISTERED: dict[str, Any] = {"prompt": "judge_v4", "votes": 3, "pass_score": 4, "n": REGISTERED_N,
                               "v4_cases": REGISTERED_V4}  # fmt: skip
 
 

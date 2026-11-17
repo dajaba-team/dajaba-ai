@@ -311,6 +311,22 @@ v4 초안은 코드 조립(LLM 0)이라 초안 단계 평가자가 없고 검증
 - 판정 칸 = `typology_support`(마스킹 facts) 결과. NO_SPECULATION·NO_INSTRUCTION_TEXT 는 57회 모두 5
 - "계좌 개설일" 은 고객 정보가 있는 15건 전부에 걸림(customer_missing·demo_7·demo_48 은 문장 없음)
 - 다음: judge_v4 사전 기준 등록 → 구현 · v4 카탈로그는 재블라인드 응답 뒤 → 같은 하네스로 2차 실측(결과는 이 절 아래 · 09 별도 줄)
+- **등록 조건 변경(SCRUM-268)**: 2차부터 등록 judge 프롬프트 = `judge_v4`(09 SCRUM-268 사전 기준 3, `judge_stability_v4_tally.REGISTERED`). `--prompt` 기본값도 등록 값. 1차(judge_v3) 결과는 위 표 그대로 — judge_v3 로 다시 돌리면 `mode=exploratory`
+
+### judge_v4 사전 기준 측정 (SCRUM-268, 09 "SCRUM-268 judge_v4 사전 기준 — 측정 전")
+
+기준 1(오류 잡는 힘 유지)·기준 2(판정 문장 뒤집기)를 한 실행에서. 기준 3(v4 시연 안정)은 SCRUM-269 뒤 254 ★L-1 2차(위 절 하네스, 등록 프롬프트 judge_v4)에서. **평가자·v4 문장 변경 없이 측정만, 실제 호출은 진희 터미널.**
+
+- **기준 1 사례**(`tests/str/judge_v4_criteria.py`, LLM 0): 평가자마다 자기 기준 본문 — judge_v3 = v2 기준 본문(`facts_fan_in` + 녹화 v2 초안, 주입 12 와 같은 본문), judge_v4 = v4 기준 본문(시연 후보 demo_7 v4 조립). 각 기준 본문에 `injection_live_support` 주입 7·8·10·11 그대로. 참고(판정 밖): judge_v3 는 23, judge_v4 는 12(v2 기준 본문)·23. 11 은 verify 경로에서 `OPINION_PRESENT` 로 CODE_FAILED 라 **평가자 단독 호출**(코드 검사 건너뜀 — 127 측정과 같은 규칙), 나머지는 verify 경로(코드 검사 → 평가자)
+- **기준 2 대조**(추가 검토 2차): 뒤집지 않은 원래 v4 18건 그대로(`c2ctl:<사건>`) — verify 경로 + judge_v4, 뒤집기와 같은 실행
+- **기준 2 사례**: 254 v4 18건의 GROUNDS 판정 문장 text 만 블록과 반대로 — 반대 문장은 `support_sentence` 에 반대 판정이 나오는 facts 를 넣어 만듦(문장을 새로 쓰지 않음), cites·다른 문장 diff 0. verify 경로 + judge_v4
+- **실행**(`judge_v4_criteria_run.py`): 사례 × 회차(n) 마다 새 평가자(표 3) → `_tmp/judge_v4_criteria_<stamp>.jsonl` 한 줄씩 바로 이어 씀. 평가자 예외는 VERIFY_UNAVAILABLE(예외 종류만), 코드 검사 실패는 CODE_FAILED(평가자 안 감)
+- **판정**(`judge_v4_criteria_tally.py`, 09 그대로): 기준 1 — 평가자마다 기준 본문 목표 항목이 n 중 2회 이상 ≥ 4 일 때만 그 사례를 판정에 넣고, 주입 본문 목표 항목이 n 중 2회 이상 ≤ 3 이면 잡음, 비율 = 잡은 사례 / 4, 충족 = judge_v4 ≥ judge_v3. 기준 2 — 코드 검사를 통과한 뒤집기 전부가 n 회 모두 LLM_FAILED(코드 검사 실패 뒤집기는 개수만). 평가자 실패 회차는 잡지 못함(기준 본문은 ≥ 4 아님). **기준 2 잡음(추가 검토 2차 — 위 'n 회 모두 LLM_FAILED' 를 대체)**: 뒤집기 `NO_UNSUPPORTED_CLAIM` 이 n 회 모두 ≤ 2(다른 항목 실패는 근거 아님), 대조(원래 초안)가 n 중 2회 이상 ≥ 3 일 때만 판정(낮으면 `c2:control_low`, 점수 있는 회차 2 미만이면 `c2:control_insufficient` — 판정 불가), 충족 = 18건 전부 판정 가능 + 전부 잡음. 기준 1 은 이미 목표 항목만 봄. **판정 불가(추가 검토 1차, 09 같은 날 줄 — `criterion_met=false` + `undecidable` + 이유)**: 기준 1 은 평가자·사례마다 기준 본문·주입 본문 둘 다 점수 있는 회차가 n 중 2회 미만 · judge_v3 비율 0(기준선 없음) · 기준 본문 탈락 사례는 이유에 `excluded:` 로 남김 / 기준 2 는 코드 검사 통과 뒤집기가 기대 18건 전부가 아님 표본 완전성(사례 전부·회차 1..n) · 실행 조건(프롬프트 judge_v3/judge_v4 · 표 3 · 통과 기준 4 · n 3 · 기준 1 사례 4 · 기준 2 뒤집기 18 · 기준 2 대조 18) 다르면 `mode=exploratory`
+- **dry-run**(CLI, 호출 0): 사례 49(기준 1 judge_v3 6 · judge_v4 7 · 뒤집기 18 · 대조 18) · 평가자 user sha256 · 코드 검사 실패 수 → `_tmp/judge_v4_criteria_dry_<stamp>.json`
+- **명령**(시연 후보 내보내기는 위 254 절 그대로):
+  - dry-run: `uv run --frozen --extra dev python -m tests.str.judge_v4_criteria_live --dry-run --demo-alerts 7,48 --demo-requests tests/str/recorded/_tmp/demo_requests_7-48.json`
+  - live(진희 터미널, `AI_LLM_MOCK=false`): 위 명령에서 `--dry-run` → `--live --n 3` — 한 번에 49사례 × 3회(약 441호출·약 209만 토큰, 07 ① 한 번에)
+- **결과 표**: 측정 뒤 이 절 아래(기준 1 사례 × 평가자 · 기준 2 18건) · 09 결과 줄 · 07 비용
 
 ### 평가자 N=3 중앙값 단위 테스트 (SCRUM-207)
 

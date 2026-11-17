@@ -14,4 +14,5 @@ FROZEN_PROMPTS: dict[str, str] = {
     "summary_v1": "110d73729036723f6587721ae5e39ebbd4a5d925142ab683522126e13eac5d65",  # SCRUM-129
     "rewrite_v1": "006a3880474364e6aefb20980e8aa2b795e0003469441138fe6d01c8d341c8ed",  # SCRUM-147
     "narrative_v3": "851ba7937c4cafa5d9bed1cfc85293aa23f978220410f0c79a3c4e699959b518",  # SCRUM-225
+    "judge_v4": "e4214d8a6dec15d2eafadc7602265d6b040eb6b47c945b13053df666966f7067",  # SCRUM-268
 }

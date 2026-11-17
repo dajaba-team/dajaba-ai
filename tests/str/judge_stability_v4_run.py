@@ -26,9 +26,12 @@ def _ballots(ballots: list[Any]) -> list[dict[str, Any]]:
              "tokens_in": b.meta.tokens_in, "tokens_out": b.meta.tokens_out} for b in ballots]  # fmt: skip
 
 
-def run_iteration(make_judge: JudgeFactory, budget_s: float, case: V4Case, run: int) -> dict[str, Any]:
+def run_iteration(
+    make_judge: JudgeFactory, budget_s: float, case: V4Case, run: int, *, judge_only: bool = False
+) -> dict[str, Any]:
+    """judge_only — 코드 검사 건너뛰고 평가자 단독 호출(SCRUM-268 기준 1 주입 11, 127 측정과 같은 규칙)."""
     rec: dict[str, Any] = {"case_id": case.case_id, "kind": case.kind, "run": run}
-    failures = code_check_failures(case)
+    failures = 0 if judge_only else code_check_failures(case)
     if failures:  # 실제 verify 처럼 평가자까지 안 감
         return rec | {"status": "CODE_FAILED", "scores": {}, "comments": {}, "code_check_failures": failures}
     judge, ballots = make_judge()
