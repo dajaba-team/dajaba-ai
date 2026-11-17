@@ -8,6 +8,8 @@
 
 `corpus/manifest.json`에 문서 목록(id·제목·발행처·연도·URL·sha256·쪽수·언어). PDF는 `corpus/pdf/`에 두되 **.gitignore**(저작권·용량). manifest만 커밋 → 같은 manifest면 누구나 같은 코퍼스를 다시 만든다.
 
+manifest는 Docker 이미지에도 복사한다(`Dockerfile` `COPY corpus/manifest.json`, PDF는 안 넣음) — 컨테이너의 `retrieval_version`(`{embedding_model}@{manifest sha256 앞 8자}`)이 health·`generation_meta`·`ai.generations`에 남도록. 없으면 RAG를 켜도 null(2026-11-17 SCRUM-256).
+
 문서 8개 (2026-11-09 sha256·pages 확인):
 
 | id | 문서 | 왜 |
