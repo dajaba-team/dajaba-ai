@@ -6,6 +6,8 @@ import re
 import unicodedata
 from typing import TYPE_CHECKING
 
+from tests.str.v4_blind_notation_cleanup import attached_paren, paren_choice, particle_fix, tidy
+
 if TYPE_CHECKING:
     from aml_ai.shared.schemas.str import Facts
 
@@ -68,18 +70,22 @@ def _dictionary(labels: dict[str, dict[str, str]]) -> dict[str, str]:
 
 
 def _feature_labels(labels: dict[str, dict[str, str]], facts: Facts) -> dict[str, str]:
-    """관측값의 기준 표기를 찾아 같은 이름의 모델 신호에도 적용한다."""
+    """피처 이름 표기 — 사전 `observation_name`(실제 이름, SCRUM-264·265) → 관측값 basis 표기 → "관측 항목"."""
     basis_labels = labels.get("observation_basis", {})
+    names = labels.get("observation_name", {})
     dictionary = {
-        observation.name: basis_labels.get(observation.basis, GENERIC_ITEM)
-        if observation.basis is not None
-        else GENERIC_ITEM
+        observation.name: names.get(observation.name)
+        or (
+            basis_labels.get(observation.basis, GENERIC_ITEM)
+            if observation.basis is not None
+            else GENERIC_ITEM
+        )
         for observation in facts.observations
         if observation.name
     }
     for name in facts.model_signals:
         if name:
-            dictionary.setdefault(name, GENERIC_ITEM)
+            dictionary.setdefault(name, names.get(name, GENERIC_ITEM))
     return dictionary
 
 
@@ -139,7 +145,7 @@ def translate(
     labels: dict[str, dict[str, str]],
     facts: Facts | None = None,
 ) -> tuple[str, list[tuple[str, str]], list[str]]:
-    """긴 표기부터 치환하며 바꾼 자리 바로 뒤의 끝 낱말 중복만 합친다."""
+    """긴 표기부터 치환하며 바꾼 자리 바로 뒤의 조사 받침·끝 낱말 중복을 맞추고 흔적을 정리한다(SCRUM-265)."""
     dictionary = _dictionary(labels)
     if facts is not None:
         dictionary.update(_feature_labels(labels, facts))
@@ -150,10 +156,31 @@ def translate(
     for match in _pattern(dictionary).finditer(text):
         if match.start() < cursor:
             continue
+        choice = _paren(text, match, dictionary)
+        if choice == "keep":
+            continue
+        if choice == "drop":
+            parts.append(text[cursor : match.start() - 1])
+            cursor = match.end() + 1
+            if (match.group(), "") not in replaced:
+                replaced.append((match.group(), ""))
+            continue
         label = _replacement(match, dictionary, replaced, unknown)
         parts.extend((text[cursor : match.start()], label))
         cursor = match.end()
         if label and label != match.group():
-            cursor += _merged_word_length(text, cursor, label)
+            particle, length = particle_fix(text, cursor, label)
+            parts.append(particle)
+            cursor += length or _merged_word_length(text, cursor, label)
     parts.append(text[cursor:])
-    return "".join(parts), replaced, unknown
+    plain = {label for code, label in dictionary.items() if not label.endswith(f"({code})")}
+    return tidy("".join(parts), plain), replaced, unknown
+
+
+def _paren(text: str, match: re.Match[str], dictionary: dict[str, str]) -> str | None:
+    """한글 낱말에 붙은 괄호 속 사전 코드면 "keep"·"label"·"drop", 아니면 None."""
+    code = match.group("code")
+    if code is None or code not in dictionary:
+        return None
+    word = attached_paren(text, match.start(), match.end())
+    return None if word is None else paren_choice(text[: match.start() - 1], code, dictionary[code])
