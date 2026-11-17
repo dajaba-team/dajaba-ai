@@ -71,13 +71,14 @@ PATHS: dict[str, tuple[str, list[dict[str, Any]], list[list[int]] | None]] = {
 }
 
 
+_A, _B = "focal_distinct_senders", "evidence_count"  # 실제 피처 이름(개·건) — SCRUM-264
 _W0, _W1 = "2022-09-02T00:00:00", "2022-09-03T00:00:00"
 
 
 def _reason(name: str, value: float | None, baseline: float | None, *, window: tuple = (_W0, _W1)) -> dict:
     return {
         "name": name,
-        "observation": {"value": value, "unit": "count", "window_start": window[0], "window_end": window[1], "basis": "distinct_inbound_counterparties"},
+        "observation": {"value": value, "unit": None, "window_start": window[0], "window_end": window[1], "basis": "model_feature"},
         "baseline": {"value": baseline, "definition": "other days mean" if baseline is not None else None},
         "contribution": {"method": "SHAP", "value": 0.1, "scale": "raw_margin"},
     }  # fmt: skip
@@ -86,13 +87,15 @@ def _reason(name: str, value: float | None, baseline: float | None, *, window: t
 # 관측값 축 — baseline 조합·관측값 null·관측 구간 한쪽만(부재 주장 검사용)
 OBS: dict[str, list[dict]] = {
     "none": [],
-    "both": [_reason("a", 3, 2.0), _reason("b", 4, 1.0)],
-    "first_only": [_reason("a", 3, 2.0), _reason("b", 4, None)],
-    "second_only": [_reason("a", 3, None), _reason("b", 4, 2.0)],
-    "zero_and_null": [_reason("a", 3, 0.0), _reason("b", 4, None)],
-    "all_null": [_reason("a", 3, None), _reason("b", 4, None)],
-    "one_value_null": [_reason("a", None, None), _reason("b", 4, 2.0)],
-    "half_window": [_reason("a", 3, 2.0, window=(_W0, None)), _reason("b", 4, None, window=(None, _W1))],
+    "both": [_reason(_A, 3, 2.0), _reason(_B, 4, 1.0)],
+    "first_only": [_reason(_A, 3, 2.0), _reason(_B, 4, None)],
+    "second_only": [_reason(_A, 3, None), _reason(_B, 4, 2.0)],
+    "zero_and_null": [_reason(_A, 3, 0.0), _reason(_B, 4, None)],
+    "all_null": [_reason(_A, 3, None), _reason(_B, 4, None)],
+    "one_value_null": [_reason(_A, None, None), _reason(_B, 4, 2.0)],
+    "half_window": [_reason(_A, 3, 2.0, window=(_W0, None)), _reason(_B, 4, None, window=(None, _W1))],
+    # 실제 reasons 형식(SCRUM-264) — unit·window·baseline 전부 null
+    "real": [_reason(_A, 3, None, window=(None, None)), _reason(_B, 4, None, window=(None, None))],
 }
 
 

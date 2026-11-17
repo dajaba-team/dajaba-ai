@@ -19,6 +19,7 @@ from aml_ai.str.infrastructure.display_labels import load_display_labels
 from aml_ai.str.infrastructure.fewshot_store import FEWSHOT_ROOT
 from aml_ai.str.infrastructure.narrative_v4_builder import build_v4
 from tests.conftest import FIXTURES
+from tests.str.v4_real_names import real_names
 
 FIXTURE_NAMES = (
     "facts_fan_in.json",
@@ -31,11 +32,14 @@ FIXTURE_NAMES = (
 
 
 def facts_sources() -> list[tuple[str, Facts]]:
-    """픽스처 6개(다중 통화 포함) + v3 few-shot facts 5개(CYCLE 경로 확인·PASS_THROUGH·유형 없음)."""
-    out = [(n, Facts.model_validate_json((FIXTURES / n).read_text(encoding="utf-8"))) for n in FIXTURE_NAMES]
+    """픽스처 6개(다중 통화 포함) + v3 few-shot facts 5개(CYCLE 경로 확인·PASS_THROUGH·유형 없음). 관측 이름은 실제 이름."""
+    out = [(n, load_fixture(n)) for n in FIXTURE_NAMES]
     for p in sorted((FEWSHOT_ROOT / "narrative_v3").glob("*.json")):  # facts 만 — 유형·경로·null 다양
         out.append(
-            (f"fewshot/{p.name}", Facts.model_validate(json.loads(p.read_text(encoding="utf-8"))["facts"]))
+            (
+                f"fewshot/{p.name}",
+                real_names(Facts.model_validate(json.loads(p.read_text(encoding="utf-8"))["facts"])),
+            )
         )
     return out
 
@@ -53,8 +57,14 @@ def failures(facts: Facts, sections: list[LlmNarrativeSection]) -> list[Any]:
     return [c for c in code_checks(facts, sections) if not c.match]
 
 
-def load_fixture(name: str) -> Facts:
+def load_raw_fixture(name: str) -> Facts:
+    """파일 그대로(지어낸 관측 이름) — v2 표기 통일 하네스 테스트용."""
     return Facts.model_validate_json(Path(FIXTURES / name).read_text(encoding="utf-8"))
+
+
+def load_fixture(name: str) -> Facts:
+    """관측 이름은 실제 이름으로(SCRUM-264 — 파일은 v1~v3 녹화 키라 그대로)."""
+    return real_names(load_raw_fixture(name))
 
 
 def longest_case() -> Facts:
@@ -85,4 +95,4 @@ def longest_case() -> Facts:
         "transaction_ids": [1, 11],
     }
     d["typology"] = "CYCLE"
-    return Facts.model_validate(d)
+    return real_names(Facts.model_validate(d))

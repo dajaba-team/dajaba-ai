@@ -15,6 +15,7 @@ from aml_ai.str.domain.fact_keys import attach_evidence
 from aml_ai.str.infrastructure.display_labels import load_display_labels
 from aml_ai.str.infrastructure.narrative_v4_builder import build_v4
 from tests.str.v4_blind_support import BlindCase, CaseDrafts, blind_cases, build_blind, unify_notation
+from tests.str.v4_real_names import real_names
 from tests.str.v4_slot_support import failures, load_fixture
 
 LABELS = load_display_labels()
@@ -53,13 +54,14 @@ def test_blind_cases_are_eight_with_required_shapes() -> None:
     )
     assert partial.observations[1].value == diff == 0.0  # 표기 "유입액에서 유출액을 뺀 값"과 맞게
     assert [o.baseline is None for o in partial.observations] == [False, True]  # baseline 일부 null 유지
-    assert failures(partial, _v4(partial)) == []  # 이 사건 v4 조립 결과 코드 검사 실패 0
+    assert failures(real_names(partial), _v4(partial)) == []  # 이 사건 v4 조립 결과 코드 검사 실패 0
     assert {c.group for c in cases} == {"g1", "g2"}  # 묶음은 번호 — 좌우 초안 A·B 와 안 헷갈리게
     assert not {c.group for c in cases} & {"A", "B"}
 
 
 def _v4(facts) -> list[NarrativeSection]:  # type: ignore[no-untyped-def]
-    return attach_evidence(build_v4(masking.mask_for_llm(facts), LABELS), facts)
+    real = real_names(facts)  # v4 쪽만 실제 이름(SCRUM-264)
+    return attach_evidence(build_v4(masking.mask_for_llm(real), LABELS), real)
 
 
 def _v2(case_id: str) -> list[NarrativeSection]:

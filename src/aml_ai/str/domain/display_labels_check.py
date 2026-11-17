@@ -24,7 +24,10 @@ def used_codes(facts: dict[str, Any]) -> list[tuple[str, str]]:
         found += [("currency", c["currency"]) for c in facts[flow]["by_currency"]]
     found += [("currency", a["currency"]) for a in facts.get("amount_range", [])]
     for o in facts.get("observations", []):
-        found += [("observation_basis", o.get("basis")), ("observation_unit", o.get("unit"))]
+        found += [
+            ("observation_name", o["name"]),
+            ("observation_name_unit", o["name"]),
+        ]  # SCRUM-264 이름 기준
     return list(dict.fromkeys((f, c) for f, c in found if c is not None))
 
 

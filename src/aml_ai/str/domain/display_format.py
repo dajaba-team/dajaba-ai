@@ -32,6 +32,12 @@ def topic(word: str) -> str:
     return word + ("은" if _last_sound(word)[0] else "는")
 
 
+def topic_before_paren(word: str) -> str:
+    """은/는 — 괄호로 끝나면 괄호 앞 말 기준(`비중(거래 수 가중 평균)은`). 관측 항목 표기용(SCRUM-264)."""
+    base = word[: word.rfind("(")] if word.endswith(")") and "(" in word else word
+    return word + topic(base)[len(base) :]
+
+
 def with_ro(word: str) -> str:
     """으로/로 — ㄹ 받침은 로."""
     has, rieul = _last_sound(word)

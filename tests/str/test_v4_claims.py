@@ -18,7 +18,7 @@ from aml_ai.str.domain.derived_flags import derive_flags
 from aml_ai.str.domain.display_slots import build_slots
 from aml_ai.str.domain.narrative_assembly import assemble
 from aml_ai.str.domain.narrative_plan import Pick, candidates, default_plan, validate_plan
-from tests.str.v4_claims_support import COMBOS, CUSTOMERS, LABELS, PATHS, editor_plans, facts_for
+from tests.str.v4_claims_support import _A, _B, COMBOS, CUSTOMERS, LABELS, PATHS, editor_plans, facts_for
 from tests.str.v4_claims_table import CLAIMS, OBS_CLAIMS
 from tests.str.v4_slot_support import failures
 
@@ -116,9 +116,7 @@ def test_internal_inflow_blocks_outbound_only_claim() -> None:
     assert "출금만" not in text and "입금은 없고" not in text
 
 
-@pytest.mark.parametrize(
-    ("obs", "marked"), [("first_only", "b"), ("zero_and_null", "b"), ("second_only", "a")]
-)
+@pytest.mark.parametrize(("obs", "marked"), [("first_only", _B), ("zero_and_null", _B), ("second_only", _A)])
 def test_partial_baseline_marks_only_that_observation(obs: str, marked: str) -> None:
     """반례 — baseline [2.0, null]·[0.0, null]·[null, 2.0]: 섹션 끝 부재 문장 없음, null 쪽 관측값 문장에만."""
     facts = facts_for(1, 0, 0, "none", "FAN_IN", obs=obs)

@@ -147,9 +147,9 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
 
 ### 표기 사전 (`contracts/display_labels_v1.json`, ★A-2)
 
-- 모양: `{"version": "display-labels-v1", "entity_type": {...}, "industry": {...}, "account_purpose": {...}, "risk_level": {...}, "payment_format": {...}, "typology": {...}, "currency": {...}, "observation_basis": {...}, "observation_unit": {...}}` — 코드값 → 한글 표기만. 백엔드가 나중에 그대로 읽을 수 있는 단순 JSON(규약 아님, 백엔드 변경 없음).
+- 모양: `{"version": "display-labels-v1", "entity_type": {...}, "industry": {...}, "account_purpose": {...}, "risk_level": {...}, "payment_format": {...}, "typology": {...}, "currency": {...}, "observation_basis": {...}, "observation_unit": {...}, "observation_name": {...}, "observation_name_unit": {...}}` — 코드값 → 한글 표기만. 백엔드가 나중에 그대로 읽을 수 있는 단순 JSON(규약 아님, 백엔드 변경 없음).
 - 읽기는 `str/infrastructure/display_labels.py`(v4 일 때 생성기를 만들 때 한 번), domain 은 dict 를 인자로만 받음(01 — domain 은 파일을 안 만짐). 컨테이너는 `src` 만 복사하므로 Dockerfile 이 이 JSON 한 개를 `contracts/` 에 같이 복사.
-- **범위**(★A-6): `entity_type`·`typology` 는 Enum 전부. `industry`·`account_purpose`·`risk_level` 은 facts 에서 `str | None`(닫힌 Enum 아님)이라 **백엔드 V002 주석 목록 ∪ 픽스처·few-shot 값**(`TRADING`·`OPERATIONS`·`BUSINESS_SETTLEMENT` 포함). `observation_basis`·`observation_unit` 은 ML 쪽 자유 문자열이라 **지금 보이는 값**(basis 5개, unit 3개). `currency` 는 `constants_currency.CURRENCY_ALIASES` 의 코드 전부, `payment_format` 은 IBM 원문 7종. 전체 목록은 ① 운영 확인(백엔드 실제 시드·준영 basis 목록) — PR 본문에 "미확정".
+- **범위**(★A-6): `entity_type`·`typology` 는 Enum 전부. `industry`·`account_purpose`·`risk_level` 은 facts 에서 `str | None`(닫힌 Enum 아님)이라 **백엔드 V002 주석 목록 ∪ 픽스처·few-shot 값**(`TRADING`·`OPERATIONS`·`BUSINESS_SETTLEMENT` 포함). `observation_basis`·`observation_unit` 은 ML 쪽 자유 문자열이라 **지금 보이는 값**(basis 5개, unit 3개) — **SCRUM-264 부터 v4 슬롯은 안 씀**(228 블라인드 v2 표기 통일 하네스만 씀, 남겨 둠). **`observation_name`·`observation_name_unit`**(SCRUM-264): 실제 ML reasons 는 `basis` 가 늘 `model_feature`·`unit`·window·baseline 이 null 이라 **피처 이름**을 키로 표기·단위를 둠. 범위 = 피처 31개 중 04 거르기(메타 11개)를 통과할 수 있는 **20개**(준영 11/17 목록 — 이름이 바뀌면 사전 데이터만 고침). basis 로 대신 찾지 않음. `currency` 는 `constants_currency.CURRENCY_ALIASES` 의 코드 전부, `payment_format` 은 IBM 원문 7종. 전체 목록은 ① 운영 확인(백엔드 실제 시드·준영 basis 목록) — PR 본문에 "미확정".
 - **빈 값 없음**(★A-3): facts 에 나온 코드값이 사전에 없으면 **조립 전에** 생성 실패 → `INTERNAL`(500, 새 에러 코드 안 만듦 — 예외 클래스 `shared/errors.NarrativeAssemblyFailed`, 조립 1,200자 초과와 같은 것). 로그에는 칸 이름·코드값만(`display_label_missing`, 본문 없음). 조용히 원문 코드를 본문에 내보내지 않는다. `null` 은 사전을 안 거치고 "자료 없음" 문형으로.
 - **표기 원칙**:
   - 검사기 종류 단어(`입금`·`출금`·`상대`·`자행`·`타행`·`경보`)가 들어간 표기는 피한다 — `SALES_DEPOSIT` → `매출 대금 수납`(준영 `code_labels.csv` 의 `매출 대금 입금` 과 다름 — PR 표에 둘 다).
@@ -158,6 +158,31 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
   - `ACH` 표기는 `ACH`(alias 가 `ACH` 하나뿐). 설명 `(자동결제망)` 은 데이터 정의 확인 뒤(09 미결).
   - 유형·통화·결제 방식은 슬롯이 `한글(코드)` 로 씀(첫 등장 병기 — 섹션마다 첫 등장). **표기가 원문과 같으면 괄호 병기 생략**(`ACH(ACH)` 안 씀 — 단위 테스트).
   - 관측 단위 표기: `count` → `개`, `ratio`·`amount`·`null` → 단위 없음(금액 단위에 통화 이름을 붙이면 AMOUNT_MATCH 가 facts 합계와 대조해 MISMATCH).
+  - **관측 항목 표기(`observation_name`, SCRUM-264)**: 숫자·한글 수사 금지(06 COUNT 는 관측 단어 뒤 첫 숫자를 관측값으로 소비 — 문구 속 숫자가 값 대신 대조됨, 한글 수사+단위는 UNPARSED) · 판단 낱말("의심"·"이례" 등) 금지 · 테스트: 20개 이름마다 값을 넣어 v4 렌더 → 06 코드 검사 실패 0.
+  - **관측 단위(`observation_name_unit`)**: 건수 `건` · 계좌·종류 수 `개` · 초 `초` · 0~1 비율 단위 없음(`""`). **값은 환산하지 않음**(초 → 시간, 0~1 → % 안 함 — `초`·`%`·단위 없음은 06 COUNT 대조 밖이라 환산 값이 facts 와 달라도 못 잡음, 원값 0.25 에 `%` 를 붙이면 뜻이 틀림). facts 의 `unit` 은 v4 표기에 안 씀.
+
+    | 이름 | 표기 | 단위 |
+    |---|---|---|
+    | `evidence_count` | 근거 거래 수 | 건 |
+    | `evidence_span_seconds` | 첫 근거 거래부터 마지막 근거 거래까지 걸린 시간 | 초 |
+    | `evidence_min_gap_seconds` | 근거 거래 사이 최소 간격 | 초 |
+    | `evidence_max_gap_seconds` | 근거 거래 사이 최대 간격 | 초 |
+    | `focal_in_count` | 대상 계좌로 들어온 근거 거래 수 | 건 |
+    | `focal_out_count` | 대상 계좌에서 나간 근거 거래 수 | 건 |
+    | `focal_distinct_senders` | 대상 계좌에 송금한 서로 다른 계좌 수 | 개 |
+    | `focal_distinct_receivers` | 대상 계좌가 송금한 서로 다른 계좌 수 | 개 |
+    | `evidence_account_count` | 근거 거래에 나온 서로 다른 계좌 수 | 개 |
+    | `paid_raw_currency_count` | 지급 원본 통화 종류 수 | 개 |
+    | `received_raw_currency_count` | 수취 원본 통화 종류 수 | 개 |
+    | `payment_format_count` | 결제 방식 종류 수 | 개 |
+    | `evidence_ach_fraction` | 결제 방식이 알려진 근거 거래 중 ACH 비율 | 없음 |
+    | `evidence_cheque_fraction` | 결제 방식이 알려진 근거 거래 중 수표 비율 | 없음 |
+    | `evidence_cash_fraction` | 결제 방식이 알려진 근거 거래 중 현금 비율 | 없음 |
+    | `evidence_paid_max_share` | 통화별 최대 지급 금액 비중(거래 수 가중 평균) | 없음 |
+    | `evidence_received_max_share` | 통화별 최대 수취 금액 비중(거래 수 가중 평균) | 없음 |
+    | `evidence_span_fraction_96h` | 첫·마지막 근거 거래 간격의 탐지 창 길이 대비 비율 | 없음 |
+    | `evidence_last_hour_fraction` | 기준 시각 직전 구간 안 근거 거래 비율 | 없음 |
+    | `evidence_min_path_hops_scaled` | 최대 경로 단계 대비 최소 경로 단계 비율 | 없음 |
 - 사람 평가 전에 표기 목록을 채영 님께 한 번 공유(진희) — 서비스 표기와 평가 글이 달라지지 않게.
 
 ### 슬롯 생성기 (`str/domain/display_slots.py`, 순수)
@@ -171,10 +196,10 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
 | PLACE | 거래 영업점은 자료 없음. · 대상 계좌는 {마스킹 계좌}임. · 상대 계좌는 {n}개임. · 이 가운데 자행 계좌는 {a}개, 타행 계좌는 {b}개임. — 상대 수와 자행/타행은 **문장을 나눔**(06 COUNT ⑦ 은행 단어 우선 오판 회피, SCRUM-131) | `subject`, `counterparties.count`, `counterparty_banks.*` |
 | INSTRUMENT | 내부 거래를 뺀 입금·출금의 결제 방식은 {표기}({원문}) {n}건{, …}임. (사전 alias 없는 방식은 `{표기}({원문})` 이름만) · 내부 거래를 뺀 입금·출금의 거래 통화는 {표기}({코드}){, …}임. · 미등록 통화: {원문} 통화 거래는 대응 미확인임.(있다는 주장이라 범위 구절 없음) — 셋 다 없으면(내부 거래만) "내부 거래를 뺀 입금·출금의 결제 방식은 자료 없음." **범위 구절 "내부 거래를 뺀 입금·출금의"**(`constants_v4.FLOW_SCOPE`, 쉼표 없음): 결제 방식·거래 통화·금액 범위는 내부 거래를 뺀 집계라 주어에 범위를 적음 — 내부 거래 0 이어도 같은 문구(조건 분기 없음) | `payment_format_counts.*`, `inbound/outbound.amount.*`, `unmapped_currencies.*` |
 | METHOD | {유형}({코드}) 유형으로 분류됨.(typology null 이면 안 씀) · 입금은 {n}건, 출금은 {m}건, 내부 거래는 {k}건임. · 방향마다 한 문장: {입금/출금} 합계는 {금액 쉼표} {통화 표기}{, {금액} {통화 표기}…}임. · 통화마다: 내부 거래를 뺀 입금·출금의 거래 금액은 최소 {…} {통화 표기}, 최대 {…} {통화 표기}임. (입금·출금 합계 문장은 주어가 이미 "입금"·"출금"이고 바로 앞 건수 문장이 내부 거래를 따로 세므로 범위 구절 없음) · paths `VERIFIED` 면: 확인된 경로는 {count}개임. · 가장 긴 경로는 {max_hops}홉임. · 경로 하나가 거친 계좌는 최대 {max_accounts}개임. (06 COUNT — `홉` 은 PATH_HOPS 전용, `회` 로 쓰면 거래 건수로 대조돼 MISMATCH) | `typology`, `*.count`, `*.amount.*`, `amount_range.*`, `paths.*` |
-| GROUNDS | observations 마다: 모델 관측값({window_start}~{window_end} 기준)에서 {basis 표기}는 {값}{단위}임. · **기준값 부재**: 모든 관측값 baseline 이 null(`is None`, 0.0 은 값 있음)일 때만 섹션 끝 "비교 기준값은 자료 없음." 한 문장, 일부만 null 이면 섹션 끝 문장 없이 그 관측값 문장 끝에 "이 관측값의 비교 기준값은 자료 없음." · observations 가 비면 → 모델 관측값은 자료 없음. | `observations.{name}` |
+| GROUNDS | observations 마다: 모델 관측값({window_start}~{window_end} 기준)에서 {이름 표기}는 {값}{단위}임.(SCRUM-264 — 표기·단위는 `observation_name`·`observation_name_unit`) · **관측 구간 부재**(SCRUM-264): 모든 관측값 window 가 양쪽 다 null 일 때만 괄호 없이 `모델 관측값에서 {이름 표기}는 {값}{단위}임.` + 섹션 끝 "모델 관측값의 관측 구간은 자료 없음." 한 문장(관측값마다 반복 안 함 — 값 나열 한 문장으로 묶지 않음: 06 COUNT 는 절의 관측 단어 뒤 첫 숫자만 관측값으로 봄), 일부만 null 이면 아래 괄호 문형 그대로 · **기준값 부재**: 모든 관측값 baseline 이 null(`is None`, 0.0 은 값 있음)일 때만 섹션 끝 "비교 기준값은 자료 없음." 한 문장, 일부만 null 이면 섹션 끝 문장 없이 그 관측값 문장 끝에 "이 관측값의 비교 기준값은 자료 없음." · observations 가 비면 → 모델 관측값은 자료 없음. | `observations.{name}` |
 | OPINION | (슬롯 없음) | — |
 
-- 관측 구간 괄호 안 날짜는 **ISO(`2022-09-02T00:00:00`)가 기본**(★A-4 — 이미 통과한 모양). 한글 모양(`2022년 9월 2일 00:00`)은 변조 테스트를 통과하면 채택. window 가 둘 다 null 이면 괄호 안을 `관측 구간 자료 없음`, 하나만 있으면 날짜 없이 `관측 구간 일부 자료 없음`(쉼표 없음 — 06 DATE 는 양 끝이 다 있는 관측값만 대조하고, 괄호 안 쉼표는 COUNT 절을 나눠 관측값을 상대 수로 읽음). basis 가 null 이면 `{basis 표기}는` 을 빼고 `모델 관측값(…)은 {값}임. 관측 항목 이름은 자료 없음.`. 서술 끝은 `~임`(`(으)로 관측됨` 대신 — 조사 자동 선택 줄임), 조사 은/는·으로/로는 받침으로 고름(`display_format`).
+- 관측 구간 괄호 안 날짜는 **ISO(`2022-09-02T00:00:00`)가 기본**(★A-4 — 이미 통과한 모양). 한글 모양(`2022년 9월 2일 00:00`)은 변조 테스트를 통과하면 채택. window 가 둘 다 null 이면 괄호 안을 `관측 구간 자료 없음`, 하나만 있으면 날짜 없이 `관측 구간 일부 자료 없음`(쉼표 없음 — 06 DATE 는 양 끝이 다 있는 관측값만 대조하고, 괄호 안 쉼표는 COUNT 절을 나눠 관측값을 상대 수로 읽음). ~~basis 가 null 이면 `{basis 표기}는` 을 빼고 `모델 관측값(…)은 {값}임. 관측 항목 이름은 자료 없음.`~~ → SCRUM-264 부터 표기는 이름(`name`, 늘 있음) 기준이라 basis null 분기 없음. 이름이 사전에 없으면 조립 전 `display_label_missing`(위 "빈 값 없음"). 섹션 끝 부재 문장 순서: 관측 구간 → 비교 기준값. 서술 끝은 `~임`(`(으)로 관측됨` 대신 — 조사 자동 선택 줄임), 조사 은/는·으로/로는 받침으로 고름(`display_format`). 관측 항목 표기가 괄호로 끝나면 괄호 앞 말 기준(`비중(거래 수 가중 평균)은` — SCRUM-264 `topic_before_paren`).
 - 관측값: 정수 값이면 `3`, 아니면 원값 그대로(반올림 금지).
 - **쓰지 않는 값은 내보내지 않는다**: 경과 일수·고객 국가·`model_signals`·`indirect` 는 슬롯에 안 넣음(상한 테스트(11/17, 손으로 쓴 v4 2건 · 검토 답 3건, AI 보조 포함) — 적혀만 있고 안 쓰이면 의문만 남김).
 

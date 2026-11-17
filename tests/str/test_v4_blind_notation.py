@@ -11,7 +11,7 @@ import pytest
 
 from aml_ai.str.infrastructure.display_labels import load_display_labels
 from tests.str.v4_blind_support import unify_notation
-from tests.str.v4_slot_support import load_fixture
+from tests.str.v4_slot_support import load_raw_fixture as load_fixture  # v2 쪽 — 지어낸 이름 그대로
 
 LABELS = load_display_labels()
 V2_SAMPLES = [
