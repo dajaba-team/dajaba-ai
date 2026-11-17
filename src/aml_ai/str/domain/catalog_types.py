@@ -11,6 +11,7 @@ from typing import Any
 
 from aml_ai.str.domain.display_format import with_imeuro, with_imyeo, with_ro
 from aml_ai.str.domain.display_labels_check import Labels
+from aml_ai.str.domain.typology_support import Support, typology_support
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,7 @@ def premises(facts: dict[str, Any]) -> dict[str, bool]:
     """전제 판정 — 마스킹본 기준(UNVERIFIED paths 는 이미 빠짐, 04)."""
     customer = facts.get("customer")
     paths = facts.get("paths")  # 마스킹본엔 VERIFIED 만 남음
+    support = typology_support(facts)  # 판정 없는 유형이면 None — 아래 둘 다 거짓
     return {
         "has_inbound": facts["inbound"]["count"] > 0,
         "has_outbound": facts["outbound"]["count"] > 0,
@@ -41,6 +43,8 @@ def premises(facts: dict[str, Any]) -> dict[str, bool]:
         "has_customer": customer is not None,
         "has_prior": facts["prior_alert_count"] > 0,
         "has_same_bank": facts["counterparty_banks"]["same_bank_accounts"] > 0,
+        "typology_supported": support is Support.SUPPORTED,
+        "typology_unsupported": support in (Support.UNCONFIRMED, Support.UNMET),
     }
 
 

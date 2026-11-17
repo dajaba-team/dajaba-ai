@@ -11,7 +11,7 @@ from typing import Any
 
 from aml_ai.str.domain.catalog_types import CatalogItem, holds, premises
 from aml_ai.str.domain.constants_v4 import SALES_DEPOSIT
-from aml_ai.str.domain.opinion_heads import HEADS
+from aml_ai.str.domain.opinion_heads import HEADS, type_check_item
 
 _NC = "제공된 자료로 확인되지 않으므로"
 
@@ -163,10 +163,14 @@ _CONDITIONS: dict[str, Callable[[dict[str, Any], dict[str, bool]], bool]] = {
     "O3": lambda f, _: f.get("typology") == "FAN_OUT" and _purpose(f) == SALES_DEPOSIT,
     "Y1": lambda f, _: f.get("typology") == "CYCLE",
     "Y2": lambda f, _: f.get("typology") == "CYCLE",
-    "Y3": lambda f, _: f.get("typology") == "CYCLE" and not premises(f)["cycle_verified"],
+    "Y3": lambda f, _: _cycle_unverified(f) and not premises(f)["typology_unsupported"],  # 뒷받침 안 됨 → C0
     "G1": lambda f, _: f.get("typology") not in _KNOWN,
     "B1": lambda f, _: True,
 }
+
+
+def _cycle_unverified(f: dict[str, Any]) -> bool:
+    return f.get("typology") == "CYCLE" and not premises(f)["cycle_verified"]
 
 
 def _purpose(f: dict[str, Any]) -> str | None:
@@ -189,4 +193,8 @@ def opinion_head(facts: dict[str, Any]) -> CatalogItem:
 def opinion_candidates(facts: dict[str, Any], flags: dict[str, bool]) -> list[CatalogItem]:
     """조건과 전제가 모두 참인 확인 사항 — 표 순서(= 선택 우선순위)."""
     prem = premises(facts)
-    return [c for c in CHECK_ITEMS if _CONDITIONS[c.id](facts, flags) and holds(c, prem)]
+    c0 = type_check_item(facts)  # 뒷받침 안 됨이면 필수 C0 가 맨 앞(첫 문장 바로 뒤, SCRUM-265 2/2)
+    return [
+        *([c0] if c0 else []),
+        *(c for c in CHECK_ITEMS if _CONDITIONS[c.id](facts, flags) and holds(c, prem)),
+    ]

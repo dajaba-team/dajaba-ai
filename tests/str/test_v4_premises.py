@@ -42,6 +42,8 @@ _FALSIFY: dict[str, Callable[[dict[str, Any]], None]] = {
     "has_customer": lambda f: f.update(customer=None),
     "has_prior": lambda f: f.update(prior_alert_count=0),
     "has_same_bank": lambda f: f["counterparty_banks"].update(same_bank_accounts=0),
+    "typology_supported": lambda f: f.update(typology=None),  # 판정 없음(SCRUM-265 2/2)
+    "typology_unsupported": lambda f: f.update(typology=None),
 }
 
 
@@ -110,7 +112,9 @@ def test_unverified_cycle_has_no_return_claims(status: PathStatus | None) -> Non
     assert not {"Y1", "Y2"} & _ids(f)
     text = " ".join(s.text for s in build_v4(f, LABELS))
     assert "돌아온" not in text
-    assert "자금 순환을 뒷받침하는 경로" in text
+    assert (
+        "자금 순환(CYCLE) 분류를 뒷받침하는 경로" in text
+    )  # 판정 미확인 문장(SCRUM-265 2/2 — G-CYCLE-PATH 대신)
 
 
 def test_verified_cycle_keeps_y1_y2_and_drops_path_unconfirmed() -> None:

@@ -9,12 +9,16 @@ from __future__ import annotations
 from typing import Any
 
 from aml_ai.str.domain.constants import PAYMENT_FORMAT_ALIASES
-from aml_ai.str.domain.constants_v4 import FLOW_SCOPE
+from aml_ai.str.domain.constants_v4 import FLOW_SCOPE, FLOW_SCOPE_BARE, MAPPED_SCOPE
 from aml_ai.str.domain.display_format import copula, label_with_code, money, obs_value, topic_before_paren
 from aml_ai.str.domain.display_labels_check import Labels
 from aml_ai.str.domain.slot_types import SlotSentence, no_data, slot
 
 _FLOW_WORD = {"inbound": "입금", "outbound": "출금"}
+
+
+NO_OBSERVATION = "점수를 높인 모델 관측값은 제공된 자료로 확인되지 않음."
+NO_WINDOW_NO_BASELINE = "모델 관측값의 관측 구간과 비교 기준값은 제공된 자료로 확인되지 않음."
 
 
 def payment_parts(facts: dict[str, Any], labels: Labels) -> tuple[list[str], list[str]]:
@@ -54,12 +58,21 @@ def method_slots(facts: dict[str, Any], labels: Labels) -> list[SlotSentence]:
         rows = facts[flow]["by_currency"]
         if rows:
             amounts = ", ".join(f"{money(c['total'])} {_currency(c['currency'], labels, seen)}" for c in rows)
-            text = f"{_FLOW_WORD[flow]} 합계는 {copula(amounts)}."
+            # 그 방향에 미등록 통화 거래가 있으면(count > 등록 통화 건수 합) 합계 범위를 밝힘(추가 검토 2차)
+            unmapped = facts[flow]["count"] > sum(c["count"] for c in rows)
+            word = f"{_FLOW_WORD[flow]} 가운데 {MAPPED_SCOPE} 거래의" if unmapped else _FLOW_WORD[flow]
+            text = f"{word} 합계는 {copula(amounts)}."
             out.append(slot(text, *(f"{flow}.amount.{c['currency']}" for c in rows)))
+    # 통화 종류 = 등록(amount_range) + 미등록 — 미등록도 다른 통화로 셈(추가 검토 2차)
+    multi = len(facts.get("amount_range", [])) + len(facts.get("unmapped_currencies", [])) > 1
     for r in facts.get("amount_range", []):
         cur = _currency(r["currency"], labels, seen)
         short = labels["currency"][r["currency"]]
         text = f"{FLOW_SCOPE} 거래 금액은 최소 {money(r['min'])} {cur}, 최대 {money(r['max'])} {short}임."
+        if r["min"] == r["max"]:  # 같으면 "최소 X, 최대 X" 대신(SCRUM-265 2/2)
+            # 통화가 둘 이상이면 그 통화 거래로 범위를 좁힘 — "모두"가 다른 통화까지 덮지 않게(추가 검토 1·2차)
+            subject = f"{FLOW_SCOPE_BARE} 가운데 {short} 거래의 금액" if multi else f"{FLOW_SCOPE} 거래 금액"
+            text = f"{subject}은 모두 {money(r['min'])} {cur}임."
         code = r["currency"]
         out.append(slot(text, f"amount_range.{code}.min", f"amount_range.{code}.max"))
     out += _path_slots(facts.get("paths"))
@@ -87,12 +100,20 @@ def _path_slots(paths: dict[str, Any] | None) -> list[SlotSentence]:
 
 def grounds_slots(facts: dict[str, Any], labels: Labels) -> list[SlotSentence]:
     observations = facts.get("observations", [])
-    if not observations:
-        return [no_data("모델 관측값")]
+    if not observations:  # reasons 없음·전부 걸러짐을 facts 로 구분 못 함 — 둘 다 참인 문장(SCRUM-265 2/2)
+        return [slot(NO_OBSERVATION)]
     # 부재 주장은 집계 전체를 볼 때만(05): 전부 None → 섹션 끝 한 문장, 일부만 None → 그 관측값 문장 안
     all_missing = all(o.get("baseline") is None for o in observations)
     no_window = all(not o.get("window_start") and not o.get("window_end") for o in observations)
-    out = [_observation(o, labels, mark_baseline=not all_missing, window=not no_window) for o in observations]
+    same_window = len({(o.get("window_start"), o.get("window_end")) for o in observations}) == 1
+    out = [
+        _observation(
+            o, labels, mark_baseline=not all_missing, window=not no_window, short=same_window and n > 0
+        )
+        for n, o in enumerate(observations)
+    ]
+    if no_window and all_missing:  # 둘 다 전부 null 일 때만 한 문장(SCRUM-265 2/2)
+        return [*out, slot(NO_WINDOW_NO_BASELINE)]
     if no_window:  # 실제 reasons 형식(SCRUM-264) — 관측값마다 반복하지 않고 섹션 끝 한 번
         out.append(no_data("모델 관측값의 관측 구간"))
     if all_missing:
@@ -109,12 +130,18 @@ def _window(start: str | None, end: str | None) -> str:
     return "관측 구간 자료 없음"
 
 
-def _observation(o: dict[str, Any], labels: Labels, *, mark_baseline: bool, window: bool) -> SlotSentence:
-    """표기·단위는 피처 이름 기준(SCRUM-264 — 실제 basis 는 늘 `model_feature`, unit null). 값은 환산 안 함."""
+def _observation(
+    o: dict[str, Any], labels: Labels, *, mark_baseline: bool, window: bool, short: bool = False
+) -> SlotSentence:
+    """표기·단위는 피처 이름 기준(SCRUM-264 — 실제 basis 는 늘 `model_feature`, unit null). 값은 환산 안 함.
+
+    short — 모든 관측값 window 가 같을 때 둘째부터 `{표기} 관측값은 {값}임.`(관측 단어는 절마다 남김 — 06 COUNT)."""
     name = o["name"]
     value = f"{obs_value(o['value'])}{labels['observation_name_unit'][name]}"
     head = f"모델 관측값({_window(o.get('window_start'), o.get('window_end'))})" if window else "모델 관측값"
     text = f"{head}에서 {topic_before_paren(labels['observation_name'][name])} {copula(value)}."
+    if short:
+        text = f"{labels['observation_name'][name]} 관측값은 {copula(value)}."
     if mark_baseline and o.get("baseline") is None:
         text += " 이 관측값의 비교 기준값은 자료 없음."
     return slot(text, f"observations.{o['name']}")

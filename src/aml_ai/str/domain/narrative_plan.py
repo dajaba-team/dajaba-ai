@@ -19,6 +19,7 @@ from aml_ai.str.domain.constants_v4 import (
 )
 from aml_ai.str.domain.grounds_catalog import grounds_candidates
 from aml_ai.str.domain.opinion_catalog import opinion_candidates, opinion_head
+from aml_ai.str.domain.opinion_heads import C0_ID
 
 
 @dataclass(frozen=True)
@@ -75,6 +76,8 @@ def validate_plan(plan: Plan, c: Candidates) -> list[str]:
         problems.append("too_many_grounds")
     if not opinion or opinion[0].item_id != c.head.id:
         problems.append("head_not_first")
+    if any(i.id == C0_ID for i in c.checks) and (len(opinion) < 2 or opinion[1].item_id != C0_ID):
+        problems.append("c0_not_second")  # 뒷받침 안 됨 확인 사항은 첫 문장 바로 뒤(SCRUM-265 2/2)
     ids = {p.item_id for p in opinion}
     if any(i.required and i.id not in ids for i in c.checks):
         problems.append("required_missing")

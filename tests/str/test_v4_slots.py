@@ -76,7 +76,10 @@ def test_fan_in_slots_exact() -> None:
         "거래 기간은 2022년 9월 2일 00:14부터 2022년 9월 2일 22:51까지임.",
         "거래는 모두 같은 날 이루어짐.",
     ]
-    assert t[SectionV2.PLACE][2:] == ["상대 계좌는 3개임.", "이 가운데 자행 계좌는 0개, 타행 계좌는 3개임."]
+    assert t[SectionV2.PLACE][1:] == [
+        "상대 계좌는 3개임.",
+        "이 가운데 타행 계좌는 3개임.",
+    ]  # 영업점 삭제·0 생략(SCRUM-265 2/2)
     assert t[SectionV2.INSTRUMENT] == [
         "내부 거래를 뺀 입금·출금의 결제 방식은 ACH 3건임.",
         "내부 거래를 뺀 입금·출금의 거래 통화는 미국 달러(USD)임.",
@@ -108,17 +111,24 @@ def test_multi_currency_null_and_bitcoin_slots() -> None:
     t = _texts("facts_multi_currency.json")
     assert "업종은 자료 없음." in t[SectionV2.SUBJECT]
     assert "계좌 개설일은 자료 없음." in t[SectionV2.SUBJECT]
-    assert t[SectionV2.INSTRUMENT] == [
-        "내부 거래를 뺀 입금·출금의 결제 방식은 ACH 2건, 비트코인(Bitcoin), 전신환(Wire) 1건임.",
-        "내부 거래를 뺀 입금·출금의 거래 통화는 유로(EUR), 미국 달러(USD)임.",
-        "Peso Uruguay 통화 거래는 대응 미확인임.",
-    ]
+    assert (
+        t[SectionV2.INSTRUMENT]
+        == [
+            "내부 거래를 뺀 입금·출금의 결제 방식은 ACH 2건, 비트코인(Bitcoin), 전신환(Wire) 1건임.",
+            "내부 거래를 뺀 입금·출금의 거래 통화 가운데 대응이 확인된 통화는 유로(EUR), 미국 달러(USD)임.",  # 미등록 있음(SCRUM-265 2/2)
+            "Peso Uruguay 통화 거래는 대응 미확인임.",
+        ]
+    )
     # SCRUM-264: basis null 분기 없음 — 표기는 이름 기준(inflow_ratio_window → 실제 이름, v4_real_names)
     assert (
         "모델 관측값(관측 구간 자료 없음)에서 통화별 최대 수취 금액 비중(거래 수 가중 평균)은 0.75임."
         in t[SectionV2.GROUNDS]
     )
-    assert "입금 합계는 9,800.25 유로(EUR), 42,750.50 미국 달러(USD)임." in t[SectionV2.METHOD]
+    # 입금에 미등록 통화 거래가 있음 → 합계 범위(SCRUM-265 2/2 추가 검토 2차)
+    assert (
+        "입금 가운데 대응이 확인된 통화 거래의 합계는 9,800.25 유로(EUR), 42,750.50 미국 달러(USD)임."
+        in t[SectionV2.METHOD]
+    )
     assert t[SectionV2.DATE] == ["거래 기간은 2022년 9월 2일 00:14부터 2022년 9월 4일 22:51:30까지임."]
 
 
@@ -147,7 +157,9 @@ def test_no_observations_and_no_typology() -> None:
     masked = masking.mask_for_llm(facts)
     masked["observations"], masked["typology"] = [], None
     slots = build_slots(masked, LABELS)
-    assert [s.text for s in slots[SectionV2.GROUNDS]] == ["모델 관측값은 자료 없음."]
+    assert [s.text for s in slots[SectionV2.GROUNDS]] == [
+        "점수를 높인 모델 관측값은 제공된 자료로 확인되지 않음."
+    ]
     assert not any("유형으로 분류됨" in s.text for s in slots[SectionV2.METHOD])
 
 

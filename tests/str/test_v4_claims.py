@@ -37,7 +37,18 @@ def test_net_actually_renders_every_item_kind() -> None:
         c = candidates(masked, derive_flags(masked))
         for plan in editor_plans(c):
             seen |= {p.item_id for picks in plan.values() for p in picks}
-    assert {"C1", "C2", "G1", "O-HEAD-OTHER", "F2", "O3", "Y1", "Y2", "Y3", "B1"} <= seen
+    assert {
+        "C0",
+        "C1",
+        "C2",
+        "G1",
+        "O-HEAD-OTHER",
+        "F2",
+        "O3",
+        "Y1",
+        "Y2",
+        "B1",
+    } <= seen  # Y3 → C0(SCRUM-265 2/2)
 
 
 @pytest.mark.parametrize(("args", "facts"), COMBOS, ids=[str(a) for a, _ in COMBOS])
@@ -86,15 +97,15 @@ def _ids(facts: Facts) -> set[str]:
 
 
 def test_scatter_gather_verified_with_cycle_label_has_no_return_claim() -> None:
-    """반례 1 — R05 SCATTER_GATHER VERIFIED + 유형 CYCLE: Y2 없음, G-CYCLE-PATH·Y3 나옴, 편집자 Y2 는 거부."""
+    """반례 1 — R05 SCATTER_GATHER VERIFIED + 유형 CYCLE: Y2 없음, 판정 미확인 → C0(G-CYCLE-PATH·Y3 대신), 편집자 Y2 는 거부."""
     facts = facts_for(0, 0, 0, "sg_verified", "CYCLE")
     assert facts is not None and facts.paths is not None and facts.paths.status is PathStatus.VERIFIED
     ids = _ids(facts)
-    assert "Y2" not in ids and {"G-CYCLE-PATH", "Y3", "Y1"} <= ids
+    assert "Y2" not in ids and {"C0", "Y1"} <= ids and not {"G-CYCLE-PATH", "Y3"} & ids
     masked = masking.mask_for_llm(facts)
     c = candidates(masked, derive_flags(masked))
     plan = default_plan(c)
-    plan[SectionV2.OPINION] = [*plan[SectionV2.OPINION][:2], Pick("Y2")]
+    plan[SectionV2.OPINION] = [*plan[SectionV2.OPINION][:3], Pick("Y2")]  # 첫 문장·C0 뒤
     assert "unknown_item" in validate_plan(plan, c)
 
 
@@ -141,7 +152,9 @@ def test_flow_aggregates_carry_scope_when_internal_differs(internal: str) -> Non
     c = candidates(masked, derive_flags(masked))
     sections = assemble(build_slots(masked, LABELS), default_plan(c), c, render_context(masked, LABELS))
     text = " ".join(s.text for s in sections)
-    assert "내부 거래를 뺀 입금·출금의 거래 금액은 최소 100.00 미국 달러, 최대 100.00 미국 달러임." in text
+    assert (
+        "내부 거래를 뺀 입금·출금의 거래 금액은 모두 100.00 미국 달러임." in text
+    )  # 최소 = 최대(SCRUM-265 2/2)
     assert "내부 거래를 뺀 입금·출금의 거래 통화는 미국 달러(USD)임." in text
     assert "유로" not in text and "전신환" not in text
     assert failures(facts, sections) == []
