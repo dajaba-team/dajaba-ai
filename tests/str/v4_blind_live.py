@@ -24,6 +24,7 @@ from typing import Any
 
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
+from aml_ai.shared.schemas.str import NarrativeSection
 from aml_ai.str.domain import masking
 from aml_ai.str.domain.fact_keys import attach_evidence, fact_keys
 from aml_ai.str.infrastructure.display_labels import load_display_labels
@@ -40,8 +41,12 @@ SEED_LIMIT = 2**31
 
 def draft_case(case: BlindCase, llm: Any, settings: Any) -> CaseDrafts:
     """v2 첫 생성(RAG 끔, 고쳐 쓰기 없음, 스키마 재생성은 기본 설정) + 표기 통일 + v4 조립."""
+    return assemble_case(case, generate_v2(case, llm, settings))
+
+
+def generate_v2(case: BlindCase, llm: Any, settings: Any) -> list[NarrativeSection]:
+    """v2 첫 생성 원본(근거 붙임) — 재블라인드는 이 결과를 바로 체크포인트에 저장(SCRUM-265)."""
     facts_masked = masking.mask_for_llm(case.facts)
-    labels = load_display_labels()
     generator = NarrativeGenerator(llm, settings, prompt_name="narrative_v2")
     result = generator.generate(
         facts_masked=facts_masked,
@@ -51,7 +56,12 @@ def draft_case(case: BlindCase, llm: Any, settings: Any) -> CaseDrafts:
         notes=None,
         deadline=time.monotonic() + settings.draft_budget_s,
     )
-    original = attach_evidence(result.narrative, case.facts)
+    return attach_evidence(result.narrative, case.facts)
+
+
+def assemble_case(case: BlindCase, original: list[NarrativeSection]) -> CaseDrafts:
+    """v2 원본 → 표기 통일본 + v4 조립(LLM 0)."""
+    labels = load_display_labels()
     unified = [unify_notation(s.text, labels, case.facts) for s in original]
     sections = [s.model_copy(update={"text": u.text}) for s, u in zip(original, unified, strict=True)]
     replaced = list(dict.fromkeys(pair for u in unified for pair in u.replaced))

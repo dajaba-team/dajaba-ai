@@ -1,0 +1,1604 @@
+{
+ "seed": 265,
+ "candidate_counts": {
+  "sup_fan_in": 320,
+  "sup_fan_out": 240,
+  "sup_cycle": 160,
+  "sup_scatter_gather": 240,
+  "uns_cycle": 160,
+  "uns_scatter_gather": 240,
+  "uns_fan_in": 240,
+  "mix_fan_in": 480
+ },
+ "cases": [
+  {
+   "case_id": "sup_fan_in",
+   "slot": "supported",
+   "role": "judged",
+   "typology": "FAN_IN",
+   "answer": [
+    "yes"
+   ],
+   "profile": "p01",
+   "params": {
+    "senders": 7,
+    "amount": "9480.50",
+    "currency": "USD",
+    "format": "ACH",
+    "profile": "p01",
+    "receivers": 0
+   },
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S1",
+     "entity_name": "Sole Proprietorship #4101",
+     "entity_type": "SOLE_PROPRIETORSHIP",
+     "account_key": "10_S0000001"
+    },
+    "period": {
+     "start": "2022-09-02T01:00:00",
+     "end": "2022-09-02T04:42:00"
+    },
+    "inbound": {
+     "count": 7,
+     "by_currency": [
+      {
+       "currency": "USD",
+       "total": "66384.50",
+       "count": 7,
+       "transaction_ids": [
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006
+     ]
+    },
+    "outbound": {
+     "count": 0,
+     "by_currency": [],
+     "transaction_ids": []
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {
+     "count": 7,
+     "transaction_ids": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 7
+    },
+    "payment_formats": [
+     "ACH"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "ACH",
+      "count": 7
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "USD",
+      "min": "9480.50",
+      "max": "9486.50"
+     }
+    ],
+    "typology": "FAN_IN",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "RETAIL",
+     "risk_level": "LOW",
+     "account_purpose": "SALES_DEPOSIT",
+     "onboarded_at": "2020-04-07",
+     "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+     {
+      "name": "focal_distinct_senders",
+      "value": 7.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "focal_in_count",
+      "value": 7.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_count",
+      "value": 7.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "focal_distinct_senders",
+     "focal_in_count",
+     "evidence_count"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "sup_fan_out",
+   "slot": "supported",
+   "role": "judged",
+   "typology": "FAN_OUT",
+   "answer": [
+    "yes"
+   ],
+   "profile": "p07",
+   "params": {
+    "receivers": 11,
+    "amount": "9480.50",
+    "currency": "USD",
+    "format": "Wire",
+    "profile": "p07",
+    "senders": 0
+   },
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S2",
+     "entity_name": "Sole Proprietorship #4102",
+     "entity_type": "SOLE_PROPRIETORSHIP",
+     "account_key": "10_S0000002"
+    },
+    "period": {
+     "start": "2022-09-02T01:00:00",
+     "end": "2022-09-02T07:10:00"
+    },
+    "inbound": {
+     "count": 0,
+     "by_currency": [],
+     "transaction_ids": []
+    },
+    "outbound": {
+     "count": 11,
+     "by_currency": [
+      {
+       "currency": "USD",
+       "total": "104340.50",
+       "count": 11,
+       "transaction_ids": [
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010
+     ]
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "OUTBOUND",
+    "counterparties": {
+     "count": 11,
+     "transaction_ids": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 11
+    },
+    "payment_formats": [
+     "Wire"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "Wire",
+      "count": 11
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "USD",
+      "min": "9480.50",
+      "max": "9490.50"
+     }
+    ],
+    "typology": "FAN_OUT",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "CONSTRUCTION",
+     "risk_level": "MEDIUM",
+     "account_purpose": "PAYROLL",
+     "onboarded_at": "2020-07-13",
+     "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+     {
+      "name": "focal_distinct_receivers",
+      "value": 11.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "focal_out_count",
+      "value": 11.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_count",
+      "value": 11.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "focal_distinct_receivers",
+     "focal_out_count",
+     "evidence_count"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "sup_cycle",
+   "slot": "supported",
+   "role": "judged",
+   "typology": "CYCLE",
+   "answer": [
+    "yes"
+   ],
+   "profile": "p02",
+   "params": {
+    "hops": 3,
+    "amount": "1250.00",
+    "currency": "EUR",
+    "format": "ACH",
+    "profile": "p02",
+    "senders": 1,
+    "receivers": 1
+   },
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S3",
+     "entity_name": "Corporation #4103",
+     "entity_type": "CORPORATION",
+     "account_key": "10_S0000003"
+    },
+    "period": {
+     "start": "2022-09-02T01:00:00",
+     "end": "2022-09-02T02:14:00"
+    },
+    "inbound": {
+     "count": 1,
+     "by_currency": [
+      {
+       "currency": "EUR",
+       "total": "1252.00",
+       "count": 1,
+       "transaction_ids": [
+        1002
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1002
+     ]
+    },
+    "outbound": {
+     "count": 1,
+     "by_currency": [
+      {
+       "currency": "EUR",
+       "total": "1250.00",
+       "count": 1,
+       "transaction_ids": [
+        1000
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1000
+     ]
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 1,
+     "transaction_ids": [
+      1001
+     ]
+    },
+    "paths": {
+     "kind": "CYCLE",
+     "status": "VERIFIED",
+     "count": 1,
+     "max_hops": 3,
+     "max_accounts": 3,
+     "transaction_ids": [
+      1000,
+      1001,
+      1002
+     ]
+    },
+    "excluded_self_transfer_count": 0,
+    "direction": "MIXED",
+    "counterparties": {
+     "count": 2,
+     "transaction_ids": [
+      1000,
+      1002
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 2
+    },
+    "payment_formats": [
+     "ACH"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "ACH",
+      "count": 2
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "EUR",
+      "min": "1250.00",
+      "max": "1252.00"
+     }
+    ],
+    "typology": "CYCLE",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "WHOLESALE",
+     "risk_level": "MEDIUM",
+     "account_purpose": "TRADE",
+     "onboarded_at": "2020-10-18",
+     "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+     {
+      "name": "evidence_account_count",
+      "value": 3.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_count",
+      "value": 3.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "focal_out_count",
+      "value": 1.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "evidence_account_count",
+     "evidence_count",
+     "focal_out_count"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "sup_scatter_gather",
+   "slot": "supported",
+   "role": "judged",
+   "typology": "SCATTER_GATHER",
+   "answer": [
+    "yes"
+   ],
+   "profile": "p08",
+   "params": {
+    "mids": 5,
+    "amount": "1250.00",
+    "currency": "USD",
+    "format": "Wire",
+    "profile": "p08",
+    "senders": 5,
+    "receivers": 0
+   },
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S4",
+     "entity_name": "Corporation #4104",
+     "entity_type": "CORPORATION",
+     "account_key": "10_S0000004"
+    },
+    "period": {
+     "start": "2022-09-02T01:00:00",
+     "end": "2022-09-02T06:33:00"
+    },
+    "inbound": {
+     "count": 5,
+     "by_currency": [
+      {
+       "currency": "USD",
+       "total": "6285.00",
+       "count": 5,
+       "transaction_ids": [
+        1005,
+        1006,
+        1007,
+        1008,
+        1009
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1005,
+      1006,
+      1007,
+      1008,
+      1009
+     ]
+    },
+    "outbound": {
+     "count": 0,
+     "by_currency": [],
+     "transaction_ids": []
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 5,
+     "transaction_ids": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004
+     ]
+    },
+    "paths": {
+     "kind": "SCATTER_GATHER",
+     "status": "VERIFIED",
+     "count": 5,
+     "max_hops": 2,
+     "max_accounts": 3,
+     "transaction_ids": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009
+     ]
+    },
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {
+     "count": 5,
+     "transaction_ids": [
+      1005,
+      1006,
+      1007,
+      1008,
+      1009
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 5
+    },
+    "payment_formats": [
+     "Wire"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "Wire",
+      "count": 5
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "USD",
+      "min": "1255.00",
+      "max": "1259.00"
+     }
+    ],
+    "typology": "SCATTER_GATHER",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "REAL_ESTATE",
+     "risk_level": "HIGH",
+     "account_purpose": "INVESTMENT",
+     "onboarded_at": "2021-01-23",
+     "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+     {
+      "name": "focal_distinct_senders",
+      "value": 5.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_account_count",
+      "value": 7.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_count",
+      "value": 10.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "focal_distinct_senders",
+     "evidence_account_count",
+     "evidence_count"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "uns_cycle",
+   "slot": "unsupported",
+   "role": "judged",
+   "typology": "CYCLE",
+   "answer": [
+    "no",
+    "unknown"
+   ],
+   "profile": "p03",
+   "params": {
+    "hops": 3,
+    "path": "unverified",
+    "amount": "1250.00",
+    "currency": "EUR",
+    "format": "Wire",
+    "profile": "p03",
+    "senders": 1,
+    "receivers": 1
+   },
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S5",
+     "entity_name": "Corporation #4105",
+     "entity_type": "CORPORATION",
+     "account_key": "10_S0000005"
+    },
+    "period": {
+     "start": "2022-09-02T01:00:00",
+     "end": "2022-09-02T02:14:00"
+    },
+    "inbound": {
+     "count": 1,
+     "by_currency": [
+      {
+       "currency": "EUR",
+       "total": "1252.00",
+       "count": 1,
+       "transaction_ids": [
+        1002
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1002
+     ]
+    },
+    "outbound": {
+     "count": 1,
+     "by_currency": [
+      {
+       "currency": "EUR",
+       "total": "1250.00",
+       "count": 1,
+       "transaction_ids": [
+        1000
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1000
+     ]
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 1,
+     "transaction_ids": [
+      1001
+     ]
+    },
+    "paths": {
+     "kind": "CYCLE",
+     "status": "UNVERIFIED",
+     "count": 1,
+     "max_hops": 3,
+     "max_accounts": 3,
+     "transaction_ids": [
+      1000,
+      1001,
+      1002
+     ]
+    },
+    "excluded_self_transfer_count": 0,
+    "direction": "MIXED",
+    "counterparties": {
+     "count": 2,
+     "transaction_ids": [
+      1000,
+      1002
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 2
+    },
+    "payment_formats": [
+     "Wire"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "Wire",
+      "count": 2
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "EUR",
+      "min": "1250.00",
+      "max": "1252.00"
+     }
+    ],
+    "typology": "CYCLE",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "MANUFACTURING",
+     "risk_level": "LOW",
+     "account_purpose": "OPERATIONS",
+     "onboarded_at": "2021-04-30",
+     "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+     {
+      "name": "evidence_account_count",
+      "value": 3.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_count",
+      "value": 3.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "focal_out_count",
+      "value": 1.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "evidence_account_count",
+     "evidence_count",
+     "focal_out_count"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "uns_scatter_gather",
+   "slot": "unsupported",
+   "role": "judged",
+   "typology": "SCATTER_GATHER",
+   "answer": [
+    "no",
+    "unknown"
+   ],
+   "profile": "p04",
+   "params": {
+    "senders": 2,
+    "amount": "1250.00",
+    "currency": "USD",
+    "format": "ACH",
+    "profile": "p04",
+    "receivers": 0
+   },
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S6",
+     "entity_name": "Partnership #4106",
+     "entity_type": "PARTNERSHIP",
+     "account_key": "10_S0000006"
+    },
+    "period": {
+     "start": "2022-09-02T01:00:00",
+     "end": "2022-09-02T01:37:00"
+    },
+    "inbound": {
+     "count": 2,
+     "by_currency": [
+      {
+       "currency": "USD",
+       "total": "2501.00",
+       "count": 2,
+       "transaction_ids": [
+        1000,
+        1001
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1000,
+      1001
+     ]
+    },
+    "outbound": {
+     "count": 0,
+     "by_currency": [],
+     "transaction_ids": []
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {
+     "count": 2,
+     "transaction_ids": [
+      1000,
+      1001
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 2
+    },
+    "payment_formats": [
+     "ACH"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "ACH",
+      "count": 2
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "USD",
+      "min": "1250.00",
+      "max": "1251.00"
+     }
+    ],
+    "typology": "SCATTER_GATHER",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "SERVICE",
+     "risk_level": "MEDIUM",
+     "account_purpose": "BUSINESS_SETTLEMENT",
+     "onboarded_at": "2021-08-05",
+     "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+     {
+      "name": "focal_in_count",
+      "value": 2.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_count",
+      "value": 2.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "focal_distinct_senders",
+      "value": 2.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "focal_in_count",
+     "evidence_count",
+     "focal_distinct_senders"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "uns_fan_in",
+   "slot": "unsupported",
+   "role": "judged",
+   "typology": "FAN_IN",
+   "answer": [
+    "no",
+    "unknown"
+   ],
+   "profile": "p09",
+   "params": {
+    "repeats": 1,
+    "amount": "9480.50",
+    "currency": "EUR",
+    "format": "ACH",
+    "profile": "p09",
+    "senders": 1,
+    "receivers": 0
+   },
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S7",
+     "entity_name": "Corporation #4107",
+     "entity_type": "CORPORATION",
+     "account_key": "10_S0000007"
+    },
+    "period": {
+     "start": "2022-09-02T01:00:00",
+     "end": "2022-09-02T01:00:00"
+    },
+    "inbound": {
+     "count": 1,
+     "by_currency": [
+      {
+       "currency": "EUR",
+       "total": "9480.50",
+       "count": 1,
+       "transaction_ids": [
+        1000
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1000
+     ]
+    },
+    "outbound": {
+     "count": 0,
+     "by_currency": [],
+     "transaction_ids": []
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {
+     "count": 1,
+     "transaction_ids": [
+      1000
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 1
+    },
+    "payment_formats": [
+     "ACH"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "ACH",
+      "count": 1
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "EUR",
+      "min": "9480.50",
+      "max": "9480.50"
+     }
+    ],
+    "typology": "FAN_IN",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "TRADING",
+     "risk_level": "MEDIUM",
+     "account_purpose": "TRADE",
+     "onboarded_at": "2021-11-10",
+     "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+     {
+      "name": "focal_in_count",
+      "value": 1.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "focal_distinct_senders",
+      "value": 1.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_account_count",
+      "value": 2.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "focal_in_count",
+     "focal_distinct_senders",
+     "evidence_account_count"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "mix_fan_in",
+   "slot": "mixed",
+   "role": "judged",
+   "typology": "FAN_IN",
+   "answer": [
+    "yes"
+   ],
+   "profile": "p05",
+   "params": {
+    "senders": 6,
+    "outs": 1,
+    "amount": "1250.00",
+    "currency": "EUR",
+    "format": "Wire",
+    "profile": "p05",
+    "receivers": 1
+   },
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S8",
+     "entity_name": "Individual #4108",
+     "entity_type": "INDIVIDUAL",
+     "account_key": "10_S0000008"
+    },
+    "period": {
+     "start": "2022-09-02T01:00:00",
+     "end": "2022-09-02T04:42:00"
+    },
+    "inbound": {
+     "count": 6,
+     "by_currency": [
+      {
+       "currency": "EUR",
+       "total": "7515.00",
+       "count": 6,
+       "transaction_ids": [
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005
+     ]
+    },
+    "outbound": {
+     "count": 1,
+     "by_currency": [
+      {
+       "currency": "EUR",
+       "total": "1256.00",
+       "count": 1,
+       "transaction_ids": [
+        1006
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1006
+     ]
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {
+     "count": 7,
+     "transaction_ids": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 7
+    },
+    "payment_formats": [
+     "Wire"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "Wire",
+      "count": 7
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "EUR",
+      "min": "1250.00",
+      "max": "1256.00"
+     }
+    ],
+    "typology": "FAN_IN",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "OTHER",
+     "risk_level": "LOW",
+     "account_purpose": "PERSONAL",
+     "onboarded_at": "2022-02-15",
+     "country_code": "KR"
+    },
+    "prior_alert_count": 0,
+    "observations": [
+     {
+      "name": "focal_distinct_senders",
+      "value": 6.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "focal_out_count",
+      "value": 1.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_count",
+      "value": 7.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "focal_distinct_senders",
+     "focal_out_count",
+     "evidence_count"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "reg_fan_in",
+   "slot": "regression",
+   "role": "regression",
+   "typology": "FAN_IN",
+   "answer": null,
+   "profile": null,
+   "params": {},
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "80062E240",
+     "entity_name": "Sole Proprietorship #50438",
+     "entity_type": "SOLE_PROPRIETORSHIP",
+     "account_key": "10_8000EBD30"
+    },
+    "period": {
+     "start": "2022-09-02T00:14:00",
+     "end": "2022-09-02T22:51:00"
+    },
+    "inbound": {
+     "count": 3,
+     "by_currency": [
+      {
+       "currency": "USD",
+       "total": "42750.50",
+       "count": 3,
+       "transaction_ids": [
+        1,
+        2,
+        3
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1,
+      2,
+      3
+     ]
+    },
+    "outbound": {
+     "count": 0,
+     "by_currency": [],
+     "transaction_ids": []
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {
+     "count": 3,
+     "transaction_ids": [
+      1,
+      2,
+      3
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 3
+    },
+    "payment_formats": [
+     "ACH"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "ACH",
+      "count": 3
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "USD",
+      "min": "12500.00",
+      "max": "16250.50"
+     }
+    ],
+    "typology": "FAN_IN",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "RETAIL",
+     "risk_level": "LOW",
+     "account_purpose": "SALES_DEPOSIT",
+     "onboarded_at": "2021-03-14",
+     "country_code": "PT"
+    },
+    "prior_alert_count": 1,
+    "observations": [
+     {
+      "name": "focal_distinct_senders",
+      "value": 3.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "focal_distinct_senders"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "reg_scatter_gather",
+   "slot": "regression",
+   "role": "regression",
+   "typology": "SCATTER_GATHER",
+   "answer": null,
+   "profile": null,
+   "params": {},
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "80062E240",
+     "entity_name": "Sole Proprietorship #50438",
+     "entity_type": "SOLE_PROPRIETORSHIP",
+     "account_key": "10_8000EBD30"
+    },
+    "period": {
+     "start": "2022-09-02T00:14:00",
+     "end": "2022-09-02T22:51:00"
+    },
+    "inbound": {
+     "count": 3,
+     "by_currency": [
+      {
+       "currency": "USD",
+       "total": "42750.50",
+       "count": 3,
+       "transaction_ids": [
+        1,
+        2,
+        3
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1,
+      2,
+      3
+     ]
+    },
+    "outbound": {
+     "count": 0,
+     "by_currency": [],
+     "transaction_ids": []
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "INBOUND",
+    "counterparties": {
+     "count": 3,
+     "transaction_ids": [
+      1,
+      2,
+      3
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 0,
+     "other_bank_accounts": 3
+    },
+    "payment_formats": [
+     "ACH"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "ACH",
+      "count": 3
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "USD",
+      "min": "12500.00",
+      "max": "16250.50"
+     }
+    ],
+    "typology": "SCATTER_GATHER",
+    "typology_source": "RULE",
+    "customer": {
+     "industry": "RETAIL",
+     "risk_level": "LOW",
+     "account_purpose": "SALES_DEPOSIT",
+     "onboarded_at": "2021-03-14",
+     "country_code": "PT"
+    },
+    "prior_alert_count": 1,
+    "observations": [
+     {
+      "name": "evidence_paid_max_share",
+      "value": 1.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "evidence_paid_max_share"
+    ],
+    "unmapped_currencies": []
+   }
+  },
+  {
+   "case_id": "reg_customer_missing",
+   "slot": "regression",
+   "role": "regression",
+   "typology": "FAN_IN",
+   "answer": null,
+   "profile": null,
+   "params": {},
+   "facts": {
+    "reporting_institution": "Portugal Bank #4507",
+    "subject": {
+     "entity_id": "E-S",
+     "entity_name": "Sole Proprietorship #1",
+     "entity_type": null,
+     "account_key": "10_S0000001"
+    },
+    "period": {
+     "start": "2022-09-02T10:00:00",
+     "end": "2022-09-02T11:00:00"
+    },
+    "inbound": {
+     "count": 1,
+     "by_currency": [
+      {
+       "currency": "USD",
+       "total": "100.00",
+       "count": 1,
+       "transaction_ids": [
+        1
+       ]
+      }
+     ],
+     "transaction_ids": [
+      1
+     ]
+    },
+    "outbound": {
+     "count": 1,
+     "by_currency": [
+      {
+       "currency": "USD",
+       "total": "100.00",
+       "count": 1,
+       "transaction_ids": [
+        2
+       ]
+      }
+     ],
+     "transaction_ids": [
+      2
+     ]
+    },
+    "internal": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "indirect": {
+     "count": 0,
+     "transaction_ids": []
+    },
+    "paths": null,
+    "excluded_self_transfer_count": 0,
+    "direction": "MIXED",
+    "counterparties": {
+     "count": 2,
+     "transaction_ids": [
+      1,
+      2
+     ]
+    },
+    "counterparty_banks": {
+     "same_bank_accounts": 1,
+     "other_bank_accounts": 1
+    },
+    "payment_formats": [
+     "ACH"
+    ],
+    "payment_format_counts": [
+     {
+      "format": "ACH",
+      "count": 2
+     }
+    ],
+    "amount_range": [
+     {
+      "currency": "USD",
+      "min": "100.00",
+      "max": "100.00"
+     }
+    ],
+    "typology": "FAN_IN",
+    "typology_source": "RULE",
+    "customer": null,
+    "prior_alert_count": 1,
+    "observations": [
+     {
+      "name": "focal_distinct_senders",
+      "value": 1.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     },
+     {
+      "name": "evidence_count",
+      "value": 2.0,
+      "unit": null,
+      "window_start": null,
+      "window_end": null,
+      "basis": "model_feature",
+      "baseline": null
+     }
+    ],
+    "model_signals": [
+     "focal_distinct_senders",
+     "evidence_count"
+    ],
+    "unmapped_currencies": []
+   }
+  }
+ ],
+ "control_case_id": "sup_scatter_gather"
+}
