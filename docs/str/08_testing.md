@@ -267,6 +267,21 @@ LLM 층(7~12·14·23)은 `-m live` — W4(SCRUM-127, 2026-11-09) 수동. 아래 
 
 ★L-1 verify 5회(1회 호출 raw) 분포와 ★L-2 집계(3 병렬 median) 분포가 case 23 에서 **같은 상태**(LLM_FAILED)·**같은 TYPO 분포**(3 안정). 두 측정은 호출 단위가 달라 "분포 비교" 가 아니라 "207 적용 뒤에도 같은 본문의 승인 판단이 유지된다"는 확인 (SCRUM-131 재측정으로 코드 통과 경로 복구 뒤 종합).
 
+### 평가자 흔들림 — v4 초안 (SCRUM-254 ★L-1, 사전 기준 09 2026-11-17 "SCRUM-254 ★L-1 사전 기준")
+
+v4 초안은 코드 조립(LLM 0)이라 초안 단계 평가자가 없고 검증 평가자(Judge votes=3, judge_v3)만 만남. 207 측정은 v2 초안뿐이라 v4 로 다시 잰다. **v4·평가자 코드 변경 없음, 측정·기록만.**
+
+- **사건 19**: 228 사건 8(`v4_blind_support.blind_cases` → `real_names` → v4) · 재블라인드 새 8(`v4_blind2_cases.json` facts 만 → v4) · 시연 후보 경보 2(임시 — 확정은 따로, id 는 인자 `--demo-alerts`, 기본 7·48 — ops 읽기만, `tests/str/demo_alerts.py`) · 오류 주입 23(v2 녹화 초안, 대조·참고)
+- **입력**: 실제 verify 와 같게 — v4 초안을 `RevisedNarrativeSection` 으로 왕복 → 코드 검사 5종(실패 수 기록, v4 는 0) → `Judge(votes=3)` 에 마스킹 facts·본문·fact_keys
+- **dry-run**(CLI, 호출 0): 사건 목록 · 사건별 judge user 문자열 sha256(결정적) · 코드 검사 실패 수 → `_tmp/judge_stability_v4_dry_<stamp>.json`. 11/17 실측: 19건 · v4 코드 검사 실패 0 · 서로 다른 v4 입력 17(228 `fan_in`·`fan_in_b` 같음)
+- **내보내기**(읽기 전용, 결과는 `_tmp` 만): `docker exec -i aml-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -X -q -At -v ON_ERROR_STOP=1 -v ids=7,48 -c "set default_transaction_read_only = on" -f /dev/stdin' < tests/str/demo_alerts.sql > tests/str/recorded/_tmp/demo_requests_7-48.json` — app_ai 는 경보·점수·규칙을 못 읽어서(원천 4개만) 관리자 계정 SELECT 만
+- **live**(진희 터미널, `AI_LLM_MOCK=false`): `python -m tests.str.judge_stability_v4_live --live --n 3 --demo-alerts 7,48 --demo-requests tests/str/recorded/_tmp/demo_requests_7-48.json`(`--demo-alerts` 와 파일 경보 집합이 다르면 거절)
+- **전수 대조**(R02 전부, 읽기만 — 확정 경보가 바뀔 때도 이걸로 다시 확인): 위 내보내기를 `ids=<전체 R02 경보 id>` 로 `_tmp/demo_requests_all_r02.json` 에 → `python -m tests.str.demo_alerts --demo-alerts all --demo-requests tests/str/recorded/_tmp/demo_requests_all_r02.json --summary` → 일치·불일치 건수(불일치는 경보 id·칸 이름만). 11/17: 1,850/1,850
+- **확정 경보가 바뀌면**: ① 위 내보내기를 `ids=<확정 id>` 로만 바꿔 다시 ② 같은 dry-run·live 명령에 `--demo-alerts <확정 id> --demo-requests <새 파일>` — 결과는 09 별도 줄 → 회차마다 `_tmp/judge_stability_v4_<stamp>.jsonl` 에 한 줄씩 바로 이어 씀(중간에 멈춰도 앞 회차가 남음) · 평가자 예외는 VERIFY_UNAVAILABLE(남은 judge_meta·예외 종류만, 메시지 본문 안 남김) → 끝에 그 파일을 다시 읽어 사건마다 PASSED/LLM_FAILED/평가자 실패 횟수 · 항목별 점수 분포(중앙값·최소, 3표 raw) · 떨어진 항목과 평가자 comment 원문 · 호출·토큰·시간 → `_tmp/judge_stability_v4_<stamp>.json` + 표준출력 표 · 사전 기준 판정(v4 18건 전부 3회 PASSED, 평가자 실패도 PASSED 아님) — 판정 전 완전성 검사(기대 사건 19 전부 · 사건마다 회차 1·2·3 정확히, 빠짐·중복이면 미달) · 실행 조건(`--prompt` judge_v3 · 표 수 3 · 통과 기준 4 · `--n` 3 · v4 18건) 중 하나라도 등록 값과 다르면 `mode=exploratory`, criterion_met = null(이유 = 다른 조건 이름) — 시작 mode 와 최종 판정은 같은 함수, 실제 쓴 값은 결과 `conditions` 에
+- **시연 후보 경보**(`demo_alerts.py`, 손 실행 — DB 읽기): ops 에서 백엔드 스냅샷 모양 요청 조립 → `TransactionReader` + `build_facts`(실제 흐름과 같음). id 7 은 같은 파일에 내보낸 `str_draft_requests.request_snapshot` 과 칸별 대조(같은 모델로 검증 뒤, 다르면 칸 이름만) · SQL 분포 ↔ AI 코드 판정 대조(시연 2건 포함)
+- **테스트**(`test_judge_stability_v4.py`·`test_demo_alerts.py`·`test_judge_stability_v4_run.py`, LLM·DB 0 · `test_demo_alerts_db.py` `-m db` — 상대 계좌 법인 NULL·계좌 행 없음·대상 계좌 법인 NULL(경보 법인은 있음)에서 SQL 판정 = build_facts 판정, 경보 테이블은 트랜잭션 안에서 만들고 되돌림): 사건 19(v4 18·v2 1, 시연 후보 2건은 가짜 facts 주입) · 경보 id 인자 파싱 · v4 초안 → verify 요청 모양(7섹션·cites ⊆ fact_keys)·코드 검사 0 · dry-run 호출 0·sha256 결정적 · 집계(가짜 기록 — 횟수·중앙값·최소·떨어진 항목 comment·사전 기준, v2 대조는 판정 밖) · 재블라인드 키·진단·응답 경로 접근 없음 · 3회째 평가자 예외 → 앞 두 회 기록 남음·VERIFY_UNAVAILABLE·기준 미달
+- **결과 표**: 측정 뒤(★L-1) 이 절 아래 · 09 결과 줄 · 07 비용 표
+
 ### 평가자 N=3 중앙값 단위 테스트 (SCRUM-207)
 
 `tests/str/test_judge_votes.py` (10 testcases) + `tests/str/test_judge_votes_deadline.py` — 가짜 LLM 로 집계 규칙 확인:
