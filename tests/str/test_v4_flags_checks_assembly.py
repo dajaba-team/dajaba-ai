@@ -78,7 +78,9 @@ def test_assemble_cites_union_and_too_long() -> None:
     secs = {s.section: s for s in assemble(slots, plan, cands, ctx)}
     assert [s for s in SectionV2] == list(secs)
     grounds = secs[SectionV2.GROUNDS].cites
-    assert grounds[0].startswith("observations.") and "customer.account_purpose" in grounds
+    # GROUNDS 맨 앞은 판정 문장(typology…), 그 뒤 관측값(SCRUM-265 2/2)
+    assert grounds[0] == "typology" and any(g.startswith("observations.") for g in grounds)
+    assert "customer.account_purpose" in grounds
     assert len(grounds) == len(set(grounds))
     long_slots = slots | {SectionV2.GROUNDS: [slot("가" * 1190)]}
     with pytest.raises(AssemblyTooLong) as exc:

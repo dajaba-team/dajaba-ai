@@ -30,7 +30,13 @@ DEFAULT = default_plan(CANDS)
 
 def test_default_plan_shape() -> None:
     assert [p.item_id for p in DEFAULT[SectionV2.GROUNDS]] == ["G-PURPOSE-IN", "G-COUNTERPARTY", "G-PRIOR"]
-    assert [p.item_id for p in DEFAULT[SectionV2.OPINION]] == ["O-HEAD-FAN_IN", "C1", "F1", "F2"]
+    assert [p.item_id for p in DEFAULT[SectionV2.OPINION]] == [
+        "O-HEAD-FAN_IN",
+        "C0",
+        "C1",
+        "F1",
+        "F2",
+    ]  # C0 — 픽스처 송금인 3 은 불충족(SCRUM-265 2/2)
     assert all(p.variant_id == 0 and p.connective_id == "none" for ps in DEFAULT.values() for p in ps)
     assert validate_plan(DEFAULT, CANDS) == []
 
@@ -39,25 +45,25 @@ def _plan(grounds: list[Pick], opinion: list[Pick]) -> dict:
     return {SectionV2.GROUNDS: grounds, SectionV2.OPINION: opinion}
 
 
-HEAD, C1 = Pick("O-HEAD-FAN_IN"), Pick("C1")
+HEAD, C0, C1 = Pick("O-HEAD-FAN_IN"), Pick("C0"), Pick("C1")  # C0 필수·첫 문장 바로 뒤(SCRUM-265 2/2)
 
 
 @pytest.mark.parametrize(
     ("plan", "reason"),
     [
-        (_plan([Pick("G-CYCLE-PATH")], [HEAD, C1]), "unknown_item"),  # 후보 밖(조건 거짓)
-        (_plan([Pick("G-PRIOR", variant_id=9)], [HEAD, C1]), "unknown_variant"),
+        (_plan([Pick("G-CYCLE-PATH")], [HEAD, C0, C1]), "unknown_item"),  # 후보 밖(조건 거짓)
+        (_plan([Pick("G-PRIOR", variant_id=9)], [HEAD, C0, C1]), "unknown_variant"),
         (
-            _plan([Pick("G-PRIOR"), Pick("G-COUNTERPARTY", connective_id="therefore")], [HEAD, C1]),
+            _plan([Pick("G-PRIOR"), Pick("G-COUNTERPARTY", connective_id="therefore")], [HEAD, C0, C1]),
             "unknown_connective",
         ),
-        (_plan([Pick("G-PRIOR", connective_id="also")], [HEAD, C1]), "connective_on_first"),
-        (_plan([Pick("G-PRIOR"), Pick("G-PRIOR")], [HEAD, C1]), "duplicate_item"),
+        (_plan([Pick("G-PRIOR", connective_id="also")], [HEAD, C0, C1]), "connective_on_first"),
+        (_plan([Pick("G-PRIOR"), Pick("G-PRIOR")], [HEAD, C0, C1]), "duplicate_item"),
         (_plan([], [C1, HEAD]), "head_not_first"),
         (_plan([], [HEAD]), "required_missing"),
-        (_plan([], [HEAD, C1, Pick("F1"), Pick("F2"), Pick("F3")]), "too_many_optional"),
-        (_plan([Pick("C1")], [HEAD, C1]), "unknown_item"),  # 확인 사항을 GROUNDS 에
-        ({**_plan([], [HEAD, C1]), SectionV2.METHOD: [Pick("G-PRIOR")]}, "section_not_allowed"),
+        (_plan([], [HEAD, C0, C1, Pick("F1"), Pick("F2"), Pick("F3")]), "too_many_optional"),
+        (_plan([Pick("C1")], [HEAD, C0, C1]), "unknown_item"),  # 확인 사항을 GROUNDS 에
+        ({**_plan([], [HEAD, C0, C1]), SectionV2.METHOD: [Pick("G-PRIOR")]}, "section_not_allowed"),
     ],
 )
 def test_validate_plan_reasons(plan: dict, reason: str) -> None:
@@ -73,11 +79,11 @@ def test_bad_editor_plan_falls_back_to_default(monkeypatch: pytest.MonkeyPatch) 
     out = build_v4(MASKED, LABELS, editor_plan=_plan([Pick("G-NOPE")], [HEAD]))
     assert out == build_v4(MASKED, LABELS)
     assert calls[0][0] == ("narrative_v4_plan_rejected",)
-    assert calls[0][1]["extra"]["reasons"] == ["unknown_item", "required_missing"]
+    assert calls[0][1]["extra"]["reasons"] == ["unknown_item", "c0_not_second", "required_missing"]
 
 
 def test_valid_editor_plan_is_used() -> None:
-    plan = _plan([Pick("G-PRIOR", 1)], [Pick("O-HEAD-FAN_IN", 1), Pick("C1", 1, "also"), Pick("F3")])
+    plan = _plan([Pick("G-PRIOR", 1)], [Pick("O-HEAD-FAN_IN", 1), C0, Pick("C1", 1, "also"), Pick("F3")])
     assert validate_plan(plan, CANDS) == []
     opinion = next(s for s in build_v4(MASKED, LABELS, editor_plan=plan) if s.section is SectionV2.OPINION)
     assert opinion.text.startswith("위 입금은 자금 집중 유형으로 분류되어")

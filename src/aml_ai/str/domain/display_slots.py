@@ -11,7 +11,7 @@ from datetime import date, datetime
 from typing import Any
 
 from aml_ai.shared.schemas.str.narrative import SectionV2
-from aml_ai.str.domain.constants_v4 import FLAG_SLOT_TEXT, FLOW_SCOPE
+from aml_ai.str.domain.constants_v4 import FLAG_SLOT_TEXT, FLOW_SCOPE, MAPPED_SCOPE
 from aml_ai.str.domain.derived_flags import derive_flags
 from aml_ai.str.domain.display_format import copula, ko_date, ko_datetime, label_with_code, with_ro
 from aml_ai.str.domain.display_labels_check import Labels
@@ -22,10 +22,12 @@ from aml_ai.str.domain.display_slots_method import (
     payment_parts,
 )
 from aml_ai.str.domain.slot_types import Slots, SlotSentence, no_data, slot
+from aml_ai.str.domain.typology_support_text import support_sentence
 
 
 def build_slots(facts: dict[str, Any], labels: Labels, flags: dict[str, bool] | None = None) -> Slots:
-    """섹션별 슬롯 문장. OPINION 은 늘 빈 목록. 플래그 문장은 `single_day` 만(05 — 나머지는 숫자 문장과 반복)."""
+    """섹션별 슬롯 문장. OPINION 은 늘 빈 목록. 플래그 문장은 `single_day` 만(05 — 나머지는 숫자 문장과 반복).
+    GROUNDS 맨 앞은 유형 뒷받침 판정 문장(판정 없는 유형이면 없음, SCRUM-265 2/2)."""
     flags = derive_flags(facts) if flags is None else flags
     single_day = [slot(FLAG_SLOT_TEXT["single_day"], "period")] if flags["single_day"] else []
     return {
@@ -34,7 +36,8 @@ def build_slots(facts: dict[str, Any], labels: Labels, flags: dict[str, bool] | 
         SectionV2.PLACE: place_slots(facts),
         SectionV2.INSTRUMENT: instrument_slots(facts, labels),
         SectionV2.METHOD: method_slots(facts, labels),
-        SectionV2.GROUNDS: grounds_slots(facts, labels),
+        SectionV2.GROUNDS: [s for s in (support_sentence(facts, labels),) if s]
+        + grounds_slots(facts, labels),
         SectionV2.OPINION: [],
     }
 
@@ -95,15 +98,21 @@ def date_slots(facts: dict[str, Any]) -> list[SlotSentence]:
 def place_slots(facts: dict[str, Any]) -> list[SlotSentence]:
     banks = facts["counterparty_banks"]
     same, other = banks["same_bank_accounts"], banks["other_bank_accounts"]
+    # 영업점 문장 없음(facts 칸 없음) · 자행·타행은 0 인 쪽 생략, 둘 다 0 이거나 둘 다 있으면 둘 다(SCRUM-265 2/2)
+    if same == 0 and other > 0:
+        banks_text, cites = (
+            f"이 가운데 타행 계좌는 {other:,}개임.",
+            ("counterparty_banks.other_bank_accounts",),
+        )
+    elif other == 0 and same > 0:
+        banks_text, cites = f"이 가운데 자행 계좌는 {same:,}개임.", ("counterparty_banks.same_bank_accounts",)
+    else:
+        banks_text = f"이 가운데 자행 계좌는 {same:,}개, 타행 계좌는 {other:,}개임."
+        cites = ("counterparty_banks.same_bank_accounts", "counterparty_banks.other_bank_accounts")
     return [
-        no_data("거래 영업점"),
         slot(f"대상 계좌는 {copula(facts['subject']['account_key'])}.", "subject.account_key"),
         slot(f"상대 계좌는 {facts['counterparties']['count']:,}개임.", "counterparties.count"),
-        slot(
-            f"이 가운데 자행 계좌는 {same:,}개, 타행 계좌는 {other:,}개임.",
-            "counterparty_banks.same_bank_accounts",
-            "counterparty_banks.other_bank_accounts",
-        ),
+        slot(banks_text, *cites),
     ]
 
 
@@ -116,7 +125,12 @@ def instrument_slots(facts: dict[str, Any], labels: Labels) -> list[SlotSentence
     if currencies:
         names = ", ".join(label_with_code(labels["currency"][c], c) for c, _ in currencies)
         keys = [k for _, ks in currencies for k in ks]
-        out.append(slot(f"{FLOW_SCOPE} 거래 통화는 {copula(names)}.", *keys))
+        head = (
+            f"{FLOW_SCOPE} 거래 통화 가운데 {MAPPED_SCOPE}는"
+            if facts.get("unmapped_currencies")
+            else (f"{FLOW_SCOPE} 거래 통화는")
+        )  # 미등록이 있으면 열거가 전체처럼 읽히지 않게(추가 검토 2차)
+        out.append(slot(f"{head} {copula(names)}.", *keys))
     for u in facts.get("unmapped_currencies", []):
         out.append(slot(f"{u['name']} 통화 거래는 대응 미확인임.", f"unmapped_currencies.{u['name']}"))
     return out or [no_data(f"{FLOW_SCOPE} 결제 방식")]  # 내부 거래만 — 집계 범위를 문장에

@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from aml_ai.str.domain.catalog_types import CatalogItem
 from aml_ai.str.domain.display_format import topic
+from aml_ai.str.domain.typology_support_text import c0_template
 
 _REVIEW = "자금세탁 의심 여부의 검토가 필요함."
 _REVIEW_ALT = "자금세탁 의심 여부를 검토할 필요가 있음."
@@ -38,3 +41,14 @@ HEADS: dict[str, CatalogItem] = {
         required=True,
     ),
 }
+
+
+C0_ID = "C0"
+
+
+def type_check_item(facts: dict[str, Any]) -> CatalogItem | None:
+    """확인 사항 C0 — 유형 뒷받침 안 됨일 때 필수, 첫 문장 바로 뒤(05 C0). 유형별 한 꼴(짧은 꼴과 같은 이유)."""
+    text = c0_template(facts)
+    if text is None:
+        return None
+    return CatalogItem(C0_ID, 0, (text,), ("typology",), required=True, requires=("typology_unsupported",))

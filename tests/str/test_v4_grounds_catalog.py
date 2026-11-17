@@ -56,7 +56,7 @@ def _texts(f: dict) -> dict[SectionV2, str]:
         ({"counterparties__count": 0}, "G-COUNTERPARTY", False),
         ({}, "G-PRIOR", True),
         ({"prior_alert_count": 0}, "G-PRIOR", False),
-        ({"typology": "CYCLE"}, "G-CYCLE-PATH", True),
+        ({"typology": "CYCLE"}, "G-CYCLE-PATH", False),  # 판정 문장이 대신(SCRUM-265 2/2)
         (
             {"typology": "CYCLE", "paths": {"kind": "CYCLE", "count": 1, "max_hops": 3, "max_accounts": 3}},
             "G-CYCLE-PATH",
@@ -115,16 +115,16 @@ def test_paired_items_do_not_repeat_unconfirmed_phrase(fixture: str, pair: str, 
     assert "과거 경보 이력이 있" not in t[SectionV2.OPINION] or pair != "G-PRIOR"
 
 
-def test_cycle_path_pairs_with_y3_short_form() -> None:
-    """Y3 는 기본 선택 상위 2 밖이라 편집자 Plan 으로 넣어 짧은 꼴 확인."""
+def test_cycle_path_limit_is_judgment_and_c0() -> None:
+    """SCRUM-265 2/2 — 경로 없는 CYCLE 은 G-CYCLE-PATH·Y3 대신 판정 문장(GROUNDS 맨 앞) + C0(짧은 꼴과 같은 문장)."""
     f = _with(FAN_IN, typology="CYCLE", prior_alert_count=0)
-    plan = {
-        SectionV2.GROUNDS: [Pick("G-CYCLE-PATH")],
-        SectionV2.OPINION: [Pick("O-HEAD-CYCLE"), Pick("Y3")],
-    }
-    t = {s.section: s.text for s in build_v4(f, LABELS, editor_plan=plan)}
-    assert "자금 순환을 뒷받침하는 경로는 제공된 자료로 확인되지 않음." in t[SectionV2.GROUNDS]
-    assert t[SectionV2.OPINION].endswith("경로 확인 자료를 보완할 필요가 있음.")
+    plan = {SectionV2.GROUNDS: [Pick("G-CYCLE-PATH")], SectionV2.OPINION: [Pick("O-HEAD-CYCLE"), Pick("Y3")]}
+    t = {s.section: s.text for s in build_v4(f, LABELS, editor_plan=plan)}  # 후보 밖 → 코드 Plan
+    assert t[SectionV2.GROUNDS].startswith(
+        "자금 순환(CYCLE) 분류를 뒷받침하는 경로는 제공된 자료로 확인되지 않음."
+    )
+    assert "자금 순환을 뒷받침하는 경로" not in t[SectionV2.GROUNDS]
+    assert ". 경로 확인 자료를 보완할 필요가 있음." in t[SectionV2.OPINION]
     assert "제공된 자료로" not in t[SectionV2.OPINION]
 
 

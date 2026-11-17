@@ -10,6 +10,7 @@ from collections.abc import Callable
 from typing import Any
 
 from aml_ai.str.domain.catalog_types import CatalogItem, holds, premises
+from aml_ai.str.domain.typology_support import typology_support
 
 NOT_CONFIRMED = "제공된 자료로 확인되지 않음."
 
@@ -75,8 +76,10 @@ GROUNDS_ITEMS: tuple[CatalogItem, ...] = (
 
 # 전제(requires) 밖의 조건 — 전제는 catalog_types.premises 가 판정
 _CONDITIONS: dict[str, Callable[[dict[str, Any], dict[str, bool]], bool]] = {
-    # 경로 없음·UNVERIFIED·비순환 VERIFIED
-    "G-CYCLE-PATH": lambda f, _: f.get("typology") == "CYCLE" and not premises(f)["cycle_verified"],
+    # 경로 없음·UNVERIFIED·비순환 VERIFIED · 판정 문장 없을 때만(SCRUM-265 2/2 — 판정 미확인 문장과 같은 뜻)
+    "G-CYCLE-PATH": lambda f, _: (
+        f.get("typology") == "CYCLE" and not premises(f)["cycle_verified"] and typology_support(f) is None
+    ),
     "G-PURPOSE-IN": lambda f, _: True,
     "G-PURPOSE-OUT": lambda f, flags: flags["outbound_only"],
     "G-COUNTERPARTY": lambda f, _: True,

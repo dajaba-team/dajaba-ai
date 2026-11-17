@@ -116,11 +116,11 @@ def test_all_windows_null_says_once_at_end() -> None:
     text = _grounds(
         _with([_obs("evidence_count", 5.0), _obs("focal_in_count", 3.0), _obs("payment_format_count", 2.0)])
     )
-    assert text.count("모델 관측값에서 ") == 3
+    # SCRUM-265 2/2 — window 같음 → 둘째부터 "{표기} 관측값은", 구간·기준값 둘 다 전부 null → 끝 한 문장
+    assert text.count("모델 관측값에서 ") == 1 and text.count(" 관측값은 ") == 2
     assert "(관측 구간 자료 없음)" not in text
-    assert text.count("모델 관측값의 관측 구간은 자료 없음.") == 1
-    assert text.count("비교 기준값은 자료 없음.") == 1
-    assert text.index("관측 구간은 자료 없음") < text.index("비교 기준값은 자료 없음")
+    assert text.count("모델 관측값의 관측 구간과 비교 기준값은 제공된 자료로 확인되지 않음.") == 1
+    assert "비교 기준값은 자료 없음." not in text
 
 
 def test_mixed_windows_keep_per_sentence_form() -> None:
@@ -136,10 +136,10 @@ def test_mixed_windows_keep_per_sentence_form() -> None:
 
 
 def test_real_sample_builds_v4_without_observations() -> None:
-    """준영 예시(셋 다 음수) → facts 관측값 없음 → v4 생성 성공, GROUNDS "모델 관측값은 자료 없음"."""
+    """준영 예시(셋 다 음수) → facts 관측값 없음 → v4 생성 성공, GROUNDS "점수를 높인 모델 관측값은 …확인되지 않음"."""
     facts = build(CASES["mixed"], rule_id=REAL["rule_id"], reasons=REAL["reasons"])
     assert facts.observations == []
-    assert "모델 관측값은 자료 없음" in _grounds(facts)
+    assert "점수를 높인 모델 관측값은 제공된 자료로 확인되지 않음." in _grounds(facts)  # SCRUM-265 2/2
 
 
 def test_mock_score_path_builds_v4() -> None:
@@ -148,7 +148,7 @@ def test_mock_score_path_builds_v4() -> None:
     mock = [r.model_dump(mode="json") for r in ScoreService._mock(alert).reasons]
     facts = build(CASES["mixed"], reasons=mock)
     assert facts.observations == []
-    assert "모델 관측값은 자료 없음" in _grounds(facts)
+    assert "점수를 높인 모델 관측값은 제공된 자료로 확인되지 않음." in _grounds(facts)  # SCRUM-265 2/2
 
 
 # ---------- 실패 ----------
