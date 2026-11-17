@@ -282,6 +282,36 @@ v4 초안은 코드 조립(LLM 0)이라 초안 단계 평가자가 없고 검증
 - **테스트**(`test_judge_stability_v4.py`·`test_demo_alerts.py`·`test_judge_stability_v4_run.py`, LLM·DB 0 · `test_demo_alerts_db.py` `-m db` — 상대 계좌 법인 NULL·계좌 행 없음·대상 계좌 법인 NULL(경보 법인은 있음)에서 SQL 판정 = build_facts 판정, 경보 테이블은 트랜잭션 안에서 만들고 되돌림): 사건 19(v4 18·v2 1, 시연 후보 2건은 가짜 facts 주입) · 경보 id 인자 파싱 · v4 초안 → verify 요청 모양(7섹션·cites ⊆ fact_keys)·코드 검사 0 · dry-run 호출 0·sha256 결정적 · 집계(가짜 기록 — 횟수·중앙값·최소·떨어진 항목 comment·사전 기준, v2 대조는 판정 밖) · 재블라인드 키·진단·응답 경로 접근 없음 · 3회째 평가자 예외 → 앞 두 회 기록 남음·VERIFY_UNAVAILABLE·기준 미달
 - **결과 표**: 측정 뒤(★L-1) 이 절 아래 · 09 결과 줄 · 07 비용 표
 
+#### 결과 — 1차 실측 (2026-11-18, stamp `20261117-151201`, 09 "SCRUM-254 ★L-1 1차 실측")
+
+`mode=registered` · 표본 완전 · **사전 기준 미달 — v4 54회 중 PASSED 1** · VERIFY_UNAVAILABLE 0 · CODE_FAILED 0 · 평가자 입력 sha256 = dry-run 19/19. 떨어진 항목 칸은 회차별 중앙값(1·2·3회), 4 미만 항목만. 원인 ①·②·③ 은 09 결과 줄의 세 갈래(① 판정 결과·임계값이 평가자 입력에 없음 · ② judge_v3 TYPOLOGY 기준 · ③ 초안 문장).
+
+| 사건 | 판정 | PASSED | 떨어진 항목 (중앙값 1·2·3회) | 평가자가 지적한 문장 → 원인 |
+|---|---|---|---|---|
+| 228:fan_in | 불충족 | 0/3 | NO_UNSUPPORTED 3·3·3 | 판정 문장 ① · 계좌 개설일 ③ |
+| 228:fan_in_b | 불충족 | 0/3 | NO_UNSUPPORTED 3·3·3 | 판정 문장 ① · 계좌 개설일 ③ |
+| 228:fan_out | 불충족 | 0/3 | NO_UNSUPPORTED 3·3·3 | 판정 문장 ① · 계좌 개설일 ③ |
+| 228:cycle_nopaths | 미확인 | 0/3 | TYPO 3·3·3 · NO_UNSUPPORTED 3·3·3 | TYPO ② · 계좌 개설일 ③ |
+| 228:scatter_gather | 미확인 | 0/3 | TYPO 3·3·3 · NO_UNSUPPORTED 3·3·3 | TYPO ② · 계좌 개설일 ③ · 가중 평균 표기 ① |
+| 228:internal_transfer | 미확인 | 0/3 | FIVE_W 1·1·1 · TYPO 3·3·3 · NO_UNSUPPORTED 3·3·3 | GROUNDS 전부 부재 표기 ③ · TYPO ② · 계좌 개설일 ③ (범위 구절 ① 소수표) |
+| 228:partial_baseline | 불충족 | 0/3 | TYPO 3·3·3 · NO_UNSUPPORTED 3·3·3 | TYPO ② · 판정 문장 ① · 가중 평균 표기 ① · 계좌 개설일 ③ |
+| 228:customer_missing | 불충족 | 0/3 | TYPO 3·3·3 · NO_UNSUPPORTED 3·3·3 | TYPO ② · 판정 문장 ① |
+| blind2:sup_fan_in | 충족 | 0/3 | NO_UNSUPPORTED 3·3·3 | 계좌 개설일 ③ · 판정 문장 ① |
+| blind2:sup_fan_out | 충족 | 0/3 | NO_UNSUPPORTED 3·3·3 | 계좌 개설일 ③ · 판정 문장 ① |
+| blind2:sup_cycle | 충족 | 0/3 | NO_UNSUPPORTED 3·3·3 | 계좌 개설일 ③ (9표 중 2표 5) |
+| blind2:sup_scatter_gather | 충족 | 0/3 | TYPO 3·3·3 · NO_UNSUPPORTED 3·5·3 | 흐름 서술 없음 ③ · 계좌 개설일 ③ |
+| blind2:uns_cycle | 미확인 | 0/3 | TYPO 3·3·3 · NO_UNSUPPORTED 3·3·3 | TYPO ② · 계좌 개설일 ③ |
+| blind2:uns_scatter_gather | 미확인 | 0/3 | TYPO 3·3·3 · NO_UNSUPPORTED 5·3·3 | TYPO ② · 계좌 개설일 ③ (C0 문구 1표) |
+| blind2:uns_fan_in | 불충족 | 0/3 | TYPO 3·3·3 · NO_UNSUPPORTED 3·3·3 | TYPO ② · 판정 문장 ① · 계좌 개설일 ③ |
+| blind2:mix_fan_in | 충족 | 0/3 | NO_UNSUPPORTED 3·3·3 | 계좌 개설일 ③ · 판정 문장 ① |
+| demo_7 (시연 후보) | 충족 | **1/3** | NO_UNSUPPORTED 5·3·3 | 판정 문장 ① 하나(같은 입력, 표 5·3·5 → 3·3·3 → 3·3·3 — 흔들림) · TYPO 4 경계 ③ |
+| demo_48 (시연 후보) | 미확인 | 0/3 | FIVE_W 1·1·1 · TYPO 3·3·3 | GROUNDS 전부 부재 표기 ③ · TYPO ② (NO_UNSUPPORTED 9표 모두 5 — 미확인 문장 감점 없음) |
+| injection:23 (v2 대조, 판정 밖) | 미확인 | 0/3 | TYPO 3·3·3 | TYPO ② — v4 와 같은 모양 |
+
+- 판정 칸 = `typology_support`(마스킹 facts) 결과. NO_SPECULATION·NO_INSTRUCTION_TEXT 는 57회 모두 5
+- "계좌 개설일" 은 고객 정보가 있는 15건 전부에 걸림(customer_missing·demo_7·demo_48 은 문장 없음)
+- 다음: judge_v4 사전 기준 등록 → 구현 · v4 카탈로그는 재블라인드 응답 뒤 → 같은 하네스로 2차 실측(결과는 이 절 아래 · 09 별도 줄)
+
 ### 평가자 N=3 중앙값 단위 테스트 (SCRUM-207)
 
 `tests/str/test_judge_votes.py` (10 testcases) + `tests/str/test_judge_votes_deadline.py` — 가짜 LLM 로 집계 규칙 확인:
