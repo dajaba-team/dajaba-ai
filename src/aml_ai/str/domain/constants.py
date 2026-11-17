@@ -35,6 +35,9 @@ MODEL_SIGNALS_TOP = 3  # reasons 상위 N개의 이름만 model_signals 로
 # ---- 프롬프트 (docs/str/05)
 # NARRATIVE_PROMPT 는 설정(shared/config.narrative_prompt)으로 — tools.record·draft_service.build 가 씀.
 JUDGE_PROMPT = "judge_v3"  # SCRUM-127 — 2026-11-09 활성. judge_v2 는 녹화·호환 유지.
+JUDGE_PROMPT_V4 = "judge_v4"  # SCRUM-268 — v4 초안 verify 전용(판정 근거 블록)
+# SCRUM-268 스위치 — v4 초안 verify 평가자. JUDGE_PROMPT 면 꺼짐. 09 사전 기준 1·2 충족 뒤 JUDGE_PROMPT_V4 로
+JUDGE_PROMPT_NARRATIVE_V4 = JUDGE_PROMPT
 SUMMARY_PROMPT = "summary_v1"
 LLM_TEMPERATURE = 0.0
 NARRATIVE_MAX_TOKENS = 2000

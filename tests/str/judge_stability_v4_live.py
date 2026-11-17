@@ -24,13 +24,20 @@ from typing import Any
 
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.infrastructure.llm_client import HttpLlmClient
-from aml_ai.str.domain.constants import JUDGE_PASS_SCORE, JUDGE_PROMPT, JUDGE_SCHEMA_RETRY, JUDGE_VOTES
+from aml_ai.str.domain.constants import JUDGE_PASS_SCORE, JUDGE_SCHEMA_RETRY, JUDGE_VOTES
 from aml_ai.str.infrastructure.judge import Judge, JudgeResult
 from tests.str.demo_alerts import DEFAULT_DEMO_ALERTS, demo_facts, load_exports, parse_alert_ids
 from tests.str.injection_live_support import TMP_DIR
 from tests.str.judge_stability_v4 import V4Case, build_cases, dry_run
 from tests.str.judge_stability_v4_run import read_records, run_cases
-from tests.str.judge_stability_v4_tally import mode_of, render_table, run_conditions, tally, verdict
+from tests.str.judge_stability_v4_tally import (
+    REGISTERED,
+    mode_of,
+    render_table,
+    run_conditions,
+    tally,
+    verdict,
+)
 from tests.str.judge_stability_verify import _wrap_call_with_retry
 
 
@@ -91,7 +98,7 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--dry-run", action="store_true")
     mode.add_argument("--live", action="store_true")
     p.add_argument("--n", type=int, default=3)
-    p.add_argument("--prompt", default=JUDGE_PROMPT)
+    p.add_argument("--prompt", default=REGISTERED["prompt"])  # SCRUM-268 — 등록 값(judge_v4)
     p.add_argument("--demo-alerts", default=",".join(map(str, DEFAULT_DEMO_ALERTS)))
     p.add_argument("--demo-requests", type=Path, required=True)  # demo_alerts.sql 읽기 전용 내보내기(_tmp)
     a = p.parse_args(argv)

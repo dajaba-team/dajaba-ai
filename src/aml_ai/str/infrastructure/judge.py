@@ -31,6 +31,7 @@ from aml_ai.shared.schemas.str import (
     llm_output_model,
 )
 from aml_ai.str.domain.constants import JUDGE_MAX_TOKENS, JUDGE_PROMPT, JUDGE_SCHEMA_RETRY
+from aml_ai.str.domain.typology_support_block import SUPPORT_BLOCK_SLOT, render_support_block
 from aml_ai.str.infrastructure.judge_vote import run_votes
 from aml_ai.str.infrastructure.narrative_generator import load_prompt
 
@@ -59,7 +60,10 @@ def render_judge_user(
 
     v1 템플릿은 FACT_KEYS·request_sections 블록이 없어 replace 가 no-op. v2 는 둘 다 넣는다.
     FACT_KEYS 모양은 생성기(`narrative_generator.render_user`)와 같게 `"\\n".join(keys) or "(없음)"`.
+    judge_v4 만 `{{typology_support}}` 자리가 있음 — 없는 템플릿은 블록 계산도 안 함(SCRUM-268).
     """
+    if SUPPORT_BLOCK_SLOT in template:
+        template = template.replace(SUPPORT_BLOCK_SLOT, render_support_block(facts_masked))
     return (
         template.replace("{{facts_json}}", json.dumps(facts_masked, ensure_ascii=False, indent=2))
         .replace(

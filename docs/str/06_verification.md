@@ -83,6 +83,22 @@
 
 > **`NO_UNSUPPORTED_CLAIM` 예외 (SCRUM-127, 2026-11-09)**: `"자료 없음"`·`"확인되지 않음"` 같은 **부재 표기**는 사실 주장이 아니므로 **감점하지 않는다**. 부재 표기에 새 정황을 붙이면(예: `"~가 없어 급히 옮긴 것으로 보임"`) 그 정황만큼 감점. narrative 프롬프트가 FACTS 에 없는 값을 "자료 없음" 으로 쓰라 지시한 것과 충돌 해소. judge_v3 프롬프트에도 같은 문장.
 
+### judge_v4 — v4 초안 verify 전용 (SCRUM-268, 2026-11-18 · 스위치 꺼진 채 머지)
+
+254 ★L-1 1차(v4 54회 중 PASSED 1)의 원인 ①(판정 문장의 근거가 평가자 입력에 없음)·②(TYPOLOGY 가 정직한 미확인·불충족을 3점)를 고치는 평가자. 사전 기준은 09 "SCRUM-268 judge_v4 사전 기준 — 측정 전"(프롬프트보다 먼저 커밋).
+
+- **고르기**: `verify_service` 가 `StoredDraft.prompt_version`(`generations.prompt_version`, 마이그레이션 없음)이 `narrative_v4` 이고 스위치가 켜져 있으면 `judge_for_v4`(judge_v4), 아니면 `judge`(judge_v3). 스위치는 `domain/constants.JUDGE_PROMPT_NARRATIVE_V4` 하나 — **머지 때 값은 `JUDGE_PROMPT`(judge_v3) = 꺼짐**, 09 기준 1·2 충족을 확인한 뒤 `JUDGE_PROMPT_V4`(judge_v4)로. 꺼져 있으면 `judge_for_v4 = None` 이라 평가자 입력·호출 수·`verifier_version` 이 전과 같음. 초안 단계 평가자(`draft_service`, v2 고쳐 쓰기)는 judge_v3 그대로. 표 수·통과선·재시도·집계 규칙 같음
+- **`verifier_version`** = `{VERIFIER_VERSION}+{실제 고른 평가자}` — v4 초안이 judge_v4 로 평가되면 `…+judge_v4`(자유 문자열, 규약 변경 없음)
+- **판정 근거 블록**(`domain/typology_support_block.py`, 순수): 평가자에 주는 것과 같은 마스킹 facts 로 `typology_support` 를 그대로 불러(읽기만, 함수·임계값 안 바꿈) 만든 dict. judge_v4 user 칸 `{{typology_support}}` 에만 들어가고(JSON 들여쓰기 2, 판정 없는 유형이면 `(없음)`), Facts 스키마·규약 JSON·응답은 그대로. 계좌번호·금액·이름 없음
+
+| 유형 | 블록 칸 |
+|---|---|
+| FAN_IN · FAN_OUT | `typology` · `support`(SUPPORTED·UNCONFIRMED·UNMET) · `counted`(`distinct_senders`·`distinct_receivers`) · `lower_bound` · `upper_bound` · `threshold`(5·10) · `internal_count` · `lowered_by_internal`(불충족을 내부 거래로 미확인으로 내렸는지) |
+| CYCLE | `typology` · `support`(SUPPORTED·UNCONFIRMED) · `verified_path_kind` · `verified_path_count` |
+| SCATTER_GATHER | 위 CYCLE 칸 + `threshold`(3, 확인된 경로 수 하한) |
+
+- **루브릭 차이**(표는 위 06 표 그대로, judge_v4 만 덧붙임): `NO_UNSUPPORTED_CLAIM` — 판정 문장이 블록과 맞으면 사실 서술, 반대(블록 SUPPORTED 인데 "미치지 않음"·"확인되지 않음", 블록 UNCONFIRMED·UNMET 인데 "충족"·"부합")면 1점. `TYPOLOGY_CONSISTENT` — 블록 SUPPORTED 이거나 `(없음)` 이면 위 표 그대로, UNCONFIRMED·UNMET 이면 5 = 분류 사실과 한계를 밝히고 흐름을 사실로 서술 안 함 / 4 = 한계는 밝혔으나 일반적·한 곳 모호 / 3 = 한계 없이 유형 이름만 / 1 = 흐름을 사실로 긍정·단정 또는 다른 유형 설명. 나머지 세 항목 그대로
+
 ## 초안 안 평가자 (SCRUM-147, 2026-11-10 — 고쳐 쓰기 판단용)
 
 `draft_service._generate` 는 `attach_evidence` 뒤 `draft_rewrite.try_rewrite` 에서 평가자(`judge_v3`)를 **고쳐 쓰기 판단용**으로 한 번 부른다. **v2 전용** — v1 초안(`prompt_version="narrative_v1"`) 은 `try_rewrite` 가 None 반환해 아예 안 탐(rewrite_v1 출력 스키마가 v2 7섹션). 이 호출의 결과는 **검증 결과가 아니다** — 초안 응답 `verification` 은 그대로 `null` (안건 17 유지), `verification_runs` 저장도 없다. **초안용 Judge 는 `schema_retry=0`** — verify 경로의 1회 재시도와 분리해 초안 LLM 호출 상한 4 를 지킨다. 초안 안 평가자의 점수·comment·토큰·지연은 `generations.response` 의 `generation_meta.rewrite.critique_*` 에만 저장한다. 조사역이 "검증" 버튼을 누르면 `/v1/str/verify` 가 평가자를 **다시** 부른다 — 초안 안 평가자는 작성 보조이고, 검증은 승인 요청의 공식 근거라 분리한다(중복 비용은 감수, 09 "알고 남김"). 초안 흐름은 `03_pipeline.md` 단계 8b.

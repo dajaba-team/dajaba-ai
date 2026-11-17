@@ -24,7 +24,7 @@ def _rec(case_id: str, kind: str, run: int) -> dict[str, Any]:
 
 
 def _c(n: int = 3, v4: int = 18) -> dict[str, Any]:
-    return run_conditions(prompt="judge_v3", votes=3, pass_score=4, n=n, v4_cases=v4)
+    return run_conditions(prompt="judge_v4", votes=3, pass_score=4, n=n, v4_cases=v4)
 
 
 def _all_pass(n: int = 3) -> list[dict[str, Any]]:

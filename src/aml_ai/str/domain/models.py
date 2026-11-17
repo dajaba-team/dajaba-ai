@@ -115,3 +115,4 @@ class StoredDraft:
     facts: Facts
     evidence_transaction_ids: list[int]
     references: list[Reference]
+    prompt_version: str | None = None  # SCRUM-268 — 생성 프롬프트(narrative_v4 면 judge_v4 대상)

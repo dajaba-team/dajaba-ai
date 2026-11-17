@@ -186,4 +186,5 @@ class GenerationRepository:
             facts=Facts.model_validate(row.facts),
             evidence_transaction_ids=list(row.request.get("evidence_transaction_ids", [])),
             references=[Reference.model_validate(r) for r in (row.references or [])],
+            prompt_version=row.prompt_version,
         )
