@@ -32,6 +32,7 @@ from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
 from aml_ai.str.infrastructure.narrative_v4_builder import build_v4
 from tests.str.v4_blind_reveal_io import responses_template
 from tests.str.v4_blind_support import BlindCase, CaseDrafts, blind_cases, build_blind, unify_notation
+from tests.str.v4_real_names import real_names
 
 TMP_DIR = Path(__file__).resolve().parent / "recorded" / "_tmp"
 SEED_LIMIT = 2**31
@@ -55,7 +56,8 @@ def draft_case(case: BlindCase, llm: Any, settings: Any) -> CaseDrafts:
     sections = [s.model_copy(update={"text": u.text}) for s, u in zip(original, unified, strict=True)]
     replaced = list(dict.fromkeys(pair for u in unified for pair in u.replaced))
     unknown = list(dict.fromkeys(code for u in unified for code in u.unknown))
-    assembled = attach_evidence(build_v4(facts_masked, labels), case.facts)
+    v4_facts = real_names(case.facts)  # v4 쪽만 실제 피처 이름(SCRUM-264)
+    assembled = attach_evidence(build_v4(masking.mask_for_llm(v4_facts), labels), v4_facts)
     return CaseDrafts(case, original, sections, assembled, replaced, unknown)
 
 

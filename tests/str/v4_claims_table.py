@@ -59,13 +59,15 @@ CLAIMS: dict[str, Callable[[Facts], bool]] = {  # 키는 정규식
     r"(?<!입금·출금의 )거래 통화는": lambda f: False,
     r"(?<!입금·출금의 )결제 방식은": lambda f: False,
     "모델 관측값은 자료 없음": lambda f: not f.observations,
+    "모델 관측값의 관측 구간은 자료 없음": lambda f: (  # SCRUM-264 — 전부 양 끝 null 일 때만
+        bool(f.observations) and all(o.window_start is None and o.window_end is None for o in f.observations)
+    ),
 }
 # 관측값 단위 부재 주장 — 그 관측값 문장 안에서만, 그 관측값에 대해 참
 OBS_CLAIMS: dict[str, Callable[[Any, Facts], bool]] = {
     "이 관측값의 비교 기준값은 자료 없음": lambda o, f: (
         o.baseline is None and any(x.baseline is not None for x in f.observations)
     ),
-    "관측 항목 이름은 자료 없음": lambda o, f: o.basis is None,
     "관측 구간 자료 없음": lambda o, f: o.window_start is None and o.window_end is None,
     "관측 구간 일부 자료 없음": lambda o, f: (o.window_start is None) != (o.window_end is None),
 }

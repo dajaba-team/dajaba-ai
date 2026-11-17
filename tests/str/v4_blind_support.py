@@ -16,12 +16,17 @@ from typing import Any
 from aml_ai.shared.schemas.str import Facts, NarrativeSection
 from tests.str.v4_blind_notation import translate
 from tests.str.v4_blind_render import pair_md, side_metrics
-from tests.str.v4_slot_support import load_fixture
+from tests.str.v4_real_names import side_facts
+from tests.str.v4_slot_support import load_raw_fixture as load_fixture  # 블라인드(11/17) 입력 그대로
 
 Labels = dict[str, dict[str, str]]
 PARTIAL_BASELINE_FEATURE_NAMES = ("distinct_senders_24h", "inflow_outflow_ratio_2h")
 PARTIAL_BASELINE_WINDOW_HOURS = 2
 PARTIAL_BASELINE_VALUE = 1.0
+_FIRST = {"name": PARTIAL_BASELINE_FEATURE_NAMES[0], "value": PARTIAL_BASELINE_VALUE, "unit": "count"}
+_FIRST_AS_BLINDED = _FIRST | {
+    "basis": "distinct_inbound_counterparties"
+}  # 11/17 그대로(SCRUM-264 claims 축 변경 무관)
 
 
 @dataclass(frozen=True)
@@ -62,7 +67,7 @@ def _partial_baseline_observations(facts: Facts) -> Facts:
     """서로 다른 기준의 관측값 둘로 구성하고 일부 비교 기준값 부재를 유지한다."""
     first, second = facts.observations
     observations = [
-        first.model_copy(update={"name": PARTIAL_BASELINE_FEATURE_NAMES[0], "value": PARTIAL_BASELINE_VALUE}),
+        first.model_copy(update=_FIRST_AS_BLINDED),
         second.model_copy(
             update={
                 "name": PARTIAL_BASELINE_FEATURE_NAMES[1],
@@ -188,8 +193,8 @@ def _pair(
     sides = {"v2": draft.v2_unified, "v4": draft.v4}
     diag = {
         "pair_no": number,
-        "A": side_metrics(draft.case.facts, sides[a]),
-        "B": side_metrics(draft.case.facts, sides[b]),
+        "A": side_metrics(side_facts(draft.case.facts, a), sides[a]),
+        "B": side_metrics(side_facts(draft.case.facts, b), sides[b]),
     }
     key = {"pair_no": number, "case_id": draft.case.case_id, "control": control, "A": a, "B": b}
     return diag, key, pair_md(number, draft.case.group, sides[a], sides[b])

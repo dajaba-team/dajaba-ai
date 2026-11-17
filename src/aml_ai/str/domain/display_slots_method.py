@@ -10,7 +10,7 @@ from typing import Any
 
 from aml_ai.str.domain.constants import PAYMENT_FORMAT_ALIASES
 from aml_ai.str.domain.constants_v4 import FLOW_SCOPE
-from aml_ai.str.domain.display_format import copula, label_with_code, money, obs_value, topic
+from aml_ai.str.domain.display_format import copula, label_with_code, money, obs_value, topic_before_paren
 from aml_ai.str.domain.display_labels_check import Labels
 from aml_ai.str.domain.slot_types import SlotSentence, no_data, slot
 
@@ -91,7 +91,10 @@ def grounds_slots(facts: dict[str, Any], labels: Labels) -> list[SlotSentence]:
         return [no_data("모델 관측값")]
     # 부재 주장은 집계 전체를 볼 때만(05): 전부 None → 섹션 끝 한 문장, 일부만 None → 그 관측값 문장 안
     all_missing = all(o.get("baseline") is None for o in observations)
-    out = [_observation(o, labels, mark_baseline=not all_missing) for o in observations]
+    no_window = all(not o.get("window_start") and not o.get("window_end") for o in observations)
+    out = [_observation(o, labels, mark_baseline=not all_missing, window=not no_window) for o in observations]
+    if no_window:  # 실제 reasons 형식(SCRUM-264) — 관측값마다 반복하지 않고 섹션 끝 한 번
+        out.append(no_data("모델 관측값의 관측 구간"))
     if all_missing:
         out.append(no_data("비교 기준값"))
     return out
@@ -106,16 +109,12 @@ def _window(start: str | None, end: str | None) -> str:
     return "관측 구간 자료 없음"
 
 
-def _observation(o: dict[str, Any], labels: Labels, *, mark_baseline: bool) -> SlotSentence:
-    window = _window(o.get("window_start"), o.get("window_end"))
-    unit = labels["observation_unit"].get(o["unit"], "") if o.get("unit") else ""
-    value = f"{obs_value(o['value'])}{unit}"
-    basis = o.get("basis")
-    head = f"모델 관측값({window})"
-    if basis is None:
-        text = f"{head}은 {copula(value)}. 관측 항목 이름은 자료 없음."  # 조사는 괄호 앞 `관측값` 기준
-    else:
-        text = f"{head}에서 {topic(labels['observation_basis'][basis])} {copula(value)}."
+def _observation(o: dict[str, Any], labels: Labels, *, mark_baseline: bool, window: bool) -> SlotSentence:
+    """표기·단위는 피처 이름 기준(SCRUM-264 — 실제 basis 는 늘 `model_feature`, unit null). 값은 환산 안 함."""
+    name = o["name"]
+    value = f"{obs_value(o['value'])}{labels['observation_name_unit'][name]}"
+    head = f"모델 관측값({_window(o.get('window_start'), o.get('window_end'))})" if window else "모델 관측값"
+    text = f"{head}에서 {topic_before_paren(labels['observation_name'][name])} {copula(value)}."
     if mark_baseline and o.get("baseline") is None:
         text += " 이 관측값의 비교 기준값은 자료 없음."
     return slot(text, f"observations.{o['name']}")

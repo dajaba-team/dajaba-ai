@@ -1,0 +1,24 @@
+{
+  "_note": "SCRUM-264 — 실제 ML 패키지 reasons 예시(준영 11/17, R02 경보 1건) 그대로. 기여값 셋 다 음수",
+  "rule_id": "R02_FAN_IN",
+  "reasons": [
+    {
+      "name": "evidence_ach_fraction",
+      "observation": {"value": 0.0, "unit": null, "window_start": null, "window_end": null, "basis": "model_feature"},
+      "baseline": {"value": null, "definition": null},
+      "contribution": {"method": "TreeSHAP", "value": -1.41, "scale": "log_odds"}
+    },
+    {
+      "name": "payment_format_count",
+      "observation": {"value": 4.0, "unit": null, "window_start": null, "window_end": null, "basis": "model_feature"},
+      "baseline": {"value": null, "definition": null},
+      "contribution": {"method": "TreeSHAP", "value": -0.48, "scale": "log_odds"}
+    },
+    {
+      "name": "evidence_span_seconds",
+      "observation": {"value": 106320.0, "unit": null, "window_start": null, "window_end": null, "basis": "model_feature"},
+      "baseline": {"value": null, "definition": null},
+      "contribution": {"method": "TreeSHAP", "value": -0.48, "scale": "log_odds"}
+    }
+  ]
+}

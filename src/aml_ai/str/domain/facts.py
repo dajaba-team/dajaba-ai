@@ -12,7 +12,6 @@ from collections.abc import Iterable
 from decimal import ROUND_HALF_EVEN, Decimal
 
 from aml_ai.shared.schemas.common import TypologySource
-from aml_ai.shared.schemas.scores import Reason
 from aml_ai.shared.schemas.str import (
     CurrencyTotal,
     CustomerFacts,
@@ -21,7 +20,6 @@ from aml_ai.shared.schemas.str import (
     FactsInput,
     FlowFacts,
     IdGroupFacts,
-    ObservationFacts,
     PeriodFacts,
     SubjectFacts,
 )
@@ -39,6 +37,7 @@ from aml_ai.str.domain.facts_aggregations import (
 from aml_ai.str.domain.facts_aggregations import (
     unmapped_currencies as _unmapped,
 )
+from aml_ai.str.domain.facts_observations import observations, usable_reasons
 from aml_ai.str.domain.models import Customer, Subject, Transaction
 
 
@@ -73,6 +72,7 @@ def build_facts(inp: FactsInput, txs: list[Transaction], subject: Subject) -> Fa
     outbound = [t for t in active if t.from_account_key == s and t not in internal]
     indirect = [t for t in active if s not in (t.from_account_key, t.to_account_key)]
     flows = inbound + outbound
+    reasons = usable_reasons(inp.reasons, inp.alert.rule_id)
 
     return Facts(
         reporting_institution=inp.reporting_institution or subject.bank_name,
@@ -99,8 +99,8 @@ def build_facts(inp: FactsInput, txs: list[Transaction], subject: Subject) -> Fa
         typology_source=TypologySource.RULE,
         customer=_customer(subject.customer),
         prior_alert_count=inp.prior_alert_count,
-        observations=_observations(inp.reasons),
-        model_signals=[r.name for r in inp.reasons[:MODEL_SIGNALS_TOP]],
+        observations=observations(reasons),
+        model_signals=[r.name for r in reasons[:MODEL_SIGNALS_TOP]],
         unmapped_currencies=_unmapped(inbound, outbound, currency_code),
     )
 
@@ -168,23 +168,6 @@ def _customer(c: Customer | None) -> CustomerFacts | None:
         onboarded_at=c.onboarded_at,
         country_code=c.country_code,
     )
-
-
-def _observations(reasons: list[Reason]) -> list[ObservationFacts]:
-    """관측값만. value 가 null 인 항목은 뺀다. 기여값(contribution)은 넣지 않는다 (안건 3)."""
-    return [
-        ObservationFacts(
-            name=r.name,
-            value=r.observation.value,
-            unit=r.observation.unit,
-            window_start=r.observation.window_start,
-            window_end=r.observation.window_end,
-            basis=r.observation.basis,
-            baseline=r.baseline.value,
-        )
-        for r in reasons
-        if r.observation.value is not None
-    ]
 
 
 def _money(x: Decimal) -> str:

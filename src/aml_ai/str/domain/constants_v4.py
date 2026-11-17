@@ -17,8 +17,10 @@ LABEL_FIELDS: tuple[str, ...] = (
     "payment_format",
     "typology",
     "currency",
-    "observation_basis",
+    "observation_basis",  # SCRUM-264 부터 v4 슬롯은 안 씀(228 블라인드 v2 표기 통일 하네스용)
     "observation_unit",
+    "observation_name",  # 피처 이름 → 표기(SCRUM-264)
+    "observation_name_unit",  # 피처 이름 → 단위, 비율은 ""
 )
 # 표기에 넣지 않는 검사기 종류 단어(05 표기 원칙).
 LABEL_BANNED_WORDS: tuple[str, ...] = ("입금", "출금", "상대", "자행", "타행", "경보")

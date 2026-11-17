@@ -21,7 +21,12 @@ from tests.str.v4_claims_support import facts_for
 from tests.str.v4_mutation_support import mutations
 from tests.str.v4_slot_support import assembled, facts_sources, failures, longest_case
 
-_OBS_AXIS = ("first_only", "zero_and_null", "half_window")  # 관측값 둘·baseline 일부·관측 구간 한쪽
+_OBS_AXIS = (
+    "first_only",
+    "zero_and_null",
+    "half_window",
+    "real",
+)  # 관측값 둘·baseline 일부·관측 구간 한쪽·실제 형식(SCRUM-264)
 SOURCES = [
     *facts_sources(),
     ("longest_case", longest_case()),
@@ -31,7 +36,7 @@ SOURCES = [
 
 def test_sources_include_fixtures_fewshot_and_multi_currency() -> None:
     names = [s for s, _ in SOURCES]
-    assert len(names) == 15 and "facts_multi_currency.json" in names
+    assert len(names) == 16 and "facts_multi_currency.json" in names
     assert sum(n.startswith("fewshot/") for n in names) == 5
 
 

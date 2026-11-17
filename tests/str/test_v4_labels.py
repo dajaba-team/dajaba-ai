@@ -23,7 +23,7 @@ LABELS = load_display_labels()
 def test_labels_have_every_field_and_no_empty_label() -> None:
     assert set(LABELS) == set(LABEL_FIELDS)
     for field, table in LABELS.items():
-        if field == "observation_unit":
+        if field in ("observation_unit", "observation_name_unit"):
             continue  # 단위 없음("")이 정상 값
         assert all(v.strip() for v in table.values()), field
 

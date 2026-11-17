@@ -113,7 +113,11 @@ def test_multi_currency_null_and_bitcoin_slots() -> None:
         "내부 거래를 뺀 입금·출금의 거래 통화는 유로(EUR), 미국 달러(USD)임.",
         "Peso Uruguay 통화 거래는 대응 미확인임.",
     ]
-    assert "모델 관측값(관측 구간 자료 없음)은 0.75임. 관측 항목 이름은 자료 없음." in t[SectionV2.GROUNDS]
+    # SCRUM-264: basis null 분기 없음 — 표기는 이름 기준(inflow_ratio_window → 실제 이름, v4_real_names)
+    assert (
+        "모델 관측값(관측 구간 자료 없음)에서 통화별 최대 수취 금액 비중(거래 수 가중 평균)은 0.75임."
+        in t[SectionV2.GROUNDS]
+    )
     assert "입금 합계는 9,800.25 유로(EUR), 42,750.50 미국 달러(USD)임." in t[SectionV2.METHOD]
     assert t[SectionV2.DATE] == ["거래 기간은 2022년 9월 2일 00:14부터 2022년 9월 4일 22:51:30까지임."]
 
