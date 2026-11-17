@@ -6,6 +6,7 @@ COPY pyproject.toml uv.lock* ./
 RUN uv pip install --system -r pyproject.toml || uv pip install --system .
 COPY src ./src
 COPY contracts/display_labels_v1.json ./contracts/display_labels_v1.json
+COPY corpus/manifest.json ./corpus/manifest.json
 COPY migrations ./migrations
 COPY alembic.ini ./
 ARG SERVER_VERSION=dev
