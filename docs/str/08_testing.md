@@ -313,6 +313,22 @@ v4 초안은 코드 조립(LLM 0)이라 초안 단계 평가자가 없고 검증
 - 다음: judge_v4 사전 기준 등록 → 구현 · v4 카탈로그는 재블라인드 응답 뒤 → 같은 하네스로 2차 실측(결과는 이 절 아래 · 09 별도 줄)
 - **등록 조건 변경(SCRUM-268)**: 2차부터 등록 judge 프롬프트 = `judge_v4`(09 SCRUM-268 사전 기준 3, `judge_stability_v4_tally.REGISTERED`). `--prompt` 기본값도 등록 값. 1차(judge_v3) 결과는 위 표 그대로 — judge_v3 로 다시 돌리면 `mode=exploratory`
 
+#### 결과 — 2차 실측 (2026-11-18, stamp `20261118-055413`, 09 "SCRUM-254 ★L-1 2차 실측")
+
+`mode=registered`(등록 프롬프트 judge_v4) · `catalog_version = v4-catalog-2` · 19건 × 3 = 57 기록 · 표본 완전 · **사전 기준 미달 — v4 54회 중 PASSED 49**(1차 1/54) · VERIFY_UNAVAILABLE 0 · CODE_FAILED 0 · NO_SPECULATION·NO_INSTRUCTION_TEXT 57회 모두 5 · 토큰 863,774. 칸은 1차 표와 같음(떨어진 항목 = 회차별 중앙값, 4 미만만). 원인 A = C0 "분류의 근거가 된 …"(과거 근거 전제) · B = 범위 구절 `FLOW_SCOPE`.
+
+| 사건 | 판정 | PASSED | 떨어진 항목 (중앙값 1·2·3회) | 평가자가 지적한 문장 → 원인 |
+|---|---|---|---|---|
+| blind2:uns_scatter_gather | 미확인 | 0/3 | NO_UNSUPPORTED 3·3·3 (표 3·3·3 × 3) | SG C0 "분류의 근거가 된 중간 계좌 경로 자료" A (9표 모두) |
+| 228:scatter_gather | 미확인 | 2/3 | NO_UNSUPPORTED 5·3·5 (run 2 표 5·3·3) | SG C0 A (run 1·3 에도 각 1표 3) |
+| 228:internal_transfer | 미확인 | 2/3 | NO_UNSUPPORTED 5·5·3 (run 3 표 5·3·3) | FAN_IN C0 "분류의 근거가 된 송금인별 입금 내역" A (3표, run 1·2·3) · `FLOW_SCOPE` B (2표, run 1·3) — run 3 의 3·3 은 A 하나 + B 하나 |
+| 나머지 15건 + demo_7·demo_48 포함 | — | 3/3 | — | 228:fan_out run 1 에 FAN_OUT C0 A 1표(중앙값 5) |
+| injection:23 (v2 대조, 판정 밖) | 미확인 | 3/3 | — | — |
+
+- 4 미만 표 19개(171표 중): SG C0 13 · FAN_IN·FAN_OUT C0 4 · `FLOW_SCOPE` 2. 1차의 원인 ①·②·③(판정 근거·TYPOLOGY 기준·계좌 개설일·흐름 서술·가중 평균 표기)은 0표
+- 다음: C0 세 문장 고친 뒤(SCRUM-269 2/2, `v4-catalog-3`) 같은 하네스로 3차. 합격선·표 수 그대로
+- 원본(git 무시, 커밋 안 함): `tests/str/recorded/_tmp/judge_stability_v4_20261118-055413.{json,jsonl}` · dry-run `judge_stability_v4_dry_20261118-055343.json`
+
 ### judge_v4 사전 기준 측정 (SCRUM-268, 09 "SCRUM-268 judge_v4 사전 기준 — 측정 전")
 
 기준 1(오류 잡는 힘 유지)·기준 2(판정 문장 뒤집기)를 한 실행에서. 기준 3(v4 시연 안정)은 SCRUM-269 뒤 254 ★L-1 2차(위 절 하네스, 등록 프롬프트 judge_v4)에서. **평가자·v4 문장 변경 없이 측정만, 실제 호출은 진희 터미널.**
@@ -575,6 +591,7 @@ v4 가 v2 보다 조사역에게 쓸 만한지 사람 블라인드로 판가름�
 - **judge_v3 입력 sha256**(`test_judge_v4_prompt`): v4 본문이 바뀐 17건만 새 값, `228:customer_missing`(고객 없음·불충족 — 바뀐 문장 없음)·`injection:23`(v2) 은 608c084 값 그대로
 - **숫자(11/18)**: 바뀐 섹션 — 254 v4 18건 중 SUBJECT 17 · GROUNDS 8(흐름 6 + 표기 2), `customer_missing`·v2 대조 0. 주장 조합 2,175 + 판정 경계 79 — 코드 검사 실패 0(develop 같음). 슬롯 변조 1,210 · 잡힘 1,031 · 조용한 통과 179(전부 06 포함·집합 판정) · 그 밖 0 — **develop 과 같음**(흐름 문장은 숫자 없음, 등록일 문장은 개설일 문장 자리 그대로)
 - **254 하네스 dry-run**(LLM 0, `--demo-alerts 7,48`): `mode=registered`(mode_reasons 없음) · 19건(v4 18 · v2 1) · v4 코드 검사 실패 0 · `catalog_version = v4-catalog-2`. 평가자 user sha256 이 1차 dry-run(`20261117-171730`)과 같은 건 3건(`228:customer_missing`·`demo_48`(실제 경보 — 고객 정보 없음·미확인이라 바뀐 문장 없음)·`injection:23`) — 나머지 16건은 본문이 바뀜(09 ★A-1)
+- **판 3**(SCRUM-269 2/2, `v4-catalog-3`, 11/18): C0 FAN_IN·FAN_OUT·SG "분류의 근거가 된" → "분류를 판단하려면". 고정값 `v4_verdict_c0_frozen.json` 은 C0 10건만 새 값(판정 18 · CYCLE C0 2 그대로, `_note`) · C0 문구 표(`test_v4_typology_catalog`) · judge_v3 입력 sha256 은 C0 바뀐 10건만 새 값. 주장 조합 2,175 + 79 실패 0 · 슬롯 변조 1,210 / 1,031 / 179 / 0 — develop 같음. 254 dry-run: `mode=registered` · 19건 · v4 코드 검사 실패 0 · `catalog_version = v4-catalog-3` · 평가자 user sha256 이 2차 dry-run(`20261118-055343`)과 다른 건 **C0 바뀐 10건뿐**(FAN 8 — 실제 시연 경보 demo_48 포함 · SG 2), 같은 9건 = CYCLE C0 2 · 뒷받침됨 6 · v2 1
 
 ## v2 반례 측정 (SCRUM-131 3/n, 2026-11-17)
 

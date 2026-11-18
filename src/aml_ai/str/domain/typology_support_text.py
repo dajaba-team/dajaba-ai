@@ -17,12 +17,13 @@ NOT_CONFIRMED = "제공된 자료로 확인되지 않음."
 # 유형 → (방향 칸, 대상 낱말, 상대 낱말)
 _FLOW = {"FAN_IN": ("inbound", "위 입금", "송금인"), "FAN_OUT": ("outbound", "위 출금", "수취인")}
 _FLOW_CITES = ("typology", "counterparties.count", "inbound.count", "outbound.count")
-# C0 — {typology} 는 사전 짧은 표기(render_context). GROUNDS 첫 문장이 이미 한계라 "확인되지 않으므로" 없음
+# C0 — {typology} 는 사전 짧은 표기(render_context). GROUNDS 첫 문장이 이미 한계라 "확인되지 않으므로" 없음.
+# SCRUM-269 2/2: "근거가 된"(자료가 분류 근거였다는 과거 전제) 금지 → "분류를 판단하려면"(CYCLE 그대로)
 C0_TEXT = {
-    "FAN_IN": "{typology} 분류의 근거가 된 {target}을 확인할 필요가 있음.",
-    "FAN_OUT": "{typology} 분류의 근거가 된 {target}을 확인할 필요가 있음.",
+    "FAN_IN": "{typology} 분류를 판단하려면 {target}을 확인할 필요가 있음.",
+    "FAN_OUT": "{typology} 분류를 판단하려면 {target}을 확인할 필요가 있음.",
     "CYCLE": "경로 확인 자료를 보완할 필요가 있음.",
-    "SCATTER_GATHER": "{typology} 분류의 근거가 된 중간 계좌 경로 자료를 보완할 필요가 있음.",
+    "SCATTER_GATHER": "{typology} 분류를 판단하려면 중간 계좌 경로 자료를 보완할 필요가 있음.",
 }
 _C0_TARGET = {"FAN_IN": "송금인별 입금 내역", "FAN_OUT": "수취인별 출금 내역"}
 NO_FLOW_TARGET = "거래 내역"

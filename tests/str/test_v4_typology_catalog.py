@@ -31,10 +31,10 @@ UNSUPPORTED = ["uns_cycle", "uns_scatter_gather", "uns_fan_in", "reg_fan_in", "r
                "reg_customer_missing"]  # fmt: skip
 SUPPORTED = ["sup_fan_in", "sup_fan_out", "sup_cycle", "sup_scatter_gather", "mix_fan_in"]
 C0 = {
-    "FAN_IN": "자금 집중 분류의 근거가 된 송금인별 입금 내역을 확인할 필요가 있음.",
-    "FAN_OUT": "자금 분산 분류의 근거가 된 수취인별 출금 내역을 확인할 필요가 있음.",
+    "FAN_IN": "자금 집중 분류를 판단하려면 송금인별 입금 내역을 확인할 필요가 있음.",
+    "FAN_OUT": "자금 분산 분류를 판단하려면 수취인별 출금 내역을 확인할 필요가 있음.",
     "CYCLE": "경로 확인 자료를 보완할 필요가 있음.",
-    "SCATTER_GATHER": "분산 후 집중 분류의 근거가 된 중간 계좌 경로 자료를 보완할 필요가 있음.",
+    "SCATTER_GATHER": "분산 후 집중 분류를 판단하려면 중간 계좌 경로 자료를 보완할 필요가 있음.",
 }
 _SENT = re.compile(r"(?<=[.])\s+")
 
@@ -72,16 +72,16 @@ def test_supported_has_match_sentence_and_no_c0(case_id: str) -> None:
 
 
 def test_c0_uses_wi_georae_when_flow_is_zero() -> None:
-    """FAN_IN 입금 0 → "자금 집중 분류의 근거가 된 거래 내역을 확인할 필요가 있음."(O-HEAD 와 같은 규칙)."""
+    """FAN_IN 입금 0 → "자금 집중 분류를 판단하려면 거래 내역을 확인할 필요가 있음."(O-HEAD 와 같은 규칙)."""
     as_fan_in = FACTS["sup_fan_out"].model_copy(update={"typology": Typology.FAN_IN})  # 입금 0
     assert (
         _section(as_fan_in, SectionV2.OPINION)[1]
-        == "자금 집중 분류의 근거가 된 거래 내역을 확인할 필요가 있음."
+        == "자금 집중 분류를 판단하려면 거래 내역을 확인할 필요가 있음."
     )
     as_fan_out = FACTS["sup_fan_in"].model_copy(update={"typology": Typology.FAN_OUT})  # 출금 0
     assert (
         _section(as_fan_out, SectionV2.OPINION)[1]
-        == "자금 분산 분류의 근거가 된 거래 내역을 확인할 필요가 있음."
+        == "자금 분산 분류를 판단하려면 거래 내역을 확인할 필요가 있음."
     )
 
 
@@ -93,8 +93,8 @@ def test_banned_words_are_word_level() -> None:
 
 def _judgment_and_c0_texts() -> list[str]:
     texts = list(C0.values()) + [
-        "자금 집중 분류의 근거가 된 거래 내역을 확인할 필요가 있음.",
-        "자금 분산 분류의 근거가 된 거래 내역을 확인할 필요가 있음.",
+        "자금 집중 분류를 판단하려면 거래 내역을 확인할 필요가 있음.",
+        "자금 분산 분류를 판단하려면 거래 내역을 확인할 필요가 있음.",
     ]
     for f in FACTS.values():
         s = support_sentence(masking.mask_for_llm(f), LABELS)
