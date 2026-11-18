@@ -349,7 +349,7 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
   - `{{original_narrative}}` — 첫 생성 7섹션 JSON. `model_dump(include={"section","text","cites"})` 로 `evidence_ids` 제거, stable_json, 들여쓰기 2
   - `{{critique}}` — **평가자가 낸 순서 그대로**, **`score < JUDGE_PASS_SCORE`(=3 이하) 항목만** 줄로. 통과 항목은 뺌 → 고칠 범위 좁힘. 포맷: `"- {check} (score {n}): {comment}"` 한 줄씩. 모두 통과이면 재작성 자체가 호출 안 됨 (`not_triggered`)
 
-## judge_v4 (SCRUM-268, 2026-11-18 — v4 초안 verify 전용, 스위치 꺼진 채 머지) — 전문은 `str/prompts/judge_v4.md`
+## judge_v4 (SCRUM-268, 2026-11-18 — v4 초안 verify 전용, 스위치 11/18 켬(SCRUM-268 2/2)) — 전문은 `str/prompts/judge_v4.md`
 
 - **judge_v3 와 다른 점(이것만, 나머지 줄은 v3 그대로)**: ① user 칸 FACTS 다음에 `TYPOLOGY_SUPPORT` 블록(`{{typology_support}}`, 06 "judge_v4" 절 칸 표) ② system 규칙 두 줄 — 블록은 FACTS 와 같은 근거, 판정 문장("…탐지 기준을 충족함/미치지 않음", "…경로는 제공된 자료로 확인되지 않음", "확인된 경로는 … 분류와 부합함")은 블록을 근거로 봄 ③ `NO_UNSUPPORTED_CLAIM` — 판정 문장이 블록과 맞으면 사실 서술, 반대면 1점 ④ `TYPOLOGY_CONSISTENT` — 블록 SUPPORTED·`(없음)` 이면 v3 기준, UNCONFIRMED·UNMET 이면 한계를 정직하게 밝힌 초안이 4점 이상·흐름 긍정·단정은 1점
 - **cites·sections·comment-first·출력 형식·스키마** v3 와 같음(`_LLM_OUTPUT_MODELS["judge_v4"] = JudgeOutV2`). 온도·토큰 한도·재시도·표 수 같음

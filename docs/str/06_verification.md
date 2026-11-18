@@ -83,12 +83,12 @@
 
 > **`NO_UNSUPPORTED_CLAIM` 예외 (SCRUM-127, 2026-11-09)**: `"자료 없음"`·`"확인되지 않음"` 같은 **부재 표기**는 사실 주장이 아니므로 **감점하지 않는다**. 부재 표기에 새 정황을 붙이면(예: `"~가 없어 급히 옮긴 것으로 보임"`) 그 정황만큼 감점. narrative 프롬프트가 FACTS 에 없는 값을 "자료 없음" 으로 쓰라 지시한 것과 충돌 해소. judge_v3 프롬프트에도 같은 문장.
 
-### judge_v4 — v4 초안 verify 전용 (SCRUM-268, 2026-11-18 · 스위치 꺼진 채 머지)
+### judge_v4 — v4 초안 verify 전용 (SCRUM-268, 2026-11-18 · 스위치 11/18 켬(SCRUM-268 2/2))
 
 254 ★L-1 1차(v4 54회 중 PASSED 1)의 원인 ①(판정 문장의 근거가 평가자 입력에 없음)·②(TYPOLOGY 가 정직한 미확인·불충족을 3점)를 고치는 평가자. 사전 기준은 09 "SCRUM-268 judge_v4 사전 기준 — 측정 전"(프롬프트보다 먼저 커밋).
 
-- **고르기**: `verify_service` 가 `StoredDraft.prompt_version`(`generations.prompt_version`, 마이그레이션 없음)이 `narrative_v4` 이고 스위치가 켜져 있으면 `judge_for_v4`(judge_v4), 아니면 `judge`(judge_v3). 스위치는 `domain/constants.JUDGE_PROMPT_NARRATIVE_V4` 하나 — **머지 때 값은 `JUDGE_PROMPT`(judge_v3) = 꺼짐**, 09 기준 1·2 충족을 확인한 뒤 `JUDGE_PROMPT_V4`(judge_v4)로. 꺼져 있으면 `judge_for_v4 = None` 이라 평가자 입력·호출 수·`verifier_version` 이 전과 같음. 초안 단계 평가자(`draft_service`, v2 고쳐 쓰기)는 judge_v3 그대로. 표 수·통과선·재시도·집계 규칙 같음
-- **`verifier_version`** = `{VERIFIER_VERSION}+{실제 고른 평가자}` — v4 초안이 judge_v4 로 평가되면 `…+judge_v4`(자유 문자열, 규약 변경 없음)
+- **고르기**: `verify_service` 가 `StoredDraft.prompt_version`(`generations.prompt_version`, 마이그레이션 없음)이 `narrative_v4` 이고 스위치가 켜져 있으면 `judge_for_v4`(judge_v4), 아니면 `judge`(judge_v3). 스위치는 `domain/constants.JUDGE_PROMPT_NARRATIVE_V4` 하나 — 1/2 머지 때 값은 `JUDGE_PROMPT`(judge_v3) = 꺼짐, **11/18 켬(SCRUM-268 2/2) — `JUDGE_PROMPT_V4`(judge_v4)**, 09 "SCRUM-268 실측 결과"(기준 1·2 충족). 꺼져 있으면 `judge_for_v4 = None` 이라 평가자 입력·호출 수·`verifier_version` 이 전과 같음. 초안 단계 평가자(`draft_service`, v2 고쳐 쓰기)는 judge_v3 그대로. 표 수·통과선·재시도·집계 규칙 같음
+- **`verifier_version`** = `{VERIFIER_VERSION}+{실제 고른 평가자}` — v4 초안이 judge_v4 로 평가되면 `…+judge_v4`(자유 문자열, 규약 변경 없음). 앞부분 `VERIFIER_VERSION` 은 코드 검사 버전이라 스위치를 켜도 그대로(`verify-2026.11.5`, 09 "SCRUM-268 실측 결과")
 - **판정 근거 블록**(`domain/typology_support_block.py`, 순수): 평가자에 주는 것과 같은 마스킹 facts 로 `typology_support` 를 그대로 불러(읽기만, 함수·임계값 안 바꿈) 만든 dict. judge_v4 user 칸 `{{typology_support}}` 에만 들어가고(JSON 들여쓰기 2, 판정 없는 유형이면 `(없음)`), Facts 스키마·규약 JSON·응답은 그대로. 계좌번호·금액·이름 없음
 
 | 유형 | 블록 칸 |
