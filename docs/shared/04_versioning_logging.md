@@ -25,9 +25,23 @@
 
 ## 로그 (`shared/logging.py`)
 
-- JSON 한 줄 로그(stdout). 필드: `ts, level, request_id, route, status, latency_ms, alert_count|draft_id, generation_id, llm_model, tokens_in, tokens_out, error_code`.
-- `request_id`: 백엔드 `X-Request-Id`를 받고, 없으면 생성. 응답 헤더로 돌려주고 에러 JSON에도 넣는다. 백엔드 `request_id`와 같아야 두 로그를 이어 볼 수 있다.
-- **찍지 않는 것**: 계좌번호·금액·narrative/summary 본문·프롬프트 전문·API 키. 본문이 필요하면 `generations` 테이블에 있다.
+JSON 한 줄 로그(stdout). **칸 이름은 백엔드(`dajaba`)와 같다**(SCRUM-272) — Alloy 가 두 컨테이너 로그를 Loki 로 모으고, 한 요청의 백엔드·AI 로그를 `request_id` 하나로 이어 본다.
+
+| 칸 | 뜻 | 예 |
+|---|---|---|
+| `ts` | UTC ISO-8601, 밀리초 | `2026-11-19T01:02:03.456Z` |
+| `level` | `INFO`·`WARNING`/`WARN`·`ERROR` (언어 기본값 그대로 — AI 는 `WARNING`) | |
+| `service` | `ai` · `backend` 고정 | |
+| `logger` | 로거 이름 | `aml_ai.str.application.draft_service` |
+| `msg` | 사건 이름(짧은 영문) 또는 `key=value` 한 줄 | `retrieval_unavailable` |
+| `request_id` | 백엔드 `X-Request-Id` 그대로, 없으면 생성 | |
+| 선택 칸 | `target`(화면 번호 `CASE-`·`DRF-`·`ALT-`) · `error_code` · `latency_ms` · `*_count` · 버전 칸 | |
+
+- 필수 칸 6개는 `shared/logging.py` 포매터가 채운다(`service="ai"` 고정). `extra={...}` 로 넘긴 칸은 이름 그대로 최상위에 붙는다.
+- **팀원은 자기 기능 로그를 이 형식에만 맞춘다** — 새 칸이 필요하면 선택 칸 이름 규칙(`*_count`·`*_ms`)으로. 필수 칸 이름(`ts`·`level`·`service`·`logger`·`msg`·`request_id`)을 `extra` 키로 쓰지 않는다.
+- `request_id`: 백엔드 `X-Request-Id`를 받고, 없으면 생성. 응답 헤더로 돌려주고 에러 JSON에도 넣는다. 64자를 넘으면 새로 만들고 `request_id_replaced` 경고(SCRUM-58). 처리 안 된 예외(500)도 `RequestIdMiddleware` 안에서 잡아 `unhandled` 를 **한 번** 찍으므로 그 줄에도 `request_id` 가 있고, 500 응답(`INTERNAL`, 에러 JSON 같은 모양)에도 `X-Request-Id` 헤더가 붙는다(SCRUM-272).
+- Loki 조회 예(Grafana Explore): `{compose_service=~"app|ai"} | json | request_id="<값>"`
+- **남기지 않는 것**: 계좌번호(원본·가린 값 모두) · 금액 · narrative/summary 본문 · 프롬프트 전문 · 조사역 메모 · API 키 · 요청/응답 본문. ID·건수·길이·시간·코드값만. 본문이 필요하면 `generations` 테이블에 있다. DB 오류 메시지에는 SQL 파라미터를 싣지 않는다(`shared/db.py` `hide_parameters=True` — 처리 안 된 예외는 스택째 찍히므로). 처리 안 된 예외가 Pydantic `ValidationError` 또는 FastAPI `ValidationException` 계열(`ResponseValidationError` — 라우터 `response_model` 검증 실패)이면 메시지·스택 대신 `error_type`(클래스 이름) + `errors` 의 `loc`·`type` 만 남긴다(Pydantic 은 `include_input=False, include_url=False`). 메시지에 입력값(본문 조각·계좌)이 실리기 때문. 다른 예외는 스택 그대로. 초안·검증·점수 요청 동안 stdout 에 이 값이 없는지 테스트가 지킨다(정상·LLM 오류·DB 오류·요청/응답 검증 오류 경로 — 알려진 유출 없음, `tests/str/test_log_no_sensitive.py`·`_errors.py` · 형식은 `tests/shared/test_log_format.py`).
 
 ## `ai_call_logs`는 백엔드 테이블
 

@@ -11,7 +11,12 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from aml_ai.shared.logging import current_request_id
+from aml_ai.shared.logging import (
+    INTERNAL_ERROR_CODE,
+    INTERNAL_ERROR_MESSAGE,
+    current_request_id,
+    log_unhandled,
+)
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +25,7 @@ class AiError(Exception):
     """모든 업무 예외의 부모. code 는 규약 6절 에러 코드, status 는 HTTP."""
 
     status: int = 500
-    code: str = "INTERNAL"
+    code: str = INTERNAL_ERROR_CODE
 
     def __init__(self, message: str = "", **detail: object) -> None:
         super().__init__(message or self.code)
@@ -89,7 +94,7 @@ class FencedOut(AiError):
     호출자(draft_service)는 이걸 로그만 남기고 500 INTERNAL 로 바꿔 던진다. 결과는 저장되지 않는다.
     """
 
-    status, code = 500, "INTERNAL"
+    status, code = 500, INTERNAL_ERROR_CODE
 
 
 class NarrativeAssemblyFailed(AiError):
@@ -98,7 +103,7 @@ class NarrativeAssemblyFailed(AiError):
     코드·사전 쪽 문제라 500 INTERNAL(새 에러 코드 안 만듦, 백엔드 재시도 대상 아님 — str/03 에러 표).
     """
 
-    status, code = 500, "INTERNAL"
+    status, code = 500, INTERNAL_ERROR_CODE
 
 
 def _body(code: str, message: str) -> dict[str, str]:
@@ -119,5 +124,5 @@ def install_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def _unhandled(_: Request, exc: Exception) -> JSONResponse:
-        log.exception("unhandled")
-        return JSONResponse(status_code=500, content=_body("INTERNAL", "internal error"))
+        log_unhandled(exc)
+        return JSONResponse(status_code=500, content=_body(INTERNAL_ERROR_CODE, INTERNAL_ERROR_MESSAGE))
