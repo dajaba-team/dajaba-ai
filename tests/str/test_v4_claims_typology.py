@@ -4,6 +4,7 @@
 ① 뒷받침 안 됨이면 금지 낱말 0(GROUNDS·OPINION, 낱말 단위) ② 판정이 있으면 GROUNDS 첫 문장 = 판정 문장,
 뒷받침 안 됨이면 OPINION 둘째 = C0. ③ 통화 종류(등록 + 미등록) 둘 이상인데 범위 없는 "거래 금액은 모두" 없음(추가 검토 1·2차)
 ④ 미등록 통화가 있으면 INSTRUMENT 통화 열거와 METHOD 합계 문장에 "대응이 확인된 통화"(추가 검토 2차).
+⑤ 흐름 문장(SCRUM-269)은 뒷받침됨일 때만 GROUNDS 둘째, 뒷받침 안 됨·판정 없음이면 흐름 문장 0, 흐름 주장 낱말은 facts 에서 참.
 새 조합은 06 코드 검사 실패 0 도.
 """
 
@@ -17,11 +18,13 @@ from aml_ai.str.domain import masking
 from aml_ai.str.domain.catalog_types import render_context
 from aml_ai.str.domain.derived_flags import derive_flags
 from aml_ai.str.domain.display_slots import build_slots
+from aml_ai.str.domain.grounds_flow import FLOW_ITEMS, flow_sentence
 from aml_ai.str.domain.narrative_assembly import assemble
 from aml_ai.str.domain.narrative_plan import candidates, default_plan
 from aml_ai.str.domain.typology_support import Support, typology_support
 from aml_ai.str.domain.typology_support_text import support_sentence
 from tests.str.v4_claims_support import COMBOS, LABELS, editor_plans
+from tests.str.v4_claims_table import FLOW_CLAIMS
 from tests.str.v4_claims_typology import TYPOLOGY_COMBOS
 from tests.str.v4_slot_support import failures
 from tests.str.v4_typology_words import banned_hits
@@ -51,6 +54,11 @@ def test_judgment_rules_hold(args: tuple, facts: Facts) -> None:
     support = typology_support(masked)
     sentence = support_sentence(masked, LABELS)
     assert (sentence is None) == (support is None), args
+    flow_s = flow_sentence(masked)
+    assert (flow_s is not None) == (support is Support.SUPPORTED), (
+        args
+    )  # 판정 있는 유형은 모두 흐름 항목 있음
+    flow_texts = [i.variants[0] for i in FLOW_ITEMS.values()]
     kinds = len(masked.get("amount_range", [])) + len(masked.get("unmapped_currencies", []))
     multi = kinds >= 2  # 통화 종류 = 등록 + 미등록(추가 검토 2차)
     for plan in editor_plans(c):
@@ -65,9 +73,16 @@ def test_judgment_rules_hold(args: tuple, facts: Facts) -> None:
                 rows = masked[flow]["by_currency"]
                 if rows and masked[flow]["count"] > sum(c["count"] for c in rows):  # 그 방향에 미등록 있음
                     assert f"{word} 가운데 대응이 확인된 통화 거래의 합계는" in by[SectionV2.METHOD], args
+        for word, holds in FLOW_CLAIMS.items():
+            if word in by[SectionV2.GROUNDS] or word in by[SectionV2.OPINION]:
+                assert holds(facts), (args, word)
+        others = [t for t in flow_texts if flow_s is None or t != flow_s.text]
+        assert not any(t in by[SectionV2.GROUNDS] for t in others), args  # 다른 유형·뒷받침 안 됨 흐름 0
         if support is None:
             continue
         assert by[SectionV2.GROUNDS].startswith(sentence.text), args  # type: ignore[union-attr]
+        if flow_s is not None:
+            assert by[SectionV2.GROUNDS].startswith(f"{sentence.text} {flow_s.text}"), args  # type: ignore[union-attr]
         if support is not Support.SUPPORTED:
             assert banned_hits(by[SectionV2.GROUNDS] + " " + by[SectionV2.OPINION]) == [], args
             assert plan[SectionV2.OPINION][1].item_id == "C0", args

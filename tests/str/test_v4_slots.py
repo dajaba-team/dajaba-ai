@@ -69,7 +69,7 @@ def test_fan_in_slots_exact() -> None:
         "업종은 소매업임.",
         "고객 위험등급은 '낮음'으로 분류되어 있음.",
         "계좌 목적은 매출 대금 수납으로 등록되어 있음.",
-        "계좌 개설일은 2021년 3월 14일임.",
+        "고객 등록일은 2021년 3월 14일임.",  # SCRUM-269 ③-1
         "과거 경보 이력은 1건임.",
     ]
     assert t[SectionV2.DATE] == [
@@ -110,7 +110,7 @@ def test_only_single_day_flag_has_a_slot_sentence(changes: dict, present: bool) 
 def test_multi_currency_null_and_bitcoin_slots() -> None:
     t = _texts("facts_multi_currency.json")
     assert "업종은 자료 없음." in t[SectionV2.SUBJECT]
-    assert "계좌 개설일은 자료 없음." in t[SectionV2.SUBJECT]
+    assert "고객 등록일은 자료 없음." in t[SectionV2.SUBJECT]
     assert (
         t[SectionV2.INSTRUMENT]
         == [
@@ -120,10 +120,7 @@ def test_multi_currency_null_and_bitcoin_slots() -> None:
         ]
     )
     # SCRUM-264: basis null 분기 없음 — 표기는 이름 기준(inflow_ratio_window → 실제 이름, v4_real_names)
-    assert (
-        "모델 관측값(관측 구간 자료 없음)에서 통화별 최대 수취 금액 비중(거래 수 가중 평균)은 0.75임."
-        in t[SectionV2.GROUNDS]
-    )
+    assert "모델 관측값(관측 구간 자료 없음)에서 통화별 최대 수취 금액 비중은 0.75임." in t[SectionV2.GROUNDS]
     # 입금에 미등록 통화 거래가 있음 → 합계 범위(SCRUM-265 2/2 추가 검토 2차)
     assert (
         "입금 가운데 대응이 확인된 통화 거래의 합계는 9,800.25 유로(EUR), 42,750.50 미국 달러(USD)임."

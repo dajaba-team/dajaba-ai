@@ -7,6 +7,8 @@ from __future__ import annotations
 
 NARRATIVE_V4 = "narrative_v4"
 DISPLAY_LABELS_VERSION = "display-labels-v1"
+# 05 "카탈로그 판" — 슬롯·판정·카탈로그·표기 사전 문장이 바뀌면 올림(응답 칸 없음, 재현은 server_version). 1 = SCRUM-228~268
+V4_CATALOG_VERSION = "v4-catalog-2"  # SCRUM-269
 
 # 사전 칸 이름 — contracts/display_labels_v1.json 최상위 키와 같음.
 LABEL_FIELDS: tuple[str, ...] = (

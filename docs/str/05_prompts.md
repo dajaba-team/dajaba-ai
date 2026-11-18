@@ -134,6 +134,8 @@ v2 를 복사하고 **아래만** 바꿈. 7섹션·출력 형식·규칙 1~7·9~
 
 **바꾸지 않는 것**: 응답 `narrative` 모양(7섹션 `{section, text, cites}` — `NarrativeOutV2` 와 같음, 백엔드 변경 없음) · `generation_meta` 칸 · facts 스키마·`fact_keys` · 06 검사기 · v1~v3·judge_v3·rewrite_v1·summary_v1 파일 · 기본값 `narrative_v2`. 슬롯·카탈로그 문장이 검사기를 못 지나면 **검사기가 아니라 문장을 바꾼다**.
 
+**카탈로그 판**(SCRUM-269 ★A-1, 09 같은 줄): `prompt_version` 은 문장이 바뀌어도 `narrative_v4` 그대로(평가자 스위치·265·268 기록 기준). 슬롯·판정·카탈로그·표기 사전 문장이 바뀌면 `constants_v4.V4_CATALOG_VERSION` 을 올린다 — `v4-catalog-1` = SCRUM-228~268 문장, **`v4-catalog-2` = SCRUM-269**. 응답 칸은 만들지 않음(규약 JSON 그대로) — 응답 재현은 `generation_meta.server_version`(git 해시) + `prompt_version`(코드 조립이라 같은 facts·같은 커밋이면 같은 본문). 하네스 결과 meta 에 판을 적음(254 2차 결과가 어느 문장인지). 254 2차 dry-run 평가자 user sha256 은 1차와 다름(본문이 바뀜 — 실행 조건은 그대로라 `mode=registered`).
+
 ### 흐름 — (1/2) 기본 경로는 LLM 호출 없음
 
 ```
@@ -179,8 +181,8 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
     | `evidence_ach_fraction` | 결제 방식이 알려진 근거 거래 중 ACH 비율 | 없음 |
     | `evidence_cheque_fraction` | 결제 방식이 알려진 근거 거래 중 수표 비율 | 없음 |
     | `evidence_cash_fraction` | 결제 방식이 알려진 근거 거래 중 현금 비율 | 없음 |
-    | `evidence_paid_max_share` | 통화별 최대 지급 금액 비중(거래 수 가중 평균) | 없음 |
-    | `evidence_received_max_share` | 통화별 최대 수취 금액 비중(거래 수 가중 평균) | 없음 |
+    | `evidence_paid_max_share` | 통화별 최대 지급 금액 비중 | 없음 |
+    | `evidence_received_max_share` | 통화별 최대 수취 금액 비중 | 없음 |
     | `evidence_span_fraction_96h` | 첫·마지막 근거 거래 간격의 탐지 창 길이 대비 비율 | 없음 |
     | `evidence_last_hour_fraction` | 기준 시각 직전 구간 안 근거 거래 비율 | 없음 |
     | `evidence_min_path_hops_scaled` | 최대 경로 단계 대비 최소 경로 단계 비율 | 없음 |
@@ -192,15 +194,16 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
 
 | 섹션 | 문형 | cites |
 |---|---|---|
-| SUBJECT | 보고 대상자는 {entity_name}({entity_type})임. · 업종은 {industry}임. · 고객 위험등급은 '{risk_level}'(으)로 분류되어 있음. · 계좌 목적은 {account_purpose}(으)로 등록되어 있음. · 계좌 개설일은 {YYYY년 M월 D일}임. · 과거 경보 이력은 {n}건임. — `customer` null → "고객 정보는 자료 없음." / 칸 하나가 null → 그 문장만 "{칸}은 자료 없음." | `subject`, `customer.*`(쓴 칸), `prior_alert_count` |
+| SUBJECT | 보고 대상자는 {entity_name}({entity_type})임. · 업종은 {industry}임. · 고객 위험등급은 '{risk_level}'(으)로 분류되어 있음. · 계좌 목적은 {account_purpose}(으)로 등록되어 있음. · 고객 등록일은 {YYYY년 M월 D일}임.(SCRUM-269 ③-1 — `customer.onboarded_at` 은 고객 등록일, ~~계좌 개설일~~ 은 facts 에 없는 사실이라 judge_v4 대조 11건 NO_UNSUPPORTED 3. 부재 문장도 "고객 등록일은 자료 없음.". 06 DATE 는 `등록일` 을 개설일 용도로 읽음 — `ONBOARD_WORDS`, 검사기·`VERIFIER_VERSION` 그대로) · 과거 경보 이력은 {n}건임. — `customer` null → "고객 정보는 자료 없음." / 칸 하나가 null → 그 문장만 "{칸}은 자료 없음." | `subject`, `customer.*`(쓴 칸), `prior_alert_count` |
 | DATE | 거래 기간은 {YYYY년 M월 D일 HH:MM}부터 {YYYY년 M월 D일 HH:MM}까지임. — 초가 0이 아니면 `HH:MM:SS` | `period` |
 | PLACE | 대상 계좌는 {마스킹 계좌}임. · 상대 계좌는 {n}개임. · 이 가운데 자행 계좌는 {a}개, 타행 계좌는 {b}개임. — 상대 수와 자행/타행은 **문장을 나눔**(06 COUNT ⑦ 은행 단어 우선 오판 회피, SCRUM-131). **0 인 쪽은 생략**(SCRUM-265 2/2): 자행 0·타행 > 0 → "이 가운데 타행 계좌는 {b}개임." / 타행 0·자행 > 0 → "이 가운데 자행 계좌는 {a}개임." / 둘 다 0 이거나 둘 다 > 0 → 위 문장 그대로. "모두 타행" 꼴은 숫자가 없어 06 이 못 읽으므로 안 씀. ~~거래 영업점은 자료 없음.~~ → 삭제(facts 에 영업점 칸이 없음 — 쓰지 않는 값은 내보내지 않는다) | `subject`, `counterparties.count`, `counterparty_banks.*` |
 | INSTRUMENT | 내부 거래를 뺀 입금·출금의 결제 방식은 {표기}({원문}) {n}건{, …}임. (사전 alias 없는 방식은 `{표기}({원문})` 이름만) · 내부 거래를 뺀 입금·출금의 거래 통화는 {표기}({코드}){, …}임. — **미등록 통화(`unmapped_currencies`)가 있으면** "내부 거래를 뺀 입금·출금의 거래 통화 가운데 대응이 확인된 통화는 {표기}({코드}){, …}임."(열거가 전체 통화처럼 읽히지 않게 — 바로 뒤 "대응 미확인" 문장과 짝, SCRUM-265 2/2 추가 검토 2차) · 미등록 통화: {원문} 통화 거래는 대응 미확인임.(있다는 주장이라 범위 구절 없음) — 셋 다 없으면(내부 거래만) "내부 거래를 뺀 입금·출금의 결제 방식은 자료 없음." **범위 구절 "내부 거래를 뺀 입금·출금의"**(`constants_v4.FLOW_SCOPE`, 쉼표 없음): 결제 방식·거래 통화·금액 범위는 내부 거래를 뺀 집계라 주어에 범위를 적음 — 내부 거래 0 이어도 같은 문구(조건 분기 없음) | `payment_format_counts.*`, `inbound/outbound.amount.*`, `unmapped_currencies.*` |
 | METHOD | {유형}({코드}) 유형으로 분류됨.(typology null 이면 안 씀) · 입금은 {n}건, 출금은 {m}건, 내부 거래는 {k}건임. · 방향마다 한 문장: {입금/출금} 합계는 {금액 쉼표} {통화 표기}{, {금액} {통화 표기}…}임. — **그 방향에 미등록 통화 거래가 있으면**(`{flow}.count` > `by_currency[].count` 합 — 마스킹본으로 앎) "{입금/출금} 가운데 대응이 확인된 통화 거래의 합계는 {금액} {통화 표기}{, …}임."(합계가 그 방향 전체처럼 읽히지 않게, 추가 검토 2차) · 통화마다: 내부 거래를 뺀 입금·출금의 거래 금액은 최소 {…} {통화 표기}, 최대 {…} {통화 표기}임. — **최소 = 최대면** (SCRUM-265 2/2 — 228 평가자 지목 "무의미한 문장", AMOUNT_MATCH 정상·변조 확인) 통화가 **정말 하나**(amount_range 통화 1개 **그리고** `unmapped_currencies` 없음)면 "내부 거래를 뺀 입금·출금의 거래 금액은 모두 {금액} {통화 표기}임." / **그 밖**(amount_range 통화 둘 이상 **또는** 미등록 통화 있음 — 미등록 통화도 다른 통화로 셈, 추가 검토 2차)이면 그 통화로 범위를 좁혀 "내부 거래를 뺀 입금·출금 가운데 {통화 표기} 거래의 금액은 모두 {금액} {통화 표기}임."("모두"가 다른 통화 거래까지 덮지 않게 — 추가 검토 1차). 최소 ≠ 최대 문장은 통화가 둘 이상이어도 그대로("모두" 같은 전체 주장이 없어 통화별 값으로 읽힘) (입금·출금 합계 문장은 주어가 이미 "입금"·"출금"이고 바로 앞 건수 문장이 내부 거래를 따로 세므로 범위 구절 없음) · paths `VERIFIED` 면: 확인된 경로는 {count}개임. · 가장 긴 경로는 {max_hops}홉임. · 경로 하나가 거친 계좌는 최대 {max_accounts}개임. (06 COUNT — `홉` 은 PATH_HOPS 전용, `회` 로 쓰면 거래 건수로 대조돼 MISMATCH) | `typology`, `*.count`, `*.amount.*`, `amount_range.*`, `paths.*` |
-| GROUNDS | **맨 앞 — 유형 뒷받침 판정 문장**(아래 "유형 뒷받침 판정", 판정 없는 유형은 없음) · observations 마다: 모델 관측값({window_start}~{window_end} 기준)에서 {이름 표기}는 {값}{단위}임.(SCRUM-264 — 표기·단위는 `observation_name`·`observation_name_unit`) · **관측 구간 부재**(SCRUM-264): 모든 관측값 window 가 양쪽 다 null 일 때만 괄호 없이 `모델 관측값에서 {이름 표기}는 {값}{단위}임.` + 섹션 끝 "모델 관측값의 관측 구간은 자료 없음." 한 문장(관측값마다 반복 안 함 — 값 나열 한 문장으로 묶지 않음: 06 COUNT 는 절의 관측 단어 뒤 첫 숫자만 관측값으로 봄), 일부만 null 이면 아래 괄호 문형 그대로 · **기준값 부재**: 모든 관측값 baseline 이 null(`is None`, 0.0 은 값 있음)일 때만 섹션 끝 "비교 기준값은 자료 없음." 한 문장, 일부만 null 이면 섹션 끝 문장 없이 그 관측값 문장 끝에 "이 관측값의 비교 기준값은 자료 없음." · **부재 합침**(SCRUM-265 2/2): 모든 관측값 window 양쪽 null **그리고** 모든 baseline null 일 때만 두 섹션 끝 문장 대신 "모델 관측값의 관측 구간과 비교 기준값은 제공된 자료로 확인되지 않음." 한 문장(하나만이면 위 문장 그대로) · **관측값 반복 줄임**(SCRUM-265 2/2): 모든 관측값의 window(양 끝)가 같을 때만 둘째 관측값부터 "{이름 표기} 관측값은 {값}{단위}임."(첫 문장은 위 꼴 그대로 — 06 COUNT 는 쉼표·마침표로 절을 나누고 절의 관측 단어 뒤 첫 숫자만 관측값으로 봄, 줄인 문장에도 `관측` 이 남음 · window 날짜는 첫 문장에 한 번 — DATE 대조 유지), window 가 다르면 지금처럼 문장마다 괄호 · observations 가 비면 → ~~모델 관측값은 자료 없음.~~ "점수를 높인 모델 관측값은 제공된 자료로 확인되지 않음."(SCRUM-265 2/2 — facts 로는 reasons 없음과 전부 걸러짐(기여 음수·메타·0 채움)을 구분 못 함, 둘 다 참인 한 문장) | `observations.{name}` (판정 문장은 `typology`·`counterparties.count`·`inbound.count`·`outbound.count`·`paths.*`) |
+| GROUNDS | **맨 앞 — 유형 뒷받침 판정 문장**(아래 "유형 뒷받침 판정", 판정 없는 유형은 없음) · **둘째 — 흐름 문장**(뒷받침됨일 때만, 아래 "흐름 문장", SCRUM-269) · observations 마다: 모델 관측값({window_start}~{window_end} 기준)에서 {이름 표기}는 {값}{단위}임.(SCRUM-264 — 표기·단위는 `observation_name`·`observation_name_unit`) · **관측 구간 부재**(SCRUM-264): 모든 관측값 window 가 양쪽 다 null 일 때만 괄호 없이 `모델 관측값에서 {이름 표기}는 {값}{단위}임.` + 섹션 끝 "모델 관측값의 관측 구간은 자료 없음." 한 문장(관측값마다 반복 안 함 — 값 나열 한 문장으로 묶지 않음: 06 COUNT 는 절의 관측 단어 뒤 첫 숫자만 관측값으로 봄), 일부만 null 이면 아래 괄호 문형 그대로 · **기준값 부재**: 모든 관측값 baseline 이 null(`is None`, 0.0 은 값 있음)일 때만 섹션 끝 "비교 기준값은 자료 없음." 한 문장, 일부만 null 이면 섹션 끝 문장 없이 그 관측값 문장 끝에 "이 관측값의 비교 기준값은 자료 없음." · **부재 합침**(SCRUM-265 2/2): 모든 관측값 window 양쪽 null **그리고** 모든 baseline null 일 때만 두 섹션 끝 문장 대신 "모델 관측값의 관측 구간과 비교 기준값은 제공된 자료로 확인되지 않음." 한 문장(하나만이면 위 문장 그대로) · **관측값 반복 줄임**(SCRUM-265 2/2): 모든 관측값의 window(양 끝)가 같을 때만 둘째 관측값부터 "{이름 표기} 관측값은 {값}{단위}임."(첫 문장은 위 꼴 그대로 — 06 COUNT 는 쉼표·마침표로 절을 나누고 절의 관측 단어 뒤 첫 숫자만 관측값으로 봄, 줄인 문장에도 `관측` 이 남음 · window 날짜는 첫 문장에 한 번 — DATE 대조 유지), window 가 다르면 지금처럼 문장마다 괄호 · observations 가 비면 → ~~모델 관측값은 자료 없음.~~ "점수를 높인 모델 관측값은 제공된 자료로 확인되지 않음."(SCRUM-265 2/2 — facts 로는 reasons 없음과 전부 걸러짐(기여 음수·메타·0 채움)을 구분 못 함, 둘 다 참인 한 문장) | `observations.{name}` (판정 문장은 `typology`·`counterparties.count`·`inbound.count`·`outbound.count`·`paths.*`) |
 | OPINION | (슬롯 없음) | — |
 
-- 관측 구간 괄호 안 날짜는 **ISO(`2022-09-02T00:00:00`)가 기본**(★A-4 — 이미 통과한 모양). 한글 모양(`2022년 9월 2일 00:00`)은 변조 테스트를 통과하면 채택. window 가 둘 다 null 이면 괄호 안을 `관측 구간 자료 없음`, 하나만 있으면 날짜 없이 `관측 구간 일부 자료 없음`(쉼표 없음 — 06 DATE 는 양 끝이 다 있는 관측값만 대조하고, 괄호 안 쉼표는 COUNT 절을 나눠 관측값을 상대 수로 읽음). ~~basis 가 null 이면 `{basis 표기}는` 을 빼고 `모델 관측값(…)은 {값}임. 관측 항목 이름은 자료 없음.`~~ → SCRUM-264 부터 표기는 이름(`name`, 늘 있음) 기준이라 basis null 분기 없음. 이름이 사전에 없으면 조립 전 `display_label_missing`(위 "빈 값 없음"). 섹션 끝 부재 문장 순서: 관측 구간 → 비교 기준값. 서술 끝은 `~임`(`(으)로 관측됨` 대신 — 조사 자동 선택 줄임), 조사 은/는·으로/로는 받침으로 고름(`display_format`). 관측 항목 표기가 괄호로 끝나면 괄호 앞 말 기준(`비중(거래 수 가중 평균)은` — SCRUM-264 `topic_before_paren`).
+- 관측 구간 괄호 안 날짜는 **ISO(`2022-09-02T00:00:00`)가 기본**(★A-4 — 이미 통과한 모양). 한글 모양(`2022년 9월 2일 00:00`)은 변조 테스트를 통과하면 채택. window 가 둘 다 null 이면 괄호 안을 `관측 구간 자료 없음`, 하나만 있으면 날짜 없이 `관측 구간 일부 자료 없음`(쉼표 없음 — 06 DATE 는 양 끝이 다 있는 관측값만 대조하고, 괄호 안 쉼표는 COUNT 절을 나눠 관측값을 상대 수로 읽음). ~~basis 가 null 이면 `{basis 표기}는` 을 빼고 `모델 관측값(…)은 {값}임. 관측 항목 이름은 자료 없음.`~~ → SCRUM-264 부터 표기는 이름(`name`, 늘 있음) 기준이라 basis null 분기 없음. 이름이 사전에 없으면 조립 전 `display_label_missing`(위 "빈 값 없음"). 섹션 끝 부재 문장 순서: 관측 구간 → 비교 기준값. 서술 끝은 `~임`(`(으)로 관측됨` 대신 — 조사 자동 선택 줄임), 조사 은/는·으로/로는 받침으로 고름(`display_format`). 관측 항목 표기가 괄호로 끝나면 괄호 앞 말 기준(SCRUM-264 `topic_before_paren` — SCRUM-269 부터 사전에 괄호로 끝나는 표기는 없음, 함수는 남김).
+- **`(거래 수 가중 평균)` 뺌**(SCRUM-269, 268 대조에서 발견 — 254 ★L-1 ③ 밖): `evidence_paid_max_share`·`evidence_received_max_share` 표기 끝 괄호 설명이 facts 에 없는 계산 방법 주장이라 judge_v4 가 `228:scatter_gather`·`228:partial_baseline` 을 NO_UNSUPPORTED 3(3회 모두). **값·피처 이름·단위는 그대로, 표기만**(`contracts/display_labels_v1.json` 두 줄 + 위 표)
 - 관측값: 정수 값이면 `3`, 아니면 원값 그대로(반올림 금지).
 - **쓰지 않는 값은 내보내지 않는다**: 경과 일수·고객 국가·`model_signals`·`indirect`·거래 영업점(facts 칸 없음, SCRUM-265 2/2) 은 슬롯에 안 넣음(상한 테스트(11/17, 손으로 쓴 v4 2건 · 검토 답 3건, AI 보조 포함) — 적혀만 있고 안 쓰이면 의문만 남김).
 
@@ -237,6 +240,19 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
 - **"위 입금"·"위 출금" 대체꼴**(O-HEAD·C0 와 같은 규칙): FAN_IN 이고 입금 0 → "위 거래의 서로 다른 송금인 수는 …" · FAN_OUT 이고 출금 0 → "위 거래의 서로 다른 수취인 수는 …"(불충족은 입금·출금 0 이어도 나옴 — 상한 = min(0, …) = 0). 뒷받침됨은 하한 ≥ 임계값이라 그 방향 거래가 늘 1 이상 — 해당 없음
 - 유형 표기는 사전(`typology`)에서 — 표의 한글은 지금 사전 값. cites: FAN_IN·FAN_OUT `typology`·`counterparties.count`·`inbound.count`·`outbound.count` / CYCLE·SG `typology`·`paths.count`(뒷받침됨) 또는 `typology`(미확인)
 - **뒷받침 안 됨(미확인·불충족) 금지 낱말**(`constants_v4.UNSUPPORTED_BANNED_WORDS`, 낱말 단위 — `불충족` 안의 `충족`·`뒷받침하는` 은 해당 없음): `부합`·`충족`·`뒷받침됨`·`전형적`. 전역 카탈로그·판정 문장 린트 금지 낱말 추가: `오분류`·`해당하지 않음`·`잘못`
+
+**흐름 문장 — GROUNDS 둘째**(SCRUM-269 ③-3, `str/domain/grounds_flow.py`, 순수. 항목은 카탈로그 모양(`CatalogItem` · requires = `premises`)이지만 판정 문장처럼 **슬롯 자리 — 판정 문장 바로 뒤 고정**: 상위 3 자르기·"확인 안 됨" 묶기·순서 목록(Plan) 밖이라 편집자가 빼거나 옮길 수 없음). 뒷받침됨인데 METHOD·GROUNDS 에 자금이 어디서 어디로 움직였는지가 없어 judge_v4 TYPOLOGY 3·3·3(`sup_scatter_gather`)·4 경계(`demo_7`). **숫자 없음**(수는 PLACE·METHOD·관측값 슬롯에 이미 있음 — 새 숫자 주장 0, 06 COUNT 대조 대상 없음) · 임계값 없음 · 인과·대립 연결어 없음 · 변형 1개(변형 0만).
+
+| id | 유형 | 문장 | cites | requires |
+|---|---|---|---|---|
+| `G-FLOW-FAN_IN` | FAN_IN | 위 입금은 여러 송금인 계좌에서 대상 계좌로 들어온 자금임. | `typology`, `counterparties.count`, `inbound.count` | typology_supported · has_inbound · has_counterparty |
+| `G-FLOW-FAN_OUT` | FAN_OUT | 위 출금은 대상 계좌에서 여러 수취인 계좌로 나간 자금임. | `typology`, `counterparties.count`, `outbound.count` | typology_supported · has_outbound · has_counterparty |
+| `G-FLOW-CYCLE` | CYCLE | 확인된 경로에서 자금은 다른 계좌를 거쳐 출발 계좌로 돌아옴. | `typology`, `paths.count` | typology_supported · cycle_verified |
+| `G-FLOW-SCATTER_GATHER` | SCATTER_GATHER | 확인된 경로에서 한 출발 계좌의 자금은 서로 다른 중간 계좌를 거쳐 한 도착 계좌로 모임. | `typology`, `paths.count` | typology_supported · path_verified |
+
+- **주장 낱말 → facts 조건**(전제가 보장하는 것만): "여러 송금인"·"여러 수취인" = 판정 SUPPORTED(하한 ≥ 5·10 — 서로 다른 상대가 둘 이상) · "위 입금"·"위 출금" = has_inbound·has_outbound(SUPPORTED 면 늘 참 — 하한 ≥ 임계값) · "돌아옴" = cycle_verified(Y2 와 같은 규칙) · "서로 다른 중간 계좌"·"한 출발 계좌"·"한 도착 계좌" = paths VERIFIED · kind SG(R05 경로 [S→Mᵢ, Mᵢ→T] 2건 고정, 중간 계좌 = `paths.count` ≥ 3). 대상 계좌가 CYCLE 출발·SG 도착 계좌라는 주장은 **안 함**(facts 로 못 앎 — "출발 계좌"·"도착 계좌"로만)
+- **금지 조합**: 미확인·불충족·판정 없음 → 흐름 문장 0(전제 `typology_supported` 거짓 — `UNSUPPORTED_BANNED_WORDS` 와 별개로 문장 자체가 후보에 안 들어감) · 다른 유형의 흐름 문장 0(유형별 id) · 흐름 문장에 `부합`·`충족`·`전형적`·숫자·임계값 0(린트)
+- **③-2(미확인·불충족 이유 문장)는 넣지 않음**(09 SCRUM-269 ★A-2): 근거였던 FIVE_W 1·1·1 은 254 1차 judge_v3 — 같은 두 건(`228:internal_transfer`·`demo_48`)이 268 대조 judge_v4 에서 5항목 모두 5(3회). 뒷받침 안 됨 GROUNDS 는 지금 그대로
 
 ### 사유 카탈로그 (`str/domain/grounds_catalog.py`, 순수) — GROUNDS 슬롯 뒤에 붙음
 

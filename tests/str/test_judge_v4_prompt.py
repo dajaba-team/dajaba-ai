@@ -26,26 +26,27 @@ BLIND2 = case_facts(load_cases())
 DEMO = [("demo_7", BLIND2["sup_fan_in"]), ("demo_48", BLIND2["uns_fan_in"])]  # DB 대신 가짜 facts
 BLOCK_HEADER = "TYPOLOGY_SUPPORT (코드가 FACTS 에서 계산한 유형 뒷받침 판정):"
 
-# develop(608c084)에서 judge_v3 로 만든 평가자 user sha256 — 블록 추가 뒤에도 같아야 함
+# develop(608c084)에서 judge_v3 로 만든 평가자 user sha256 — 블록 추가 뒤에도 같아야 함.
+# SCRUM-269(v4-catalog-2): v4 본문이 바뀐 17건만 새 값(템플릿·렌더 그대로) — customer_missing·injection:23 은 608c084 값 그대로
 V3_USER_SHA256 = {
-    "228:fan_in": "ec6adda78049ebed89c59c6f67cf5978fdc0a5bfdac0bf471ea9510781f4b15f",
-    "228:fan_in_b": "ec6adda78049ebed89c59c6f67cf5978fdc0a5bfdac0bf471ea9510781f4b15f",
-    "228:fan_out": "05741c3c77eb8fb548313d7571e527d9f7e027c34040f7d5c010591f5846a78e",
-    "228:cycle_nopaths": "97eefca860627fab2e5ce25e7e22fb94af6632090cf991fd1a09ba2beadfc2cd",
-    "228:scatter_gather": "6662ca4bbd094d303abb45012f4a40ebe0166d140e4da96ae6e28dbb58d93f1a",
-    "228:internal_transfer": "c136d7e17703abd8274e2a7dc36ca8759baa6a367a29a541e43bc03eaa33b59d",
-    "228:partial_baseline": "495120b0af33f45fce8780c586247773d05c22603d8480100ffdf85e042fd051",
+    "228:fan_in": "cb3bffa4be2e1c66b6cb6533388b5eaa69727fbbc5433598c4de00b0b26517f9",
+    "228:fan_in_b": "cb3bffa4be2e1c66b6cb6533388b5eaa69727fbbc5433598c4de00b0b26517f9",
+    "228:fan_out": "3c1d5545a5645533fd0ebe6ce48aff5966b8e8d74d0babc92ce92c1863a075b9",
+    "228:cycle_nopaths": "2630441e317f3f484251335dfd41c5670b9d47821e6f1467fa71973563c3e493",
+    "228:scatter_gather": "e91c4a5720833cf114f7c772feb08ed72777bd5f5857865c266d8e7d171f5247",
+    "228:internal_transfer": "429fa3b51cea177dd3915406ebc071414f721ca8ddc7c78d80726a6b57c41686",
+    "228:partial_baseline": "6a56c6aae71d844ded29b4a0a28c65ecaac59febae67aa665ccea6f8f1aee15b",
     "228:customer_missing": "a005b933f4646159a36db1612ca3e8e51a8da031ea7d31f7e4292aa637251f57",
-    "blind2:sup_fan_in": "022c00909932a90b729e9523ac0af1be5d635f44a192381b3735bb26dd6c086d",
-    "blind2:sup_fan_out": "95615859b98052f47ff9444cc428b3be103da5050c58a58ecd481ae8337dcb01",
-    "blind2:sup_cycle": "2a3f9de311915c85aaaeafb78ea483390c4f051394b39f7054affaa8273b7386",
-    "blind2:sup_scatter_gather": "21a8b4d8156803f36915d4fabfe1f7765cda9c5b5bc859ed46759657086b95c2",
-    "blind2:uns_cycle": "8efa576e83c7640615ac96ac91a09f0c04cf5c6ca81511fc3f30612ea392e328",
-    "blind2:uns_scatter_gather": "15a02fc8e69c79fa107a5f952f803ccc6c7357915f16d520c336057eb6d44d5d",
-    "blind2:uns_fan_in": "629ae99f262308baf84f9a141e43568524c694ca27cc71b0b358295806f391c5",
-    "blind2:mix_fan_in": "6f7c5195daa9c1691d43821382259f83f7dbb08dac9a5edcad42284575cfab62",
-    "demo_7": "022c00909932a90b729e9523ac0af1be5d635f44a192381b3735bb26dd6c086d",
-    "demo_48": "629ae99f262308baf84f9a141e43568524c694ca27cc71b0b358295806f391c5",
+    "blind2:sup_fan_in": "b9b9ad1e2a673d0aad0050c49b8504713eeb4b36b73ee03026be7db4138a3f7d",
+    "blind2:sup_fan_out": "da9b7dd026fc3eaee7015bf93b998eef3ea695584e7e4be0f04002911899c8b6",
+    "blind2:sup_cycle": "901d5f852cda631da9c87913a64f6863c76a28abd0aeba86065e8edde6e1271a",
+    "blind2:sup_scatter_gather": "13adf1eebf2e77d3066c6d1a333cc32b91f608b769e0349cab09f664c2235411",
+    "blind2:uns_cycle": "4c1762be3b602e41f572af3756dcf12ccbcece24a941e5bc9cc2a0c4e06c5610",
+    "blind2:uns_scatter_gather": "a222dc19b939fad9059602479be1111024f8d12de0fdbd34ee5b78afb5eba7b0",
+    "blind2:uns_fan_in": "b9d7decf35862c8c01ebe55f86608d31d0a7a5665e604b5226ebc4eb15b27864",
+    "blind2:mix_fan_in": "cfa5bc21905fda792d1c808e614da081df290bce758208787a32814789c232e8",
+    "demo_7": "b9b9ad1e2a673d0aad0050c49b8504713eeb4b36b73ee03026be7db4138a3f7d",
+    "demo_48": "b9d7decf35862c8c01ebe55f86608d31d0a7a5665e604b5226ebc4eb15b27864",
     "injection:23": "387277e8d44c48006b0bceb16d57e72e8fea7806f561671681d6ea3bfb415f60",
 }
 

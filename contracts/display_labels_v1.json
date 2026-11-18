@@ -105,8 +105,8 @@
     "evidence_ach_fraction": "결제 방식이 알려진 근거 거래 중 ACH 비율",
     "evidence_cheque_fraction": "결제 방식이 알려진 근거 거래 중 수표 비율",
     "evidence_cash_fraction": "결제 방식이 알려진 근거 거래 중 현금 비율",
-    "evidence_paid_max_share": "통화별 최대 지급 금액 비중(거래 수 가중 평균)",
-    "evidence_received_max_share": "통화별 최대 수취 금액 비중(거래 수 가중 평균)",
+    "evidence_paid_max_share": "통화별 최대 지급 금액 비중",
+    "evidence_received_max_share": "통화별 최대 수취 금액 비중",
     "evidence_span_fraction_96h": "첫·마지막 근거 거래 간격의 탐지 창 길이 대비 비율",
     "evidence_last_hour_fraction": "기준 시각 직전 구간 안 근거 거래 비율",
     "evidence_min_path_hops_scaled": "최대 경로 단계 대비 최소 경로 단계 비율"
