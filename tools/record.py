@@ -19,6 +19,7 @@ from aml_ai.shared.infrastructure.llm_client import HttpLlmClient, recording_key
 from aml_ai.shared.schemas.str import Facts, NarrativeOut, llm_output_model
 from aml_ai.str.domain import masking
 from aml_ai.str.domain.constants import JUDGE_MAX_TOKENS, JUDGE_PROMPT, NARRATIVE_MAX_TOKENS
+from aml_ai.str.domain.constants_v4 import NARRATIVE_V4
 from aml_ai.str.domain.fact_keys import attach_evidence, fact_keys
 from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.judge import judge_model_decision, render_judge_user
@@ -27,11 +28,15 @@ from aml_ai.str.infrastructure.narrative_generator import load_prompt, render_us
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = REPO_ROOT / "tests" / "str" / "fixtures"
 RECORDED = REPO_ROOT / "tests" / "str" / "recorded"
+V4_NOT_RECORDABLE = "v4 는 녹화 대상 아님 — NARRATIVE_PROMPT 로 v1~v3 지정"  # 11/18 기본값 v4
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     settings = get_settings()
+    if not (args.judge or args.rewrite or args.summary) and settings.narrative_prompt == NARRATIVE_V4:
+        print(f"ERROR: {V4_NOT_RECORDABLE}", file=sys.stderr)
+        return 2
     if settings.ai_llm_mock:
         print("ERROR: AI_LLM_MOCK=true — 실제 호출을 위해 false 로 설정", file=sys.stderr)
         return 2

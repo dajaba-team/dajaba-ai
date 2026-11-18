@@ -41,7 +41,7 @@
       스키마 실패 → 남은 예산 ≥ 40초면 1회 재생성, 아니면 바로 → 또 실패 LlmInvalidOutput (502)
       성공 시 tokens_in·tokens_out·latency_ms 는 호출한 횟수의 합(재생성 뒤 성공해도 두 호출 합)
       연결 실패·타임아웃 → LlmUnavailable (502). ★ AI 안에서 연결 재시도 없음 — 재시도는 백엔드 AiClient 1회만
-7v4 (SCRUM-228, NARRATIVE_PROMPT=narrative_v4 일 때만 — 기본값 아님. 05 narrative_v4 절) 7(LLM) 대신 코드 조립, **LLM 호출 0**. 6 검색은 그대로 돌아 references 는 응답에만(본문 반입 없음):
+7v4 (SCRUM-228, NARRATIVE_PROMPT=narrative_v4 — 11/18 부터 기본값(09 "v4 기본값 전환 확정"). 05 narrative_v4 절) 7(LLM) 대신 코드 조립, **LLM 호출 0**. 6 검색은 그대로 돌아 references 는 응답에만(본문 반입 없음):
       a  표기 사전 검사          facts_llm 의 코드값이 contracts/display_labels_v1.json 에 다 있는지 — 없으면 500 INTERNAL, 행 FAILED
                                  (로그 display_label_missing 에 칸 이름·코드값만). 사전은 생성기를 만들 때 infrastructure 가 한 번 읽음
       b  flags = domain.derived_flags.derive_flags(facts_llm)              순수 — 참이면 코드 문장으로만

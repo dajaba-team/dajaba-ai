@@ -39,9 +39,9 @@ def test_v3_maps_to_v2_output_schema() -> None:
     assert llm_output_model("narrative_v3") is not NarrativeOutV1
 
 
-def test_config_accepts_v3_but_default_stays_v2() -> None:
+def test_config_accepts_v3_but_default_is_not_v3() -> None:
     assert Settings(_env_file=None, NARRATIVE_PROMPT="narrative_v3").narrative_prompt == "narrative_v3"
-    assert Settings(_env_file=None).narrative_prompt == "narrative_v2"
+    assert Settings(_env_file=None).narrative_prompt == "narrative_v4"  # 11/18 기본값 v4(09)
 
 
 def _files(d):  # type: ignore[no-untyped-def]

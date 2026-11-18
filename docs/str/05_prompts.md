@@ -19,7 +19,7 @@
 ## 버전·동결 규칙
 
 - 파일명이 버전: `narrative_v1.md`·`narrative_v2.md`. **동결 시점 = 그 버전으로 녹화(`recorded/narrative_v1/*.json`)를 처음 커밋한 때.** 동결 전에는 자유 수정, 동결 뒤에는 새 버전 파일(`narrative_vN.md`). `prompt_versions.frozen_at`에 동결 시각.
-- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`|`narrative_v3`|`narrative_v4`, 기본 `narrative_v2`(SCRUM-62, 11/6 — 그 전은 v1). `narrative_v3`(SCRUM-225)·`narrative_v4`(SCRUM-228, 코드 조립 — 프롬프트 파일 없음)는 비교용으로 env 로만 켬 — 기본값 전환은 성공 기준 결과를 보고 따로 정함). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
+- **활성 버전은 설정 하나** — `shared/config.narrative_prompt`(env `NARRATIVE_PROMPT`, 값 `narrative_v1`|`narrative_v2`|`narrative_v3`|`narrative_v4`, 기본 **`narrative_v4`(11/18 전환, 09 "v4 기본값 전환 확정")** — 그 전 `narrative_v2`(SCRUM-62, 11/6), 그 전은 v1. `narrative_v3`(SCRUM-225)는 비교용으로 env 로만 켬, `narrative_v4`(SCRUM-228)는 코드 조립 — 프롬프트 파일 없음. v2 로 되돌릴 땐 `NARRATIVE_PROMPT=narrative_v2`). 이 값 하나로 **프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더**가 같이 바뀐다. `str/domain/constants.NARRATIVE_PROMPT`(상수)는 폐기 — `draft_service.build()` 가 설정값을 생성기에 넘긴다.
 - 기동 시 파일 sha256을 `ai.prompt_versions`에 색인. 동결된 버전의 해시가 파일과 다르면 **기동 실패**(경고가 아니라). 응답 `prompt_version`에 파일명.
 - **동결 기준은 `str/domain/constants.FROZEN_PROMPTS` dict** — `{prompt_name: 파일 sha256}`. 기동 때 `check_frozen_prompts()`가 파일 해시와 대조하고, 다르면 `FrozenPromptMismatch`로 기동 실패(DB 없이도 걸림). DB 색인은 best-effort. 녹화를 처음 커밋할 때 같은 커밋에서 해시를 박는다(SCRUM-15 10/29). **narrative_v2 는 SCRUM-20 녹화 커밋 시점에 동결** — `FROZEN_PROMPTS` 에 `narrative_v2` sha256 추가, `test_frozen_prompts` 가 `narrative_v2` 등록 강제. **2026-11-06 SCRUM-62 에서 기본값 v2** (채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날).
 - 바꾼 뒤엔 오류 주입 12번(정상 초안)과 7~11을 다시 돌려 표로 남긴다(`08`). 표 없이 v2를 서빙하지 않는다.
@@ -128,11 +128,11 @@ v2 를 복사하고 **아래만** 바꿈. 7섹션·출력 형식·규칙 1~7·9~
 - **고쳐 쓰기 미적용** — `draft_rewrite._SUPPORTED_PROMPT` 는 `narrative_v2` 만. rewrite_v1 은 참고 사례 3건 전문을 다시 넣고 규칙 12 가 없어서 고쳐 쓰면 v3 의 두 변경이 되돌려짐. 기본값을 v3 로 바꿀 때 rewrite 프롬프트를 따로 맞춤(09).
 - 동결(2026-11-12): 녹화 `recorded/narrative_v3/42c985cb6b2e2770.json`(RAG 끈 상태, fan_in) + `FROZEN_PROMPTS["narrative_v3"]` — 같은 커밋. 재생 초안의 코드 검사에 알려진 검사기 오판 1건(PLACE 상대 계좌 총수 → 자행 수, 09 · SCRUM-131).
 
-## narrative_v4 (SCRUM-228 1/2, 2026-11-17 — 비교용, 기본값 아님) — 코드 조립, 프롬프트 파일 없음
+## narrative_v4 (SCRUM-228 1/2, 2026-11-17 — 11/18 부터 기본값, 09 "v4 기본값 전환 확정") — 코드 조립, 프롬프트 파일 없음
 
 왜: v3 는 facts 를 빠짐없이 쓰지만 "요약 같다"(팀원 평가). 상한 테스트(11/17, 손으로 쓴 v4 2건 · 검토 답 3건, AI 보조 포함)에서 표기만 바꾼 초안은 "손볼 양 그대로", 사실끼리의 대조·확인 사항을 넣은 초안은 4/5. 처음엔 숫자 문장은 코드가, 해석 문장은 LLM 이 자유롭게 쓰고 정규식으로 거르게 했으나 **추가 검토 1·2차에서 자유 문장으로 숫자·날짜·플래그 사실이 조용히 들어가는 우회가 계속 나옴**(`三 곳`·`둘임`·`구월 구일`·`출금으로만 이루어짐`·`다른 금융기관 소속` — SCRUM-131 과 같은 길). → **LLM 이 쓴 문장이 검증 없이 사실로 나가지 않게 한다.** (1/2) 의 v4 는 **코드만으로 완성**(자유 문장 0): 슬롯 + **사유 카탈로그** + **종합의견 카탈로그**를 조건·우선순위로 고르고 엮는다. 나중에 LLM 은 **닫힌 부품을 고르고 엮는 편집자**로만 붙인다(아래 "순서 목록"). 평소 대비 기준값·건별 내역·직전 자금 유입이 facts 에 없어 "평소보다 얼마나 다른가"는 아직 못 씀(09 다음 facts 과제).
 
-**바꾸지 않는 것**: 응답 `narrative` 모양(7섹션 `{section, text, cites}` — `NarrativeOutV2` 와 같음, 백엔드 변경 없음) · `generation_meta` 칸 · facts 스키마·`fact_keys` · 06 검사기 · v1~v3·judge_v3·rewrite_v1·summary_v1 파일 · 기본값 `narrative_v2`. 슬롯·카탈로그 문장이 검사기를 못 지나면 **검사기가 아니라 문장을 바꾼다**.
+**바꾸지 않는 것**: 응답 `narrative` 모양(7섹션 `{section, text, cites}` — `NarrativeOutV2` 와 같음, 백엔드 변경 없음) · `generation_meta` 칸 · facts 스키마·`fact_keys` · 06 검사기 · v1~v3·judge_v3·rewrite_v1·summary_v1 파일 · 기본값 `narrative_v4`(11/18 전환, 09 — v2 경로·파일은 그대로, `NARRATIVE_PROMPT=narrative_v2` 로 되돌림). 슬롯·카탈로그 문장이 검사기를 못 지나면 **검사기가 아니라 문장을 바꾼다**.
 
 **카탈로그 판**(SCRUM-269 ★A-1, 09 같은 줄): `prompt_version` 은 문장이 바뀌어도 `narrative_v4` 그대로(평가자 스위치·265·268 기록 기준). 슬롯·판정·카탈로그·표기 사전 문장이 바뀌면 `constants_v4.V4_CATALOG_VERSION` 을 올린다 — `v4-catalog-1` = SCRUM-228~268 문장, `v4-catalog-2` = SCRUM-269, **`v4-catalog-3` = SCRUM-269 2/2**(C0 FAN_IN·FAN_OUT·SG 세 문장). 응답 칸은 만들지 않음(규약 JSON 그대로) — 응답 재현은 `generation_meta.server_version`(git 해시) + `prompt_version`(코드 조립이라 같은 facts·같은 커밋이면 같은 본문). 하네스 결과 meta 에 판을 적음(254 2차 결과가 어느 문장인지). 254 2차 dry-run 평가자 user sha256 은 1차와 다름(본문이 바뀜 — 실행 조건은 그대로라 `mode=registered`).
 
@@ -186,6 +186,9 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
     | `evidence_span_fraction_96h` | 첫·마지막 근거 거래 간격의 탐지 창 길이 대비 비율 | 없음 |
     | `evidence_last_hour_fraction` | 기준 시각 직전 구간 안 근거 거래 비율 | 없음 |
     | `evidence_min_path_hops_scaled` | 최대 경로 단계 대비 최소 경로 단계 비율 | 없음 |
+    | `account_in_counterparties_24h` (호환) | 대상 계좌에 송금한 서로 다른 계좌 수 | 개 |
+
+    - **호환 이름**(11/18, 09 "v4 기본값 전환 확정"): `account_in_counterparties_24h` 는 실제 ML 피처가 아니라 규약 예시(`contracts/examples/draft_request.json`)·v1 few-shot 의 이름 — 기본값 v4 에서 규약 예시 요청이 500 이 되지 않게 받음. 뜻(대상 계좌로 들어온 서로 다른 상대 수)이 `focal_distinct_senders` 와 같아 같은 표기 · 숫자("24시간")·검사기 종류 단어(`입금`·`상대`) 없음 — 관측 구간은 문장 괄호에 따로 나옴. 사전에 없는 그 밖 이름은 그대로 조립 전 실패
 - 사람 평가 전에 표기 목록을 채영 님께 한 번 공유(진희) — 서비스 표기와 평가 글이 달라지지 않게.
 
 ### 슬롯 생성기 (`str/domain/display_slots.py`, 순수)
@@ -327,7 +330,7 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
 
 ### 붙일 곳
 
-- `shared/config.narrative_prompt` Literal 에 `narrative_v4`(기본값 v2 그대로). `NarrativeGenerator` 는 v4 면 프롬프트 파일을 읽지 않고 `str/infrastructure/narrative_v4_builder.py`(사전 읽기 → ①~⑦)로 결과를 만든다 — LLM 호출 0. `draft_service` 는 그대로(검색은 돌고 references 는 응답에만). **v1~v3 렌더·응답은 바이트 그대로**(기존 녹화 키 테스트).
+- `shared/config.narrative_prompt` Literal 에 `narrative_v4`(1/2 때 기본값 v2 그대로 → 11/18 기본값 v4, 09). `NarrativeGenerator` 는 v4 면 프롬프트 파일을 읽지 않고 `str/infrastructure/narrative_v4_builder.py`(사전 읽기 → ①~⑦)로 결과를 만든다 — LLM 호출 0. `draft_service` 는 그대로(검색은 돌고 references 는 응답에만). **v1~v3 렌더·응답은 바이트 그대로**(기존 녹화 키 테스트).
 - `_LLM_OUTPUT_MODELS` 에 `narrative_v4` 없음(LLM 출력이 없으므로). `tools/record_v4.py`·하네스 v4 지표는 지움. 하네스 커버리지의 사전 표기 인정은 남김(v4 초안도 같은 함수로 셈).
 - 카탈로그 문장 린트(테스트): 모든 카탈로그 문장·변형·연결어가 한글·공백·기본 부호만, 한글 수 낱말+단위·금지 어간·플래그 주제 낱말·인과/대립 연결어에 안 걸림(예외는 `G-PURPOSE-OUT` 의 `출금만`·`B1` 의 `자행` — 조건이 보장). 1차 때의 정규식 검사 함수를 테스트 도우미로 옮겨 씀.
 

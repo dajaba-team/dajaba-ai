@@ -329,6 +329,21 @@ v4 초안은 코드 조립(LLM 0)이라 초안 단계 평가자가 없고 검증
 - 다음: C0 세 문장 고친 뒤(SCRUM-269 2/2, `v4-catalog-3`) 같은 하네스로 3차. 합격선·표 수 그대로
 - 원본(git 무시, 커밋 안 함): `tests/str/recorded/_tmp/judge_stability_v4_20261118-055413.{json,jsonl}` · dry-run `judge_stability_v4_dry_20261118-055343.json`
 
+#### 결과 — 3차 실측 (2026-11-18, stamp `20261118-064511`, 09 "SCRUM-254 ★L-1 3차 실측") — 충족
+
+`mode=registered`(등록 프롬프트 judge_v4) · `catalog_version = v4-catalog-3` · 19건 × 3 = 57 기록 · 표본 완전 · **사전 기준 충족 — v4 54회 중 PASSED 54** · VERIFY_UNAVAILABLE 0 · CODE_FAILED 0 · 토큰 860,750. 칸은 2차 표와 같음.
+
+| 사건 | 판정 | PASSED | 떨어진 항목 (중앙값 1·2·3회) | 4 미만 표 → 원인 |
+|---|---|---|---|---|
+| v4 18건 전부(시연 후보 demo_7·demo_48 포함) | — | 3/3 | — | 아래 2표뿐 |
+| 228:internal_transfer | 미확인 | 3/3 | — (run 3 표 5·5·3, 중앙값 5) | NO_UNSUPPORTED 3 1표 "결제 방식과 거래 금액의 범위에서 내부 거래를 제외했다고 서술했으나, FACTS에는 해당 집계에서 내부 거래를 제외했는지 명시되어 있지 않습니다." → `FLOW_SCOPE` B |
+| 228:scatter_gather | 미확인 | 3/3 | — (run 1 표 5·5·3, 중앙값 5) | NO_UNSUPPORTED 3 1표 "모델 관측값을 '통화별 최대 지급 금액 비중'이라고 설명했으나 FACTS는 해당 관측값이 통화별이라는 근거를 제공하지 않음." → 관측 항목 표기 "통화별"(`FLOW_SCOPE` 아님) |
+| injection:23 (v2 대조, 판정 밖) | 미확인 | 3/3 | — | — |
+
+- **1·2·3차 추이**: 1/54(judge_v3 · `v4-catalog-1`) → 49/54(judge_v4 · `v4-catalog-2`) → **54/54**(judge_v4 · `v4-catalog-3`). 4 미만 표 171 중: 2차 19 → 3차 2(C0 "근거가 된" 17표 → 0)
+- 남은 2표는 1표씩·중앙값 영향 없음 — 안 고침(09). 유의성 주장 안 함(같은 사건 18건을 세 번 재며 문장을 고침 — 처음 보는 경보는 SCRUM-279 ★L-2)
+- 원본(git 무시, 커밋 안 함): `tests/str/recorded/_tmp/judge_stability_v4_20261118-064511.{json,jsonl}` · dry-run `judge_stability_v4_dry_20261118-064357.json`
+
 ### judge_v4 사전 기준 측정 (SCRUM-268, 09 "SCRUM-268 judge_v4 사전 기준 — 측정 전")
 
 기준 1(오류 잡는 힘 유지)·기준 2(판정 문장 뒤집기)를 한 실행에서. 기준 3(v4 시연 안정)은 SCRUM-269 뒤 254 ★L-1 2차(위 절 하네스, 등록 프롬프트 judge_v4)에서. **평가자·v4 문장 변경 없이 측정만, 실제 호출은 진희 터미널.**

@@ -35,6 +35,8 @@ ML_FEATURES = {
     "evidence_paid_ratio_coverage", "evidence_received_ratio_coverage", "evidence_path_available",
 }  # fmt: skip
 NAMED = sorted(ML_FEATURES - ML_META_FEATURES)
+# 규약 예시(contracts/examples/draft_request.json) 이름 호환 표기 — 실제 ML 피처 아님(09 "v4 기본값 전환 확정")
+COMPAT = ["account_in_counterparties_24h"]
 SAMPLE_VALUE = {"건": 3.0, "개": 2.0, "초": 106320.0, "": 0.25}
 JUDGMENT_WORDS = ("의심", "이례", "비정상", "특이", "위험")
 
@@ -60,13 +62,13 @@ def _grounds(facts: Facts) -> str:
 
 
 def test_name_labels_cover_exactly_non_meta_features() -> None:
-    assert len(NAMED) == 20
-    assert sorted(LABELS["observation_name"]) == NAMED
-    assert sorted(LABELS["observation_name_unit"]) == NAMED
+    assert len(NAMED) == 20 and not set(COMPAT) & ML_FEATURES
+    assert sorted(LABELS["observation_name"]) == sorted(NAMED + COMPAT)
+    assert sorted(LABELS["observation_name_unit"]) == sorted(NAMED + COMPAT)
     assert set(LABELS["observation_name_unit"].values()) <= set(SAMPLE_VALUE)
 
 
-@pytest.mark.parametrize("name", NAMED)
+@pytest.mark.parametrize("name", NAMED + COMPAT)
 def test_label_has_no_digit_or_judgment_word(name: str) -> None:
     label = LABELS["observation_name"][name]
     assert label and not re.search(r"\d", label)
@@ -76,7 +78,7 @@ def test_label_has_no_digit_or_judgment_word(name: str) -> None:
 # ---------- 20개 렌더 → 06 코드 검사 실패 0 ----------
 
 
-@pytest.mark.parametrize("name", NAMED)
+@pytest.mark.parametrize("name", NAMED + COMPAT)
 def test_each_name_renders_and_passes_code_checks(name: str) -> None:
     unit = LABELS["observation_name_unit"][name]
     facts = _with([_obs(name, SAMPLE_VALUE[unit])])
@@ -164,8 +166,6 @@ def test_unknown_name_fails_before_assembly() -> None:
 
 def test_basis_is_not_used_as_fallback() -> None:
     """basis 가 옛 사전에 있어도 이름이 없으면 실패 — basis 로 대신 찾지 않음."""
-    obs = _obs("account_in_counterparties_24h", 3.0).model_copy(
-        update={"basis": "distinct_inbound_counterparties"}
-    )
+    obs = _obs("retired_feature_name", 3.0).model_copy(update={"basis": "distinct_inbound_counterparties"})
     with pytest.raises(NarrativeAssemblyFailed):
         assembled(_with([obs]))

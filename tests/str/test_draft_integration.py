@@ -15,7 +15,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
-from aml_ai.shared.config import get_settings
+from aml_ai.shared.config import Settings, get_settings
 from aml_ai.shared.schemas.str import DraftResponse, Facts
 from tests.str.integration_support import INTEGRATION_INTERNAL_KEY
 
@@ -110,20 +110,23 @@ def test_draft_success_through_recorded_llm(
 # ───────── 기본값 경로 (SCRUM-62) — env 없으면 narrative_v2 ─────────
 
 
-def test_draft_success_default_prompt_is_v2(
+def test_draft_success_default_prompt_is_v4(
     integration_client: TestClient,
     db_session: Session,
     draft_request_sample: dict,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """NARRATIVE_PROMPT 를 env 에서 지워 **기본값 경로**로 /v1/str/drafts — 7 섹션·`narrative_v2`."""
+    """NARRATIVE_PROMPT 를 env 에서 지워 **기본값 경로**로 /v1/str/drafts — 7 섹션·`narrative_v4`(11/18 전환)."""
     monkeypatch.delenv("NARRATIVE_PROMPT", raising=False)
+    # 로컬 `.env` 의 NARRATIVE_PROMPT 도 막음 — 기본값 자체를 봄(11/18 전에는 `.env` 값으로 통과할 수 있었음)
+    monkeypatch.setitem(Settings.model_config, "env_file", None)
     get_settings.cache_clear()
-    body = _fan_in_body(draft_request_sample, draft_id="DRF-DEFAULT-V2")
+    body = _fan_in_body(draft_request_sample, draft_id="DRF-DEFAULT-V4")
     res = integration_client.post("/v1/str/drafts", json=body, headers={"X-Internal-Key": INTERNAL_KEY})
     assert res.status_code == 200, res.text
     out = DraftResponse.model_validate(res.json())
-    assert out.generation_meta.prompt_version == "narrative_v2"
+    assert out.generation_meta.prompt_version == "narrative_v4"
+    assert out.generation_meta.tokens_in == out.generation_meta.tokens_out == 0  # 코드 조립 — LLM 호출 0
     assert len(out.narrative) == 7
     assert {s.section.value for s in out.narrative} == {
         "SUBJECT",

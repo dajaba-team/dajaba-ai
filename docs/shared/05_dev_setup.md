@@ -75,7 +75,7 @@ docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -
 
 | 변수 | 기본 | 내용 |
 |---|---|---|
-| `NARRATIVE_PROMPT` | `narrative_v2` | 활성 서술 버전 — `narrative_v1`\|`narrative_v2`. 프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더가 같이 바뀜(SCRUM-47). **2026-11-06 SCRUM-62 에서 기본값 v2** (채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날). 평소엔 `.env` 에 이 줄 없이 둠 |
+| `NARRATIVE_PROMPT` | `narrative_v4` | 활성 서술 버전 — `narrative_v1`\|`narrative_v2`\|`narrative_v3`\|`narrative_v4`. 프롬프트 파일·LLM 출력 스키마 enum·few-shot 폴더가 같이 바뀜(SCRUM-47). **2026-11-18 기본값 v4**(09 "v4 기본값 전환 확정" — 코드 조립, LLM 호출 0). 그 전 2026-11-06 SCRUM-62 에서 v2(채영 백엔드 enum·지윤 SCRUM-115 프론트와 같은 날). v2 로 되돌릴 땐 `narrative_v2`(고쳐 쓰기는 v2 전용). 평소엔 `.env` 에 이 줄 없이 둠 |
 | `DRAFT_BUDGET_S` | `80.0` | 초안 시간 예산 (백엔드 공유 90 − 10) |
 | `VERIFY_BUDGET_S` | `80.0` | 검증 시간 예산 (SCRUM-92) |
 | `SUMMARY_BUDGET_S` | `40.0` | 요약 시간 예산 (SCRUM-129) |
