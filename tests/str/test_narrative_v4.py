@@ -46,9 +46,9 @@ def _run(name: str = "facts_fan_in.json", notes: str | None = None, refs: list |
     return facts, gen.generate(masked, keys, examples, refs or [], notes, deadline=gen._clock() + FAR)
 
 
-def test_registered_but_not_default_and_no_llm_schema() -> None:
+def test_default_since_1118_and_no_llm_schema() -> None:
     assert Settings(_env_file=None, NARRATIVE_PROMPT="narrative_v4").narrative_prompt == "narrative_v4"
-    assert Settings(_env_file=None).narrative_prompt == "narrative_v2"
+    assert Settings(_env_file=None).narrative_prompt == "narrative_v4"  # 09 "v4 기본값 전환 확정"
     with pytest.raises(ValueError):
         llm_output_model("narrative_v4")  # LLM 출력이 없으므로 등록 안 함
 

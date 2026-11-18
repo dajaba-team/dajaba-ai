@@ -110,17 +110,17 @@ def test_unify_merges_repeated_word_after_label_from_first_run() -> None:
     assert "값 값" not in res.text
     assert "유입액에서 유출액을 뺀 값은 1.0으로" in res.text
     assert unify_notation(res.text, LABELS, FACTS).text == res.text  # 멱등
-    fan_in = load_fixture("facts_fan_in.json")  # account_in_counterparties_24h → 서로 다른 송금인 계좌 수
+    fan_in = load_fixture("facts_fan_in.json")  # 11/18 사전 호환 표기(09 v4 기본값 전환) — 전엔 basis 표기
     out = unify_notation("관측된 account_in_counterparties_24h 수는 3개임.", LABELS, fan_in)
-    assert out.text == "관측된 서로 다른 송금인 계좌 수는 3개임."
+    assert out.text == "관측된 대상 계좌에 송금한 서로 다른 계좌 수는 3개임."
     plain = unify_notation("관측된 account_in_counterparties_24h 수 3개.", LABELS, fan_in)
-    assert plain.text == "관측된 서로 다른 송금인 계좌 수 3개."
+    assert plain.text == "관측된 대상 계좌에 송금한 서로 다른 계좌 수 3개."
 
 
 def test_unify_merges_only_same_word_or_with_particle() -> None:
     """끝 낱말 그대로이거나 조사만 붙은 경우만 합침 — 다른 낱말(수취인·수치·값비싼)은 그대로."""
     fan_in = load_fixture("facts_fan_in.json")
-    label = "서로 다른 송금인 계좌 수"
+    label = "대상 계좌에 송금한 서로 다른 계좌 수"  # 사전 호환 표기(11/18)
     for tail in ("수취인 기준임.", "수치는 3임."):
         assert (
             unify_notation(f"account_in_counterparties_24h {tail}", LABELS, fan_in).text == f"{label} {tail}"

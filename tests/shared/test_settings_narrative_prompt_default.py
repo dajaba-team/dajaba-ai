@@ -1,8 +1,8 @@
-"""`NARRATIVE_PROMPT` 기본값 전환 (SCRUM-62, 2026-11-06).
+"""`NARRATIVE_PROMPT` 기본값 전환 (SCRUM-62 2026-11-06 v2 → 2026-11-18 v4, 09 "v4 기본값 전환 확정").
 
-env 미지정이면 `Settings(_env_file=None).narrative_prompt == "narrative_v2"`.
-한 값 하나로 프롬프트 파일·LLM 출력 스키마·few-shot 폴더가 같이 v2 를 가리킴(SCRUM-47 공존 규칙).
-되돌릴 땐 `NARRATIVE_PROMPT=narrative_v1` 명시 — 승인본·해시 호환 경로는 그대로 열려 있음.
+env 미지정이면 `Settings(_env_file=None).narrative_prompt == "narrative_v4"`(코드 조립 — LLM 출력 스키마 없음).
+되돌릴 땐 `NARRATIVE_PROMPT=narrative_v2`(v2 출력 스키마·few-shot 폴더 그대로) 또는 `narrative_v1`.
+생성기·few-shot 저장소 생성자 기본 인자는 v2 그대로 — `draft_service.build` 가 설정값을 넘김.
 
 `_env_file=None` 은 `.env` 파일만 막음 — OS 환경변수는 그대로 읽히므로 각 테스트 앞에
 `monkeypatch.delenv("NARRATIVE_PROMPT", raising=False)` 를 autouse 로 걸어 외부 env 를 차단.
@@ -27,15 +27,28 @@ def _no_narrative_prompt_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("NARRATIVE_PROMPT", raising=False)
 
 
-def test_narrative_prompt_default_is_v2() -> None:
-    """env 없이 Settings → narrative_prompt == "narrative_v2"."""
-    assert Settings(_env_file=None).narrative_prompt == "narrative_v2"
+def test_narrative_prompt_default_is_v4() -> None:
+    """env·`.env` 없이 Settings → narrative_prompt == "narrative_v4"(11/18 전환)."""
+    assert Settings(_env_file=None).narrative_prompt == "narrative_v4"
 
 
-def test_narrative_prompt_default_maps_to_v2_output_schema() -> None:
-    """기본값으로 조립되는 LLM 출력 스키마가 v2 집합(NarrativeOutV2)."""
-    s = Settings(_env_file=None)
-    assert llm_output_model(s.narrative_prompt) is NarrativeOutV2
+def test_default_draft_service_builds_v4_generator() -> None:
+    """설정 기본값이 실제 초안 경로까지 감 — `draft_service.build` 가 v4 생성기·few-shot 저장소를 만듦."""
+    from unittest.mock import MagicMock
+
+    from aml_ai.str.application.draft_service import DraftService
+
+    svc = DraftService.build(MagicMock(), Settings(_env_file=None))
+    assert svc.generator.prompt_version == "narrative_v4"
+    assert svc.fewshot._dir == FEWSHOT_ROOT / "narrative_v4"  # noqa: SLF001
+
+
+def test_default_v4_has_no_llm_output_schema_and_v2_rollback_keeps_it() -> None:
+    """v4 는 LLM 출력이 없어 스키마 미등록 — 되돌림 `NARRATIVE_PROMPT=narrative_v2` 는 v2 스키마 그대로."""
+    with pytest.raises(ValueError):
+        llm_output_model(Settings(_env_file=None).narrative_prompt)
+    s = Settings(_env_file=None, NARRATIVE_PROMPT="narrative_v2")
+    assert s.narrative_prompt == "narrative_v2" and llm_output_model(s.narrative_prompt) is NarrativeOutV2
 
 
 def test_fewshot_store_default_directory_is_v2() -> None:
