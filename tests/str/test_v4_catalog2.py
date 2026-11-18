@@ -150,7 +150,7 @@ def test_weighted_average_wording_removed_values_kept() -> None:
 
 
 def test_catalog_version_is_recorded_in_05() -> None:
-    assert V4_CATALOG_VERSION == "v4-catalog-2"
+    assert V4_CATALOG_VERSION == "v4-catalog-3"
     assert f"`{V4_CATALOG_VERSION}` = SCRUM-269" in (ROOT / "docs/str/05_prompts.md").read_text(
         encoding="utf-8"
     )
