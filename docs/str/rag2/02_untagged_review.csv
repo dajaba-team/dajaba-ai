@@ -1,0 +1,399 @@
+chunk_id,doc_id,page,쪽안_청크순번,후보유형_AI보조초안_사람확인전,근거위치,근거용어,확신,검토상태,메모
+a98960cf9e108c681b5d85f9fd51dcedfc728da3efce0942ed8c0cfa776eaaf5,fincen-money-mule-2020,1,1,,,,,검토,"권고문 표지·SAR 키워드 안내, 그래프 구조 없음"
+3b8a9cfac6d14b4262c4ac372fdee6735dd5f097cec4dec02a262dd87b369848,fincen-money-mule-2020,1,2,,,,,검토,"권고 근거 자료·웹 안내, 구조 없음"
+d3b5119ed08ce473bc82258c44cd1f17db2ef7839dd59ddbdd731d20e15cf042,fincen-money-mule-2020,2,1,,,,,검토,"사칭 사기 개요·지표 활용 주의, 구조 없음"
+33055b4735113fbc0bafe2082ed31b07e7e6d57ab83997c95125b80216a0f67f,fincen-money-mule-2020,2,2,,,,,검토,"사칭 대상 기관·각주 출처, 구조 없음"
+ab527ce4ecbf5b37da681a893d626c31a299f342390a848c505c4ac434899d36,fincen-money-mule-2020,3,1,,,,,검토,"지원금 빙자 사칭 연락 수법·각주, 구조 없음"
+b2a35d89a6b3cb5ac2c2f0b57b1c6b1d8aa7b119ab4ca793e4b1559a7f9f5a6b,fincen-money-mule-2020,3,2,,,,,검토,"역학조사 사칭·피싱·가짜 자선, 구조 없음"
+f5c878cf27ecd974735c6370ddc0ed8a449258c8c601efac5a87975c919a3287,fincen-money-mule-2020,3,3,,,,,검토,"가짜 자선·투자 사기 경고 출처, 구조 없음"
+67d1d4c5bcd9f172ff68c169fa719cadf7de1b14a5279b9e8eafa7ba6b0a8201,fincen-money-mule-2020,4,1,,,,,검토,"사칭 사기 지표(연락·피싱 메일), 구조 없음"
+aa25f4582ec718683b04e294176f027aeb9edcbfb0a08275638f87d11fbe5c92,fincen-money-mule-2020,4,2,,,,,검토,"피싱 메일 제목 예시·출처, 구조 없음"
+8c0487e9a8b6ae06160c0c0f797a457dc219e60c1bb2830d0f8383057d88fea2,fincen-money-mule-2020,5,1,,,,,검토,"money mule 정의·인지 정도 분류만, 흐름 없음"
+2608996c39792e72f61aeae198f4e22b705701e3d33896a1dd1725b49600e99a,fincen-money-mule-2020,6,1,,,,,검토,"뮬 모집 수법·계좌 경유 지시, 모임·분산 없음"
+d888d64b38f48cd14898c4fbbbc6656340cb14facdfe86c19d502fb464d258d0,fincen-money-mule-2020,7,1,,,,,검토,"뮬 지표 본문 추출 거의 없음, SAR 안내"
+ec4424f6eb99c3a3e3367e7225e240eed12b79191f7d15785ca144b200a7b3a1,fincen-money-mule-2020,8,1,,,,,검토,"SAR 칸 기재 요령·문의처, 구조 없음"
+efa3cc808f46a024701ae04d8794038af62ac85878f68a40444ee090e37c76d4,fatf-pml-2018,1,1,,,,,검토,"표지 제목, 내용 없음"
+6b287a14dba073bc423330e1b16c93ef479f20e2c29dfd35c51b8ae0dfac7099,fatf-pml-2018,3,1,,,,,검토,"FATF 소개·저작권 고지, 구조 없음"
+8529b70269342432ab7684fdcd29ef8fe5b45df4838dc6713230a17a45910383,fatf-pml-2018,5,1,,,,,검토,"목차, 구조 없음"
+8c831f05b55d44b2015ab9b2086b31a017a314da190b5c45f9d274b02c0c8f33,fatf-pml-2018,5,2,,,,,검토,"목차(뮬 네트워크·layering 제목만), 구조 없음"
+d05d376f4d139951ff286a04d46cefda3f6a78786a3888263bee6699cb1f88a3,fatf-pml-2018,5,3,,,,,검토,"목차, 구조 없음"
+b7b4b295e24c01c40c96e40101a61d139dac9613d46a6a9ee61dc2e4bfe48ae5,fatf-pml-2018,5,4,,,,,검토,"목차 끝부분, 구조 없음"
+7ba446c27bddc79614c0df97cc0f59eef515c79ff1cb0dcb8dfc1561a546e7b3,fatf-pml-2018,6,1,,,,,검토,"박스 목록, 구조 없음"
+199fa961ec3538f9d60bdd937d3d666df061b9127bdedd1e382390b2e684fc20,fatf-pml-2018,6,2,,,,,검토,"박스 목록, 구조 없음"
+594842e20faeb861d37919e9491e742b403d79afdbabbed968b17719ed44ba94,fatf-pml-2018,7,1,,,,,검토,"약어표, 구조 없음"
+e656d95e2a6675dd9e9a7b0a30be0f7c45451416d51d1bdfe85418687629c470,fatf-pml-2018,8,1,,,,,검토,"요약: PML 정의·역할, 그래프 구조 없음"
+ebf3febda20ee1098e83244d25083e42b2c520afc673e54bfaeefda3cd6a5dce,fatf-pml-2018,8,2,,,,,검토,"요약: PML 사업 모델 설명, 구조 없음"
+c08a4de3a0ad7951366c03f3a1565f901714bd6f84cc459d5f084eb6d7032e18,fatf-pml-2018,9,1,,,,,검토,"PML 기능 열거(뮬 모집 포함), 구조 없음"
+a257c235ef78487b69d90d42521037af1989030b2db4c5dc5e6884244e563401,fatf-pml-2018,9,2,,,,,검토,"보고서 범위·권고 소개, 구조 없음"
+47dbde4b64a6a8de9020d157a0c55759036e713aac022824904b120fe0595507,fatf-pml-2018,10,1,,,,,검토,"보고서 목적 한 문장, 구조 없음"
+31c0a6f592b07c835e56fbea9963c1158177306c156d5d5b9dda4733b04012ea,fatf-pml-2018,11,1,,,,,검토,"서론: 목적·구성, 구조 없음"
+50b6a0302e6a1010118ec79c57157fab0ece7b5e3cbd176770ce6648a456ef7c,fatf-pml-2018,11,2,,,,,검토,"보고서 구성 설명, 구조 없음"
+570a8d3ec567640d10cf80cc040ed6e748be1ad56ed10465d8aedc8ea9cf3ffb,fatf-pml-2018,12,1,,,,,검토,"작성 방법론, 구조 없음"
+52d7a1b5ac5758d5412ad622168025df214d0e8fcced16c5361c189d6474f469,fatf-pml-2018,12,2,,,,,검토,"PML 정의·특징, 구조 없음"
+728bfd67d1cab6200437b7036dc778b896da79f28ea2cb12be768f398985cf07,fatf-pml-2018,13,1,,,,,검토,"PML 특성·수수료 요인, 구조 없음"
+d7c70a39205cfca6b915d3e3c09695f91126348c2143a669eb86a7b935ac44bd,fatf-pml-2018,13,2,,,,,검토,"수수료 수취 방식·광고, 구조 없음"
+679ab673fb525ff03e96093d6e39a70a26bfbba5de7ee9c9fc161813733bbacc,fatf-pml-2018,14,1,,,,,검토,"장부 관리·PML 분류, 구조 없음(structuring 아님)"
+a21325c913f3ac4014c318ab704d1a7ea048ab16c5aa2fc5bb488fa8d0ab4992,fatf-pml-2018,15,1,,,,,검토,"PMLN 정의·사례 도입, 구조 없음"
+ab758d68ffcbff1829612428edbc97979c050c4ece36677b0e43a0a027aaaf6c,fatf-pml-2018,15,2,,,,,검토,"사례 조직 국가간 이동 개요, 구조 없음"
+80928b015ac4b6fdc10d0f2752d37bc7b83f6329bdb4187a3b49fe39dcb13b8e,fatf-pml-2018,16,1,,,,,검토,"여러 회사발 송금, 모이는 계좌가 문장에 없음"
+b99d40439ed5928cdcd7465d96d2d9fc42f9526faffafb59888b11e5b4d1aeae,fatf-pml-2018,16,2,,,,,검토,"제재 후속·OCG 내부 세탁 역할, 구조 없음"
+5f4b8c4a325b03a5c7f28f1b8380df197b43a44e371f6a216d1b482cd804a6d9,fatf-pml-2018,17,1,,,,,검토,"수집책 층 거쳐 PML 전달, 계좌 구조 불명"
+4c62ec70ba3d923041c6e647906864806c24cd6cc656c6b1e7da40bccb7e9daf,fatf-pml-2018,17,2,,,,,검토,"특화 서비스 열거, 구조 없음"
+f8252977effcc8b47c6d5bf8fddf4b733d3f3b760a5129308f1896cf3731bdba,fatf-pml-2018,18,1,,,,,검토,"PML 역할: 지휘·소개·인프라, 구조 없음"
+375a67839f81f772ccc035062325e9538c0da91e3ce5f0a8de2a79e3838def5f,fatf-pml-2018,18,2,,,,,검토,"뮬 herder 역할·서류 관리, 구조 없음"
+da1dd4572f7173978308e286a9ae586758b99d31c73e8c5f5e6a3981188649ed,fatf-pml-2018,19,1,,,,,검토,"수집·송금 역할 설명, 구조 없음"
+31f8dabc8f09e5dc3acb4f6c5ed4147bed2133a6044f6a6e22b30fd5c28a2aea,fatf-pml-2018,20,1,,,,,검토,"1단계 수익 이전, 회사 계층 체인뿐"
+a2f60eb5a32d16b804b8c11f2468377aef6371c485b145e16e6dc6a0c5138e83,fatf-pml-2018,20,2,FAN_IN,p20·s19,commingling,높음,검토,여러 의뢰인 자금이 같은 계좌로 섞임
+37372b6f4e3b9bb811f0b868774900cf06f8a7696d155c6453c486e0732e06c3,fatf-pml-2018,21,1,,,,,검토,3단계 의뢰인 반환(CYCLE 아님)·망 소개
+ce697378e469d2eed1a1bf5e1684745f271e7b849b8b3a8206291b4b8142d225,fatf-pml-2018,21,2,,,,,검토,"상계형 치환·기준 미만 입금, 구조 없음"
+b250098337910f0c5649395516ce17bebb86022b9a44b5ab088410ea6dc733a2,fatf-pml-2018,22,1,,,,,검토,"현금 통제망 풀·상계 예시, 구조 없음"
+013810eb8e70346b63d6eac584cdca5350d667bbbae0bfa91a9aee4c110e00fe,fatf-pml-2018,23,1,,,,,검토,"한 사람이 세 지점에서 입금, 출처 하나(분할)"
+b566bdc16951f8eb6ab3c02556142b8bc0bb670cab18f9c1e87622a938d15049,fatf-pml-2018,24,1,,,,,검토,"현금 운반망·TBML 치환, 계좌 구조 없음"
+fe61d46dc2cc6bb1bf058390851a46e0bcbff48a6f5e4898a1356181f758238b,fatf-pml-2018,24,2,,,,,검토,"뮬 정의·모집 방식, 구조 없음"
+129cb4f160b2c904b701afa1ca93312dac967bf036547ca4905ce134a40bd1aa,fatf-pml-2018,25,1,,,,,검토,"피해자→뮬 계좌들, 한 계좌 집결 없음(GS·FAN_IN 아님)"
+64acca51699b36b4e7ce8c3a35731878071cb6088ec63b4a710c32794ff773f8,fatf-pml-2018,25,2,,,,,검토,"뮬 받아 넘기기(경유 체인), 집중·분산 없음"
+cc77f0864cb67c7ea00a665219021240f89b0a4b1576b6a3d091e041c71bc0a0,fatf-pml-2018,26,1,,,,,검토,뮬 계좌 초기 layering·악성코드 망
+15818e4b091aeb231cebc7eb14e0390c7baa002456b025fe7ba06dcb803e7e57,fatf-pml-2018,26,2,,,,,검토,"뮬로 계좌 개설·물품 구매, 구조 없음"
+bf25038fb6f7d31a40a1ec6c69beb648dc3e9f0bb8861dc031fabb9582644ebb,fatf-pml-2018,27,1,,,,,검토,"사람이 조직들에 재분배, 계좌 이체 아님"
+dc71bb11e33b7d7c2d17c2423e4099d9eb88ebd2cf0c98593bba244ddf9b184c,fatf-pml-2018,27,2,,,,,검토,"전자지갑 체인·카드 인출, 집중 구조 불명"
+690605408b0ce28cf9eb8301903b9722b7f3347b338d1e3fb7583e300ccb02a0,fatf-pml-2018,28,1,,,,,검토,"셸 회사 여러 층 다수→다수, 한 계좌 집중 없음"
+4653c0115d50c02ec6f335aa8da3289ad9ccea95b441b5943f540ddb0bb4cc0b,fatf-pml-2018,28,2,FAN_IN,p28·s19,자금 집중,높음,검토,여러 의뢰인 자금이 같은 계좌로 모여 혼합
+a8e2e7b020dcf339646fcd1f285531ca077e210f195d4c192e64f5d13f335eb8,fatf-pml-2018,29,1,,,,,검토,"의뢰인에게 반환(통합 단계), 셸 계좌 경유 체인"
+a8eef46a6c3143b2d5caab2a2ba85bc05b20439f74639aa6e8e701f7399e992f,fatf-pml-2018,29,2,,,,,검토,"셸·역외회사 경유, 세탁자 수수료 수취"
+e8010ca92fbd284f1a7b8bf91a07b18525ca58776c492352228714581fc22182,fatf-pml-2018,30,1,,,,,검토,셸·차명 계좌 경유 해외 이체 후 현금화 체인
+39f842539daac46a559ad4ba22495243beec7ef275d18cb4fa9138ad64af89c8,fatf-pml-2018,30,2,,,,,검토,"다국 PML 네트워크 협업 설명, 구조 없음"
+259fd04125f03c0452c64e493367f1611172542ebb5d57ecf52061a9c9a7dfac,fatf-pml-2018,31,1,,,,,검토,"셸 계좌 경유 해외 이전 후 귀환, 통합 단계"
+73571d95f46e9c37f59a7aa504c9352659d091c1f3138fb8bb886e73cef0bdcc,fatf-pml-2018,31,2,,,,,검토,출발 계좌 하나에서 퍼지는 문장 없음
+4a17a0d2b4665a16b5deb8aec86d8b404f5d09ce9ac7ae4c10fab7eb6165e7e0,fatf-pml-2018,32,1,,,,,검토,"TBML 변형 열거, 상품-현금 치환"
+985a34d4828693732fc4386ec26979f04bcf410a2ebe7e026adf7203b362c890,fatf-pml-2018,32,2,,,,,검토,"TBML 사례 도입, 셸회사 설립"
+21c615317a754ca33eec16f435f02fb56f930b8f80664e76b1732ee6c0e3e21e,fatf-pml-2018,33,1,FAN_IN,p33·s10-12,차명계좌,낮음,검토,"명의인 계좌들→물류사 계좌 회수, SG는 현금 출발이라 뺌"
+d9ee41dd2ac6a8efabb6f0b8950c4e67c673066ec4d6435b53631ca6366ce9ba,fatf-pml-2018,33,2,,,,,검토,"상품 구매·재판매 TBML, 범죄조직 반환"
+744e240b1f3adbe368d8f05149f0c03a9393a7b8db0876425633a16c5705b65e,fatf-pml-2018,34,1,,,,,검토,카드 단말 결제 이용한 환전 사기 구조
+bd6ed0238e8fc4120310143af582cd8b9978d4ffb1ba27fa00c6e7c18383b18c,fatf-pml-2018,34,2,,,,,검토,다수 인출카드로 해외 ATM 현금 인출
+06963d227a460243dfb0b3dc050c43d3c702291340d083493778cfd1040f34a6,fatf-pml-2018,35,1,,,,,검토,"상계 사례, 다수→다수 이체·한 계좌 집중 없음"
+a52e46822f331f89d1f924400f90d0581d4aec33686d6aec3faa87728a8b2640,fatf-pml-2018,35,2,,,,,검토,"상계 구조 결론, 현금 전달"
+592b27f89287e1f82b9f1951fa3d08510377e572d378329c11261b550998ed8e,fatf-pml-2018,36,1,,,,,검토,"지하은행 가치 치환(IVTS), 계좌 그래프 아님"
+be788cafa18882927a95235a52b5ba8ce5bcc0150e5c882d4afec54a7f36bf4d,fatf-pml-2018,36,2,,,,,검토,"현금 집하 지하은행, 계좌 흐름 불명확"
+d1f3eefa57ba801712b16c277d121ae3c3c3ea4a31de6e03b3892d6ddbb0b437,fatf-pml-2018,37,1,,,,,검토,"대체 은행 플랫폼 설명, 무작위 계좌 이동"
+d0804d84611252042a1390c6c068a4d2a57077e0230de69435db6b67f086cb5b,fatf-pml-2018,37,2,,,,,검토,"공모 전문가 개요, 구조 없음"
+5de868b09e29bef927a8d1d9ef295099019b07c394678159d8c67d1a2005265d,fatf-pml-2018,38,1,,,,,검토,부패 공무원 셸회사·부동산 매입
+4d095d5dff752d846c73e2059d2d7c8545565d8b928c8fa1f3bc3f28a3edf9b0,fatf-pml-2018,38,2,,,,,검토,내부자 공모·MVTS 개요
+1359026c77371a4568d27663ae0792557d142478a2fb6d1785bb56c23b27cdf1,fatf-pml-2018,39,1,FAN_IN,p39·s3,자금 집중,낮음,검토,"개인·사업자 계좌들→MVTS 계좌 하나, s8-9 는 다수→다수"
+e3e2e37839016849f116316339d6cb62738a521a25f3b9bbc9dfc3dbc4c11be6,fatf-pml-2018,39,2,,,,,검토,"공모 MVTS 이중 장부, 보고 회피"
+2fbc8b6663444d24857018f37e9f8f0010df08d910ca923c8884b7c2bcd1361b,fatf-pml-2018,40,1,,,,,검토,"MVTS 계좌가 여럿, 한 계좌 집중 문장 없음"
+abe0a4a4fda1b365b526168b60dd70fcf8a6b0ad39e6c92e156e1a4cb987b817,fatf-pml-2018,40,2,,,,,검토,"대리인망 수집·분할 송금, 계좌 노드 문장에 없음"
+fa27e0b7c781dfcb49a19f14d92e9b46a7d9fb614855801bd0008c9d55f76f65,fatf-pml-2018,41,1,,,,,검토,공모 은행 직원 기능 열거
+e73e90b8b825c19e24b8c646f9231f8c2d7a2ab8423cd43a5edc0addc019c2ee,fatf-pml-2018,41,2,,,,,검토,외국은행 임원 공모 예치 사례
+6d59386a4cc86d76881bcdf2620a4aa5ab9b5ddab97fba1d51c333c1efe65f6c,fatf-pml-2018,42,1,,,,,검토,"셸 계좌 해외이전, 미러 트레이딩"
+d28a54f90117c74d4c2b924d90c6f0837be6750149f0e9a12b6fe89a8698841b,fatf-pml-2018,42,2,,,,,검토,프라이빗뱅커 은닉 기법 열거
+ea994f8c91555accad167f27752a811ddd8ba096de7fe8a1d5f79725d153221e,fatf-pml-2018,45,1,,,,,검토,"여러 회사 계좌→해외 계좌들, 한 계좌 모임·퍼짐 없음"
+35094e27d7061d86e56afbaf2ddec7692d9afb5faba836e52f5df24b7ddd9af7,fatf-pml-2018,45,2,,,,,검토,"받는 셸 계좌가 여럿, 한 계좌 집중 문장 없음"
+5c1a0c5de770a0fb7da3b58bba0d6e3d2ac221fa39caf9bd7d2b859201fa4070,fatf-pml-2018,46,1,,,,,검토,TCSP 명의이사·부동산 사례 도입
+4df6819e3ab35b5daae0d003009db9d4ac7137816199301773feb6737992b4b5,fatf-pml-2018,46,2,,,,,검토,"회사 지분·임원 관계 서술, 흐름 없음"
+965ee8ac1281b3f8b11e4ab106e3d8898fbc2f1b627a25ffa8729c9226947fed,fatf-pml-2018,47,1,,,,,검토,"결제대행 경유 계좌 개념, 구조 없음"
+8bbe40c2ffff5b99a0489c0772925fa3e34431138d95cd58e1a6f1b864bbb7c4,fatf-pml-2018,47,2,,,,,검토,"결제대행 사례 도입, 흐름 없음"
+3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58,fatf-pml-2018,48,1,GS,p48·s6-7,consolidation account,높음,검토,다수 피해자 대금→보관계좌→여러 사기범 지급
+ea08ec607edcf2219a52d06a7b3fa179cec80ee40a813d4ab7e42a2f28177826,fatf-pml-2018,48,2,,,,,검토,근거가 이웃 청크
+ffb2e8488ba19ac5b00376b68663310481a0a264912eab5c39693f3f5905c637,fatf-pml-2018,49,1,,,,,검토,"가상자산 거래소 공모, 전자 mule 비유"
+45cc7e3530dbaee32a5056282139a28f26d7e2159e8d460e82dde3cd2e06e684,fatf-pml-2018,49,2,,,,,검토,거래소 기소 결과·결론부
+73b3b739ca0d8ce8b472ea4a0966ebebabbf9fe02d8a64fcdadec9f635d3de0b,fatf-pml-2018,50,1,,,,,검토,"결론부, 구조 없음"
+fd3bfcbd88c5a71d30a939622c9b9a33d5f6df1d87c7d0d91143f9e94f73bad4,fatf-pml-2018,51,1,,,,,검토,참고문헌
+3082398e18a1008aacf4d158e47f1d370ab87b0d7e09a9bb8d3f1de211e1c620,fatf-pml-2018,51,2,,,,,검토,참고문헌
+dfcebebe4f8d1b747a93d7f6bd8f7bc9b550a58111291951b6b5c12acc179f91,fatf-pml-2018,53,1,,,,,검토,뒤표지 요약
+67e404f999088782ce5a0f8767a7a1be0c0e36a2c4da6b5f5a3eafc49ecd7925,fincen-sar-narrative-2003,1,1,,,,,검토,"표지, 기관명만"
+a9939b5e8ffa89a191cca3011344227d1846ba447512c4724fd70cc2e7b45444,fincen-sar-narrative-2003,2,1,,,,,검토,"목차, 그래프 구조 없음"
+a10b646651e7d2544802a437c86da04526d9b04fed66229f5fc63672746a1ba2,fincen-sar-narrative-2003,3,1,,,,,검토,SAR 목적·서술 품질 중요성 소개
+5d4518af957e500e344fada8e43efef3decdd8a5e4adf9a0cf2f156d456867e5,fincen-sar-narrative-2003,3,2,,,,,검토,업종별 SAR 양식·제출 기한 안내
+a36d0ffcf011e4a3ccc1b22b2ba759f34d087395929fea6b8d043ed5bdea366e,fincen-sar-narrative-2003,4,1,,,,,검토,지침의 목적·참고 자료 안내
+02671112cf967555be1f79b157bf2f5c9296543287156036ac6a555917a6e567,fincen-sar-narrative-2003,5,1,,,,,검토,"5W1H 정보 수집, 혐의자 정보 요령"
+50aaf6ebea85af7fdd1ead1cead6b2f09ab77af70cbdea2c580be9c726e98ca3,fincen-sar-narrative-2003,5,2,,,,,검토,"수단 예시 열거(structuring 포함), 구조 없음"
+6b9899fd3d289158dc7200340150e6e4e6a0cfdd2e7f31c9721ce1fdcccc56ea,fincen-sar-narrative-2003,6,1,,,,,검토,자금 흐름 기술 요령(출처·수익자·계좌)
+dc1d2ad8d365dc36cc7df3188b8a436af3d6de653b02e3e9b9b658cfee42ec41,fincen-sar-narrative-2003,6,2,,,,,검토,"해외 관할·업종 설명 요령, 구조 없음"
+41e147c77b03e6cd7ea10bfc7bddabf2d69b49b7de9ba293d1135e3457efff2e,fincen-sar-narrative-2003,7,1,,,,,검토,"의심 패턴 열거, layering 용어만"
+26daa9a242e88064707876fb99de847b410f4a87c9d52c75fa976dd6f32d6163,fincen-sar-narrative-2003,8,1,,,,,검토,"pass-through는 경유 연쇄 뜻, 퍼짐·모임 없음"
+c538996199d589a63eaacf813f8794145786b7e76026f20d80da687a44713181,fincen-sar-narrative-2003,9,1,,,,,검토,"서술 서론 구성, 유형 용어 열거만"
+71d258967f815b01918558ac3764f23ad3708d50d169790e835fe11f5c2224cb,fincen-sar-narrative-2003,9,2,,,,,검토,"본문 구성 요령, 구조 없음"
+5c6e3381cc06a5799070502cf60e47a28faec50495217a538fddd34bcbdad208,fincen-sar-narrative-2003,10,1,,,,,검토,"본문·결론 구성 요령, layering 언급만"
+60869f4bbc5e9d0596a7adb6665ea28a433721cc92af8446762afb67ab826816,fincen-sar-narrative-2003,10,2,,,,,검토,결론 구성 요령
+c3ed4db497912ec7860afe6595bfd31da30a03ff9a3d3adeb4004a189ebfe9aa,fincen-sar-narrative-2003,11,1,,,,,검토,첨부 금지 안내
+c92a611fba7253eaa2fc01bd0bbd38186c6965a6b5cabaa24f745d2b8e4dfde5,fincen-sar-narrative-2003,12,1,,,,,검토,쪽번호만
+1d861df5867e10c580afb4cd125e741fbae0c95e055d968e6d19f808d2702861,fincen-sar-narrative-2003,13,1,,,,,검토,부록 예시 소개
+9aada743d360b6677e5cf04d51a07540825724d1a4ce959e9fcb20d4abee4511,fincen-sar-narrative-2003,14,1,,,,,검토,쪽번호만
+327775902ce534daef0be564d0464a9d674eed1884768778f6ce0b19f2324c16,fincen-sar-narrative-2003,15,1,,,,,검토,근거가 이웃 청크
+0e816328e61917185d725a59410e3d1f9b770d9c57367f09374bbdc34f6af542,fincen-sar-narrative-2003,15,2,FAN_IN,p15·s19,third-party checks,낮음,검토,"앞 청크와 같은 제3자 수표 입금, 겹침"
+9ef56270bd1c1d7653313339533f9ab8c85edd935cc82606af47029851d97183,fincen-sar-narrative-2003,16,1,,,,,검토,"두 계좌 동시 현금입금, 업체 정보, 모임 아님"
+5be9725df12cb5494b77fbe305ea3c56745db0212523445f9d2706155d328ec5,fincen-sar-narrative-2003,16,2,FAN_IN,p16·s27-28,structuring,낮음,검토,두 사람이 같은 계좌로 분할 입금
+dd8094379688c5b89b67cc151370ce5146a0deb9dd64f85d6d398903382d1ea3,fincen-sar-narrative-2003,17,1,,,,,검토,"예시2 이어짐, 타행 단일 이체 연쇄"
+bd806c5acead956d039d6c47d5b95ee13b4901b360b9a2c0d88b902416bbf22e,fincen-sar-narrative-2003,17,2,,,,,검토,"분할입금 후 단일 수취인 송금, 1대1"
+86ae7b8d751c7a1ffded6c717195c3557c038f41971d9da0c00aaa1e4e95e464,fincen-sar-narrative-2003,18,1,,,,,검토,"예시3 이어짐·예시4 도입, 1대1"
+ba81c983a05cc365f731accb2f4da1af348f35c6f8c0aa78bc16ddcb1c860702,fincen-sar-narrative-2003,18,2,FAN_IN,p18·s22,자금 집중,높음,검토,두 법인 계좌에서 한 수취인으로 송금 반복
+ababa34af7d8b7fc6ff808216b6b1088bea7a038c08709f44134e648a1efb175,fincen-sar-narrative-2003,19,1,,,,,검토,"세 지점 야간입금, 출처가 지점뿐(분할)"
+01302e5f075d8f02cf366fc301f55bf24bdc877734065c7a650ec953cc03f6c3,fincen-sar-narrative-2003,19,2,,,,,검토,"두 계좌 송금 총액, 수취처는 다음 청크"
+01ade36d395edc5078e255251654ca541aaaef7f559378160441d3bf2eccd177,fincen-sar-narrative-2003,20,1,FAN_IN,p20·s1,자금 집중,높음,검토,두 계좌 송금이 모두 한 해외 수취인으로
+feb735b6d5dc17366fe758bed19ebef2bf1f361d16ddd17187821320f1e2058e,fincen-sar-narrative-2003,20,2,,,,,검토,"불충분 예시, 단일 해외 송금"
+61c016f97088e8a21001dc599bd16a4ab5a828a19592baccb53e14698dada455,fincen-sar-narrative-2003,21,1,,,,,검토,"불충분 예시 논평, 구조 없음"
+5a1a1605df3f15d5c0aeb15f3bc5bcfa46cf37807236343a67ec578e6fb04e34,fincen-sar-narrative-2003,21,2,,,,,검토,"불충분 예시 논평, 구조 없음"
+7d03a329018194ad5c626c9d19984e2590fd36f820ac2604d3184c95ff9dadad,fincen-sar-narrative-2003,22,1,,,,,검토,"불충분 예시, 정보 없음"
+3db5705616d3ac5128eda5b43aad02c9758f8a6b2c789769e5939ba4ceaf6b3d,fincen-sar-narrative-2003,23,1,,,,,검토,"여러 명 우편환 분할 구매, 계좌 모임 아님"
+38a537ffe75bfe6df503366ac421b78db8705271400bd1bb2d399efd64a4c341,fincen-sar-narrative-2003,23,2,,,,,검토,"우편환끼리 교환, 계좌 노드 없음"
+8dd898f0a3febb171424677a9d5d5ba79ee29d8ca856d6d2d6ca7df774af24fc,fincen-sar-narrative-2003,24,1,,,,,검토,"우편환 layering 논평, 송금 1대다 불분명"
+d597f695b8745d5986567cfd15a79d1743779f5d0fb39d86f88a39151ed12be0,fincen-sar-narrative-2003,24,2,,,,,검토,"MSB 예시 논평, 구조 없음"
+9a5eaf956c0903aa559ce806a41f0f3d17950048f06a5f3fd6e36fbcf283737e,fincen-sar-narrative-2003,25,1,,,,,검토,"불충분 MSB 예시, 구조 없음"
+b32e5c6923e367d9bab71012d84478dbd5f7ff73cb0193a22e510e2d4ad05460,fincen-sar-narrative-2003,26,1,,,,,검토,쪽번호만
+46b3ea7bdbed054323c06cdf4364323dc0d8554606e9a2453b87ce6b86af4c25,fincen-sar-narrative-2003,27,1,,,,,검토,"증권 예시, 남의 명의 계좌 세 개 개설"
+20acf4547a880d9a0622ad8c247236e5d1481becd4e91f2ae51a1f5bd6842ddc,fincen-sar-narrative-2003,28,1,FAN_OUT,p28·s3-5,차명계좌,높음,검토,한 은행 계좌 수표로 차명 세 계좌에 자금
+f603647f6ff127ac7dbe4326e3417ce52b9fb57901bf6e38d4f3acd17521803f,fincen-sar-narrative-2003,28,2,,,,,검토,"타인 수표 한 계좌 반복 입금, 1대1"
+d6df2bbe2111d6f42284bf22bf5950d4ee64ecbe782df298be649dd586efb316,fincen-sar-narrative-2003,29,1,,,,,검토,"수표 다수 입금, 받는 계좌·발행 계좌 문장에 없음"
+94eea21147f525fc50ce3c62a251744e62e5b653428c6b51bc14218183dc4716,fincen-sar-narrative-2003,30,1,,,,,검토,쪽번호만
+5c03f634cc8b1945d7ffbf50f1a2ca371a1dce40a2bb2b7d2d0c5b7c38f73a8c,fincen-sar-narrative-2003,31,1,,,,,검토,칩 전달·환전 경유 합류라 계좌 흐름 아님
+fe630a90085b779a5ad6dd51cbcf5287c1e684a383d677e19f4aae1595c1b7ed,fincen-sar-narrative-2003,31,2,,,,,검토,칩 전달·환전 경유 합류라 계좌 흐름 아님
+15f88c6bc7657766ec70f8f20e9236c2e3ee1aab01bf8e2ec52ba6dbaab46a40,fincen-sar-narrative-2003,32,1,,,,,검토,"카지노 칩 환전·CTR 회피 언행, 구조 없음"
+4e85139a9824128b88368c52129e329d99377407df5639b90ea9d85c5bdb4c47,fincen-sar-narrative-2003,32,2,,,,,검토,"카지노 예시 논평, structuring 언급만"
+78dfb98fbc5bc9904a5e48ca5743dbcc8b27e12dc3d1b13d0277cd43a9b057b3,fincen-sar-narrative-2003,33,1,,,,,검토,불충분 카지노 예시
+a775181c0adf3399406d191d8bf0209077dd6e452dd7ca88db1860d6f68b0a29,fincen-msb-ko-2007,1,1,,,,,검토,"표지, 그래프 구조 없음"
+6617ceb54e706e7eecb78eca089c15dfd904d0566edc8759e21e681405c4a48e,fincen-msb-ko-2007,2,1,,,,,검토,"MSB 해당 서비스 범위, 구조 없음"
+70cc1f1544418dea12ba8a73936020a7e6793af8a4171ccfc1851508a7e184a5,fincen-msb-ko-2007,3,1,,,,,검토,"목차, 구조 없음"
+0c76381202a612f7b48e975efc38b3fcbab6c883a43a73098dd6ecab660f8aa4,fincen-msb-ko-2007,4,1,,,,,검토,"목차(계속), 구조 없음"
+206d5b7d3ff2f59c0b7002b5baf1337060a40122880db0e99eb53adec63cf457,fincen-msb-ko-2007,5,1,,,,,검토,"서론, 자금세탁 개념 일반"
+df7869a73c4e02f82adf022f015ed02b967f254f5385e7b1f0bed8704eeaaf93,fincen-msb-ko-2007,6,1,,,,,검토,"세탁 3단계와 분산 거래(structuring) 언급, 구조 없음"
+3bf219f3c117f0fb6f164b9f158eaa0921e3ee7644be30bc32b1b8384d53d9b1,fincen-msb-ko-2007,7,1,,,,,검토,"국제 공조 소개, 구조 없음"
+b850ef0f1f1c660308e7b4c74422ffb2413375cd87fb59009ad0be384333ef69,fincen-msb-ko-2007,8,1,,,,,검토,"BSA 규정·등록 요건, 구조 없음"
+47a18aa17f7ff3a030f90ec16f4a4564bed22ef6975781727687af247e24c3db,fincen-msb-ko-2007,9,1,,,,,검토,"에이전트 목록·SAR 의무, 구조 없음"
+bb5f537fa1f742faee89d1c1dd44c53d1e854d4f1de9eb7409cb2516f820cf38,fincen-msb-ko-2007,10,1,,,,,검토,"BSA 규정 요약(CTR·기록 한도), 구조 없음"
+38581c3f7d90a2be012c8091f91cf4a4aa7620632e9998c59587e126282f549c,fincen-msb-ko-2007,11,1,,,,,검토,"등록 갱신·에이전트 목록, 구조 없음"
+c6adfe5969cd47b4b69e3ccd72f9eb7637bafbd502ac8fa3213acc5f0ea949ce,fincen-msb-ko-2007,12,1,,,,,검토,"에이전트 목록 항목, 구조 없음"
+3da7112b7b75bcba28ad7d35231a45dcb6ae6d3add126d490bf29e6ed4d8aeb9,fincen-msb-ko-2007,13,1,,,,,검토,"민형사 처벌, 구조 없음"
+f2f4bc0a9108a7454a071fd75bd86349b7042202c6debe33162fb0e2b4077fa9,fincen-msb-ko-2007,14,1,,,,,검토,"AML 프로그램 구성 요소, 구조 없음"
+33245b28215fb33b03b8faff12a32243d77bf45340988ce75a1463c872555a86,fincen-msb-ko-2007,15,1,,,,,검토,"바젤 원칙·고객 확인, 구조 없음"
+4a7c5057ce53a609f7cde140aa3f16e000ab93dbc56456e4c196e8a836cdefa2,fincen-msb-ko-2007,16,1,,,,,검토,"고객 확인 효과·SAR 제출 대상, 구조 없음"
+46d339212b89f7af77059d9d88dd074f1d6b1ee21c62f582c562e9eaa3013384,fincen-msb-ko-2007,17,1,,,,,검토,"SAR 한도·기밀·핫라인, 구조 없음"
+a8d4961cff6358df67a6095b7cad54f0a5ae70fd022b50d53368e933e0d487be,fincen-msb-ko-2007,17,2,,,,,검토,"SAR 면책 조항, 구조 없음"
+ab2f94c4fac70be122b1d7a2e308f1e8e2a298312c0efe486a410c16488d588b,fincen-msb-ko-2007,18,1,,,,,검토,"의심 거래 정의, 구조 없음"
+236751e8dd584c495512870d3f1eac87ca8a5d5c890c03fe1578885ebd5fc9e9,fincen-msb-ko-2007,18,2,,,,,검토,"SAR 보고 절차·보관, 구조 없음"
+a5f5bb29834bde053e8ab6f7ed6ce17c2ae16354a91cf764b55d3acc687a25bc,fincen-msb-ko-2007,19,1,FAN_IN;FAN_OUT,p19·s13,,낮음,검토,"여러 사람과 송수신하는 고객 예시, 합법 해명 사례"
+835b41b5c01d2dce97fc39fe1a0de0e941620042f89b7c58d859f9cfb64771c3,fincen-msb-ko-2007,19,2,,,,,검토,"같은 예시의 합법 사업 설명, 구조 없음"
+2f245c677479102965c1e22bac633d906f15769b7a1cafe294e9cbd741b1af31,fincen-msb-ko-2007,20,1,,,,,검토,"테러자금 예시·ID 위험지표, 구조 없음"
+41348bf7e3c1f2786c88463e260810e804dc58c55c422775092d1209eb608da5,fincen-msb-ko-2007,21,1,,,,,검토,"여러 고객·장소 분할(structuring), 수취 집중 서술 없음"
+90d35024e332f06f47e6fa1e273c847210586fa733690e33ae373c423ff09ff0,fincen-msb-ko-2007,21,2,,,,,검토,"위험지표 목록 도입, 구조 없음"
+9828ec9f13a538cb6f38d3b6e2a65086cf60b0c16baf8821e0b5d16ae83a0cd2,fincen-msb-ko-2007,22,1,,,,,검토,"한도 미만 분할 거래 예시, 모임 구조 없음"
+df5efee3964482e3b92c77cb6e4a5dcf2703c117a083bac691b09cc1adbe4e0f,fincen-msb-ko-2007,23,1,FAN_IN,p23·s6-8,분산 거래,높음,검토,여러 송금인이 한 고객에게 분할 송금
+22a2ad13f3cbdba14e6f4ac35d06b2518577a05c9982a0d57f82216c396bf4b7,fincen-msb-ko-2007,24,1,,,,,검토,"신원 정보 회피 지표, 구조 없음"
+d1f3565e1d5a69bf30e3f5096dfca238077dc5e13af3f4ca4f85bb500169fd51,fincen-msb-ko-2007,25,1,,,,,검토,"직업 불일치 거래 지표, 구조 없음"
+ae58ffcc81f4ec35cdf91b9492c259689775b656f81baf309863b37c74a3fda8,fincen-msb-ko-2007,26,1,,,,,검토,"비정상 지불 수단 지표, 구조 없음"
+a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078,fincen-msb-ko-2007,27,1,FAN_IN,p27·s2,pass-through account,높음,검토,"소액 다수 수취 후 타지 개인에 재송금, GS는 횟수 불명이라 뺌"
+be8726d64f64a119694db0222956c04f2f902d2fc47885c52841f8409831ba46,fincen-msb-ko-2007,28,1,,,,,검토,"현금 급증·직원 지표, 구조 없음"
+252d4c8f147579d58e61c079fd0638ec8f2a527840f140596e65f80e0e04e148,fincen-msb-ko-2007,29,1,,,,,검토,"CTR 합산 규정, 구조 없음"
+33ec8dd214b64833d0e0fb4586267c6f5774d2a29cd40202ac4cc61c5cb31f0c,fincen-msb-ko-2007,30,1,,,,,검토,"CTR 제출·통화 대체 기록, 구조 없음"
+3a5716d80d3d21450848aab389e1370c26f8f615b6fcdb77609ddffe85ef4deb,fincen-msb-ko-2007,31,1,,,,,검토,"자금이체·환전 기록 규정, 구조 없음"
+a817df037f7371673131278e02132f562a1d1fc2713f39cf8f862cd7ed8f7790,fincen-msb-ko-2007,32,1,,,,,검토,"환전 기록 예시, 구조 없음"
+3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084,fincen-msb-ko-2007,33,1,CYCLE,p33·s7,kiting,낮음,검토,두 은행 계좌간 수표 예치·인출 반복(kiting)
+48429682640635f4ee78bad1b5a218544962aa2fa471a35100ed601d36c2c523,fincen-msb-ko-2007,33,2,,,,,검토,"국가별 자금이체 보고서, 구조 없음"
+c15dde8991f5cbf652db7d2d5843924134f9c1c2e77b136f61255c8f5050bf20,fincen-msb-ko-2007,34,1,,,,,검토,"분산거래 탐지용 보고서, 구조 없음"
+2e67dde0ace68cc0f54c87ac75c1767d72cb006b510fd07bd673892cd8841a3a,fincen-msb-ko-2007,34,2,,,,,검토,"3천달러 이체 기록, 구조 없음"
+90b5b94054d662654cbb7f763ef71d301593317ae1726ae38000a9024817aa1b,fincen-msb-ko-2007,35,1,,,,,검토,"고객 활동 보고서, 구조 없음"
+b5a3644689977bb1a19ceb70f9ee4b62eba6afe96d00f98ffbf04b811828a1d8,fincen-msb-ko-2007,36,1,,,,,검토,"Polar Cap 사례, 예치 급증만, 구조 없음"
+fd5b4655474f7704354fb24532a6684b1b813f144e390914c3d4dc08c7f6f39f,fincen-msb-ko-2007,37,1,CYCLE,p37·s3-9,round-tripping,낮음,검토,"위장계좌→해외→대출→위장계좌, 입금 계좌 하나 불명이라 FAN_IN 뺌"
+db0bfee5bf52fd6b43ffda9521b079c86a95b68821eeab523beb3275255f1e33,fincen-msb-ko-2007,37,2,,,,,검토,근거가 이웃 청크
+4db9cea028b56c83b9d0b3f36786f75801c59d8cc9946e54213c8e25739ce5cf,fincen-msb-ko-2007,38,1,,,,,검토,"위장계좌→소유주 송금은 통합 단계, 구조 약함"
+b833433c64ed410c3e29de4dde7e257748eb2934c2115022b38d465d04d2ee30,fincen-msb-ko-2007,39,1,,,,,검토,"Green Ice 계좌 동결, 구조 없음"
+4af480ec813a079bfadd81214bd761180fc17dedfb3ed2679493d6b299a26a3b,fincen-msb-ko-2007,40,1,,,,,검토,"미국 법률 연혁, 구조 없음"
+fe01750d64375f9d2b2424274171bf45a3467a1b21ab59b84a717465c19d8b8a,fincen-msb-ko-2007,41,1,,,,,검토,"법률상 거래 분산 금지, 구조 없음"
+d420d064244915b6bb769d0cb047d6218149784cf48f6866da13abaa5c45379b,fincen-msb-ko-2007,42,1,,,,,검토,"애눈지오-윌리 법, 구조 없음"
+b281d1ff28f0f46c65f4c3222052030fa25447302ec80089d0a6f10476924034,fincen-msb-ko-2007,43,1,,,,,검토,"MLSA·전략법, 구조 없음"
+ba7dd22e99ecdaf93b3ff5503af8fa594c7518428a4826124f416301aa5d5045,fincen-msb-ko-2007,44,1,,,,,검토,"애국법 요건, 구조 없음"
+054cc545f11d984b8713c4b38c2c1e938fa697e58face69c2c5e5c52b536b55e,fincen-msb-ko-2007,45,1,,,,,검토,"국제기구 소개, 구조 없음"
+e445b821ee88724feaa45bc2a76fb732b21b929641b6f429875395b059c67f8b,fincen-msb-ko-2007,46,1,,,,,검토,"FATF·에그몽, 구조 없음"
+82f4345d45e7bbddd9fd3ef0ae756d32c2fec332d7348fe9210a37e5ba43ac0e,fincen-msb-ko-2007,46,2,,,,,검토,"에그몽 실무그룹, 구조 없음"
+779b1858dce452d769d0f793993db379cdaaf9092d90fd155846b70b9d543af6,fincen-msb-ko-2007,47,1,,,,,검토,"권고지침·OFAC 목록, 구조 없음"
+81e2b7b18a13b820699df56878aaff371ad3dde652cc97375762b668e1caac7c,fincen-msb-ko-2007,48,1,,,,,검토,"용어집: 합산·세탁 3단계, 구조 없음"
+e2c2667c89f4df4f369321994db1ce188e8b82e3d415c0b5a9237bd2b2dbe65e,fincen-msb-ko-2007,49,1,,,,,검토,"용어집: MSB·환급업체 정의, 구조 없음"
+4b349bf1e1010986f9131971eadb10c1227db16cf4db6e811bd035fa6928da77,fincen-msb-ko-2007,50,1,FAN_IN,p50·s8-9,분산 거래,높음,검토,4명이 한 수취인에게 나눠 송금(structuring)
+39a8bb436cf3ef5b3a166dd6b13b7c26013a90b804a0de936dbf2aedd26b4e11,fincen-msb-ko-2007,51,1,,,,,검토,"연락처, 구조 없음"
+2a1e0c247297c701ce64696e070899ec793da398b4b35347a15ebbd4dcea3a80,fincen-msb-ko-2007,52,1,,,,,검토,"뒤표지, 구조 없음"
+8e24af1ad98e99fae5d2e1408420a50a11c98f910183d9c8047930c59e7b21df,ffiec-redflags,1,1,,,,,검토,"red flags 서문·신원 정보 이상, 구조 없음"
+f5f555d2966dbda57ec0e67a9814b29d4b377bdcd5945cf4a7a60af625332d85,ffiec-redflags,1,2,,,,,검토,"고객 정보 부실·명목 법인 지표, 구조 없음"
+58645d96162b0f2da337fc0efa810e573a35a5b5cbfb9097aa1c7d6bc9155084,fatf-tbml-2020,1,1,,,,,미검토,용어 키워드 0 — 미검토
+534e2c08cbd98139e0a6e3707e759f800f4f53dd8bfeda833c483c2a7ecff93d,fatf-tbml-2020,2,1,,,,,미검토,용어 키워드 0 — 미검토
+cfcf9e0ccaf24577c8198b0455556d7b5c143fe41d8e76440a6511c808497ffb,fatf-tbml-2020,3,1,,,,,미검토,용어 키워드 0 — 미검토
+e3c0fba5ef4d1c02dae39182280e6d58235ad734f14fa36177da131cda223886,fatf-tbml-2020,4,1,,,,,미검토,용어 키워드 0 — 미검토
+988b750753ac81e77ef4190c31777b7dba19cf4aef16726da0f15024103157bc,fatf-tbml-2020,5,1,,,,,미검토,용어 키워드 0 — 미검토
+b8c1b9c3f4f2a6a130ff25f45ae0152ada7f0b76d9c9de4e31d8e557167319e8,fatf-tbml-2020,5,2,,,,,미검토,용어 키워드 0 — 미검토
+9d67363946c821b5b0be6a89663c61f0828fd316960f1e691e1442cf842bfaf4,fatf-tbml-2020,6,1,,,,,미검토,용어 키워드 0 — 미검토
+d14fac8e416eaf56c99a6eafec733b48e6edeb7d9816ad73b1a9243912b2e869,fatf-tbml-2020,6,2,,,,,미검토,용어 키워드 0 — 미검토
+2dba96aceff4271df1dbbebb84c439094ead9874dada718cc55d9ff93cd1ca12,fatf-tbml-2020,6,3,,,,,미검토,용어 키워드 0 — 미검토
+7e8d7470efd02276c79b691e8caef12cc14878704af30ba73dfe14b98d38b721,fatf-tbml-2020,7,1,,,,,미검토,용어 키워드 0 — 미검토
+367744551408bf935e010d97338c28c36a5ef59a84736e06f6cd0f10d19eaa52,fatf-tbml-2020,7,2,,,,,미검토,용어 키워드 0 — 미검토
+433756425846c9cffdcf8b35a74c02e1da30a320b47cd9eb84c899f60ae3b1c6,fatf-tbml-2020,7,3,,,,,미검토,용어 키워드 0 — 미검토
+101cda2c9d7c6e0add2a00e1e9e0cf4caf15c4220e52ffe2db35bf2c8d30fab2,fatf-tbml-2020,8,1,,,,,미검토,용어 키워드 0 — 미검토
+886c006a939608266e8cc69ed937511677606ed71b4d3bff06c980185772b4ea,fatf-tbml-2020,9,1,,,,,미검토,용어 키워드 0 — 미검토
+1b4e34086095a130930e9c78857e610218d5be652fe133d61fc99e35606f49f2,fatf-tbml-2020,9,2,,,,,미검토,용어 키워드 0 — 미검토
+9bf839be4b508cbea608408c0cd30123fd8c287234dad16f017e1de8d7e7c4f9,fatf-tbml-2020,10,1,,,,,검토,"보고서 목적·구성, structured 키워드 오탐"
+7a02e832c98254216b1298cfd2e2a6e0f4733256424665128c02db10688ce337,fatf-tbml-2020,10,2,,,,,검토,"보고서 각 장 소개, 키워드 오탐"
+012efd3c197839afaded03ce6795b9647f8c7df69a490eca1ac6e0fabd957c2a,fatf-tbml-2020,11,1,,,,,미검토,용어 키워드 0 — 미검토
+fbfb4c1b0de8cd90698b9044bb9b176f0c70ca4dc63050df630e3cd0f5323164,fatf-tbml-2020,11,2,,,,,미검토,용어 키워드 0 — 미검토
+21c8fb590c4d651451e010d77c84e62b0127bb153f85f6f7d9915fb3220cfbab,fatf-tbml-2020,12,1,,,,,미검토,용어 키워드 0 — 미검토
+e4b06460e4582bdbab9bde719d4dcd85a899580ab76d93f02b7947e0b71625e7,fatf-tbml-2020,12,2,,,,,미검토,용어 키워드 0 — 미검토
+c846324eee5e4d038c70b730bb8ad16d8a6c4308498697e8d860bc440bfa62d5,fatf-tbml-2020,13,1,,,,,미검토,용어 키워드 0 — 미검토
+bf7335aaee034e3ddc6a76f146db94f3cd43989eeae75743cb8b5492b0c7a219,fatf-tbml-2020,14,1,,,,,미검토,용어 키워드 0 — 미검토
+d939974ee0c5bc04aff54f5f25d45dab4949a1d57d5b456e0cec1f929b059947,fatf-tbml-2020,14,2,,,,,미검토,용어 키워드 0 — 미검토
+1662ba93df426da60af4940e2c9771eabe4d3195e198493f7155b56bc5deeac6,fatf-tbml-2020,15,1,,,,,미검토,용어 키워드 0 — 미검토
+4362eeee4b2f00093aa77e185fc16b2910638e69bf8b298cf18040555448fe3c,fatf-tbml-2020,15,2,,,,,미검토,용어 키워드 0 — 미검토
+81cab557e8ddbad827ee516a369a5a8e0a8db8f02590ded0c8d80b8c147e3466,fatf-tbml-2020,16,1,,,,,미검토,용어 키워드 0 — 미검토
+21e35ecd70a0a89d002da1abdad02e452e55423086d53775f1fa4e815f470c2c,fatf-tbml-2020,17,1,,,,,미검토,용어 키워드 0 — 미검토
+e27eeb52d3da173d7a3c72c8aa597c63e6be471e6b799041b6ad47ab55b80ab6,fatf-tbml-2020,18,1,,,,,미검토,용어 키워드 0 — 미검토
+637925884ee2ca26bba6f7533d8967a08297e6793e91110678d3a2f9434736a2,fatf-tbml-2020,18,2,,,,,미검토,용어 키워드 0 — 미검토
+aee677509b6b7ce4bfe647b9238b56bf493cb5a3ba6c3785ab066ab94ee6c857,fatf-tbml-2020,18,3,,,,,미검토,용어 키워드 0 — 미검토
+2616b6062495764ebae6790ee44ad2bd68aa688ab6200e8d4d06fcc458082284,fatf-tbml-2020,19,1,,,,,미검토,용어 키워드 0 — 미검토
+1350d900c11147672b610695ea01b391dcd70df24f3219051b1abb8f03064984,fatf-tbml-2020,19,2,,,,,미검토,용어 키워드 0 — 미검토
+2cc15f5f9f84f70260dd37e7874db20043f1baf5c30e008b6d3001cd353f4328,fatf-tbml-2020,20,1,,,,,미검토,용어 키워드 0 — 미검토
+bc588ab17bddb48e8efd1c0c2947ccbba6464f2e9a370df17188110df9bf881c,fatf-tbml-2020,20,2,,,,,미검토,용어 키워드 0 — 미검토
+4dd6eda0e56770e7fbc20a84047da5c58299b451399f1dc109d76c1c16d316e7,fatf-tbml-2020,21,1,,,,,미검토,용어 키워드 0 — 미검토
+1b9114dc2fc92fbc44d49084b315c5abed797b719fa5806921c629cfc50f16ac,fatf-tbml-2020,21,2,,,,,미검토,용어 키워드 0 — 미검토
+b958a7aaa97636193dfcabdb8e2f977ca377a6d5cbd3fb3a8ed3a1f565c4c91c,fatf-tbml-2020,22,1,,,,,미검토,용어 키워드 0 — 미검토
+0665e2099af19b0b2aa642b6f15f6231f3f59e63ab40d9263f219059156107d0,fatf-tbml-2020,22,2,,,,,미검토,용어 키워드 0 — 미검토
+b6a03edbdf09a939a7400f2619a903e2dde2e4c6a3dffeabc497455f78f73d6f,fatf-tbml-2020,23,1,,,,,검토,"금·차량 이용 TBML, 가격 허위신고, 구조 없음"
+c11e91c560f2279c41c316dff08b893a7f7b94ab0a8f9a580d480c362db2360c,fatf-tbml-2020,23,2,,,,,미검토,용어 키워드 0 — 미검토
+77b5273727973598985e604962546f5892c230f2e3bf30ab4a9f6fe275078259,fatf-tbml-2020,24,1,,,,,미검토,용어 키워드 0 — 미검토
+bb8cc3ea06a1ccd4b8a312e081cc7db7478494d30002d4272f6883d0192aee61,fatf-tbml-2020,24,2,,,,,미검토,용어 키워드 0 — 미검토
+0110f9b51f5e689e7b5f95a005cee21183914443cad224de884e6a70438dec52,fatf-tbml-2020,25,1,,,,,미검토,용어 키워드 0 — 미검토
+2eade7198ce51b2b16e28fd64cf5f3c580aff5dd80f07c33f127fc376a420bc4,fatf-tbml-2020,25,2,,,,,미검토,용어 키워드 0 — 미검토
+61a23bede43d4b5ac29fa534eac88bb62969cb575e5da31db50c994a3b70d7f3,fatf-tbml-2020,26,1,,,,,미검토,용어 키워드 0 — 미검토
+0b76d7a3c03d84fa51cd74a4039ca72951091b4a81e8b9f961a817273d18c34b,fatf-tbml-2020,26,2,,,,,미검토,용어 키워드 0 — 미검토
+8cc8355f653c5c1ca961e682b2e049d006577a0122c9f384d9c6ec8d558a111c,fatf-tbml-2020,27,1,,,,,미검토,용어 키워드 0 — 미검토
+502435b828ef6cb2ffb9aebad7ab181b73751937ecdfb8d98ca2c1313b015554,fatf-tbml-2020,27,2,,,,,미검토,용어 키워드 0 — 미검토
+4bc596cb3935688a1a700a4e3ea806fb21618f8a66f10a2171f16cc9511ca144,fatf-tbml-2020,28,1,,,,,미검토,용어 키워드 0 — 미검토
+06c08131ca18c753524250e144eb430abedbb53262bc9381ecb02fb4b088d47d,fatf-tbml-2020,28,2,,,,,미검토,용어 키워드 0 — 미검토
+d34edd56282f9949b66ac8017162d59e15d9cab2fbc4307de0b5b88adf6d7198,fatf-tbml-2020,29,1,,,,,미검토,용어 키워드 0 — 미검토
+1fa1e73a1ae4e9f2e8e0d66f79706db3b71b0cb61736d1e4bf4b997bde18f455,fatf-tbml-2020,29,2,,,,,검토,"여러 계좌→공급자들, 한 곳 집중 아님"
+46d90611fdbd572608137400f96dacbed36e90cdf0ea688b2d25343bc48eaa05,fatf-tbml-2020,30,1,,,,,미검토,용어 키워드 0 — 미검토
+aa9fe2b72b3d24fb29a5dfb5f829003c12adeb1ed0536b115fe0ac1f237077fa,fatf-tbml-2020,30,2,,,,,미검토,용어 키워드 0 — 미검토
+179d462d7a20ee0fc8b111b999616a18e2acde8e0789406098d516ccc9976ebc,fatf-tbml-2020,31,1,,,,,미검토,용어 키워드 0 — 미검토
+b68798873620b70e393619032bd701042895d6759e1db77931bc6a93f2fa382d,fatf-tbml-2020,31,2,,,,,미검토,용어 키워드 0 — 미검토
+670b3db190338f41007e45d99cfc9edf703ee88021538a624a0cdc1ae912ed52,fatf-tbml-2020,32,1,,,,,미검토,용어 키워드 0 — 미검토
+8467f811af3d52d75ec81150ba7cba972b5e0a4b89d2f3186cc43752a7af024e,fatf-tbml-2020,33,1,,,,,미검토,용어 키워드 0 — 미검토
+700a93e11112722c5f884bfe0b5512c932c5f7dbecae530b7445501764e764ea,fatf-tbml-2020,33,2,,,,,미검토,용어 키워드 0 — 미검토
+4bb259c9967e3478f6f5f09cec898de1882b0799f2a118c21bedbac622418059,fatf-tbml-2020,34,1,,,,,미검토,용어 키워드 0 — 미검토
+cdd3fb70cc199d1e913dddcf357c9d6036c949e04d8456be9e4fe3c76ca60305,fatf-tbml-2020,34,2,,,,,미검토,용어 키워드 0 — 미검토
+fe45d1f4ce9c9be3013789ce80bcb496ec2927ac012c3b888bcb2290faf081c8,fatf-tbml-2020,35,1,,,,,미검토,용어 키워드 0 — 미검토
+0ba90192ab9ac532af3f87825c3ad488da79551d4b15e91d05d0785694a0002e,fatf-tbml-2020,35,2,,,,,미검토,용어 키워드 0 — 미검토
+07f85fb298bba9117549c372fb252548057bb375df710e9f59309d3c88f16064,fatf-tbml-2020,36,1,,,,,미검토,용어 키워드 0 — 미검토
+d3d99a3662e65f2acc5c44d0b79f044131f89866221b255bc8f26a048f929779,fatf-tbml-2020,37,1,,,,,미검토,용어 키워드 0 — 미검토
+d9ebec64b5e67171568c262a8232ceede8453051721042ae1556e84009f7fb44,fatf-tbml-2020,38,1,,,,,미검토,용어 키워드 0 — 미검토
+ddf9b7eb09b54e52df117f070479e53610e61448f4ee422ff34956529d82f672,fatf-tbml-2020,39,1,,,,,미검토,용어 키워드 0 — 미검토
+87cfbb3a5896ab0274a87e350a2a91f41355aa1c73598e13262501c5609d67f0,fatf-tbml-2020,39,2,,,,,미검토,용어 키워드 0 — 미검토
+77170405b2d23887a26df3af4c2fbc7648aa3c886f1e098545e2cd5c0871e63e,fatf-tbml-2020,40,1,,,,,미검토,용어 키워드 0 — 미검토
+f4853ef1a4b5450f1caba405547795dabcb185857d570232755db80c9307c20a,fatf-tbml-2020,40,2,,,,,미검토,용어 키워드 0 — 미검토
+d2b8a36454d13b9484a08bb2e821e21b03bcc32d37ca2901e3b4b84513a98ae9,fatf-tbml-2020,41,1,,,,,미검토,용어 키워드 0 — 미검토
+d4b70256abdb12af37f502da7ea530dcd58985dee9dbf002e011a830e7e4ca27,fatf-tbml-2020,41,2,,,,,검토,"기관 간 데이터 공유 어려움, 키워드 오탐"
+9b24d3c22c4ce4b4e626b5210128f940fa5ec9ecf8b1df97effb9410f2980816,fatf-tbml-2020,42,1,,,,,미검토,용어 키워드 0 — 미검토
+af44f88f54c8dde888b99ad4b07b6de23415cf3c7a25fc0158e841cd23693bf2,fatf-tbml-2020,42,2,,,,,미검토,용어 키워드 0 — 미검토
+5f2ee48dd8670c919e4ac717c07209a2fd543102f4ba727a53c57a60e146351a,fatf-tbml-2020,43,1,,,,,미검토,용어 키워드 0 — 미검토
+283652295cceebf616021bd5fe411d68ceeddc49e78472e0fb3d941f1b0acfce,fatf-tbml-2020,43,2,,,,,미검토,용어 키워드 0 — 미검토
+1567548b93caa88c265b224f8e55cdbe6eef0ca4057e40c9b22bf995723261ec,fatf-tbml-2020,43,3,,,,,미검토,용어 키워드 0 — 미검토
+a4eb7e83a51551054d0a2f9954a23f6b1b6a3358cc86a4843128031fde913b73,fatf-tbml-2020,44,1,,,,,미검토,용어 키워드 0 — 미검토
+208c82622da9e3a71100816566134690e0f7a9f1c326193c6fd89d4ab081c8cd,fatf-tbml-2020,44,2,,,,,미검토,용어 키워드 0 — 미검토
+8ae588dba7b3fde95debf46de94a05ba9b332fcca496181fedca55a333b4d461,fatf-tbml-2020,45,1,,,,,미검토,용어 키워드 0 — 미검토
+2dfda188ebf1c2685b86f4e99a4bcf05e38af8c058188aeee6d7974e94b42735,fatf-tbml-2020,45,2,,,,,미검토,용어 키워드 0 — 미검토
+4c46aacdc50c14976873ab1b578ee5c6bba5974abb52533f71ab8bfc8c51f9b9,fatf-tbml-2020,46,1,,,,,미검토,용어 키워드 0 — 미검토
+c0ad73a67114f7eb6b005d4d2171246f03ad758cdf6d770e6010eca70de0134e,fatf-tbml-2020,46,2,,,,,미검토,용어 키워드 0 — 미검토
+e2527ae3f469daeddab2d8c8bc6578037ad759761701d36b79959a8ede50d3ad,fatf-tbml-2020,47,1,,,,,미검토,용어 키워드 0 — 미검토
+426f7eab49ca22c00f19bc707f9984e523548aaabbeb944223da641cb88b40cf,fatf-tbml-2020,48,1,,,,,미검토,용어 키워드 0 — 미검토
+bc55a4a2bf63d8a341ea65c72bf68e7c0dea7d371f735f0052ff70332a189143,fatf-tbml-2020,49,1,,,,,미검토,용어 키워드 0 — 미검토
+5296c62718b82f2f276e5c47505e9a3d5e6ce25b27febf3dea5742fb418b0d3d,fatf-tbml-2020,50,1,,,,,미검토,용어 키워드 0 — 미검토
+6708b47fa3e1b54ce9a137d08b548b979e5abd7caa14b0e836ae8de3ce7c5666,fatf-tbml-2020,50,2,,,,,미검토,용어 키워드 0 — 미검토
+f27aab2fa336d9ccd1ce2dc2d3c9bc3dcfea2b6eb589015f76d227493984fdd8,fatf-tbml-2020,51,1,,,,,미검토,용어 키워드 0 — 미검토
+3282429ac4196f9c4d7950c7a1da421b78d600c9b8aeb06cd347637f02072e7e,fatf-tbml-2020,51,2,,,,,미검토,용어 키워드 0 — 미검토
+dae269efed5ff8e8353465424601d5936092f241000823862b0f947ef02b695c,fatf-tbml-2020,52,1,,,,,미검토,용어 키워드 0 — 미검토
+fa7731dc4d1e1be2fa18c4e78923748845e7b8935e27b73ce9cd06fb66830cef,fatf-tbml-2020,52,2,,,,,미검토,용어 키워드 0 — 미검토
+3383b7278fb079c19f647347c5a2cab0fbcff28491e2566177919ceecb3908a6,fatf-tbml-2020,53,1,,,,,미검토,용어 키워드 0 — 미검토
+7e5d8ea759e731c558067d9df0da55e48057562577ed309ebc7a5d2347313a10,fatf-tbml-2020,53,2,,,,,미검토,용어 키워드 0 — 미검토
+60d581b201e7aece2368f0761b8d56e97854286a11ae65a20263727e3d6d8043,fatf-tbml-2020,54,1,,,,,미검토,용어 키워드 0 — 미검토
+240ac92407a0101548e4259347dcfdf8d00830671225e6d042c638faa0dec8e7,fatf-tbml-2020,54,2,,,,,미검토,용어 키워드 0 — 미검토
+54e0a2bf533d8ecdbaee01cf3b6b7ae4b5d7387686274ca180bfa765b0fa93ea,fatf-tbml-2020,55,1,,,,,미검토,용어 키워드 0 — 미검토
+2420e26049ee9a5440b8853b2a918d40677a3678e5b170f124e5f60efd31f6c1,fatf-tbml-2020,55,2,,,,,미검토,용어 키워드 0 — 미검토
+08906a46fd87069398d6b967cd40b9323e1aa63f212f2345a2f03bcf25e7d2b9,fatf-tbml-2020,56,1,,,,,미검토,용어 키워드 0 — 미검토
+9e07f81d39282cb22f56d67154c5ae23994b973289c6ecc4f66650769bae92ed,fatf-tbml-2020,56,2,,,,,검토,"세관 역할·화물 분석, layering 언급만"
+96be48cdd2911feb64da5a52c127930cca14de3bf89aa1886f05b83e0f03fc1e,fatf-tbml-2020,56,3,,,,,미검토,용어 키워드 0 — 미검토
+1fc50c18f596272b4eee40170759d9b6415284185b4c39fdde8ed3d5c36e823a,fatf-tbml-2020,57,1,,,,,미검토,용어 키워드 0 — 미검토
+a6b73e229f8b66d61087c4dd3618f11696af9fab40302f5790ece6dd3cf558f6,fatf-tbml-2020,57,2,,,,,미검토,용어 키워드 0 — 미검토
+3f013af20c04f9ac31f4a94961505b97ffb4b0e19473e63b2c4aa26d0dcecd46,fatf-tbml-2020,58,1,,,,,미검토,용어 키워드 0 — 미검토
+edd82f5bf9490e1c401352bb82ade5e519686a3a0479c0ee878fcb5b474069e5,fatf-tbml-2020,58,2,,,,,미검토,용어 키워드 0 — 미검토
+af74fc5933ca956b114d9c57ccee19f65406b2bb4bd5d20177867cdab10ae7e2,fatf-tbml-2020,59,1,,,,,미검토,용어 키워드 0 — 미검토
+16a0324d9c392faec343ae84aa5423311bc85da83d9791746c9dcc23369b7ed8,fatf-tbml-2020,59,2,,,,,검토,"TBML 공조 조직 사례, 키워드 오탐"
+242a28fa17b0e1e9be6328d9f37db5cde3212ea5ea4c4003ae3277397f3bcac0,fatf-tbml-2020,60,1,,,,,미검토,용어 키워드 0 — 미검토
+bb2407e5865c8836a48a9e3045696a9b09abbe8ebf493df47c3ba8f8032d9cea,fatf-tbml-2020,60,2,,,,,미검토,용어 키워드 0 — 미검토
+82a148245c2cccaa4d64245204eceeef685b7dd23b82316f338997512fabd451,fatf-tbml-2020,61,1,,,,,미검토,용어 키워드 0 — 미검토
+454ac1a9464cba4f3ff216aa81dd9c8fa3eb559ae838dd112f3fa0ff39891c07,fatf-tbml-2020,61,2,,,,,미검토,용어 키워드 0 — 미검토
+86aeb9c026679c85fe7e1a57c4cd7b0e32257c39faa2e5ec28d86e2ee4fad04f,fatf-tbml-2020,62,1,,,,,미검토,용어 키워드 0 — 미검토
+8e75e5fedceac76defba0122de8869bc2c3ec5d8a8ab2970060aa45f8c4db857,fatf-tbml-2020,63,1,,,,,미검토,용어 키워드 0 — 미검토
+9966da4d58158dbbd9f42c5f6f95f962038de1f95513e6a6626d1255b031a8c9,fatf-tbml-2020,64,1,,,,,미검토,용어 키워드 0 — 미검토
+b529ef7b9d61dbe1666d172048ea74586b03e2e18972ff8db771708e273a152b,fatf-tbml-2020,65,1,,,,,미검토,용어 키워드 0 — 미검토
+de14236c1a86eb2f460776b386d6d33bb1fcf9643dc5b1e35308aa6d3d041f99,fatf-tbml-2020,66,1,,,,,미검토,용어 키워드 0 — 미검토
+f5ed1ff6983d857e52d5ed4f6e363dccecb6109496daba2d65b8720bba73754f,fatf-tbml-2006,1,1,,,,,미검토,용어 키워드 0 — 미검토
+c9467735139bdc6f5780c155a769decd3ef1912245941f3d8ae10f928ff5e5cd,fatf-tbml-2006,2,1,,,,,미검토,용어 키워드 0 — 미검토
+aa95736ca113a040994987209b3b7a43bee1b3e629ddae5435b7c4a3cecc9857,fatf-tbml-2006,3,1,,,,,미검토,용어 키워드 0 — 미검토
+fd6d9b14f8bacd26816a5d61502dfcfc9e81a26cac104e62f2fcd881e95e2cd1,fatf-tbml-2006,3,2,,,,,미검토,용어 키워드 0 — 미검토
+34b25a5698950817bba51b184ef7b92ee907b1ca55a2ed1b4f3b7b373f4d98a1,fatf-tbml-2006,3,3,,,,,미검토,용어 키워드 0 — 미검토
+7edd98632c1151b2268608da6d95805457141e5409e44c6463652bee883400c6,fatf-tbml-2006,5,1,,,,,미검토,용어 키워드 0 — 미검토
+632719bf853f51d40161a909cd0dff24b8a3c4370919d83fa4fc951b0acf430b,fatf-tbml-2006,5,2,,,,,미검토,용어 키워드 0 — 미검토
+fa342f81686d94f3efd65c4e3ed1f4542406b92d9d7206c80d3605200dc33d2f,fatf-tbml-2006,7,1,,,,,미검토,용어 키워드 0 — 미검토
+8b937de32c8becd7d9b6a4bf5244bd1dc7613f5c5f5ed4dfa0e09d54055508d1,fatf-tbml-2006,7,2,,,,,미검토,용어 키워드 0 — 미검토
+67dee67ed2b30df269fbe0d89330e7ff1a4434e3d2b9f5fc550896975b5bbcdd,fatf-tbml-2006,8,1,,,,,미검토,용어 키워드 0 — 미검토
+33fc894c70464b21f857b4d25a30cdfadd24b00d29b5e618f476975faae18e77,fatf-tbml-2006,8,2,,,,,미검토,용어 키워드 0 — 미검토
+5f00e974cdc50ebd08ec36c0dd9e0bc259da1f66016911edf19a93155af00189,fatf-tbml-2006,9,1,,,,,미검토,용어 키워드 0 — 미검토
+75717018dcc7754d1a8273410a2b2661f7e03926afa6f46421f313d2b569c7f1,fatf-tbml-2006,9,2,,,,,미검토,용어 키워드 0 — 미검토
+8f42e6ec835240a195fd9fc171159bc9c9ce5144c2e2c38d223251b4e09f7d4f,fatf-tbml-2006,9,3,,,,,미검토,용어 키워드 0 — 미검토
+24739f8d92a021c6230d3c3b98396641553904f7ff8d56507b7ea39cc5b4d581,fatf-tbml-2006,10,1,,,,,미검토,용어 키워드 0 — 미검토
+587234805f0f94dba817937428c7927d6a185946fbff23e2e7da6f7df68298f3,fatf-tbml-2006,10,2,,,,,미검토,용어 키워드 0 — 미검토
+27f9f09ab3333dd4d76682b15dadfbc2b0832d579e33de8a5c500cf2200226b1,fatf-tbml-2006,11,1,,,,,미검토,용어 키워드 0 — 미검토
+afcd7ff41fa80c357cdd4b8a1cf2233064b302c8768edc03338a3f70ac4a9256,fatf-tbml-2006,11,2,,,,,미검토,용어 키워드 0 — 미검토
+d7927f94787d5f43ac4f04c43d7e2946de63bffabaebd91c5656ad5e3419ab01,fatf-tbml-2006,11,3,,,,,미검토,용어 키워드 0 — 미검토
+9a19dc031c9b27d1476ec49ec5c6e3fffdd81f29924e9513efde3dab86aec78a,fatf-tbml-2006,12,1,,,,,미검토,용어 키워드 0 — 미검토
+84ab710186e3937591c97e3f7e4f31c554fb920c27181536bb717fc3fcb3ee36,fatf-tbml-2006,12,2,,,,,미검토,용어 키워드 0 — 미검토
+906908130441714c33f2f3ac328a4202f6101adcdd903c7d8b8105d936c474b4,fatf-tbml-2006,13,1,,,,,미검토,용어 키워드 0 — 미검토
+f63099192d03cafcf6597bebb9243cdb52876c8546dbb40ffab3c9871172980e,fatf-tbml-2006,13,2,,,,,미검토,용어 키워드 0 — 미검토
+5cac7764481f458266f171050de0e4b19e2995452fcf8197e9d513e6b2f83cf5,fatf-tbml-2006,14,1,,,,,미검토,용어 키워드 0 — 미검토
+b59ecb63c5ae89ea9b1c5cb7a66c80b831c8861f4d3edc7113b1da5b9f18a492,fatf-tbml-2006,14,2,,,,,미검토,용어 키워드 0 — 미검토
+5fe0bbb32dbd7c0fb0f3f90c48b0eaab49e96dd0533735dd232b8d35f04b51ec,fatf-tbml-2006,15,1,,,,,미검토,용어 키워드 0 — 미검토
+52e74ab1a3d7b34aca42fe38aded8402b2425b2f4d57f0e1b53523a0daf05a7d,fatf-tbml-2006,16,1,,,,,미검토,용어 키워드 0 — 미검토
+deae6d7a96accf2221b87de4a12a3746c5c659081961cc5eda183e4896646e36,fatf-tbml-2006,17,1,,,,,미검토,용어 키워드 0 — 미검토
+eb348a153aad4aff4fff6539aedf9f10a4494cf3fbf543c6b0883a8690b8f0f8,fatf-tbml-2006,18,1,,,,,미검토,용어 키워드 0 — 미검토
+ae857bd2a517315e4f41251943c9ba01397e7b37bea7b3a5a45dfc9569b16ec2,fatf-tbml-2006,19,1,,,,,미검토,용어 키워드 0 — 미검토
+4669e0c27c4ad0f85b61fec54a2b3815c41246126104748281828053bbb6e54d,fatf-tbml-2006,20,1,,,,,미검토,용어 키워드 0 — 미검토
+0f0ee9499975106f2a5da171317ffe85c7da4507f7621e65792d9c9c8076a813,fatf-tbml-2006,21,1,,,,,미검토,용어 키워드 0 — 미검토
+ff84d17b24754dbcf975ed9c2522b03c7ac0edc9afb3da8b3a4027d90c69c750,fatf-tbml-2006,22,1,,,,,미검토,용어 키워드 0 — 미검토
+b87f66efcd6df3a6264070dd210c4a3dbc4b029db21536e1bff0576f48fc65f3,fatf-tbml-2006,23,1,,,,,미검토,용어 키워드 0 — 미검토
+8f5b2475d6217b6a5bff711dc7ac3057c6f1804de1403031005f6b0004440e76,fatf-tbml-2006,24,1,,,,,미검토,용어 키워드 0 — 미검토
+5fe342a52dedb4d2f73f5b6d572d82bcafca2da54e4215d44ba23e49c12702d4,fatf-tbml-2006,25,1,,,,,미검토,용어 키워드 0 — 미검토
+3e7566e4b684eef7c6277e47ad1efad1125dd7513cd2d973d4e82e4c17c3d853,fatf-tbml-2006,26,1,,,,,미검토,용어 키워드 0 — 미검토
+c6436231f902c88ffbfc4ec8087e09778c9d546ed0245d75006ccd64db47600f,fatf-tbml-2006,26,2,,,,,미검토,용어 키워드 0 — 미검토
+e7e096f7a6598887ee01d0602c0dc405f95d3dff478f4b03473f9a8a9e12e9b6,fatf-tbml-2006,27,1,,,,,미검토,용어 키워드 0 — 미검토
+19d827cf9e798013fb6f2c2c280020ff1ab975d4a7e996d18679508d4e5c1339,fatf-tbml-2006,27,2,,,,,미검토,용어 키워드 0 — 미검토
+8a5ed7b39321e88288af614b5866f0b806d1c42cb66b7f7811772ca3166ff0ff,fatf-tbml-2006,27,3,,,,,미검토,용어 키워드 0 — 미검토
+19373401de6f16afe789f59ccfcad3976d117a749e71ad92d8236b3a99af0ab7,fatf-tbml-2006,28,1,,,,,미검토,용어 키워드 0 — 미검토
+140151864b49f78568ee55e3d863e29e9738d2f45aa0170e71589f76a7e82ca7,fatf-tbml-2006,28,2,,,,,미검토,용어 키워드 0 — 미검토
+8d75e66c79830098319f0d263155464857ae432702b6bf987a5d8961834f5ec1,fatf-tbml-2006,28,3,,,,,미검토,용어 키워드 0 — 미검토
+0de46c67fb05db1ef52593320fbc158c62933255e86871b6b983cf23b478df25,fatf-tbml-2006,29,1,,,,,미검토,용어 키워드 0 — 미검토
+fa380d70fabdd7e1fab87e0deba60ad17daa4040f0f8609f087c7c293134c131,fatf-tbml-2006,29,2,,,,,미검토,용어 키워드 0 — 미검토
+b8f81deb087ae0a0c2b0010a7ad69e2a8b03f00a1fa58b8d431f3710349adb80,fatf-tbml-2006,30,1,,,,,미검토,용어 키워드 0 — 미검토
+f14deb95f0b9db72bf45696ed61632f3d621e72f5a8193018ff028069dfb46cd,fatf-tbml-2006,30,2,,,,,미검토,용어 키워드 0 — 미검토
+90afdf7af261740a11d38f23e60fe044ceb259eabdd142e75811d690f137585a,fatf-tbml-2006,31,1,,,,,미검토,용어 키워드 0 — 미검토
+8507dd1283b237e5c263a85f93e7f5b96308f54aca3d44ab91f86fd0c949d879,fatf-tbml-2006,31,2,,,,,미검토,용어 키워드 0 — 미검토
+8a67181b81ab0e3be098f27069c07e31378510b66ffef1c6f0e4350d880a8092,fatf-tbml-2006,32,1,,,,,미검토,용어 키워드 0 — 미검토
+e1ff93511ae24ab6b8e96352b18beca2e61bac65e5fdf18ba1492d3cf8814389,fatf-tbml-2006,32,2,,,,,미검토,용어 키워드 0 — 미검토
+457f60034408fd974ec900ff67f74ac411b0a2d1313845d63fac5f5f0f79bb29,fatf-tbml-2006,33,1,,,,,미검토,용어 키워드 0 — 미검토
+6b48dfa441e9a8f6e36a17bde7ce88f273d58f8477874a7b84417ce47e44c855,fatf-tbml-2006,34,1,,,,,미검토,용어 키워드 0 — 미검토
+48a9e96281ce2e473c32089aaa24c3cda9d2b15ff6bbb0f55165c1e71b3e358a,fatf-tbml-2006,35,1,,,,,미검토,용어 키워드 0 — 미검토
+206e74907d2feb350c17f9cfba2d2453db9ba2418c2daaccce9d2a76712ccfec,fatf-tbml-2006,36,1,,,,,미검토,용어 키워드 0 — 미검토
+77cdc2c9fbcbb5a5cdb69c80b3d266164bed2642e3d4d8989a03728cf0db9ef0,fatf-tbml-2006,37,1,,,,,미검토,용어 키워드 0 — 미검토
+a22a323c9c3800770c6d8c96aacb0a7d835cadea4137bab768341cfb95a9074b,fatf-tbml-2006,38,1,,,,,미검토,용어 키워드 0 — 미검토
+9e965a61bfa14c02696f303feecbde39351ea535035b57bd47cc98616574eaeb,fatf-tbml-2006,39,1,,,,,미검토,용어 키워드 0 — 미검토
+87a7cd32189d2773fede37d33c19090cceae8396dcdbe94ec621e1e8abe078fd,fatf-tbml-2006,40,1,,,,,미검토,용어 키워드 0 — 미검토
+8ff3d52e9ec5423828564f183daf5af164b285ae6042e59fbfb0cd08d71afc50,fatf-tbml-2006,41,1,,,,,미검토,용어 키워드 0 — 미검토
+a36909754e3b80bac987667c0b285a0f48059ee0c01166ea52873e8ef8655e32,fatf-tbml-2006,41,2,,,,,검토,"용어집, smurfing 정의뿐 모이는 구조 없음"
+606ad76250422632a6b6e94fb2cb332b8c898a0e934e28634fffbbecd086f3b4,fatf-tbml-2006,42,1,,,,,미검토,용어 키워드 0 — 미검토
+5cfd41c68d93eb7f12bb677a0ebfa92f404af135ca56aa998789957d07cb8940,fatf-tbml-2006,42,2,,,,,미검토,용어 키워드 0 — 미검토
+748bb56d6792c690cd93a3566562286bb01facf0dfdc5ff0adf771dc437b5d12,fatf-tbml-2006,43,1,,,,,미검토,용어 키워드 0 — 미검토
+a5ca9dc6cc3ccda40a7ed7210dfe5e0b7f6ba293c663ea67fc15b819d364883e,fatf-tbml-2006,43,2,,,,,미검토,용어 키워드 0 — 미검토
+6e099ba9f507b5903c23c6748895e1e1c944e3ebc1d071fe63bdec09230d4223,fatf-tbml-2006,44,1,,,,,미검토,용어 키워드 0 — 미검토
+6ab0177f9b9a24b3e9875559d5ac6c29964c178cc7504a8741527dcb5e827276,fatf-tbml-2006,44,2,,,,,미검토,용어 키워드 0 — 미검토
