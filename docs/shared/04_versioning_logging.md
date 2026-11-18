@@ -43,6 +43,24 @@ JSON 한 줄 로그(stdout). **칸 이름은 백엔드(`dajaba`)와 같다**(SCR
 - Loki 조회 예(Grafana Explore): `{compose_service=~"app|ai"} | json | request_id="<값>"`
 - **남기지 않는 것**: 계좌번호(원본·가린 값 모두) · 금액 · narrative/summary 본문 · 프롬프트 전문 · 조사역 메모 · API 키 · 요청/응답 본문. ID·건수·길이·시간·코드값만. 본문이 필요하면 `generations` 테이블에 있다. DB 오류 메시지에는 SQL 파라미터를 싣지 않는다(`shared/db.py` `hide_parameters=True` — 처리 안 된 예외는 스택째 찍히므로). 처리 안 된 예외가 Pydantic `ValidationError` 또는 FastAPI `ValidationException` 계열(`ResponseValidationError` — 라우터 `response_model` 검증 실패)이면 메시지·스택 대신 `error_type`(클래스 이름) + `errors` 의 `loc`·`type` 만 남긴다(Pydantic 은 `include_input=False, include_url=False`). 메시지에 입력값(본문 조각·계좌)이 실리기 때문. 다른 예외는 스택 그대로. 초안·검증·점수 요청 동안 stdout 에 이 값이 없는지 테스트가 지킨다(정상·LLM 오류·DB 오류·요청/응답 검증 오류 경로 — 알려진 유출 없음, `tests/str/test_log_no_sensitive.py`·`_errors.py` · 형식은 `tests/shared/test_log_format.py`).
 
+## 추적 (Langfuse, SCRUM-274)
+
+LLM·임베딩 호출 하나하나를 Langfuse 에 남긴다. 서버는 백엔드 compose `--profile ops` 의 `langfuse-web`(4.82.0, self-hosted), SDK 는 `langfuse>=5.2.0,<6`(v5 = 서버 ≥ 4.59.0, [호환표](https://langfuse.com/self-hosting/upgrade/versioning#sdk-server)). 로그(Loki)는 "무슨 일이 있었나", 추적은 "그 호출에 무엇을 보냈고 무엇을 받았나".
+
+| 호출 | 관측 종류 · name | 남기는 것 | 안 남기는 것 |
+|---|---|---|---|
+| LLM `complete_json` (검증 평가자·초안 안 평가자·고쳐 쓰기·요약·v2/v3 초안) | `generation` · `tag`(prompt_version, 예 `judge_v4`·`summary_v1`·`rewrite_v1`) | model · input(system·user 그대로 — 이미 마스킹된 facts) · output text · usage(`input`·`output` — Langfuse 비용 계산 키) · 지연 · 실패면 level `ERROR` + 에러 종류 이름(클래스 이름)만 | 에러 메시지 원문 |
+| 임베딩 `embed` (RAG) | `embedding` · `embedding` | model · 텍스트 수 · 글자 수 합 · 지연 · 실패 종류 | **텍스트 본문 · 벡터** |
+
+모든 관측의 metadata: `request_id`(없으면 `"-"` 그대로) · `server_version` · (LLM 이면) `prompt_version`.
+
+- **어디서**: `shared/infrastructure/tracing.py` 하나. `make_llm_client`·`make_embedding_client` 가 진짜 클라이언트를 감싼 얇은 래퍼를 돌려준다. `domain/`·`application/`·프롬프트·스키마는 모른다. 녹화 재생(`RecordedLlmClient`, `AI_LLM_MOCK=true`)은 실제 호출이 아니라 감싸지 않는다.
+- **묶기**: trace id = `Langfuse.create_trace_id(seed=request_id)` — 같은 `request_id` 의 호출(초안 안 평가자·검증 평가자 3표·요약…)이 한 trace 에 모이고, 각 호출은 그 trace 의 관측 하나다. 평가자 3표는 스레드가 달라도 `trace_context` 로 trace id 를 직접 넘기므로 같은 trace(OTel 현재 컨텍스트에 기대지 않음). `request_id` 가 `"-"`(요청 밖 호출)면 시드를 쓰지 않는다 — SDK 가 임의 trace 를 만들고, metadata `request_id` 칸은 `"-"` 그대로 남긴다(요청 밖 호출이 한 trace 로 뭉치지 않게).
+- **켜고 끄기**: `LANGFUSE_ENABLED` 기본 `false`(pytest·CI 는 네트워크 없음, 변수는 `05_dev_setup.md`). 켰는데 키가 비었거나 SDK 초기화가 실패하면 경고 한 줄 `langfuse_disabled reason=missing_key|init_failed`(키 값 없이) 남기고 끈다 — 기동 실패 아님. Langfuse 클라이언트는 프로세스에 하나(첫 사용 때 만드는 싱글턴). 전용 `TracerProvider` 를 넘겨 **전역 OpenTelemetry 는 건드리지 않는다** · httpx·openai 자동 계측은 쓰지 않는다 — 명시 호출만.
+- **fail-open**: 기록 중 어떤 예외도 호출 결과·예외·시간을 바꾸지 않는다(경고 `tracing_error reason=<예외 클래스 이름>`, 본문 없음). 원래 LLM·임베딩 예외(`LlmUnavailable`·`BudgetExceeded`·스키마 실패·`RetrievalUnavailable` 등)는 ERROR 로 기록한 뒤 **같은 예외**를 다시 던진다. 요청 경로에서 `flush` 하지 않는다 — SDK 가 큐에 담아 백그라운드 스레드로 보낸다. **Langfuse HTTP 제한 시간은 짧은 상수 `LANGFUSE_HTTP_TIMEOUT_S`, 백그라운드 전송이 멈추거나 느려도 요청 스레드는 기다리지 않는다.** 종료 때만 `lifespan` 이 `shutdown()` 을 별도 스레드에서 돌리고 `LANGFUSE_FLUSH_TIMEOUT_S` 까지만 기다린다(SDK `flush`·`shutdown` 에 제한 시간 인자가 없음). Langfuse 가 꺼져 있으면 OpenTelemetry 전송기가 보낼 때마다 `opentelemetry.exporter.otlp…` WARNING·ERROR 한 줄씩을 남긴다(연결 오류 종류만 — 본문·키·스택 없음, 11/18 닿지 않는 주소로 확인: 호출 3회 0ms, 종료 1.1초).
+- **본문은 Langfuse 안에만**: 프롬프트·출력 본문은 Langfuse 로만 간다. 로그·지표·예외 메시지에는 넣지 않는다(위 "남기지 않는 것" 그대로 — 추적을 켠 상태에서도 테스트가 지킴).
+- **request_id 로 찾기**: ① Langfuse(`localhost:3000`) Traces 표에서 metadata `request_id` 로 필터 ② 또는 trace id 를 계산해 바로 연다 — `uv run --frozen python -c "from langfuse import Langfuse; print(Langfuse.create_trace_id(seed='<request_id>'))"`. 같은 값으로 Loki(`| json | request_id="<값>"`)·`ai.generations.request_id`(초안·요약 행)·`ai.verification_runs.request_id` 와 맞춰 본다.
+
 ## `ai_call_logs`는 백엔드 테이블
 
 백엔드가 AI를 부를 때마다 자기 DB `ops.ai_call_logs`에 요청·응답 메타(상태, 시간, request_id, 버전들, `generation_id`)를 남긴다(백엔드 레퍼런스 8.5, W2~W3 진희, V007). AI 서버는 그걸 모른다. AI 서버 쪽 기록은 `generations`·`predictions`가 하고, 둘은 `request_id`로 이어진다. 테이블을 양쪽에 중복으로 만들지 않는다.

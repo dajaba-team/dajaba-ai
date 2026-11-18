@@ -51,6 +51,12 @@ class Settings(BaseSettings):
     stale_processing_s: float = Field(default=110, gt=0, alias="STALE_PROCESSING_S")
     llm_daily_token_budget: int = Field(default=2_000_000, alias="LLM_DAILY_TOKEN_BUDGET")
 
+    # 호출 추적 (SCRUM-274)
+    langfuse_enabled: bool = Field(default=False, alias="LANGFUSE_ENABLED")
+    langfuse_base_url: str = Field(default="http://langfuse-web:3000", alias="LANGFUSE_BASE_URL")
+    langfuse_public_key: str = Field(default="", alias="LANGFUSE_PUBLIC_KEY", repr=False)
+    langfuse_secret_key: str = Field(default="", alias="LANGFUSE_SECRET_KEY", repr=False)
+
     # 임베딩 (RAG, W4)
     embedding_provider: str = Field(default="openai", alias="EMBEDDING_PROVIDER")
     embedding_model: str = Field(default="", alias="EMBEDDING_MODEL")

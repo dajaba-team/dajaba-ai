@@ -17,6 +17,7 @@ from aml_ai.shared.auth import require_internal_key
 from aml_ai.shared.config import Settings, get_settings
 from aml_ai.shared.db import ping as db_ping
 from aml_ai.shared.errors import install_exception_handlers
+from aml_ai.shared.infrastructure.tracing import shutdown_tracer
 from aml_ai.shared.logging import RequestIdMiddleware, setup_logging
 from aml_ai.shared.versioning import health_versions, scoring_mode
 from aml_ai.str.api.router import router as str_router
@@ -47,6 +48,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     if settings.index_prompts_on_startup:
         index_prompt_files(settings)
     yield
+    shutdown_tracer()
 
 
 app = FastAPI(

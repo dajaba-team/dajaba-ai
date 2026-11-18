@@ -108,6 +108,15 @@ docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -
 | `SERVER_VERSION` | `dev` | 빌드 시 git 짧은 해시 주입 (Dockerfile ARG) |
 | `LOG_LEVEL` | `INFO` | 로깅 레벨 |
 
+### 추적 (Langfuse, SCRUM-274) — 값은 노션
+
+| 변수 | 기본 | 내용 |
+|---|---|---|
+| `LANGFUSE_ENABLED` | `false` | **코드 기본 `false` 유지** — pytest·CI 는 네트워크 없음, `.env` 에서만 `true`. 켰는데 키가 비었거나 SDK 초기화 실패면 경고 1줄(`langfuse_disabled reason=…`, 키 값 없이) + 끔, 기동 계속 (`shared/04` "추적") |
+| `LANGFUSE_BASE_URL` | `http://langfuse-web:3000` | compose 안(`dajaba_default` 네트워크) 주소. 호스트에서 직접 돌리면 `http://localhost:3000` |
+| `LANGFUSE_PUBLIC_KEY` | `""` | `pk-lf-…` — 백엔드 `.env` 의 `LANGFUSE_INIT_PROJECT_PUBLIC_KEY` 와 같은 값 |
+| `LANGFUSE_SECRET_KEY` | `""` | `sk-lf-…` — 백엔드 `.env` 의 `LANGFUSE_INIT_PROJECT_SECRET_KEY` 와 같은 값 |
+
 ### 테스트·녹화 전용
 
 | 변수 | 기본 | 내용 |
