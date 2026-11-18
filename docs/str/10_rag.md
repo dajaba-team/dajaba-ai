@@ -414,6 +414,7 @@ W3 초안 생성·검증이 먼저 서 있어야 한다. 순서를 바꾸지 않
 
 - 목표는 청크 수가 아니라 유형별 커버리지(유형마다 출처 2곳 이상, 관련 청크 N개 — N 은 팀이 정함).
 - SCATTER_GATHER·GATHER_SCATTER 는 규제기관 용어가 아니라 합성 데이터(IBM·AMLSim) 이름이라, 공개 자료에서는 funnel account·pass-through·경유 계좌 같은 말로 찾는다 — 태그 기준에 용어 대응표가 필요.
+- **2차 준비 자료(SCRUM-281, 11/19 — 적용 0)**: `docs/str/rag2/00_tagging_criteria.md`(두 사람 태깅용 공통 기준 사본 — 위치·후보 없음) · `01_term_map.md`(용어 대응표 초안) · `02_untagged_review.csv`(태그 없는 398청크 검토 목록, 키 `chunk_id`=`content_hash`) · `03_sampling.md`(표본 60~80개 뽑는 법·Cohen's κ). 청크는 DB 가 아니라 `corpus/pdf/` + `tools/corpus_chunks.chunk_pdf_pages` 로 다시 나눠 만듦(425 · 빈 398, DB `chunk_id` 425/425 일치). **원문 문장은 옮기지 않고 위치만**(`doc_id · page · 쪽 안 문장 순번`, 문장 순번 = 그 쪽 `get_text()` NFKC 후 문장 끝 `.`·`?`·`!`·`다.` + 공백 / 빈 줄로 나눈 1부터). 목록의 "후보 유형"은 2차 사람 태깅의 출발점일 뿐 **태그가 아님** — manifest·DB 에 안 들어감. 검색·적재 경로는 `docs/` 를 읽지 않음.
 - **이용 조건 원칙**(진희 11/18 — 법률 판단 아님, 허가가 필요할 수 있는 건 하지 않는 쪽, 09 같은 날 줄):
   ① 원문 PDF·추출 텍스트는 리포·이미지에 넣지 않음(리포 공개 · .gitignore corpus/pdf·corpus/text · Dockerfile PDF 제외 — SCRUM-256)
   ② 화면·응답은 문서명·발행기관·연도·쪽·공식 링크만. 문단 발췌는 허가가 확인됐거나 공공 정보인 자료만 — 2차
