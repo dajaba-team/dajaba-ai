@@ -134,7 +134,7 @@ v2 를 복사하고 **아래만** 바꿈. 7섹션·출력 형식·규칙 1~7·9~
 
 **바꾸지 않는 것**: 응답 `narrative` 모양(7섹션 `{section, text, cites}` — `NarrativeOutV2` 와 같음, 백엔드 변경 없음) · `generation_meta` 칸 · facts 스키마·`fact_keys` · 06 검사기 · v1~v3·judge_v3·rewrite_v1·summary_v1 파일 · 기본값 `narrative_v2`. 슬롯·카탈로그 문장이 검사기를 못 지나면 **검사기가 아니라 문장을 바꾼다**.
 
-**카탈로그 판**(SCRUM-269 ★A-1, 09 같은 줄): `prompt_version` 은 문장이 바뀌어도 `narrative_v4` 그대로(평가자 스위치·265·268 기록 기준). 슬롯·판정·카탈로그·표기 사전 문장이 바뀌면 `constants_v4.V4_CATALOG_VERSION` 을 올린다 — `v4-catalog-1` = SCRUM-228~268 문장, **`v4-catalog-2` = SCRUM-269**. 응답 칸은 만들지 않음(규약 JSON 그대로) — 응답 재현은 `generation_meta.server_version`(git 해시) + `prompt_version`(코드 조립이라 같은 facts·같은 커밋이면 같은 본문). 하네스 결과 meta 에 판을 적음(254 2차 결과가 어느 문장인지). 254 2차 dry-run 평가자 user sha256 은 1차와 다름(본문이 바뀜 — 실행 조건은 그대로라 `mode=registered`).
+**카탈로그 판**(SCRUM-269 ★A-1, 09 같은 줄): `prompt_version` 은 문장이 바뀌어도 `narrative_v4` 그대로(평가자 스위치·265·268 기록 기준). 슬롯·판정·카탈로그·표기 사전 문장이 바뀌면 `constants_v4.V4_CATALOG_VERSION` 을 올린다 — `v4-catalog-1` = SCRUM-228~268 문장, `v4-catalog-2` = SCRUM-269, **`v4-catalog-3` = SCRUM-269 2/2**(C0 FAN_IN·FAN_OUT·SG 세 문장). 응답 칸은 만들지 않음(규약 JSON 그대로) — 응답 재현은 `generation_meta.server_version`(git 해시) + `prompt_version`(코드 조립이라 같은 facts·같은 커밋이면 같은 본문). 하네스 결과 meta 에 판을 적음(254 2차 결과가 어느 문장인지). 254 2차 dry-run 평가자 user sha256 은 1차와 다름(본문이 바뀜 — 실행 조건은 그대로라 `mode=registered`).
 
 ### 흐름 — (1/2) 기본 경로는 LLM 호출 없음
 
@@ -292,7 +292,7 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
 
 | id | 조건 | 필수 | 변형 0 / 1 | 짧은 꼴(짝이 켜졌을 때) | cites | requires |
 |---|---|---|---|---|---|---|
-| C0 | 판정 뒷받침 안 됨(SCRUM-265 2/2) — **O-HEAD 바로 뒤**(validate_plan `c0_not_second`) | 필수 | (유형별 한 꼴 — GROUNDS 첫 문장이 이미 한계를 말해 "확인되지 않으므로" 를 다시 안 씀, 짝 짧은 꼴과 같은 이유) FAN_IN: 자금 집중 분류의 근거가 된 송금인별 입금 내역을 확인할 필요가 있음.(입금 0 → "송금인별 입금 내역" 대신 "거래 내역") · FAN_OUT: 자금 분산 분류의 근거가 된 수취인별 출금 내역을 확인할 필요가 있음.(출금 0 → "거래 내역") · CYCLE: 경로 확인 자료를 보완할 필요가 있음. · SCATTER_GATHER: 분산 후 집중 분류의 근거가 된 중간 계좌 경로 자료를 보완할 필요가 있음. | — | `typology` | typology_unsupported |
+| C0 | 판정 뒷받침 안 됨(SCRUM-265 2/2) — **O-HEAD 바로 뒤**(validate_plan `c0_not_second`) | 필수 | (유형별 한 꼴 — GROUNDS 첫 문장이 이미 한계를 말해 "확인되지 않으므로" 를 다시 안 씀, 짝 짧은 꼴과 같은 이유) FAN_IN: 자금 집중 분류를 판단하려면 송금인별 입금 내역을 확인할 필요가 있음.(입금 0 → "송금인별 입금 내역" 대신 "거래 내역") · FAN_OUT: 자금 분산 분류를 판단하려면 수취인별 출금 내역을 확인할 필요가 있음.(출금 0 → "거래 내역") · CYCLE: 경로 확인 자료를 보완할 필요가 있음. · SCATTER_GATHER: 분산 후 집중 분류를 판단하려면 중간 계좌 경로 자료를 보완할 필요가 있음. — **SCRUM-269 2/2**: ~~분류의 근거가 된~~ → "분류를 판단하려면"(FAN_IN·FAN_OUT·SG — "근거가 된" 은 자료가 분류의 근거였다는 확인 안 된 전제, 254 ★L-1 2차 4 미만 표 17개. CYCLE 그대로) | — | `typology` | typology_unsupported |
 | C1 | `prior_alert_count` > 0 | 필수 | 과거 경보 이력이 있으므로 이전 경보와 이번 거래의 관련성을 확인할 필요가 있음. / 이전 경보 이력이 있으므로 이번 거래와의 관련성을 확인할 필요가 있음. | 이전 경보와 이번 거래의 관련성을 확인할 필요가 있음. | `prior_alert_count` | has_prior |
 | C2 | `customer` null | 필수 | 고객 정보가 제공된 자료로 확인되지 않으므로 고객 확인 자료(업종·계좌 목적)를 보완할 필요가 있음. / 고객 확인 자료가 제공된 자료로 확인되지 않으므로 업종과 계좌 목적을 확인해 보완할 필요가 있음. | — | — | — (조건: customer null) |
 | F1 | FAN_IN | 선택 | 송금인 정보가 제공된 자료로 확인되지 않으므로 송금인과 대상자의 거래 관계를 확인할 필요가 있음. / 송금인과 대상자의 거래 관계가 제공된 자료로 확인되지 않으므로 송금인 정보를 확인할 필요가 있음. | 송금인과 대상자의 거래 관계를 확인할 필요가 있음. | `counterparties.count` | has_inbound · has_counterparty |
