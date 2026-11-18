@@ -1,7 +1,7 @@
 """SCRUM-268 — v4 초안 verify 만 judge_v4, 스위치 상수 하나 (docs/str/06 "judge_v4", 09 SCRUM-268 사전 기준).
 
-스위치 기본 = 꺼짐(judge_v3) · 켜면 `generations.prompt_version == narrative_v4` 만 judge_v4 · v2·버전 없음·꺼짐은
-기존 평가자 · `verifier_version` 은 실제 고른 평가자 · `load_draft` 가 prompt_version 을 꺼냄(-m db).
+스위치 기본 = 켬(11/18, 09 "SCRUM-268 실측 결과") · `generations.prompt_version == narrative_v4` 만 judge_v4 · v2·버전
+없음·꺼짐(monkeypatch)은 기존 평가자 · 254 하네스 등록 프롬프트 = 앱 기본값 · `verifier_version` 은 실제 고른 평가자 · `load_draft` 가 prompt_version 을 꺼냄(-m db).
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from aml_ai.str.application.verify_service import VerifyService
 from aml_ai.str.domain.constants import JUDGE_PROMPT, JUDGE_PROMPT_NARRATIVE_V4, JUDGE_PROMPT_V4, JUDGE_VOTES
 from aml_ai.str.domain.models import StoredDraft
 from aml_ai.str.infrastructure.generation_repository import GenerationRepository
+from tests.str.judge_stability_v4_tally import REGISTERED
 from tests.str.verify_db_support import seed_draft
 from tests.str.verify_service_support import (
     FakeGenerationRepository,
@@ -54,18 +55,23 @@ def _v4_judge() -> FakeJudge:
     return FakeJudge(checks=judge_pass_checks(), prompt_version=JUDGE_PROMPT_V4)
 
 
-def test_switch_is_off_at_merge() -> None:
+def test_switch_is_on_after_criteria() -> None:
     assert (JUDGE_PROMPT, JUDGE_PROMPT_V4) == ("judge_v3", "judge_v4")
-    assert JUDGE_PROMPT_NARRATIVE_V4 == JUDGE_PROMPT  # 09 기준 1·2 충족 뒤 JUDGE_PROMPT_V4 로
+    assert JUDGE_PROMPT_NARRATIVE_V4 == JUDGE_PROMPT_V4  # 11/18 기준 1·2 충족(09 "SCRUM-268 실측 결과")
 
 
-def test_build_without_switch_has_no_v4_judge() -> None:
+def test_registered_254_prompt_is_app_default() -> None:
+    """254 ★L-1 2차(기준 3)가 재는 평가자 = 앱이 v4 초안에 쓰는 평가자."""
+    assert REGISTERED["prompt"] == JUDGE_PROMPT_NARRATIVE_V4
+
+
+def test_build_with_switch_off_has_no_v4_judge(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(verify_module, "JUDGE_PROMPT_NARRATIVE_V4", JUDGE_PROMPT)
     svc = VerifyService.build(MagicMock(), get_settings())
     assert svc.judge_for_v4 is None and svc.judge.prompt_version == JUDGE_PROMPT
 
 
-def test_build_with_switch_on_makes_v4_judge(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(verify_module, "JUDGE_PROMPT_NARRATIVE_V4", JUDGE_PROMPT_V4)
+def test_build_default_makes_v4_judge() -> None:
     svc = VerifyService.build(MagicMock(), get_settings())
     assert svc.judge_for_v4 is not None
     assert svc.judge_for_v4.prompt_version == JUDGE_PROMPT_V4 and svc.judge_for_v4._votes == JUDGE_VOTES

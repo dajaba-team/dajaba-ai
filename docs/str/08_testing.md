@@ -328,6 +328,37 @@ v4 초안은 코드 조립(LLM 0)이라 초안 단계 평가자가 없고 검증
   - live(진희 터미널, `AI_LLM_MOCK=false`): 위 명령에서 `--dry-run` → `--live --n 3` — 한 번에 49사례 × 3회(약 441호출·약 209만 토큰, 07 ① 한 번에)
 - **결과 표**: 측정 뒤 이 절 아래(기준 1 사례 × 평가자 · 기준 2 18건) · 09 결과 줄 · 07 비용
 
+#### 결과 (2026-11-18, stamp `20261118-041239`, 09 "SCRUM-268 실측 결과") — 기준 1·2 충족, 스위치 켬
+
+`mode=registered`(mode_reasons 없음) · 사례 49 × n 3 = 147 기록 · 표본 완전 · LLM_FAILED 122 · PASSED 25 · VERIFY_UNAVAILABLE 0 · CODE_FAILED 0(주입 11 은 평가자 단독 호출) · 회차마다 호출 3(합 441) · 토큰 2,162,802 · `criterion_met` c1·c2 true · `undecidable` 둘 다 false · reasons 없음.
+
+**기준 1** — 목표 항목 점수(n 3회)
+
+| 사례 | 목표 항목 | judge_v3 (v2 기준 본문 facts_fan_in) | judge_v4 (v4 기준 본문 demo_7) |
+|---|---|---|---|
+| 기준 본문 | 4항목 | PASSED 3/3 (FIVE_W 4·4·5, 나머지 5) | PASSED 3/3 (TYPOLOGY 4·4·5, 나머지 5) |
+| 주입 7 | NO_SPECULATION | 1·1·1 잡음 | 1·1·1 잡음 |
+| 주입 8 | NO_UNSUPPORTED_CLAIM | 3·3·3 잡음 | 3·3·3 잡음 |
+| 주입 10 | TYPOLOGY_CONSISTENT | 1·1·1 잡음 | 1·1·1 잡음 |
+| 주입 11 (단독 호출) | FIVE_W_ONE_H_COMPLETE | 1·1·1 잡음 | 1·1·1 잡음 |
+| **비율** | | **1.00** (4/4) | **1.00** (4/4) → 1.00 ≥ 1.00 충족 |
+| 참고 12 (판정 밖) | | — | LLM_FAILED 3/3 |
+| 참고 23 (판정 밖) | | LLM_FAILED 3/3 | PASSED 3/3 |
+
+**기준 2** — `NO_UNSUPPORTED_CLAIM`(n 3회). 뒤집기 18건 54회 모두 1 → 18/18 잡음 · not_caught 0 · 코드 검사 실패 0. 대조(원래 v4 18건)는 모두 n 중 2회 이상 ≥ 3 → 18건 전부 판정 가능
+
+| 대조 점수 | 사건 | 뒤집기 |
+|---|---|---|
+| 5·5·5 | 228 customer_missing · 228 internal_transfer · demo_7 · demo_48 | 1·1·1 |
+| 5·5·3 | 228 fan_out | 1·1·1 |
+| 5·3·3 | 228 cycle_nopaths | 1·1·1 |
+| 3·3·5 | blind2 uns_scatter_gather | 1·1·1 |
+| 3·3·3 | 228 fan_in · 228 fan_in_b · 228 scatter_gather · 228 partial_baseline · blind2 sup_fan_in · sup_fan_out · sup_cycle · sup_scatter_gather · uns_cycle · uns_fan_in · mix_fan_in (11건) | 1·1·1 |
+
+- 대조가 3점에 머문 11건은 254 ★L-1 1차 원인 ③(초안 문장 — "계좌 개설일" 등)과 같은 사건 → SCRUM-269 몫. 대조 3 은 등록 기준(≥ 3)을 넘어 판정에 들어감
+- 묶음별 토큰: 기준 1 judge_v3 218,943 · judge_v4 300,918 · 뒤집기 819,053 · 대조 823,888(07). 평가자 시간 합 약 1,443초
+- 원본(git 무시, 커밋 안 함): `tests/str/recorded/_tmp/judge_v4_criteria_20261118-041239.{json,jsonl}` · dry-run `judge_v4_criteria_dry_20261118-041208.json`
+
 ### 평가자 N=3 중앙값 단위 테스트 (SCRUM-207)
 
 `tests/str/test_judge_votes.py` (10 testcases) + `tests/str/test_judge_votes_deadline.py` — 가짜 LLM 로 집계 규칙 확인:
