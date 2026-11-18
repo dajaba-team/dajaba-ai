@@ -1,0 +1,34 @@
+"""SCRUM-146 검색어 (c) facts 범주 영문 조각 (docs/str/10 "다중 질의·합치기" ★A 표 — 쓰는 칸 5개만).
+
+숫자·계좌·금액 없음. 표에 없는 칸(경로·내부 거래·계좌 목적)은 보류라 여기 없음.
+`constants.py` 가 200줄 한도에 닿아 따로 둠.
+"""
+
+from __future__ import annotations
+
+QUERY_KINDS: tuple[str, ...] = ("a", "b", "c")  # (a) build_query 그대로 · (b) 유형 패턴 · (c) facts 범주
+QUERY_LANG_EN = "en"
+QUERY_LANG_KO = "ko"  # 모양만 — 벡터 검색은 영문만 보냄
+
+DIRECTION_EN: dict[str, str] = {  # Direction → 조각. INTERNAL 은 코퍼스 대응 문단 없음 → 없음
+    "INBOUND": "incoming funds only",
+    "OUTBOUND": "outgoing funds only",
+    "MIXED": "both incoming and outgoing funds",
+}
+COUNTERPARTY_FEW_MAX = 2  # 1~2 few · 3~9 several · 10 이상 many (검색어 전용 — 룰 임계값과 따로)
+COUNTERPARTY_SEVERAL_MAX = 9
+COUNTERPARTY_EN: dict[str, str] = {
+    "few": "few counterparties",
+    "several": "several counterparties",
+    "many": "many counterparties",
+}
+PAYMENT_FORMAT_EN: dict[str, str] = {  # IBM 원문 7종. Reinvestment 는 코퍼스 대응 낱말 없음 → 없음
+    "Wire": "wire transfers",
+    "ACH": "ACH transfers",
+    "Cash": "cash",
+    "Cheque": "cheques",
+    "Credit Card": "credit card payments",
+    "Bitcoin": "virtual currency",
+}
+OTHER_BANKS_EN = "accounts at other financial institutions"  # other_bank_accounts > 0
+MULTI_CURRENCY_EN = "multiple currencies"  # 통화 종류(입금 ∪ 출금 by_currency) ≥ 2 또는 미등록 통화 있음

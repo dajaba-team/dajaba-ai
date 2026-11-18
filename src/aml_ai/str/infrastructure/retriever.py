@@ -1,4 +1,4 @@
-"""RAG 검색 (docs/str/10). 질의 1줄 → 임베딩 1회 → pgvector top-3 (유형 필터 우선). 실패·0건 → [].
+"""RAG 검색 (docs/str/10). 기본은 질의 한 번, 평가용 다중 질의는 RRF로 합친다.
 
 enabled=False (RAG_ENABLED) 면 항상 [] — 안건 22 되돌림 조건의 스위치.
 """
@@ -15,67 +15,89 @@ from aml_ai.shared.schemas.str import Facts, Reference
 from aml_ai.str.domain.constants import (
     MIN_SIMILARITY,
     RAG_CANDIDATES,
+    RAG_MULTI_QUERY,
     RAG_TOP_K,
     REFERENCE_TEXT_MAX_CHARS,
 )
-
-TYPOLOGY_KO = {  # 앞 6개 = v2 룰 순서(Typology 와 같게), 뒤 = 원천·후보 값
-    "FAN_OUT": "분산 송금",
-    "FAN_IN": "집중 입금",
-    "FX_RELAY": "환전 중계",
-    "CYCLE": "순환 거래",
-    "SCATTER_GATHER": "흩었다 모으기",
-    "GATHER_SCATTER": "모았다 흩기",
-    "PASS_THROUGH": "경유 송금",
-    "STACK": "다단계 경유",
-    "BIPARTITE": "집단 간 교차 송금",
-    "STRUCTURING": "분할 거래",
-    "NEW_ACCOUNT_LARGE": "신규 계좌 거액 송금",
-    "HIGH_VALUE": "고액 단건",
-    "DORMANT_BURST": "휴면 후 급증",
-}
-
-# SCRUM-126 — 유형별 영문 패턴 한 문장. 코퍼스가 영문이라 유형 이름만으로는 임베딩 매칭이 약함.
-# ★L-1 baseline(유형 이름만 + model_signals): FAN_OUT·CYCLE hit 0, FAN_IN precision 0.33.
-TYPOLOGY_PATTERN_EN = {
-    "FAN_IN": "many senders deposit into one account",
-    "FAN_OUT": "one account sends funds to many beneficiaries",
-    "CYCLE": "funds move through accounts and return to the originating account",
-    "SCATTER_GATHER": "funds are split across intermediate accounts and later consolidated into one account",
-    "GATHER_SCATTER": "funds are pooled into one account and then distributed to many accounts",
-}
-
-
-def build_query(facts: Facts) -> str:
-    """'{유형 한국어} {유형 영문 코드} {영문 패턴} {model_signals 이름} {industry}'.
-
-    SCRUM-126 — 유형별 영문 패턴 한 문장 추가 (코퍼스 임베딩과 매칭 강화).
-    """
-    code = facts.typology.value if facts.typology else ""
-    pattern = TYPOLOGY_PATTERN_EN.get(code, "")
-    signals = " ".join(facts.model_signals)
-    industry = facts.customer.industry if facts.customer and facts.customer.industry else ""
-    return " ".join(p for p in (TYPOLOGY_KO.get(code, ""), code, pattern, signals, industry) if p)
+from aml_ai.str.domain.constants_rag_query import QUERY_KINDS
+from aml_ai.str.domain.rag_fusion import Candidate, rrf_fuse
+from aml_ai.str.domain.rag_queries import (
+    TYPOLOGY_KO as TYPOLOGY_KO,
+)
+from aml_ai.str.domain.rag_queries import (
+    TYPOLOGY_PATTERN_EN as TYPOLOGY_PATTERN_EN,
+)
+from aml_ai.str.domain.rag_queries import (
+    build_queries,
+)
+from aml_ai.str.domain.rag_queries import (
+    build_query as build_query,
+)
 
 
 class Retriever:
     def __init__(
-        self, session: Session, embedder: EmbeddingClient, *, enabled: bool, k: int = RAG_TOP_K
+        self,
+        session: Session,
+        embedder: EmbeddingClient,
+        *,
+        enabled: bool,
+        k: int = RAG_TOP_K,
+        multi_query: bool = RAG_MULTI_QUERY,
+        typology_filter: bool = True,
+        query_kinds: tuple[str, ...] = QUERY_KINDS,
     ) -> None:
         self._s = session
         self._embed = embedder
         self._enabled = enabled
         self._k = k
+        self._multi_query = multi_query
+        self._typology_filter = typology_filter
+        self._query_kinds = query_kinds
 
     def retrieve(self, facts: Facts) -> list[Reference]:
         if not self._enabled or facts.typology is None:
             return []
-        vec = self._embed.embed([build_query(facts)])[0]  # RetrievalUnavailable 은 호출자가 잡아 [] 로
-        return self._search(vec, facts.typology.value)
+        if not self._multi_query:
+            vec = self._embed.embed([build_query(facts)])[0]
+            return self._search(vec, facts.typology.value)
+        queries = build_queries(facts, self._query_kinds)
+        vectors = self._embed.embed([q.text for q in queries])
+        if len(vectors) != len(queries):
+            raise RetrievalUnavailable("embedding count mismatch")
+        return self._multi_search(vectors, facts.typology.value)
+
+    def _multi_search(self, vectors: list[list[float]], typology: str) -> list[Reference]:
+        lists: list[list[Candidate]] = []
+        refs: dict[str, Reference] = {}
+        for vec in vectors:
+            candidates = self._candidates(
+                vec, typology, limit=RAG_CANDIDATES, typology_filter=self._typology_filter
+            )
+            lists.append([Candidate(r.chunk_id, rank, r.score) for rank, r in enumerate(candidates, 1)])
+            refs.update((r.chunk_id, r) for r in candidates)
+        return [
+            refs[f.chunk_id].model_copy(update={"score": f.cosine})
+            for f in rrf_fuse(lists)
+            if f.cosine >= MIN_SIMILARITY
+        ][: self._k]
 
     def _search(self, vec: list[float], typology: str | None) -> list[Reference]:
         if typology is None:
             return []
+        return [
+            r
+            for r in self._candidates(vec, typology, limit=self._k, typology_filter=self._typology_filter)
+            if r.score >= MIN_SIMILARITY
+        ]
+
+    def _candidates(
+        self, vec: list[float], typology: str | None, *, limit: int, typology_filter: bool
+    ) -> list[Reference]:
+        predicate = "WHERE typologies @> ARRAY[:ty]::text[] " if typology_filter else ""
+        params = {"vec": str(vec), "k": limit, "cand": RAG_CANDIDATES}
+        if typology_filter:
+            params["ty"] = typology
         try:
             with self._s.begin_nested():
                 self._s.execute(text("SET LOCAL hnsw.iterative_scan = relaxed_order"))
@@ -84,14 +106,15 @@ class Retriever:
                         "WITH r AS MATERIALIZED ("
                         "  SELECT chunk_id, doc_id, doc_title, page, text, "
                         "         embedding <=> CAST(:vec AS vector) AS d "
-                        "  FROM ai.reference_chunks WHERE typologies @> ARRAY[:ty]::text[] "
-                        "  ORDER BY embedding <=> CAST(:vec AS vector) "
+                        "  FROM ai.reference_chunks "
+                        + predicate
+                        + "  ORDER BY embedding <=> CAST(:vec AS vector) "
                         "  LIMIT :cand"
                         ") "
                         "SELECT chunk_id, doc_id, doc_title, page, text, 1 - d AS score "
                         "FROM r ORDER BY d + 0 LIMIT :k"
                     ),
-                    {"vec": str(vec), "ty": typology, "k": self._k, "cand": RAG_CANDIDATES},
+                    params,
                 ).all()
         except SQLAlchemyError as exc:
             raise RetrievalUnavailable("rag search failed") from exc
@@ -105,5 +128,5 @@ class Retriever:
                 text=(row.text or "")[:REFERENCE_TEXT_MAX_CHARS],
             )
             for row in rows
-            if row.score is not None and row.score >= MIN_SIMILARITY
+            if row.score is not None
         ]

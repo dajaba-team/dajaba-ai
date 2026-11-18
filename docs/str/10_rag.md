@@ -190,6 +190,8 @@ def retrieve(facts: Facts, k: int = 3) -> list[Reference]:
 
 REFERENCES 자리에 `[n] {doc_title} p.{page}: {text}` 0~3줄, 없으면 `(없음)`(`05`). system 규칙 8 이 숫자·이름 반입 금지. 응답 `generation_meta.references = [{chunk_id, doc_id, doc_title, page, score}]` → 화면 "참고 유형 사례 N건(출처·쪽)". `generations.references jsonb` 에 같은 값(재현).
 
+**narrative_v4 (SCRUM-228, 11/18 기본값)** — 참고 사례는 **화면 표시만(본문 영향 없음)**: 검색은 돌고 응답 `generation_meta.references` 는 채워지지만 본문에는 안 씀(생성기 요청 기록엔 `reference_ids` 만, 아래 "다중 질의·합치기" 절).
+
 **narrative_v3 (SCRUM-225)** — 프롬프트에는 검색 결과 앞 **최대 2건**, 본문은 청크 전체 대신 **유형 패턴 문장 1~2개**(`TYPOLOGY_PATTERN_EN` 과 영단어 겹침 기준, 없으면 앞 300자) — `str/infrastructure/reference_snippet.py`, 자세히는 `05` narrative_v3 절. 자르기는 `draft_service` 한 번이라 **`generation_meta.references`·`generations.references` 도 같은 2건**(화면 "참고 사례 N건" 최대 3→2, 모양은 그대로). 검색(`retriever.py`·`RAG_TOP_K=3`)은 안 바뀜. v1·v2 는 0~3건·청크 전체 그대로.
 
 `Reference.chunk_id` 는 선택 칸(`str | None = None`, SCRUM-125) — 값은 `content_hash`(재적재해도 같은 id). 126 평가가 chunk_id 단위라 필요. 옛 저장 응답(chunk_id 없는 JSON) 은 라운드트립 그대로 통과. 백엔드 `AiDtos.java` 는 `references` 안 읽어 하위 호환.
@@ -274,6 +276,113 @@ hit@3는 검색이 맞았는지만 본다. **초안이 실제로 나아졌는지
 - 한계: n=5·1회, 픽스처 5건이 같은 고객·금액의 변형이라 다양성 낮음 — 방향성 근거
 
 METHOD 사람 대조(09 추가 검토 2차 ①): 켬·끔 10건 METHOD·INSTRUMENT·SUBJECT 원문의 건수·금액·코드가 모두 FACTS 값 — 커버리지 오탐 0.
+
+## 다중 질의·합치기 (SCRUM-146, 2026-11-18 — 붙이되 기본 끔)
+
+2차(「RAG 2차 — 방향 설계」 5.2 하이브리드 + 다중 질의)에서 그대로 쓸 **"여러 후보 목록 → 합치기" 층**을 지금 만든다. **기본 끔** — 시연 경로(초안 생성)의 검색 결과는 develop 과 같다(09 같은 날 줄). SCRUM-275(Elasticsearch 키워드)는 이 층에 **후보 목록 하나**로 들어온다.
+
+```
+facts → 검색어 N개(상한 RAG_MAX_QUERIES) → 임베딩 한 번에(embed([...]) 배치 1회) → 검색어별 후보 목록(지금 SQL 그대로, 후보 RAG_CANDIDATES)
+      → RRF 합치기 · chunk_id 중복 제거 → MIN_SIMILARITY(합친 뒤, 최대 cosine) → 상위 RAG_TOP_K
+```
+
+- **검색어 만들기**(`str/domain/` 새 파일, 순수 — DB·LLM·설정 0): `(언어, 문장)` 목록, 상한 `RAG_MAX_QUERIES = 3`
+  - (a) 지금 `build_query(facts)` 한 줄 **그대로** — 첫 번째 검색어 = 기준선 질의(테스트로 고정)
+  - (b) 유형 영문 패턴 문장만(`TYPOLOGY_PATTERN_EN[typology]`) — (a) 안에도 같은 패턴 문장이 들어 있어 RRF 가 패턴 쪽에 가중됨(알고 남김 — 기본 끔이라 2차 평가 세트에서 봄)
+  - (c) facts 특징 영문 문장 — 숫자·계좌·금액 없이 범주만(아래 ★A 표). 쓸 칸이 하나도 없으면 (c) 없음(빈 문장 안 만듦)
+  - 한국어 문장 칸은 **모양만** 둔다(지금 코퍼스 영문 7 · 국문 1). 벡터 검색은 영문만 보낸다. 275 키워드는 언어별로 고른다
+  - `build_query`·`TYPOLOGY_PATTERN_EN` 위치(지금 `infrastructure/retriever.py`)는 02 구조 규칙대로 — 옮기면 import 경로만, 문장 0 변경
+- **임베딩**: 검색어 N개를 한 번의 `embed([...])` 로. 외부 호출 중 DB 연결을 들고 있지 않음(SCRUM-122) — 임베딩이 끝난 뒤 검색. 실패는 지금처럼 `RetrievalUnavailable` → `[]`
+- **검색**: 검색어마다 위 "검색" 절 SQL 그대로. 평가용 인자 `typology_filter: bool`(기본 True — 끄면 `WHERE typologies @>` 없이). **초안 경로는 늘 True**
+- **합치기**(`str/domain/` 순수): 입력 = **후보 목록 여러 개** `list[list[(chunk_id, rank, cosine)]]`(목록마다 1부터 순위). RRF 점수 = Σ 1 / (`RAG_RRF_K` + rank), `RAG_RRF_K = 60`(Cormack·Clarke·Büttcher 2009). 정렬: RRF 큰 순 → 같으면 그 청크의 최대 cosine 큰 순 → 그래도 같으면 `chunk_id` 오름차순(결정적). `chunk_id` 하나에 한 번. 275 키워드 목록도 같은 입력 모양(순위만 있고 cosine 이 없으면 — 275 에서 정함)
+- **`Reference.score` = 지금처럼 cosine 유사도**(그 청크가 여러 목록에서 받은 값 중 최대). RRF 점수는 안에서 순서만 정하고 밖(`generation_meta.references`·`generations.references`·화면)에 내보내지 않음 — 규약·`references` 모양·`retrieval_version` 형식 그대로
+- **스위치**: 상수 `domain/constants.RAG_MULTI_QUERY = False` + `Retriever(..., multi_query=...)` 인자(기본 = 상수). `.env` 아님 — 시연 전 켤 일이 없음(judge_v4 스위치와 같은 판단). **평가 하네스만 True 로 부른다.** 끔이면 질의 문장·SQL·결과가 develop 과 같음(기존 retriever 테스트 수정 0 + "끔이면 임베딩 1회·검색 1회" 테스트)
+- **켤 기준**(09 같은 날 줄 — 결과 보기 전 기록): 이번 실측과 관계없이 기본은 끔. 2차 평가 세트(30~50개, 보류용 질의 포함)에서 **유형 필터 끈 조건의 recall@10 상승 + 정답 없는 질의 오탐 증가 없음**일 때 켬
+- **v4 에서 참고 사례 쓰임**: **화면 표시만(본문 영향 없음)** — `narrative_v4_builder` 는 본문에 안 쓰고 요청 기록에 `reference_ids`(doc_id)만 남김. 응답 `generation_meta.references` 는 `draft_service` 가 검색 결과로 채움 → 화면(문서명·쪽·점수, SCRUM-252). v2·v3 는 프롬프트 REFERENCES 에 들어감(v3 는 앞 2건 발췌, 위 "프롬프트에서")
+
+### ★A — 검색어 (c) 에 쓸 facts 칸 (제안, 숫자·계좌·금액 0)
+
+범주 낱말만 쓰고, 칸 값에서 바로 나오는 것만(추정·판단 낱말 없음). 순서대로 이어 한 문장(영문). 쓸 조각이 없으면 (c) 없음.
+
+| facts 칸 | 범주 → 영문 조각 | 쓰나 | 이유 |
+|---|---|---|---|
+| `direction` | INBOUND → `incoming funds only` · OUTBOUND → `outgoing funds only` · MIXED → `both incoming and outgoing funds` · INTERNAL → (없음) | **씀** | 방향은 FAN_IN·FAN_OUT 코퍼스 문단의 핵심 낱말. INTERNAL 은 코퍼스에 대응 문단 없음 |
+| `counterparties.count` | 0 → (없음) · 1~2 → `few counterparties` · 3~9 → `several counterparties` · 10 이상 → `many counterparties` | **씀** | 숫자 대신 규모 범주(경계는 상수로 — R02 송금인 5·R01 수취인 10 과 따로, 검색어 전용) |
+| `payment_formats` | IBM 원문 7종 → 영문 낱말(`Wire` → `wire transfers` · `ACH` → `ACH transfers` · `Cash` → `cash` · `Cheque` → `cheques` · `Credit Card` → `credit card payments` · `Bitcoin` → `virtual currency` · `Reinvestment` → (없음)), 여러 개면 `via A and B` | **씀** | 적색신호 문단(FFIEC·FinCEN)이 결제 수단 낱말로 쓰임. Reinvestment 는 코퍼스 대응 낱말 없음 |
+| `counterparty_banks.other_bank_accounts` > 0 | `accounts at other financial institutions` | **씀** | 퍼널 계좌(FinCEN 2014) 문단 낱말. 0 이면 없음 |
+| `inbound.by_currency` ∪ `outbound.by_currency` 통화 종류 ≥ 2(또는 `unmapped_currencies` 있음) | `multiple currencies` | **씀** | TBML·국제 송금 문단 낱말. 통화 이름·금액은 안 씀 |
+| `paths` VERIFIED | CYCLE → `funds routed through intermediary accounts` · SG → 같음 | 보류 | (b) 유형 패턴 문장과 거의 같은 뜻 — 검색어가 겹쳐 RRF 가 한쪽으로 쏠림. 2차 평가 세트에서 다시 |
+| `internal.count` > 0 | `transfers between related accounts` | 보류 | "내부 = 같은 법인" 은 facts 04 의 정의(코퍼스의 related accounts 와 다를 수 있음) — 뜻이 어긋날 위험 |
+| `customer.account_purpose` | 사전 영문 대응(예: SALES_DEPOSIT → `business sales deposits`) | 보류 | 영문 대응표가 없음(표기 사전은 한국어만) — 새 사전이 필요 |
+| 금액·합계·`amount_range`·`period`·계좌·`transaction_ids`·`prior_alert_count`·`observations`(값)·`customer.onboarded_at`·`risk_level` | — | 안 씀 | 숫자·계좌·금액 금지(지시서) · 과거 경보·위험등급은 코퍼스 문단과 무관 · `model_signals`·`industry` 는 이미 (a) 에 있음 |
+
+### 코퍼스 크기 (11/18, 읽기 전용 SQL — 진희 실행)
+
+| 문서 | 언어 | 청크 수 | 태그 빈 청크 | 글자 수 | 청크 평균 글자 |
+|---|---|---|---|---|---|
+| `fatf-pml-2018` | en | 92 | 88 | 140,434 | 1,526 |
+| `fatf-tbml-2006` | en | 68 | 68 | 103,167 | 1,517 |
+| `fatf-tbml-2020` | en | 117 | 117 | 174,644 | 1,493 |
+| `ffiec-redflags` | en | 15 | 2 | 24,333 | 1,622 |
+| `fincen-funnel-2014` | en | 10 | 0 | 15,844 | 1,584 |
+| `fincen-money-mule-2020` | en | 13 | 13 | 19,323 | 1,486 |
+| `fincen-msb-ko-2007` | ko | 60 | 60 | 38,450 | 641 |
+| `fincen-sar-narrative-2003` | en | 50 | 50 | 59,114 | 1,182 |
+| **전체** | en 7 · ko 1 | **425** | 398 (태그 27 · 6%) | 575,309 (en 536,859 · ko 38,450) | 1,354 |
+
+토큰은 미측정(`tiktoken` 없음) — 언어별 글자 수로 대신. 태그 27 = `fatf-pml-2018` 4 · `ffiec-redflags` 13 · `fincen-funnel-2014` 10.
+
+| 유형 태그 | 청크 수 |
+|---|---|
+| FAN_IN | 19 |
+| FAN_OUT | 6 |
+| CYCLE | 2 |
+| SCATTER_GATHER | 0 |
+| GATHER_SCATTER | 0 |
+
+- **태그 청크 27/425(6%)** — 유형 필터 켬 조건은 후보가 거의 고정(FAN_IN 19 · FAN_OUT 6 · CYCLE 2)이라 다중 질의 비교가 의미 없음. **볼 숫자는 필터 끔 조건**
+- **토큰은 미측정**(`tiktoken` 없음) — 글자 575,309(en 536,859 · ko 38,450). 2차 "자료 확장 먼저"의 근거
+
+### 기준선 (11/18, `rag_baseline_live` — 결과 보기 전 자리)
+
+조건 4개 = {한 번 찾기, 여러 번 찾기} × {유형 필터 켬, 끔}, 질의 10개 그대로(`retrieval_eval.json` 수정 0). 지표(판정용, 위 "판정 기준"): hit@3(엄격) · recall@3 · **recall@10**(한 번 = top-10, 여러 번 = 합친 순위 top-10) · 정답 없는 질의 2개의 top-3 최대 cosine · 조건별 임베딩 호출·검색어 수. **해석은 "만점 세트라 개선 판정 못 함 · 방향만"**.
+
+**기록(판정에 안 씀 — 2차 비교 재료, 11/18 진희 추가)**:
+- 질의별·조건별 **top-10 원자료**(평균만 남기지 않음)
+- 정답 청크가 **필터 끔 전체 425개 중 몇 등**인지(10등 밖이어도) — 검색어 벡터마다, 그리고 여러 번 찾기는 전체 순위 목록을 RRF 로 다시 합친 순위
+- 정답 없는 질의 2개: **top-10 cosine 분포**(최소·사분위·중앙·최대)
+- 검색어 조합 **{a}·{a,c}·{a,b,c}** — 하네스 인자로 바꿔 돌림. (a)·(b) top-10 **겹침을 정답 / 오답 청크로 나눠** 기록(위 "RRF 가 패턴 쪽에 가중" 확인용)
+- 언어: 조건별 top-10 안 **국문 청크 수** · **언어별 cosine 분포**(필터 끔 전체 순위 기준) · 언어별 글자 수(토큰 대신)
+- 필터 켬 질의의 **`EXPLAIN`(ANALYZE 없이, 읽기 전용)** 유형별 1번 — 지금 `relaxed_order` 라 깨진 게 아니라 2차 비교용 기록
+
+**결과 파일은 리포에 커밋**(1차 "기준선 얼려 두기"): `tests/str/rag_baseline_20261118.json`. 청크마다 `chunk_id` 만 쓰지 않고 **`doc_id` · `page` · 쪽 안 순번**(같은 `doc_id`·`page` 안에서 적재 순서로 몇 번째 — 적재 도구와 같은 청크 나누기(`tools/corpus_chunks.chunk_pdf_pages`)를 PDF 에 다시 돌려 `content_hash` 로 맞춤, 임베딩·DB 쓰기 0. 적재는 한 트랜잭션이라 `created_at` 으로는 순서를 못 앎)과 `lang` 을 같이 — 2차에서 청크를 다시 자르면 `chunk_id`(= `content_hash`)가 전부 바뀌어 기준선 비교가 안 되기 때문. 정답 청크도 같은 칸. **정답 위치는 doc_id·page·쪽 안 순번으로 다시 찾을 수 있음(원문 지문은 이용 조건 때문에 안 남김).** PDF 가 없는 문서는 순번 칸 비우고 이유를 적음. 함께 남기는 것: 설정값 `RAG_CANDIDATES`·`RAG_TOP_K`·`MIN_SIMILARITY`·`REFERENCE_TEXT_MAX_CHARS`·`RAG_RRF_K`·`RAG_MAX_QUERIES` · `retrieval_version` · 임베딩 모델 이름 · 코퍼스 manifest 해시. 토큰 수는 이번에 안 함(`tiktoken` 없음).
+
+**결과(11/18 진희 터미널, 검색어 {a,b,c})** — 정답 있는 질의 8개, 지표는 유형별 평균의 평균(macro, 지금 평가와 같은 방식). 임베딩 호출 = 배치 호출 수(질의마다 1회 — 검색어 수와 무관).
+
+| 조건 | hit@3 | recall@3 | recall@10 | 정답 없는 질의 top-3 최대 cosine (Q09 · Q10) | 임베딩 호출 · 검색어 |
+|---|---|---|---|---|---|
+| 한 번 · 필터 켬 (지금 초안 경로) | 1.000 | 0.741 | 0.944 | 결과 0건 · 0건 | 10 · 10 |
+| 한 번 · 필터 끔 | 0.000 | 0.000 | 0.037 | 0.477 · 0.392 | 10 · 10 |
+| 여러 번 · 필터 켬 | 1.000 | 0.741 | 0.907 | 결과 0건 · 0건 | 10 · 30 |
+| 여러 번 · 필터 끔 | 0.167 | 0.167 | **0.611** | 0.526 · 0.526 | 10 · 30 |
+
+검색어 조합별 recall@10(macro) — 여러 번 찾기만 달라짐:
+
+| 조합 | 여러 번 · 필터 켬 | 여러 번 · 필터 끔 |
+|---|---|---|
+| {a} (= 한 번 찾기와 같음) | 0.944 | 0.037 |
+| {a,c} | 0.889 | 0.241 |
+| {a,b,c} | 0.907 | 0.611 |
+
+파일: `tests/str/rag_baseline_20261118.json`({a,b,c}) · `rag_baseline_20261118_ac.json` · `rag_baseline_20261118_a.json`. 실행 한 번에 임베딩 호출 50 = 조건 4개 × 질의 10(배치 1회씩) + (a)·(b) 겹침 진단 10 — 검색어 조합과 무관.
+
+**진단(판정 아님 — 2차 비교 재료)**:
+- **정답 청크(2점) 중 가장 앞 순위, 필터 끔 · 425개 중**: 한 번 찾기 FAN_IN 7~16 · FAN_OUT 26·52 · CYCLE 123·160 → 여러 번 찾기(RRF) FAN_IN 5~6 · FAN_OUT 4·10 · CYCLE 12·14. 검색어별로는 (b) 4~5 · (c) 2~7 · (a) 7~160 — 필터 끄면 (a)(지금 질의)가 가장 약함
+- **top-10 안 국문 청크**: 한 번 · 필터 끔 30개(질의 10 × 3) · 여러 번 · 필터 끔 12 · 필터 켬 0(국문 문서는 태그 없음). 필터 끔 전체 순위의 언어별 cosine(질의 Q01 (a)): en 365개 중앙 0.267 · 최대 0.448 / ko 60개 중앙 0.270 · 최대 0.361 — 국문 청크가 영문과 비슷한 대역이라 필터 끄면 위로 올라옴
+- **(a)·(b) top-10 겹침**(질의 10개 합): 필터 켬 정답 31 · 오답 18 / 필터 끔 정답 4 · 오답 36 — 필터 끄면 겹치는 청크 대부분이 오답(위 "RRF 가 패턴 쪽에 가중"은 필터 끔에서 오답 쪽으로 작용할 수 있음)
+- **정답 없는 질의 top-10 cosine**: 필터 끔 한 번 Q09 0.386~0.477(중앙 0.397) · Q10 0.345~0.392(중앙 0.354) / 여러 번 Q09 0.393~0.610(중앙 0.483) · Q10 0.367~0.609(중앙 0.412). 필터 켬은 결과 0건(태그가 없는 유형)
+- **EXPLAIN(필터 켬, 유형 5개)**: 다섯 유형 모두 `Bitmap Index Scan on ix_reference_chunks_typologies`(GIN) → `Sort` — **HNSW 인덱스는 안 탐**(태그 청크가 적어 플래너가 유형 필터 먼저 + 정렬을 고름). 결과는 정확한 거리 순서라 지금 문제 아님
+- **알고 남김**: 평가 질의 10개는 같은 픽스처(`facts_fan_in.json`)에서 유형·신호·업종만 바꾼 것이라 **(c) 문장이 10개 모두 같음**("incoming funds only, several counterparties, via ACH transfers, accounts at other financial institutions") — (c) 의 순위 개선은 질의별 facts 차이를 반영한 게 아님. 2차 평가 세트는 질의마다 facts 를 달리해야 (c) 를 볼 수 있음
 
 ## 버전
 
