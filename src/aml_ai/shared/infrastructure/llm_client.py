@@ -165,6 +165,8 @@ class HttpLlmClient:
 
 
 def make_llm_client(settings: Settings) -> LlmClient:
+    from aml_ai.shared.infrastructure.tracing import wrap_llm_client
+
     if settings.ai_llm_mock:
         return RecordedLlmClient(settings.recorded_dir)
-    return HttpLlmClient(settings)
+    return wrap_llm_client(HttpLlmClient(settings), settings)

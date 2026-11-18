@@ -63,4 +63,6 @@ class HttpEmbeddingClient:
 
 
 def make_embedding_client(settings: Settings) -> EmbeddingClient:
-    return HttpEmbeddingClient(settings)
+    from aml_ai.shared.infrastructure.tracing import wrap_embedding_client
+
+    return wrap_embedding_client(HttpEmbeddingClient(settings), settings)
