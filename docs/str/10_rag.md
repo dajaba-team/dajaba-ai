@@ -297,7 +297,7 @@ facts → 검색어 N개(상한 RAG_MAX_QUERIES) → 임베딩 한 번에(embed(
 - **합치기**(`str/domain/` 순수): 입력 = **후보 목록 여러 개** `list[list[(chunk_id, rank, cosine)]]`(목록마다 1부터 순위). RRF 점수 = Σ 1 / (`RAG_RRF_K` + rank), `RAG_RRF_K = 60`(Cormack·Clarke·Büttcher 2009). 정렬: RRF 큰 순 → 같으면 그 청크의 최대 cosine 큰 순 → 그래도 같으면 `chunk_id` 오름차순(결정적). `chunk_id` 하나에 한 번. 275 키워드 목록도 같은 입력 모양(순위만 있고 cosine 이 없으면 — 275 에서 정함)
 - **`Reference.score` = 지금처럼 cosine 유사도**(그 청크가 여러 목록에서 받은 값 중 최대). RRF 점수는 안에서 순서만 정하고 밖(`generation_meta.references`·`generations.references`·화면)에 내보내지 않음 — 규약·`references` 모양·`retrieval_version` 형식 그대로
 - **스위치**: 상수 `domain/constants.RAG_MULTI_QUERY = False` + `Retriever(..., multi_query=...)` 인자(기본 = 상수). `.env` 아님 — 시연 전 켤 일이 없음(judge_v4 스위치와 같은 판단). **평가 하네스만 True 로 부른다.** 끔이면 질의 문장·SQL·결과가 develop 과 같음(기존 retriever 테스트 수정 0 + "끔이면 임베딩 1회·검색 1회" 테스트)
-- **켤 기준**(09 같은 날 줄 — 결과 보기 전 기록): 이번 실측과 관계없이 기본은 끔. 2차 평가 세트(30~50개, 보류용 질의 포함)에서 **유형 필터 끈 조건의 recall@10 상승 + 정답 없는 질의 오탐 증가 없음**일 때 켬
+- **켤 기준**(09 같은 날 줄 — 결과 보기 전 기록): 이번 실측과 관계없이 기본은 끔. 2차 평가 세트(30~50개, 보류용 질의 포함)에서 **유형 필터 끈 조건의 recall@10 상승 + 정답 없는 질의 오탐 증가 없음**일 때 켬 → **2026-11-19 SCRUM-275 로 대체**: 합치기 층은 지금 경로에 켜지 않고 "빈칸만 채우기"의 채우는 쪽으로만 씀(아래 절 · 09 같은 날 줄). `RAG_MULTI_QUERY` 상수는 평가 하네스용으로 그대로
 - **v4 에서 참고 사례 쓰임**: **화면 표시만(본문 영향 없음)** — `narrative_v4_builder` 는 본문에 안 쓰고 요청 기록에 `reference_ids`(doc_id)만 남김. 응답 `generation_meta.references` 는 `draft_service` 가 검색 결과로 채움 → 화면(문서명·쪽·점수, SCRUM-252). v2·v3 는 프롬프트 REFERENCES 에 들어감(v3 는 앞 2건 발췌, 위 "프롬프트에서")
 
 ### ★A — 검색어 (c) 에 쓸 facts 칸 (제안, 숫자·계좌·금액 0)
@@ -384,9 +384,108 @@ facts → 검색어 N개(상한 RAG_MAX_QUERIES) → 임베딩 한 번에(embed(
 - **EXPLAIN(필터 켬, 유형 5개)**: 다섯 유형 모두 `Bitmap Index Scan on ix_reference_chunks_typologies`(GIN) → `Sort` — **HNSW 인덱스는 안 탐**(태그 청크가 적어 플래너가 유형 필터 먼저 + 정렬을 고름). 결과는 정확한 거리 순서라 지금 문제 아님
 - **알고 남김**: 평가 질의 10개는 같은 픽스처(`facts_fan_in.json`)에서 유형·신호·업종만 바꾼 것이라 **(c) 문장이 10개 모두 같음**("incoming funds only, several counterparties, via ACH transfers, accounts at other financial institutions") — (c) 의 순위 개선은 질의별 facts 차이를 반영한 게 아님. 2차 평가 세트는 질의마다 facts 를 달리해야 (c) 를 볼 수 있음
 
+## 빈칸만 채우기 · ES 키워드 · 평가 세트 (SCRUM-275, 2026-11)
+
+11/18 원칙 "시연 경로 검색 결과는 바꾸지 않는다"를 **"지금 결과는 그대로 두고 빈칸만 채운다, 측정으로 판정해 통과하면 기본 켬"** 으로 바꾼다(09 2026-11-19 SCRUM-275 줄). 판정 전까지 **기본 끔**.
+
+### 규칙 (세 개 — 이것만)
+
+1. 지금 경로(한 번 찾기 · 유형 필터 켬 · 위 "검색" 절 SQL 그대로)의 결과를 **순서·`chunk_id`·`score` 그대로 앞에** 둔다
+2. `RAG_TOP_K`(3)건이 안 찼을 때만, **필터 끈 합치기**(벡터 검색어 여러 개 + ES 키워드) 결과로 남는 칸을 채운다. 이미 있는 `chunk_id` 는 건너뜀
+3. 지금 경로가 **0건이면 채우지 않고 0건**(태그 없는 유형 — SCATTER_GATHER·GATHER_SCATTER·FX_RELAY 등)
+
+- 지금 결과가 늘 앞이라 hit@3 이 떨어질 수 없고, 0건 유형은 계속 0건이라 cosine 컷오프 없이 오탐이 생기지 않는다(정답 없는 질의 cosine 0.35~0.61 이 정답 쪽과 같은 대역 — 위 기준선).
+- **지금 코퍼스에서 규칙 2가 도는 유형은 CYCLE 하나**(11/19 읽기 전용 SQL): 태그 청크 FAN_IN 19 · FAN_OUT 6 · CYCLE 2 · 그 밖 0 → 지금 경로 결과 FAN 3건 · CYCLE 2건 · 그 밖 0건. **CYCLE 사건의 참고 사례 칸이 2건 → 3건**(화면 캡처·시연 대본 다시 맞춤), FAN 은 그대로, 0건 유형도 그대로.
+- **v4 경로에만**(`NARRATIVE_PROMPT=narrative_v4`). v2·v3(참고 사례를 프롬프트에 넣음)는 지금 검색 그대로 — `DraftService.build` 가 `RAG_GAP_FILL_ENABLED and narrative_prompt == narrative_v4` 를 `Retriever(..., gap_fill=)` 로 넘김. Retriever 인자 기본 `gap_fill=False`(기존 retriever 테스트 수정 0).
+
+### 흐름
+
+```
+facts → (a) build_query 임베딩 1회 → PG 1차(필터 켬, 지금 SQL) → n건
+   n = 0          → []                                 (규칙 3 — 추가 호출 0)
+   n = RAG_TOP_K  → 그대로                              (규칙 1 — 추가 호출 0)
+   0 < n < K, gap_fill 켬
+     → release()  (DB 연결 반납 — SCRUM-122, 외부 호출 중 연결 안 듦)
+     → 검색어 (b)(c) 임베딩 1회(배치) + ES 키워드(언어별, 짧은 타임아웃)
+     → PG 2차(필터 끔): 벡터 검색어 (a)(b)(c) 마다 후보 RAG_CANDIDATES + 키워드로만 찾은 청크의 (a) cosine
+     → RRF 합치기(rag_fusion.rrf_fuse 그대로) → 1차 chunk_id 건너뜀 → 남는 칸만 → 1차 + 채운 칸
+```
+
+- **채운 청크의 `score` = (a) 검색어 기준 cosine**(`1 - (embedding <=> (a)벡터)`) — 키워드로만 찾은 청크도 PG 2차에서 이 값을 계산. RRF 점수는 안에서 순서만, 밖에 안 나감(규약·`references` 모양 그대로). 키워드 목록은 RRF 에 **순위만** 넣는다.
+- `MIN_SIMILARITY` 는 지금처럼 0.0(채운 칸에도 같은 값 적용 — 컷오프는 2차).
+- **ES 키워드 검색어 — 언어별**: 영문 검색어는 `lang=en` 청크의 `text_en` 에만, 국문 검색어는 `lang=ko` 청크의 `text_ko` 에만(`match`, 결과 `RAG_CANDIDATES` 개, 목록 둘). 문장은 개발용 질의 실험(아래 "판정 순서" 2)으로 고르고 09 에 적는다 — 출발점: 영문 = (b) 유형 영문 패턴, 국문 = `TYPOLOGY_KO[유형]` + 국문 패턴(새 상수). 숫자·계좌·금액 0.
+
+### 실패하면 (fail-open — 각각 테스트)
+
+| 실패 | 결과 |
+|---|---|
+| ES 타임아웃 · 연결 실패 · 401 · 404(색인 없음) · `ELASTIC_PASSWORD` 빈 값 | 키워드 목록 없이 벡터 목록만으로 채움. 경고 1줄(`keyword_unavailable reason=…`, 값·본문 없음) |
+| (b)(c) 임베딩 실패 · PG 2차 실패 · 합치기 층 예외 | **1차 결과만** 반환(경고 1줄) |
+| (a) 임베딩·PG 1차 실패 | 지금처럼 `RetrievalUnavailable` → `[]` |
+
+색인 문서 수와 DB 행 수가 다른지는 **색인 도구에서만** 확인(요청마다 `_count` 안 부름 — 시간).
+
+### Elasticsearch 연결
+
+- 백엔드 compose 의 `elasticsearch`(9.5.6, 보안 켬, `elastic` 계정, `ops` 프로필, 호스트 포트 없음). AI 컨테이너는 `dajaba_default` 네트워크에서 `elasticsearch:9200`. AI 리포 compose 는 `env_file: .env` — 백엔드 리포 변경 0.
+- 클라이언트: **기존 `httpx` 로 REST 직접**(`_search`·`_bulk`·색인 생성/삭제·`_count` 뿐 — 새 라이브러리 0). 설정 이름·기본값은 `shared/05` "RAG" 표. 비밀값은 `.env` 만, 로그에 값 0.
+- **원본은 PostgreSQL, ES 에는 검색 색인만**. 색인 도구 `tools/index_es.py`: `ai.reference_chunks` 를 읽어 색인을 지우고 다시 만든 뒤 `_bulk` → `refresh` → `_count` = DB 행 수(다르면 종료 코드 1). 실행은 AI 컨테이너 안(호스트에서 ES 에 못 닿음).
+
+| 필드 | 타입 | 비고 |
+|---|---|---|
+| `chunk_id` (= `_id`) | keyword | DB `chunk_id` |
+| `doc_id` · `lang` · `typologies` | keyword | |
+| `page` | integer | |
+| `text_en` | text, `english` 분석기 | `lang=en` 청크만 |
+| `text_ko` | text, `cjk` 분석기(바이그램) | `lang=ko` 청크만. nori 는 이미지에 없음(플러그인 0개) → 2차 |
+
+- **`_source` 에서 `text_en`·`text_ko` 제외** — 본문은 역색인에만, ES 에 원문을 저장하지 않음. 검색 응답에서 받는 건 `chunk_id`·순위뿐.
+
+### 평가 세트 (30개, 합성 픽스처)
+
+- facts 는 **합성 픽스처**(`tests/str/fixtures/facts_*.json` 모양) — 로컬 ops 경보는 전부 R02_FAN_IN 이라 유형이 안 나뉨. **질의마다 facts 범주를 달리**(industry·`model_signals`·방향·결제 방식·통화 수·상대 규모·다른 은행 계좌 유무) — 계좌·금액·이름 0. 11/18 기준선 질의 10개로는 검색어를 고르지 않음(탐색용 기록으로만).
+- 배분 — **판정 분모가 CYCLE 의 채운 칸뿐이라 CYCLE 에 몰음**:
+
+| 유형 | 개발용 | 보류용 | 합 | 보는 것 |
+|---|---|---|---|---|
+| CYCLE | 6 | 8 | 14 | 채운 칸 정답 비율 |
+| FAN_IN | 2 | 2 | 4 | 지금 경로 결과 그대로 |
+| FAN_OUT | 2 | 2 | 4 | 지금 경로 결과 그대로 |
+| 정답 없음 (SCATTER_GATHER 3 · GATHER_SCATTER 3 · FX_RELAY 2) | 4 | 4 | 8 | 0건 유지 |
+| 합 | 14 | 16 | 30 | |
+
+- 파일: `tests/str/rag_eval_v2/queries_dev.json` · `queries_holdout.json`(질의 = 기존 facts 픽스처 + 범주 칸 overrides — industry·`model_signals`·방향·결제 방식·자행/타행 수) · `answers_dev.json` · `answers_holdout.json`.
+- 정답 모양 — 위치(청크를 다시 잘라도 비교되게, 11/18 기준선과 같은 칸) **와** 지금 `chunk_id` 를 같이(판정 실행은 ES 때문에 AI 컨테이너 안에서 도는데 이미지에 PDF·pymupdf 가 없어 위치를 다시 못 셈 — 지금 청크로는 `chunk_id` 로 맞춤). **원문 0**:
+  `{query_id, answers: [{chunk_id, doc_id, page, pos, grade}], draft, checked_by, checked_at}` — `pos` = 쪽 안 청크 순번, `grade` 2(그래프 패턴 직접) / 1(관련 약함), `draft` = `llm:rag_answer_v1` 또는 `human`. 표에 없는 청크는 0(오답).
+- **초벌**: 질의마다 425 가 아니라 **(유형 × 청크) 한 번**(정답 있는 3유형 CYCLE·FAN_IN·FAN_OUT × 425) → 질의별로 facts 특징 때문에 갈리는 것만 사람이 고침. 프롬프트는 평가 도구용 `tools/prompts/rag_answer_v1.md`(서비스 프롬프트 폴더 밖 · 기동 해시 검사 대상 아님 · 결과 파일에 sha256 · 바꾸면 v2). 청크 본문을 외부 LLM(임베딩과 같은 공급자)에 보내는 건 **이용 조건 ⑤와 같은 처리로 봄**(09 2026-11-19) — 출력은 `doc_id`·`page`·`pos`·`grade` 만, 원문 반입 0.
+- **정답 확인**: 설계자(진희)가 아닌 팀원 한 명이 **425개 전체**에서 확인(확인 칸·확인자·날짜). **2차 블라인드 태깅(`rag2/03_sampling.md`) 두 사람과 다른 사람**. 확인자는 확인 단계 전에 진희가 정함.
+
+### 판정 기준 (정답 보기 전 — 09 2026-11-19 같은 줄)
+
+아래를 **모두** 넘고 "켤 때 갖출 것"이 다 있으면 `RAG_GAP_FILL_ENABLED` 기본값을 `true` 로:
+
+1. **채운 칸 중 정답(grade ≥ 1) 비율 ≥ 0.75** — **보류용 질의로만, 한 번**
+2. **정답 없는 질의 8개 전부 0건** — 개발용 + 보류용(정답을 안 봐도 되는 코드 성질)
+3. **지금 경로(한 번 · 필터 켬)의 상위 결과가 30개 질의 모두에서 순서·`chunk_id` 그대로** — 개발용 + 보류용(코드 성질)
+4. 채운 칸이 **6개 미만이면 판정하지 않음** — 끈 채로 두고 숫자만 기록
+
+- 지금 코퍼스면 보류용 CYCLE 8개 × 1칸 = 채운 칸 최대 8 → 0.75 = 6/8. 30개로는 큰 차이만 잡힘 — "통계적으로 유의하다"가 아니라 **"미리 적은 규칙을 넘었다"**로 말한다.
+- 미달이면 끈 채로 두고 숫자만 기록(이 절 · 09 · Jira).
+
+**판정 순서**: ① 이 기준을 09·10 에 커밋 → ② 개발용 질의로 검색어 실험(언어별 키워드 문장 · (b)를 첫 검색어로 등) → 고른 설정을 09 에 적음 → ③ 보류용 한 번 판정 → ④ 통과면 기본 켬.
+
+**도구**(손 실행, pytest 수집 안 됨 — 판정 숫자는 `tests/str/rag_eval_v2_support.py` 상수 = 위 기준):
+- 정답 초벌 `tests/str/rag_answer_draft_live.py` — 호스트에서(PDF 쪽 안 순번 복원에 pymupdf). `answer_draft.json` → `--expand` 로 `answers_*.json`(이미 있으면 덮어쓰지 않음 — 확인 내용 보호)
+- 색인 `tools/index_es.py` · 평가 `tests/str/rag_eval_v2_live.py --split dev|holdout [--no-keyword]` — AI 컨테이너 안에서(ES 호스트 포트 없음). 결과 `result_{split}.json` 은 chunk_id·시간·채운 칸 cosine 만
+- **보류용 거절 규칙**(실행 전): 보류용 결과가 이미 있음 · 개발용 결과 없음 · 개발용 마지막 결과와 키워드 설정이 다름 · 보류용 정답 확인 안 끝남. 보류용 판정 = 개발용 + 보류용 실행 결과로(②③ 은 30개 전부)
+
+**켤 때 갖출 것**(통과해도 다 있어야 켬): 0건 규칙 테스트(SG·GS) · fail-open 테스트(위 표) · 스위치 env(`RAG_GAP_FILL_ENABLED`, 앱 재시작으로 끔) · 키워드 호출 짧은 타임아웃 + 초안 80초 예산 안 늘어난 시간 실측 · 채운 칸 `score` = (a) cosine · `retrieval_version` 꼬리(아래 "버전") · 오류 주입 13·14 통과 · 외부 호출 중 DB 연결 안 듦 · v4 에만.
+
 ## 버전
 
 `retrieval_version = f"{EMBEDDING_MODEL}@{manifest_sha256[:8]}"` → `generation_meta`, `generations.retrieval_version`.
+
+- **SCRUM-275**: `RAG_GAP_FILL_ENABLED` 가 켜져 있으면 꼬리를 붙임 — `{EMBEDDING_MODEL}@{manifest_sha256[:8]}+fill:{검색어 종류}+kw:{ELASTIC_INDEX}` (예 `text-embedding-3-small@ac39ff86+fill:abc+kw:ai_reference_chunks_v1`, 128자 안 — `generations.retrieval_version` String(128)). 끄면 지금 그대로. 백엔드는 health 로그에만 찍고 파싱하지 않음(`AiHealthCheck`) — 백엔드 변경 0. v2·v3 프롬프트면 켜져 있어도 채우지 않으므로 꼬리를 붙이지 않음.
 
 ## 일정 (W4 전반, 3~4일)
 
@@ -406,7 +505,7 @@ W3 초안 생성·검증이 먼저 서 있어야 한다. 순서를 바꾸지 않
 1. **평가 세트 확장** — 질의 10개 → 30~50개, 정답 없는 질의 포함, **질의마다 facts 를 달리**(146 기준선에서 (c) 문장이 10개 모두 같았음), 유형 필터 켬/끔 둘 다(주 비교는 끔), 지표에 recall@10 · 정답 없는 질의 오탐. 정답 위치는 `chunk_id` 가 아니라 doc_id·page·쪽 안 순번. 개발용/보류용 나눔. 11/18 기준선 파일(`tests/str/rag_baseline_20261118{,_ac,_a}.json`)로 재채점 가능.
 2. **태그 검수** — 용어 대응표(공개 자료 용어 → FAN_IN·FAN_OUT·CYCLE·SG·GS)부터. 태그 없는 398청크 검토 목록은 SCRUM-281. 두 사람 표본 일치율 → LLM 후보 비교(태그별 놓친 비율) → 사람 승인 뒤에만 적용.
 3. **자료 확장** — 2 뒤에도 SG·GS 근거가 비면. 1순위 후보 **APG Yearly Typologies Report**(Annual Report 와 다른 문서). 넣기 전 이용 조건 확인 → 쪽수·해시 검증 → 문단별 역할·태그 검수.
-4. **하이브리드 + 다중 질의** — 합치기 층은 SCRUM-146 에서 기본 끔으로 이미 있음, 키워드(Elasticsearch)는 SCRUM-275 로 같은 층. 켤 기준은 09 2026-11-18 "SCRUM-146 판정 기준" 줄.
+4. **하이브리드 + 다중 질의** — 합치기 층은 SCRUM-146 에서 기본 끔으로 이미 있음, 키워드(Elasticsearch)는 SCRUM-275 로 같은 층. 켤 기준은 09 2026-11-19 "SCRUM-275 판정 기준" 줄로 대체(빈칸만 채우기).
 5. **리랭커 · 유사도 임계값** — 후보가 넓어진 뒤. cosine 절댓값 컷오프는 정답 없는 질의와 정답 쪽 점수가 겹쳐 안 됨(11/12 · 11/18 실측).
 6. **사례 검색 화면** — 사람 평가(참고 사례가 도움 되는지) 기준을 넘은 뒤. 규약 변경 요청 먼저.
 7. **청크 자동 태깅(LLM)** — 자료를 여러 권 넣게 될 때. 사람 일치율 기준 뒤.

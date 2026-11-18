@@ -10,7 +10,7 @@
 | `feature_version` | `aml_ml.FEATURE_VERSION` | 점수 응답 |
 | `prompt_version` | `narrative_v1` 같은 파일명 (해시는 `prompt_versions` 테이블) | STR·요약 응답 |
 | `verifier_version` | 코드 검증 로직 버전 문자열, 예 `verify-2026.11.01` + judge 프롬프트 버전 `judge_v1` | 검증 응답 |
-| `retrieval_version` **(10/26)** | `{embedding_model}@{corpus_manifest_sha256[:8]}` | STR 응답 `generation_meta` |
+| `retrieval_version` **(10/26)** | `{embedding_model}@{corpus_manifest_sha256[:8]}` — `RAG_GAP_FILL_ENABLED` 켜고 v4 면 꼬리 `+fill:{검색어 종류}+kw:{ELASTIC_INDEX}` (SCRUM-275, `str/10` "버전") | STR 응답 `generation_meta` |
 | `llm_model` | 실제 호출한 모델 ID(설정값이 아니라 API가 돌려준 값) | STR·요약·검증 응답 |
 | `server_version` | git 커밋 짧은 해시 (빌드 시 주입) | `/v1/health`와 모든 응답 |
 
