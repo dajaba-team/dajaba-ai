@@ -20,14 +20,14 @@ manifest는 Docker 이미지에도 복사한다(`Dockerfile` `COPY corpus/manife
 | `fatf-pml-2018` | FATF, Professional Money Laundering (2018, 53쪽) | 계정 관리망·현금 운반망·대리 네트워크 |
 | `fincen-funnel-2014` | FinCEN Advisory FIN-2014-A005, Funnel Accounts (2014, 6쪽) | **FAN_IN** 정의 + 적색신호 |
 | `ffiec-redflags` | FFIEC BSA/AML Manual Appendix F, Red Flags (웹→PDF, 8쪽) | 적색신호 목록 — 원본 PDF 없음, 웹 본문을 PDF 로(2026-11-09, 머리에 출처 URL) |
-| `fincen-msb-ko-2007` | FinCEN, 금전 서비스 업체 지침 (한국어, 2007, 52쪽) | 유일한 국문 공개 자료 — 한국어 질의 매칭 재료 |
+| `fincen-msb-ko-2007` | FinCEN, 금전 서비스 업체 지침 (한국어, 2007, 52쪽) | 코퍼스의 국문 자료 1개(유형 태그 없음 — 필터를 켜면 검색에 안 나옴) — 한국어 질의 매칭 재료 |
 | `fincen-money-mule-2020` | FinCEN Advisory FIN-2020-A003, Money Mule Schemes (2020, 8쪽) | 머니 뮬 정의·수법. 레드플래그 목록은 PDF 텍스트로 안 뽑힘(정의·수법 문단만) |
 
 KoFIU 「자금세탁 의심거래 참고유형 사례집」은 금융회사 AML 담당자에게만 배포되고 공개본이 없다(2025.12.22 금융위 보도자료). 안 넣는다. 적색신호의 국문 표현은 FFIEC 부록 F를 번역한 청크로.
 
 ### 코퍼스 태그 근거 (SCRUM-125, 2026-11-11)
 
-PDF 본문에서 v2 유형(FAN_IN·FAN_OUT·CYCLE·SCATTER_GATHER·GATHER_SCATTER) 근거 쪽을 찾은 문서만 태그. 못 찾으면 빈 태그(검색 결과에 안 나옴). **큰 문서(fatf-*)와 `ffiec-redflags`는 쪽 단위 태그** — manifest `typology_pages: {유형: [쪽, ...]}` 에 적힌 쪽에서 나온 청크만 그 태그, 나머지 청크는 빈 태그. 유일한 문서 단위 태그는 `fincen-funnel-2014`(전 쪽이 FAN_IN). 절 단위 `sections` 맵은 SCRUM-146 으로. **ffiec 는 SCRUM-125 때 문서 단위 3태그(FAN_IN·FAN_OUT·CYCLE) 였으나, 같은 청크가 세 유형 결과에 모두 올라와 precision 떨어뜨림(★L-1 baseline FAN_IN 0.33 · FAN_OUT·CYCLE 0) → SCRUM-126 에서 쪽 단위 재태그 (FAN_IN p2·3·8 / FAN_OUT p4·5·7 / CYCLE p6).**
+PDF 본문에서 v2 유형(FAN_IN·FAN_OUT·CYCLE·SCATTER_GATHER·GATHER_SCATTER) 근거 쪽을 찾은 문서만 태그. 못 찾으면 빈 태그(검색 결과에 안 나옴). **큰 문서(fatf-*)와 `ffiec-redflags`는 쪽 단위 태그** — manifest `typology_pages: {유형: [쪽, ...]}` 에 적힌 쪽에서 나온 청크만 그 태그, 나머지 청크는 빈 태그. 유일한 문서 단위 태그는 `fincen-funnel-2014`(전 쪽이 FAN_IN). 절 단위 `sections` 맵은 2차 태그 검수로(SCRUM-146 은 합치기 층만 — 11/18). **ffiec 는 SCRUM-125 때 문서 단위 3태그(FAN_IN·FAN_OUT·CYCLE) 였으나, 같은 청크가 세 유형 결과에 모두 올라와 precision 떨어뜨림(★L-1 baseline FAN_IN 0.33 · FAN_OUT·CYCLE 0) → SCRUM-126 에서 쪽 단위 재태그 (FAN_IN p2·3·8 / FAN_OUT p4·5·7 / CYCLE p6).**
 
 CYCLE 기준(R04 = "4홉 안에 시작 계좌로 돌아오는 거래", 백엔드 rules.md): "**계좌가 순환하는 서술**(같은 돈이 계좌들을 돌아 출발 계좌로)" 이 원문에 있을 때만. "범죄 수익을 범죄자·의뢰인에게 돌려준다"(통합 단계) 는 CYCLE 근거 아님 — fatf-tbml-2020 p14 · fatf-pml-2018 p21·27·29 · fatf-tbml-2006 p19·20(비유적 상품 재수출) 모두 CYCLE 에서 제외.
 
@@ -64,7 +64,7 @@ FAN_IN 기준: "여러 출처 → 한 계좌(또는 소수)" 집중 입금 서�
 manifest 읽기 → PDF sha256 검증(안 맞으면 그 문서만 건너뛰고 로그) → 텍스트 추출(pymupdf, 쪽 번호 유지)
 → 청크: 문단 단위, 목표 500 토큰, 겹침 50, 표는 행 단위, 쪽 경계 넘지 않음
 → 태깅: manifest 에 `typology_pages` 가 있으면 **쪽 단위**(목록 안 쪽에서 나온 청크만 그 유형, 나머지 청크는 빈 태그),
-       없고 `typologies` 가 있으면 **문서 단위**(청크마다 같은 값). 둘 다 없으면 빈 태그. 절 단위 맵은 SCRUM-146·126 으로
+       없고 `typologies` 가 있으면 **문서 단위**(청크마다 같은 값). 둘 다 없으면 빈 태그. 절 단위 맵은 2차 태그 검수로(SCRUM-146 은 합치기 층만 — 11/18)
 → 임베딩: shared/embedding.embed(texts) 배치 64
 → ai.reference_chunks INSERT ... ON CONFLICT (content_hash) DO NOTHING
 ```
@@ -401,4 +401,28 @@ W3 초안 생성·검증이 먼저 서 있어야 한다. 순서를 바꾸지 않
 
 ## 2차로 넘기는 것
 
-APG 연례보고서·우리가 승인한 STR 추가, 하이브리드(BM25 + 벡터), 리랭커, 유사도 임계값 튜닝, 사례 검색 화면, 청크 자동 태깅(LLM). `retrieve()` 시그니처는 그대로라 `narrative_generator.py`는 안 바뀐다.
+**평가 세트 확장과 태그 검수가 선행**(09 2026-11-18 "RAG 2차 순서" — 11/18 실측: 425청크 중 유형 태그 27(6%) · SG·GS 0, 지금 만점은 태그 필터 덕분).
+
+1. **평가 세트 확장** — 질의 10개 → 30~50개, 정답 없는 질의 포함, **질의마다 facts 를 달리**(146 기준선에서 (c) 문장이 10개 모두 같았음), 유형 필터 켬/끔 둘 다(주 비교는 끔), 지표에 recall@10 · 정답 없는 질의 오탐. 정답 위치는 `chunk_id` 가 아니라 doc_id·page·쪽 안 순번. 개발용/보류용 나눔. 11/18 기준선 파일(`tests/str/rag_baseline_20261118{,_ac,_a}.json`)로 재채점 가능.
+2. **태그 검수** — 용어 대응표(공개 자료 용어 → FAN_IN·FAN_OUT·CYCLE·SG·GS)부터. 태그 없는 398청크 검토 목록은 SCRUM-281. 두 사람 표본 일치율 → LLM 후보 비교(태그별 놓친 비율) → 사람 승인 뒤에만 적용.
+3. **자료 확장** — 2 뒤에도 SG·GS 근거가 비면. 1순위 후보 **APG Yearly Typologies Report**(Annual Report 와 다른 문서). 넣기 전 이용 조건 확인 → 쪽수·해시 검증 → 문단별 역할·태그 검수.
+4. **하이브리드 + 다중 질의** — 합치기 층은 SCRUM-146 에서 기본 끔으로 이미 있음, 키워드(Elasticsearch)는 SCRUM-275 로 같은 층. 켤 기준은 09 2026-11-18 "SCRUM-146 판정 기준" 줄.
+5. **리랭커 · 유사도 임계값** — 후보가 넓어진 뒤. cosine 절댓값 컷오프는 정답 없는 질의와 정답 쪽 점수가 겹쳐 안 됨(11/12 · 11/18 실측).
+6. **사례 검색 화면** — 사람 평가(참고 사례가 도움 되는지) 기준을 넘은 뒤. 규약 변경 요청 먼저.
+7. **청크 자동 태깅(LLM)** — 자료를 여러 권 넣게 될 때. 사람 일치율 기준 뒤.
+8. **승인 STR 재사용** — 재사용 승인·철회 흐름과 자체 임베딩이 준비된 뒤(맨 뒤).
+
+- 목표는 청크 수가 아니라 유형별 커버리지(유형마다 출처 2곳 이상, 관련 청크 N개 — N 은 팀이 정함).
+- SCATTER_GATHER·GATHER_SCATTER 는 규제기관 용어가 아니라 합성 데이터(IBM·AMLSim) 이름이라, 공개 자료에서는 funnel account·pass-through·경유 계좌 같은 말로 찾는다 — 태그 기준에 용어 대응표가 필요.
+- **이용 조건 원칙**(진희 11/18 — 법률 판단 아님, 허가가 필요할 수 있는 건 하지 않는 쪽, 09 같은 날 줄):
+  ① 원문 PDF·추출 텍스트는 리포·이미지에 넣지 않음(리포 공개 · .gitignore corpus/pdf·corpus/text · Dockerfile PDF 제외 — SCRUM-256)
+  ② 화면·응답은 문서명·발행기관·연도·쪽·공식 링크만. 문단 발췌는 허가가 확인됐거나 공공 정보인 자료만 — 2차
+  ③ FATF·APG·Egmont 자료는 번역본 만들지 않음
+  ④ 초안 본문에 원문 문장 반입 금지(v4 는 안 씀 · 규칙 8)
+  ⑤ 임베딩 외부 API 전송은 처리용으로 보고 유지, 승인 STR 은 자체 임베딩(2차)
+  ⑥ 새 자료는 이용 조건 확인 뒤 적재(manifest 이용 조건·확인일 칸은 2차 자료 확장 때)
+  ⑦ 발표 자료 출처는 '문서명 · 발행기관 · 연도'
+  ⑧ 상업화·외부 서비스 땐 원 기관 허가부터 다시 봄
+  ⑨ 법률 해석은 진희가 멘토에게 확인 예정 — 답을 받으면 이 줄 갱신
+
+`retrieve()` 시그니처는 그대로라 `narrative_generator.py`는 안 바뀐다.
