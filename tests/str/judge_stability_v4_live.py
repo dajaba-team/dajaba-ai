@@ -25,6 +25,7 @@ from typing import Any
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.infrastructure.llm_client import HttpLlmClient
 from aml_ai.str.domain.constants import JUDGE_PASS_SCORE, JUDGE_SCHEMA_RETRY, JUDGE_VOTES
+from aml_ai.str.domain.constants_v4 import V4_CATALOG_VERSION
 from aml_ai.str.infrastructure.judge import Judge, JudgeResult
 from tests.str.demo_alerts import DEFAULT_DEMO_ALERTS, demo_facts, load_exports, parse_alert_ids
 from tests.str.injection_live_support import TMP_DIR
@@ -56,6 +57,14 @@ def _cases(ids: list[int], requests: Path) -> list[V4Case]:
     cases = build_cases([(f"demo_{i}", demo_facts(session, exports[i]["request"])) for i in ids])
     session.rollback()  # 읽기만
     return cases
+
+
+def run_meta(
+    ids: list[int], cases: int, conditions: dict[str, Any], mode: str, reasons: list[str]
+) -> dict[str, Any]:
+    """결과 json 머리 — v4 문장 판(05 "카탈로그 판", SCRUM-269)을 같이 적어 어느 문장을 잰 결과인지 남김."""
+    return {"demo_alerts": ids, "cases": cases, "catalog_version": V4_CATALOG_VERSION, "conditions": conditions,
+            "llm_client": HttpLlmClient.__name__, "mode": mode, "mode_reasons": reasons}  # fmt: skip
 
 
 def _dry(cases: list[V4Case], prompt: str, meta: dict[str, Any], stamp: str) -> None:
@@ -111,8 +120,7 @@ def main(argv: list[str] | None = None) -> int:
         prompt=a.prompt, votes=JUDGE_VOTES, pass_score=JUDGE_PASS_SCORE, n=a.n, v4_cases=v4
     )
     mode, reasons = mode_of(conditions)  # 최종 판정(verdict)과 같은 함수
-    meta = {"demo_alerts": ids, "cases": len(cases), "conditions": conditions, "llm_client": HttpLlmClient.__name__,
-            "mode": mode, "mode_reasons": reasons}  # fmt: skip
+    meta = run_meta(ids, len(cases), conditions, mode, reasons)
     print(f"mode={mode} {reasons} cases={len(cases)} v4={v4} n={a.n} prompt={a.prompt}")
     if a.dry_run:
         _dry(cases, a.prompt, meta, stamp)

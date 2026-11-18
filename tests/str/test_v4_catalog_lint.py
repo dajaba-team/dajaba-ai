@@ -15,6 +15,7 @@ from aml_ai.str.domain.catalog_types import render
 from aml_ai.str.domain.constants_v4 import CONNECTIVES
 from aml_ai.str.domain.display_format import topic
 from aml_ai.str.domain.grounds_catalog import GROUNDS_ITEMS, NOT_CONFIRMED
+from aml_ai.str.domain.grounds_flow import FLOW_ITEMS
 from aml_ai.str.domain.opinion_catalog import CHECK_ITEMS
 from aml_ai.str.domain.opinion_heads import HEADS
 from tests.str.v4_catalog_lint import lint
@@ -27,7 +28,7 @@ CTX = {
     "typology": "자금 통과",
 }
 EXEMPT = {"G-PURPOSE-OUT": {"flag_topic"}, "B1": {"flag_topic"}}
-ITEMS = [*GROUNDS_ITEMS, *HEADS.values(), *CHECK_ITEMS]
+ITEMS = [*GROUNDS_ITEMS, *FLOW_ITEMS.values(), *HEADS.values(), *CHECK_ITEMS]
 _NOUNS = [i.noun for i in GROUNDS_ITEMS if i.noun]
 BUNDLES = [  # 묶기 문장 — 명사구 둘 이상 전부 조합(순서는 우선순위대로)
     ("bundle", f"{', '.join(c[:-1])}, {topic(c[-1])} {NOT_CONFIRMED}")

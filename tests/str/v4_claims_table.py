@@ -22,6 +22,21 @@ def _cycle(f: Facts) -> bool:
     )
 
 
+def _sg_supported(f: Facts) -> bool:
+    paths = f.paths
+    return (
+        paths is not None
+        and paths.status is PathStatus.VERIFIED
+        and paths.kind is not None
+        and paths.kind.value == "SCATTER_GATHER"
+        and paths.count >= 3  # R05 min_intermediates
+    )
+
+
+def _typ(f: Facts) -> str | None:
+    return f.typology.value if f.typology else None
+
+
 def _purpose(f: Facts) -> str | None:
     return f.customer.account_purpose if f.customer else None
 
@@ -63,6 +78,14 @@ CLAIMS: dict[str, Callable[[Facts], bool]] = {  # 키는 정규식
         bool(f.observations) and all(o.window_start is None and o.window_end is None for o in f.observations)
     ),
 }
+# SCRUM-269 흐름 문장 — 송금인 하한(상대 − 출금) ≥ 5 · 수취인 하한(상대 − 입금) ≥ 10 · 경로 확인(05 "흐름 문장")
+FLOW_CLAIMS: dict[str, Callable[[Facts], bool]] = {
+    "여러 송금인 계좌": lambda f: _typ(f) == "FAN_IN" and f.counterparties.count - f.outbound.count >= 5,
+    "여러 수취인 계좌": lambda f: _typ(f) == "FAN_OUT" and f.counterparties.count - f.inbound.count >= 10,
+    "출발 계좌로 돌아옴": lambda f: _typ(f) == "CYCLE" and _cycle(f),
+    "서로 다른 중간 계좌": lambda f: _typ(f) == "SCATTER_GATHER" and _sg_supported(f),
+}
+CLAIMS |= FLOW_CLAIMS
 # 관측값 단위 부재 주장 — 그 관측값 문장 안에서만, 그 관측값에 대해 참
 OBS_CLAIMS: dict[str, Callable[[Any, Facts], bool]] = {
     "이 관측값의 비교 기준값은 자료 없음": lambda o, f: (

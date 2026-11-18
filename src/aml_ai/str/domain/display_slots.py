@@ -21,13 +21,14 @@ from aml_ai.str.domain.display_slots_method import (
     method_slots,
     payment_parts,
 )
+from aml_ai.str.domain.grounds_flow import flow_sentence
 from aml_ai.str.domain.slot_types import Slots, SlotSentence, no_data, slot
 from aml_ai.str.domain.typology_support_text import support_sentence
 
 
 def build_slots(facts: dict[str, Any], labels: Labels, flags: dict[str, bool] | None = None) -> Slots:
     """섹션별 슬롯 문장. OPINION 은 늘 빈 목록. 플래그 문장은 `single_day` 만(05 — 나머지는 숫자 문장과 반복).
-    GROUNDS 맨 앞은 유형 뒷받침 판정 문장(판정 없는 유형이면 없음, SCRUM-265 2/2)."""
+    GROUNDS 맨 앞은 유형 뒷받침 판정 문장(판정 없는 유형이면 없음, SCRUM-265 2/2), 둘째는 뒷받침됨일 때만 흐름 문장(SCRUM-269)."""
     flags = derive_flags(facts) if flags is None else flags
     single_day = [slot(FLAG_SLOT_TEXT["single_day"], "period")] if flags["single_day"] else []
     return {
@@ -36,7 +37,7 @@ def build_slots(facts: dict[str, Any], labels: Labels, flags: dict[str, bool] | 
         SectionV2.PLACE: place_slots(facts),
         SectionV2.INSTRUMENT: instrument_slots(facts, labels),
         SectionV2.METHOD: method_slots(facts, labels),
-        SectionV2.GROUNDS: [s for s in (support_sentence(facts, labels),) if s]
+        SectionV2.GROUNDS: [s for s in (support_sentence(facts, labels), flow_sentence(facts)) if s]
         + grounds_slots(facts, labels),
         SectionV2.OPINION: [],
     }
@@ -82,10 +83,10 @@ def _customer_slots(customer: dict[str, Any] | None, labels: Labels) -> list[Slo
         lab = labels["account_purpose"][purpose]
         out.append(slot(f"계좌 목적은 {with_ro(lab)} 등록되어 있음.", "customer.account_purpose"))
     if onboarded is None:
-        out.append(no_data("계좌 개설일"))
-    else:
+        out.append(no_data("고객 등록일"))
+    else:  # SCRUM-269 ③-1 — onboarded_at 은 고객 등록일(계좌 개설일 아님). 06 DATE 는 `등록일` 을 개설일 용도로 읽음
         day = ko_date(date.fromisoformat(str(onboarded)))
-        out.append(slot(f"계좌 개설일은 {copula(day)}.", "customer.onboarded_at"))
+        out.append(slot(f"고객 등록일은 {copula(day)}.", "customer.onboarded_at"))
     return out
 
 
