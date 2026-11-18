@@ -18,7 +18,15 @@ class Base(DeclarativeBase):
 @lru_cache
 def get_engine() -> Engine:
     s = get_settings()
-    return create_engine(s.sqlalchemy_url, pool_pre_ping=True, pool_size=5, max_overflow=5, future=True)
+    # 처리 안 된 예외 스택에 SQL 파라미터(= 응답 본문)가 섞이지 않게 (docs/shared/04 · SCRUM-272).
+    return create_engine(
+        s.sqlalchemy_url,
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=5,
+        future=True,
+        hide_parameters=True,
+    )
 
 
 def get_session() -> Iterator[Session]:
