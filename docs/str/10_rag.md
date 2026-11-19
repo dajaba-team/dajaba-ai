@@ -494,6 +494,24 @@ facts → (a) build_query 임베딩 1회 → PG 1차(필터 켬, 지금 SQL) →
 
 **켤 때 갖출 것**(통과해도 다 있어야 켬): 0건 규칙 테스트(SG·GS) · fail-open 테스트(위 표) · 스위치 env(`RAG_GAP_FILL_ENABLED`, 앱 재시작으로 끔) · 키워드 호출 짧은 타임아웃 + 초안 80초 예산 안 늘어난 시간 실측 · 채운 칸 `score` = (a) cosine · `retrieval_version` 꼬리(아래 "버전") · 오류 주입 13·14 통과 · 외부 호출 중 DB 연결 안 듦 · v4 에만.
 
+### 결과 (11/19)
+
+- **정답 확인**: 준혁 · 범위는 `check_scope`(CYCLE 425 전부 · FAN_IN·FAN_OUT 은 LLM ≥ 1 행) · LLM 과 다른 16행(FAN_IN 12 · FAN_OUT 4, 전부 낮춤) · **CYCLE 변경 0** · 메모 `?` = "조금 애매함"(등급 그대로) · 시트·CSV 는 반영 뒤 지움 · 반영은 #78 직전 manifest 로(09 같은 날)
+- **개발용**(같은 정답):
+
+| 설정 | 채운 칸 | 정답 | 채운 청크 | 정답 없는 질의 | 지금 경로 |
+|---|---|---|---|---|---|
+| 키워드 끔 | 6 | 0 | 6칸 `ffiec-redflags` p8 | 0건 | 그대로 |
+| 키워드 켬 | 6 | 0 | 5칸 `ffiec-redflags` p8 · D04 `fincen-funnel-2014` p3 | 0건 | 그대로 |
+
+  켬 첫 실행은 ES 가 쉬던 직후라 `keyword_unavailable` 1회 → 버리고 다시 돌린 결과. 차이가 없어 설계대로 **키워드 켬**
+  키워드 켬은 보류용 실행 전에 고름(11/19 개발용 켬/끔 결과를 본 뒤 15:46) — 판정 순서 ②의 "고른 설정을 09 에 적음"과 달리 09 기록은 판정 뒤 이 PR 로 함(09 같은 날 판정 줄)
+- **보류용**(1회, 키워드 켬): 채운 칸 8 · 정답 0 · 비율 0.0 · 정답 없는 질의 0건 · 지금 경로 그대로 · 판정함 → **기준 미달, `RAG_GAP_FILL_ENABLED` 기본 끔 유지**
+- **원인**: CYCLE 정답 청크가 425 중 3개(`ffiec-redflags` p6 두 개 · `fincen-msb-ko-2007` p33)이고 앞의 둘은 원래 검색 1·2위 — 빈칸 정답은 msb-ko p33 하나인데 켬·끔 모두 못 가져옴 → 검색 방법보다 코퍼스 문제
+- **다음 후보**: "2차로 넘기는 것" 3번 자료 확장 — 후보로만, 하는지는 11/20 외부 의견 뒤 따로 정함
+- **결과 파일**(`tests/str/rag_eval_v2/`, 원문 0): `answer_draft.json`(LLM 초벌) · `answers_dev.json` · `answers_holdout.json` · `result_dev.json`(마지막 = 켬) · `result_holdout.json` · `holdout_ledger.jsonl`
+- **원장 테스트**: 원장 테스트를 실행 뒤 상태도 받게 고침 — 빈 파일 검사(`test_repo_ledger_exists_and_is_empty`) → `test_repo_ledger_is_well_formed`(`tests/str/test_rag_eval_v2_ledger_format.py`). ① 형식: 파일 있음 · 빈 파일 통과 · 줄마다 JSON · `set_sha256`·`status`·`at` 필수 · 같은 해시는 `reserved` 1줄 → `done`|`aborted` 1줄 순서대로 · 짝 없는 `reserved` 금지 · 해시 ∈ {지금 `queries_holdout.json` sha256} ∪ 이미 쓴 세트(새 보류용 세트로 바꿔도 과거 줄은 남김) ② **이미 쓴 세트**: 테스트 안 고정 목록 `CONSUMED_HOLDOUT_SETS`(11/19 `a7562b45…` → `done`)의 해시마다 리포 원장에 `reserved` 1줄 → 기대 상태 1줄이 남아 있어야 함 · 지금 보류용 세트가 그 목록에 있으면 원장에도 있어야 함 — 결과 파일 유무·출력 경로와 무관(원장을 통째로 비우거나 지워도 잡힘). 보류용을 새로 돌리면 그 세트 해시를 목록에 추가(같은 PR). 원장 코드·판정 기준 변경 0
+
 ## 버전
 
 `retrieval_version = f"{EMBEDDING_MODEL}@{manifest_sha256[:8]}"` → `generation_meta`, `generations.retrieval_version`.

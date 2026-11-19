@@ -1,0 +1,1011 @@
+{
+  "_doc": "SCRUM-275-2 확인 반영 정답 — 위치·chunk_id·사람 등급만, 원문 0. check_scope 로 본 범위 표시.",
+  "queries": [
+    {
+      "query_id": "D01",
+      "answers": [
+        {
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 33,
+          "pos": 1,
+          "grade": 1
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "all_chunks",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D02",
+      "answers": [
+        {
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 33,
+          "pos": 1,
+          "grade": 1
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "all_chunks",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D03",
+      "answers": [
+        {
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 33,
+          "pos": 1,
+          "grade": 1
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "all_chunks",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D04",
+      "answers": [
+        {
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 33,
+          "pos": 1,
+          "grade": 1
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "all_chunks",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D05",
+      "answers": [
+        {
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 33,
+          "pos": 1,
+          "grade": 1
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "all_chunks",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D06",
+      "answers": [
+        {
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 33,
+          "pos": 1,
+          "grade": 1
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "all_chunks",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D07",
+      "answers": [
+        {
+          "chunk_id": "a2f60eb5a32d16b804b8c11f2468377aef6371c485b145e16e6dc6a0c5138e83",
+          "doc_id": "fatf-pml-2018",
+          "page": 20,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "bf25038fb6f7d31a40a1ec6c69beb648dc3e9f0bb8861dc031fabb9582644ebb",
+          "doc_id": "fatf-pml-2018",
+          "page": 27,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "690605408b0ce28cf9eb8301903b9722b7f3347b338d1e3fb7583e300ccb02a0",
+          "doc_id": "fatf-pml-2018",
+          "page": 28,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "4653c0115d50c02ec6f335aa8da3289ad9ccea95b441b5943f540ddb0bb4cc0b",
+          "doc_id": "fatf-pml-2018",
+          "page": 28,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "a8eef46a6c3143b2d5caab2a2ba85bc05b20439f74639aa6e8e701f7399e992f",
+          "doc_id": "fatf-pml-2018",
+          "page": 29,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "2fbc8b6663444d24857018f37e9f8f0010df08d910ca923c8884b7c2bcd1361b",
+          "doc_id": "fatf-pml-2018",
+          "page": 40,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "23329a6d9054242eabe9715c0e5707d871e4e99ed7c77f401970b22184fab128",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "35094e27d7061d86e56afbaf2ddec7692d9afb5faba836e52f5df24b7ddd9af7",
+          "doc_id": "fatf-pml-2018",
+          "page": 45,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58",
+          "doc_id": "fatf-pml-2018",
+          "page": 48,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "ff84d17b24754dbcf975ed9c2522b03c7ac0edc9afb3da8b3a4027d90c69c750",
+          "doc_id": "fatf-tbml-2006",
+          "page": 22,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "3e7566e4b684eef7c6277e47ad1efad1125dd7513cd2d973d4e82e4c17c3d853",
+          "doc_id": "fatf-tbml-2006",
+          "page": 26,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "c6436231f902c88ffbfc4ec8087e09778c9d546ed0245d75006ccd64db47600f",
+          "doc_id": "fatf-tbml-2006",
+          "page": 26,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "aa9fe2b72b3d24fb29a5dfb5f829003c12adeb1ed0536b115fe0ac1f237077fa",
+          "doc_id": "fatf-tbml-2020",
+          "page": 30,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "7e5d8ea759e731c558067d9df0da55e48057562577ed309ebc7a5d2347313a10",
+          "doc_id": "fatf-tbml-2020",
+          "page": 53,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+          "doc_id": "ffiec-redflags",
+          "page": 8,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "8e5844fd50da27fa2b9dfd27ba32ff7d0385c9e7a6de1d9a13c959cd5b3fef11",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "8afd37b22e959be8448368489ebcf52a9a60f393bf09a99684c14f9bbefdeccf",
+          "doc_id": "fincen-funnel-2014",
+          "page": 4,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+          "doc_id": "fincen-funnel-2014",
+          "page": 6,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "a5f5bb29834bde053e8ab6f7ed6ce17c2ae16354a91cf764b55d3acc687a25bc",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 19,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "df5efee3964482e3b92c77cb6e4a5dcf2703c117a083bac691b09cc1adbe4e0f",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 23,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 27,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "4b349bf1e1010986f9131971eadb10c1227db16cf4db6e811bd035fa6928da77",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 50,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "41e147c77b03e6cd7ea10bfc7bddabf2d69b49b7de9ba293d1135e3457efff2e",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 7,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "327775902ce534daef0be564d0464a9d674eed1884768778f6ce0b19f2324c16",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 15,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "0e816328e61917185d725a59410e3d1f9b770d9c57367f09374bbdc34f6af542",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 15,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "5be9725df12cb5494b77fbe305ea3c56745db0212523445f9d2706155d328ec5",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 16,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "ba81c983a05cc365f731accb2f4da1af348f35c6f8c0aa78bc16ddcb1c860702",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 18,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "01ade36d395edc5078e255251654ca541aaaef7f559378160441d3bf2eccd177",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 20,
+          "pos": 1,
+          "grade": 2
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "llm_positive_rows",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D08",
+      "answers": [
+        {
+          "chunk_id": "a2f60eb5a32d16b804b8c11f2468377aef6371c485b145e16e6dc6a0c5138e83",
+          "doc_id": "fatf-pml-2018",
+          "page": 20,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "bf25038fb6f7d31a40a1ec6c69beb648dc3e9f0bb8861dc031fabb9582644ebb",
+          "doc_id": "fatf-pml-2018",
+          "page": 27,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "690605408b0ce28cf9eb8301903b9722b7f3347b338d1e3fb7583e300ccb02a0",
+          "doc_id": "fatf-pml-2018",
+          "page": 28,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "4653c0115d50c02ec6f335aa8da3289ad9ccea95b441b5943f540ddb0bb4cc0b",
+          "doc_id": "fatf-pml-2018",
+          "page": 28,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "a8eef46a6c3143b2d5caab2a2ba85bc05b20439f74639aa6e8e701f7399e992f",
+          "doc_id": "fatf-pml-2018",
+          "page": 29,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "2fbc8b6663444d24857018f37e9f8f0010df08d910ca923c8884b7c2bcd1361b",
+          "doc_id": "fatf-pml-2018",
+          "page": 40,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "23329a6d9054242eabe9715c0e5707d871e4e99ed7c77f401970b22184fab128",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "35094e27d7061d86e56afbaf2ddec7692d9afb5faba836e52f5df24b7ddd9af7",
+          "doc_id": "fatf-pml-2018",
+          "page": 45,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58",
+          "doc_id": "fatf-pml-2018",
+          "page": 48,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "ff84d17b24754dbcf975ed9c2522b03c7ac0edc9afb3da8b3a4027d90c69c750",
+          "doc_id": "fatf-tbml-2006",
+          "page": 22,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "3e7566e4b684eef7c6277e47ad1efad1125dd7513cd2d973d4e82e4c17c3d853",
+          "doc_id": "fatf-tbml-2006",
+          "page": 26,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "c6436231f902c88ffbfc4ec8087e09778c9d546ed0245d75006ccd64db47600f",
+          "doc_id": "fatf-tbml-2006",
+          "page": 26,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "aa9fe2b72b3d24fb29a5dfb5f829003c12adeb1ed0536b115fe0ac1f237077fa",
+          "doc_id": "fatf-tbml-2020",
+          "page": 30,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "7e5d8ea759e731c558067d9df0da55e48057562577ed309ebc7a5d2347313a10",
+          "doc_id": "fatf-tbml-2020",
+          "page": 53,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+          "doc_id": "ffiec-redflags",
+          "page": 8,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "8e5844fd50da27fa2b9dfd27ba32ff7d0385c9e7a6de1d9a13c959cd5b3fef11",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "8afd37b22e959be8448368489ebcf52a9a60f393bf09a99684c14f9bbefdeccf",
+          "doc_id": "fincen-funnel-2014",
+          "page": 4,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+          "doc_id": "fincen-funnel-2014",
+          "page": 6,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "a5f5bb29834bde053e8ab6f7ed6ce17c2ae16354a91cf764b55d3acc687a25bc",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 19,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "df5efee3964482e3b92c77cb6e4a5dcf2703c117a083bac691b09cc1adbe4e0f",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 23,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 27,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "4b349bf1e1010986f9131971eadb10c1227db16cf4db6e811bd035fa6928da77",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 50,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "41e147c77b03e6cd7ea10bfc7bddabf2d69b49b7de9ba293d1135e3457efff2e",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 7,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "327775902ce534daef0be564d0464a9d674eed1884768778f6ce0b19f2324c16",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 15,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "0e816328e61917185d725a59410e3d1f9b770d9c57367f09374bbdc34f6af542",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 15,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "5be9725df12cb5494b77fbe305ea3c56745db0212523445f9d2706155d328ec5",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 16,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "ba81c983a05cc365f731accb2f4da1af348f35c6f8c0aa78bc16ddcb1c860702",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 18,
+          "pos": 2,
+          "grade": 2
+        },
+        {
+          "chunk_id": "01ade36d395edc5078e255251654ca541aaaef7f559378160441d3bf2eccd177",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 20,
+          "pos": 1,
+          "grade": 2
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "llm_positive_rows",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D09",
+      "answers": [
+        {
+          "chunk_id": "129cb4f160b2c904b701afa1ca93312dac967bf036547ca4905ce134a40bd1aa",
+          "doc_id": "fatf-pml-2018",
+          "page": 25,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "bf25038fb6f7d31a40a1ec6c69beb648dc3e9f0bb8861dc031fabb9582644ebb",
+          "doc_id": "fatf-pml-2018",
+          "page": 27,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "690605408b0ce28cf9eb8301903b9722b7f3347b338d1e3fb7583e300ccb02a0",
+          "doc_id": "fatf-pml-2018",
+          "page": 28,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "21c615317a754ca33eec16f435f02fb56f930b8f80664e76b1732ee6c0e3e21e",
+          "doc_id": "fatf-pml-2018",
+          "page": 33,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "1359026c77371a4568d27663ae0792557d142478a2fb6d1785bb56c23b27cdf1",
+          "doc_id": "fatf-pml-2018",
+          "page": 39,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "23329a6d9054242eabe9715c0e5707d871e4e99ed7c77f401970b22184fab128",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58",
+          "doc_id": "fatf-pml-2018",
+          "page": 48,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "ff84d17b24754dbcf975ed9c2522b03c7ac0edc9afb3da8b3a4027d90c69c750",
+          "doc_id": "fatf-tbml-2006",
+          "page": 22,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 27,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "01302e5f075d8f02cf366fc301f55bf24bdc877734065c7a650ec953cc03f6c3",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 19,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "20acf4547a880d9a0622ad8c247236e5d1481becd4e91f2ae51a1f5bd6842ddc",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 28,
+          "pos": 1,
+          "grade": 2
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "llm_positive_rows",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    },
+    {
+      "query_id": "D10",
+      "answers": [
+        {
+          "chunk_id": "129cb4f160b2c904b701afa1ca93312dac967bf036547ca4905ce134a40bd1aa",
+          "doc_id": "fatf-pml-2018",
+          "page": 25,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "bf25038fb6f7d31a40a1ec6c69beb648dc3e9f0bb8861dc031fabb9582644ebb",
+          "doc_id": "fatf-pml-2018",
+          "page": 27,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "690605408b0ce28cf9eb8301903b9722b7f3347b338d1e3fb7583e300ccb02a0",
+          "doc_id": "fatf-pml-2018",
+          "page": 28,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "21c615317a754ca33eec16f435f02fb56f930b8f80664e76b1732ee6c0e3e21e",
+          "doc_id": "fatf-pml-2018",
+          "page": 33,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "1359026c77371a4568d27663ae0792557d142478a2fb6d1785bb56c23b27cdf1",
+          "doc_id": "fatf-pml-2018",
+          "page": 39,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "23329a6d9054242eabe9715c0e5707d871e4e99ed7c77f401970b22184fab128",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58",
+          "doc_id": "fatf-pml-2018",
+          "page": 48,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "ff84d17b24754dbcf975ed9c2522b03c7ac0edc9afb3da8b3a4027d90c69c750",
+          "doc_id": "fatf-tbml-2006",
+          "page": 22,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "grade": 1
+        },
+        {
+          "chunk_id": "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 27,
+          "pos": 1,
+          "grade": 2
+        },
+        {
+          "chunk_id": "01302e5f075d8f02cf366fc301f55bf24bdc877734065c7a650ec953cc03f6c3",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 19,
+          "pos": 2,
+          "grade": 1
+        },
+        {
+          "chunk_id": "20acf4547a880d9a0622ad8c247236e5d1481becd4e91f2ae51a1f5bd6842ddc",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 28,
+          "pos": 1,
+          "grade": 2
+        }
+      ],
+      "draft": "human",
+      "llm_draft": "llm:rag_answer_v1",
+      "llm_prompt_sha256": "8751f3f6ef0ddd0b8bc0921b179bca6b34f3ebab0c9f6e89d95275fb30a15d2c",
+      "check_scope": "llm_positive_rows",
+      "checked_by": "준혁",
+      "checked_at": "2026-11-19"
+    }
+  ]
+}
