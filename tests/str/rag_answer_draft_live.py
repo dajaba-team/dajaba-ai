@@ -6,6 +6,7 @@
 
 (유형 × 청크) 한 번씩 LLM 에 등급(0·1·2)만 물음 — 프롬프트 `tools/prompts/rag_answer_v1.md`(버전 고정).
 청크 본문을 외부 LLM 에 보냄(09 2026-11-19, 이용 조건 ⑤와 같은 처리). 결과 파일에는 chunk_id·doc_id·page·pos·grade 만.
+`by_typology` = 등급 1·2 만(정답 목록), `graded_by_typology` = 0 까지 전 행(SCRUM-275-2 확인 시트 — "LLM 0"과 "안 매김"을 가름).
 `--expand` = 초벌 → `answers_dev.json`·`answers_holdout.json`(확인 칸 비움). 이미 있으면 덮어쓰지 않음.
 """
 
@@ -74,15 +75,16 @@ def draft(settings: Settings, typologies: tuple[str, ...], limit: int | None) ->
     seq, unavailable = restore_sequences(manifest, settings.corpus_dir)
     system = PROMPT.read_text(encoding="utf-8")
     by_typology: dict[str, list[dict]] = {t: [] for t in typologies}
+    graded: dict[str, list[dict]] = {t: [] for t in typologies}
     with httpx.Client(timeout=settings.llm_timeout_s) as http:
         for typology in typologies:
             for row in rows:
                 grade = ask(http, settings, system, typology, row.text)
+                item = {"chunk_id": row.chunk_id, "doc_id": row.doc_id, "page": row.page,
+                        "pos": seq.get(row.chunk_id), "grade": grade}  # fmt: skip
+                graded[typology].append(item)
                 if grade > 0:
-                    by_typology[typology].append(
-                        {"chunk_id": row.chunk_id, "doc_id": row.doc_id, "page": row.page,
-                         "pos": seq.get(row.chunk_id), "grade": grade}
-                    )  # fmt: skip
+                    by_typology[typology].append(dict(item))
             print(f"{typology}: graded={len(rows)} positive={len(by_typology[typology])}")
     return {
         "prompt_version": PROMPT_VERSION,
@@ -93,6 +95,7 @@ def draft(settings: Settings, typologies: tuple[str, ...], limit: int | None) ->
         "limit": limit,
         "pos_unavailable_docs": unavailable,
         "by_typology": by_typology,
+        "graded_by_typology": graded,
     }
 
 

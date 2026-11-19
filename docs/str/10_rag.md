@@ -459,6 +459,8 @@ facts → (a) build_query 임베딩 1회 → PG 1차(필터 켬, 지금 SQL) →
   `{query_id, answers: [{chunk_id, doc_id, page, pos, grade}], draft, checked_by, checked_at}` — `pos` = 쪽 안 청크 순번, `grade` 2(그래프 패턴 직접) / 1(관련 약함), `draft` = `llm:rag_answer_v1` 또는 `human`. 표에 없는 청크는 0(오답).
 - **초벌**: 질의마다 425 가 아니라 **(유형 × 청크) 한 번**(정답 있는 3유형 CYCLE·FAN_IN·FAN_OUT × 425) → 질의별로 facts 특징 때문에 갈리는 것만 사람이 고침. 프롬프트는 평가 도구용 `tools/prompts/rag_answer_v1.md`(서비스 프롬프트 폴더 밖 · 기동 해시 검사 대상 아님 · 결과 파일에 sha256 · 바꾸면 v2). 청크 본문을 외부 LLM(임베딩과 같은 공급자)에 보내는 건 **이용 조건 ⑤와 같은 처리로 봄**(09 2026-11-19) — 출력은 `doc_id`·`page`·`pos`·`grade` 만, 원문 반입 0.
 - **정답 확인**: 설계자(진희)가 아닌 팀원 한 명이 **425개 전체**에서 확인(확인 칸·확인자·날짜). **2차 블라인드 태깅(`rag2/03_sampling.md`) 두 사람과 다른 사람**. 확인자는 확인 단계 전에 진희가 정함.
+- **확인 범위(SCRUM-275-2, 09 2026-11-19)**: 판정에 쓰이는 정답은 보류용 채운 칸의 등급뿐이고 지금 채울 칸이 생기는 유형은 CYCLE 하나 → **CYCLE 은 425 전부**, FAN_IN·FAN_OUT 은 **LLM 등급 ≥ 1 행만** 사람이 봄(판정에 안 쓰임 · 개발용 실험 참고용). 정답 파일 질의 칸 `check_scope` 로 범위를 남김 — `all_chunks`(전부 봄) / `llm_positive_rows`(LLM 1·2 행만 봄, LLM 0 행은 사람 확인 없이 0). `checked_by`·`checked_at` 은 그 범위를 본 사람·날짜
+- **한계**: 확인자는 시트에서 LLM 등급을 보고 확인함 — 그쪽으로 기울 수 있음. 정답은 유형 단위(같은 유형 질의는 같은 정답) — 등급 정의가 "그 유형의 계좌 구조가 청크에 있나"라 facts 범주와 무관하다고 봄(결제 방식·통화 같은 특징이 관련성을 바꾸는 경우는 안 잡음)
 
 ### 판정 기준 (정답 보기 전 — 09 2026-11-19 같은 줄)
 
@@ -475,7 +477,15 @@ facts → (a) build_query 임베딩 1회 → PG 1차(필터 켬, 지금 SQL) →
 **판정 순서**: ① 이 기준을 09·10 에 커밋 → ② 개발용 질의로 검색어 실험(언어별 키워드 문장 · (b)를 첫 검색어로 등) → 고른 설정을 09 에 적음 → ③ 보류용 한 번 판정 → ④ 통과면 기본 켬.
 
 **도구**(손 실행, pytest 수집 안 됨 — 판정 숫자는 `tests/str/rag_eval_v2_support.py` 상수 = 위 기준):
-- 정답 초벌 `tests/str/rag_answer_draft_live.py` — 호스트에서(PDF 쪽 안 순번 복원에 pymupdf). `answer_draft.json` → `--expand` 로 `answers_*.json`(이미 있으면 덮어쓰지 않음 — 확인 내용 보호)
+- 정답 초벌 `tests/str/rag_answer_draft_live.py` — 호스트에서(PDF 쪽 안 순번 복원에 pymupdf). `answer_draft.json` → `--expand` 로 `answers_*.json`(이미 있으면 덮어쓰지 않음 — 확인 내용 보호). 초벌 파일에는 1·2 등급 `by_typology` 와 함께 **0 등급까지 전 행** `graded_by_typology`(SCRUM-275-2 — 시트에서 "LLM 0"과 "안 매김"을 가름)
+- **확인 시트**(SCRUM-275-2) `tests/str/rag_answer_sheet_live.py` — 호스트에서, DB 읽기 전용:
+  - `export --out <리포 밖 폴더>`: 초벌 + DB `ai.reference_chunks.text`(초벌이 LLM 에 보낸 그 본문, `chunk_id` 로) → CSV 하나 + 등급 안내 md. 초벌이 전체 초벌이 아니면(`limit` · 3유형 중 빠짐 · DB 청크 전부가 아님 · 같은 청크 두 번 · 등급 0·1·2 밖 · 위치 불일치) 멈춤. **본문이 든 파일은 리포 밖에만** — `--out` 이나 존재하는 조상 폴더가 리포와 같은 폴더(파일 시스템 비교 — 대소문자 변형·상대 경로·심볼릭 링크 포함)면 거절(추가 검토 1)
+  - 칸: `row_id · 유형 · 문서 · 쪽 · 쪽안순번 · LLM등급 · 확인등급(빈 칸) · 메모 · 본문 · chunk_id · 초벌지문`(초벌 파일·manifest sha256 앞부분 — 어느 초벌·코퍼스 위의 시트인지), 순서 유형(CYCLE → FAN_IN → FAN_OUT) → 문서 → 쪽 → 순번, 본문 전체, UTF-8 BOM, `=`·`+`·`-`·`@` 로 시작하는 본문은 앞에 `'`
+  - `apply --csv <확인된 CSV> --checker <이름>`: 확인 등급을 정답으로(1·2 만 목록에, `draft: human`, `llm_draft`·`check_scope`·`checked_by`·`checked_at`) → `answers_dev.json`·`answers_holdout.json`. apply 도 export 와 같은 초벌 완전성 점검을 다시 함. 행 빠짐 · 같은 행 두 번 · 등급이 0·1·2 아님(빈 칸 포함) · `chunk_id`·LLM 등급·유형·문서·쪽·순번이 초벌과 다름 · 본문이 그 청크 원문과 다름 · 초벌지문이 지금 초벌 파일·manifest 와 다름이면 **반영 안 하고 거절**(CSV 행 번호·row_id 출력, 본문은 안 찍음). **CSV 형식**도 먼저 봄 — 머리글이 export 칸 목록과 이름·순서까지 같아야 하고(같은 이름 칸 중복·빠짐·추가 거절), 칸 수가 머리글과 다른 행 거절(추가 검토 2). 정답 두 파일은 **둘 다 바뀌거나 둘 다 그대로** — 임시 파일에 둘 다 완성(fsync) → 기존 파일 백업 → 차례 교체, 중간 실패면 둘 다 되돌림. 본문 비교 전 정규화: CRLF→LF · 앞뒤 공백 무시 · 원문이 `'` 로 시작하지 않으면 맨 앞 `'` 하나 제거(수식 방지로 붙인 것) 정답 파일이 없으면 새로, 모두 확인 전(같은 초벌)이면 대체, 하나라도 확인됨이면 거절
+  - `apply --csv <CSV> --check-only`: 위 점검(초벌 완전성·CSV 형식·지문·행 대조)만 하고 파일은 안 씀 — 오류마다 (종류, 행 번호, row_id, 설명)이고 집계·종료 코드는 **종류로만**(row_id 글자로 분류가 바뀌지 않음) — 종류별 개수(확인등급 빈 칸 · 확인등급 이상 · 본문 다름 · 유형/위치 다름 · chunk_id/LLM등급 다름 · 지문 다름 · 행 빠짐 · 행 중복 · 초벌에 없는 행 · 시트 형식)와 앞 몇 행 번호. 확인등급 빈 칸 말고 오류가 있으면 종료 코드 1
+  - **확인자에게 넘기기 전**: 시트를 구글 시트에 올렸다 CSV 로 내려받는 왕복을 한 번 하고 `--check-only` 로 **본문 다름 0**(빈 칸만 남음)을 확인 — 시트가 본문·`'` 를 바꾸면 반영 때 전부 거절되므로
+  - 확인이 끝나면 시트·CSV(본문 사본)는 지움(진희)
+  - **한계**(추가 검토 3 — 알고 남김): ① 교체와 되돌리기가 연달아 실패하면 정답 두 파일이 서로 다른 상태로 남을 수 있음 — 그때는 정답 두 파일을 지우고 초벌 `--expand` 부터 다시, 시트를 다시 반영 ② apply 는 한 번에 하나만 돌림(잠금 없음, 손 실행 도구 — 같은 폴더에서 두 apply 가 겹치면 서로의 임시·백업 파일을 지울 수 있음)
 - 색인 `tools/index_es.py` · 평가 `tests/str/rag_eval_v2_live.py --split dev|holdout [--no-keyword]` — AI 컨테이너 안에서(ES 호스트 포트 없음). 결과 `result_{split}.json` 은 chunk_id·시간·채운 칸 cosine 만. **Dockerfile 은 안 바꿈**(이미지에는 서비스 코드만 — SCRUM-256): 실행 때 `tools`·`tests` 를 **읽기 전용**으로 붙이고, 결과를 쓰는 `tests/str/rag_eval_v2` 만 쓰기로 겹쳐 붙임(이미지 WORKDIR `/app`):
   - 색인: `docker compose run --rm -v "$PWD/tools:/app/tools:ro" -e PYTHONPATH=/app/src:/app ai python -m tools.index_es`
   - 평가: `docker compose run --rm -v "$PWD/tests:/app/tests:ro" -v "$PWD/tests/str/rag_eval_v2:/app/tests/str/rag_eval_v2" -e PYTHONPATH=/app/src:/app ai python -m tests.str.rag_eval_v2_live --split dev`
