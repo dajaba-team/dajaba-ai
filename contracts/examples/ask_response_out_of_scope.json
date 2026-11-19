@@ -1,0 +1,22 @@
+{
+  "produced_at": "2026-11-27T02:10:00Z",
+  "case_no": "CASE-2022-000057",
+  "generation_id": "g-91ab33c3",
+  "status": "OUT_OF_SCOPE",
+  "kind": null,
+  "out_of_scope_reason": "JUDGMENT",
+  "answer": null,
+  "cites": [],
+  "evidence_ids": [],
+  "code_checks": [],
+  "generation_meta": {
+    "llm_model": "(API가 돌려준 모델 ID)",
+    "prompt_version": null,
+    "plan_prompt_version": "ask_plan_v1",
+    "bundles": [],
+    "server_version": "a1b2c3d",
+    "tokens_in": 420,
+    "tokens_out": 30,
+    "latency_ms": 2100
+  }
+}
