@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     # 요약 전용 LLM 1회 호출 제한 — 초안·검증 llm_timeout_s=35 와 별도. 요약 호출은 실제 5~10초라
     # 15초면 충분하고, _preflight 가 이 값으로 체크해 "남은 시간 < 호출 1회 제한이면 안 부름" 유지.
     summary_llm_timeout_s: float = Field(default=15.0, gt=0, alias="SUMMARY_LLM_TIMEOUT_S")
+    # 질문 답변 (SCRUM-290, str/03) — 계획·답 LLM 각 1회 제한. 재시도·재생성 없음, 불변식은 둘끼리만 비교
+    ask_budget_s: float = Field(default=20.0, gt=0, alias="ASK_BUDGET_S")
+    ask_llm_timeout_s: float = Field(default=10.0, gt=0, alias="ASK_LLM_TIMEOUT_S")
     stale_processing_s: float = Field(default=110, gt=0, alias="STALE_PROCESSING_S")
     llm_daily_token_budget: int = Field(default=2_000_000, alias="LLM_DAILY_TOKEN_BUDGET")
 
@@ -104,6 +107,10 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"summary_regen_min_remaining_s({self.summary_regen_min_remaining_s}) must be >= "
                 f"summary_llm_timeout_s({self.summary_llm_timeout_s})"
+            )
+        if self.ask_budget_s < self.ask_llm_timeout_s:
+            raise ValueError(
+                f"ask_budget_s({self.ask_budget_s}) must be >= ask_llm_timeout_s({self.ask_llm_timeout_s})"
             )
         return self
 

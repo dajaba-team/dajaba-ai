@@ -154,6 +154,18 @@ else:                      status = LLM_FAILED,         passed = False
 
 **`model_focus` 숫자 거부 (★A 4)**: `summary_service` 가 `model_signals` 이름을 **글자 그대로 지운 뒤 남은 글자에 숫자(0~9) 가 있을 때만** `null` 로 바꿈 — 이름 자체가 `account_in_counterparties_24h` 처럼 숫자 포함이어도 그 이름만 썼으면 통과, 이름 밖에 "3건"·"24시간" 같은 관측 수치가 섞이면 거부. `log.warning("summary_model_focus_rejected", extra={"reason":"non_signal_digit"})` — 본문·숫자 안 찍음.
 
+## 질문 답변에 도는 코드 검사 (SCRUM-290 — 코드는 290-2)
+
+`/v1/cases/ask` 의 `answer`(한두 문장, ≤400자)에 돈다. 평가자는 안 돎(요약과 같은 수준).
+
+1. **유형별 4종은 요약 함수 그대로** — `run_summary_code_checks(facts, [answer], evidence_ids)`. 가짜 섹션 `SectionV1.SUMMARY` 로 돌려 **DATE `MISSING`(WHAT_WHEN_WHERE·DATE 섹션 전용)이 안 생기고**, 결과 `section=None`. 날짜가 없는 답("입금 상대 계좌는 3개예요")이 MISSING 으로 떨어지지 않는다. 공통 함수 수정 0.
+2. **`EVIDENCE_IN_SCOPE` 1줄 — 범위 안 질문이면 항상**(통과해도 match=true 로 1줄). 인용 키 ⊆ (이 케이스 `fact_keys(facts)`) ∩ (고른 묶음의 인용 키, 04 "질문 답변 묶음"). 밖 키가 있으면 `match=false`·`reason=OUT_OF_SCOPE`·`draft_value`=밖 키 쉼표 목록·`section=None`. `CodeCheckName.EVIDENCE_IN_SCOPE`·`CheckReason.OUT_OF_SCOPE` 는 기존 값(새 enum 없음 — 백엔드 `requireAskResponse` 는 6종만 받음). 초안용 `evidence_in_scope` 의 "모든 섹션 cites 빔 → MISSING" 은 안 씀 — 답의 빈 cites 는 스키마 단계에서 502.
+3. 대조는 **원본 facts**(마스킹 전), 요약과 같음. 답의 계좌 `10_****BD30` 은 끝 4자리 + 은행으로 읽음.
+4. 하나라도 `match=false`(`MISMATCH`·`UNPARSED`·`OUT_OF_SCOPE`) → `UNVERIFIED`, 답 본문은 응답에 안 나가고 `generations.response.llm_answer` 에만 남는다. 재생성 없음.
+5. 순서: AMOUNT → DATE → COUNT → ACCOUNT_ID(요약 함수 순서) → EVIDENCE_IN_SCOPE.
+
+**남는 위험 (알고 남김, 09 2026-11-19)**: 검사 대상이 아닌 숫자는 통과한다 — `곳` 단위("2곳"), 단위 없는 숫자. 1차는 프롬프트(05 `ask_answer_v1` 숫자 표기 규칙)로 막고 오류 주입 1건("곳" 으로 바꾼 녹화, 290-2)으로 실제 동작을 표에 남긴다. "숫자 덮기" 검사(답의 모든 숫자가 어느 검사엔가 걸렸는지)는 평가 결과를 본 뒤 2차.
+
 ## 포함·집합 판정 — 알고 남긴 한계 (SCRUM-131 3/n, 2026-11-17)
 
 검사기는 facts 에 있는 값의 **집합·범위**와 대조한다. 그래서 그 안쪽으로 바꾼 숫자는 조용히 통과한다. SCRUM-228 변조 표(`08` narrative_v4 2번, `Mutation.known_limit`)에서 숫자로 확인했다(변조 1231 중 조용한 통과 181 — 전부 아래 1~6. 7 은 SCRUM-131 4/n 에서 더함). 고치지 않고 남긴다 — 넓게 막으면 맞는 문장이 걸리고(131 1·2/n 교훈), facts 에 더 좁힐 값이 없다.

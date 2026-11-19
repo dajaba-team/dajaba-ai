@@ -21,6 +21,7 @@ import httpx
 
 from aml_ai.shared.config import Settings
 from aml_ai.shared.errors import LlmUnavailable
+from aml_ai.shared.infrastructure.llm_total_timeout import post_within
 from aml_ai.shared.infrastructure.openai_responses import (
     build_body,
     extract_output_text,
@@ -56,6 +57,7 @@ class LlmClient(Protocol):
         max_tokens: int,
         tag: str,
         timeout_s: float | None = None,  # SCRUM-129 — 호출별 제한(초안·검증은 None→기본값 유지)
+        total_timeout_s: float | None = None,  # SCRUM-290 — 호출 전체 제한(질문 답변만, None=기존 그대로)
     ) -> LlmResult: ...
 
 
@@ -74,6 +76,7 @@ class RecordedLlmClient:
         max_tokens: int,
         tag: str,
         timeout_s: float | None = None,  # 재생에서는 무시
+        total_timeout_s: float | None = None,  # 재생에서는 무시 — 마감 확인은 호출 측(ask_llm)
     ) -> LlmResult:
         key = recording_key(system, user)
         path = self._dir / tag / f"{key}.json"
@@ -111,10 +114,12 @@ class HttpLlmClient:
         max_tokens: int,
         tag: str,
         timeout_s: float | None = None,
+        total_timeout_s: float | None = None,
     ) -> LlmResult:
         """SCRUM-47: tag(활성 서술 버전) 로 LLM 출력 스키마의 섹션 enum 을 좁힌다 — v1 6개 또는 v2 7개.
 
         `timeout_s` — 호출별 제한(SCRUM-129). None 이면 클라이언트 생성 시 설정(`llm_timeout_s`)을 쓴다.
+        `total_timeout_s` — 호출 전체 제한(SCRUM-290). 있으면 `post_within` 으로 넘기면 끊고 LlmUnavailable.
         """
         from aml_ai.shared.schemas.str import llm_output_model
 
@@ -129,7 +134,7 @@ class HttpLlmClient:
             reasoning_effort=self._s.llm_reasoning_effort,
         )
         started = time.perf_counter()
-        raw = self._post(body, tag=tag, timeout_s=timeout_s)
+        raw = self._post(body, tag=tag, timeout_s=timeout_s, total_timeout_s=total_timeout_s)
         latency = int((time.perf_counter() - started) * 1000)
         text = extract_output_text(raw)
         usage = raw.get("usage") or {}
@@ -141,18 +146,21 @@ class HttpLlmClient:
             latency_ms=latency,
         )
 
-    def _post(self, body: dict, *, tag: str, timeout_s: float | None = None) -> dict:
+    def _post(
+        self, body: dict, *, tag: str, timeout_s: float | None = None, total_timeout_s: float | None = None
+    ) -> dict:
         headers = {
             "Authorization": f"Bearer {self._s.llm_api_key}",
             "Content-Type": "application/json",
         }
         url = f"{self._s.llm_api_base.rstrip('/')}/responses"
         try:
-            resp = (
-                self._http.post(url, json=body, headers=headers, timeout=timeout_s)
-                if timeout_s is not None
-                else self._http.post(url, json=body, headers=headers)
-            )
+            if total_timeout_s is not None:
+                resp = post_within(
+                    self._http, url, body=body, headers=headers, total_timeout_s=total_timeout_s
+                )
+            else:
+                resp = self._post_once(url, body, headers, timeout_s)
         except httpx.TransportError as exc:
             # TransportError 는 TimeoutException·ConnectError·ReadError·RemoteProtocolError 포괄
             # (SCRUM-15 adversarial M2). 백엔드가 1회 재시도하는 LLM_UNAVAILABLE 로 통일.
@@ -162,6 +170,14 @@ class HttpLlmClient:
             extra={"status": resp.status_code, "model": body.get("model"), "tag": tag},
         )
         return parse_response(resp)
+
+    def _post_once(
+        self, url: str, body: dict, headers: dict[str, str], timeout_s: float | None
+    ) -> httpx.Response:
+        """기존 경로(초안·검증·요약) 그대로 — 작업별 timeout 만."""
+        if timeout_s is not None:
+            return self._http.post(url, json=body, headers=headers, timeout=timeout_s)
+        return self._http.post(url, json=body, headers=headers)
 
 
 def make_llm_client(settings: Settings) -> LlmClient:

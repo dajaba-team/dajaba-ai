@@ -33,3 +33,16 @@ def test_time_budget_invalid_combination_raises() -> None:
     # SCRUM-92 — verify_budget_s 가 llm_timeout_s 미만이면 기동 실패
     with pytest.raises(ValidationError):
         Settings(_env_file=None, LLM_TIMEOUT_S=35, VERIFY_BUDGET_S=20)
+
+
+def test_ask_budget_defaults_and_not_compared_with_global_timeout() -> None:
+    """SCRUM-290 — 질문 답변 20·10, 전역 LLM_TIMEOUT_S(35) 와는 비교하지 않음(20 < 35 여도 기동)."""
+    s = Settings(_env_file=None)
+    assert (s.ask_budget_s, s.ask_llm_timeout_s) == (20.0, 10.0)
+    Settings(_env_file=None, LLM_TIMEOUT_S=35, ASK_BUDGET_S=20, ASK_LLM_TIMEOUT_S=10)
+    Settings(_env_file=None, ASK_BUDGET_S=10, ASK_LLM_TIMEOUT_S=10)  # 같은 값 경계 통과
+
+
+def test_ask_budget_below_ask_timeout_raises() -> None:
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, ASK_BUDGET_S=5, ASK_LLM_TIMEOUT_S=10)

@@ -142,12 +142,54 @@
 - `generations.kind=SUMMARY`·`draft_id=null` — Alembic 변경 없음(`str/orm.py` 이미 nullable).
 - 재시도 1회는 **스키마 실패** 또는 **코드 검사 실패** 둘 중 하나로만 — 각 경우 남은 예산 ≥ `REGEN_MIN_REMAINING_S` 일 때. 두 번 다 안 돌림.
 
+## `POST /v1/cases/ask` (SCRUM-290 — 290-1 계획·범위 밖까지, 290-2 답·검사·라우터)
+
+요청·응답 모양은 `shared/01` 질문 답변 절(규약 §5.4, `shared/schemas/str/ask.py`). 2단계 호출 — LLM 은 **계획(묶음 고르기)** 과 **답** 두 번만, 순서는 코드가 고정(09 2026-11-19). 선점·중복 방지 없음(요약과 같음, 409 없음).
+
+```
+0  요청 검증                  AskRequest 스키마(question 1~300 NFC·UTF-16, 공백만 거부) + evidence_transaction_ids ⊆ alert.transaction_ids → 400 INVALID_REQUEST
+1  deadline = clock() + ASK_BUDGET_S  (20초 — ASK_LLM_TIMEOUT_S 이상, 설정 불변식)
+2  transaction_reader.load_transactions·load_subject   요약과 같음, 없는 ID·보고 대상 거래 없음 → 400
+3  facts = domain.facts.build_facts(req.to_facts_input(), txs, subject)   요약과 같은 함수
+4  shared.db.end_read(session)                                             (SCRUM-122) LLM 호출 앞
+5  question_llm = domain.ask_question.mask_question(req.question)          (04 "질문 속 계좌") — LLM 에 가는 질문만. 저장은 원문
+6  plan = ask_llm.plan(question_llm, deadline=deadline)                    ask_plan_v1, facts 값 안 줌
+      선체크: 남은 < ASK_LLM_TIMEOUT_S → LlmUnavailable(502). LLM 1회 — 재시도·재생성 없음
+      호출 전체 제한 total = min(ASK_LLM_TIMEOUT_S, deadline − clock()) 를 complete_json(total_timeout_s=) 로 넘김(SCRUM-290 추가 검토 1):
+        HttpLlmClient 가 응답 읽기를 작업 스레드에서 하고 total 이 지나면 그 응답을 닫아 끊고 LlmUnavailable(502).
+        (httpx timeout 은 읽기마다 다시 걸리는 작업별 제한이라, 조각이 10초 안 간격으로 오면 호출 전체는 끝없이 늘 수 있음)
+      호출이 돌아온 뒤에도 clock() > deadline 이면 결과를 받지 않고 LlmUnavailable — 녹화·다른 클라이언트도 같은 규칙. 마감 뒤 결과는 SUCCEEDED 로 저장하지 않음(FAILED)
+      AskPlanOut 스키마 위반(목록 밖·0개·4개·중복 묶음, kind 와 사유·묶음 짝 어긋남) → LlmInvalidOutput(502)
+7  plan.kind == OUT_OF_SCOPE → 응답 조립(kind=null·out_of_scope_reason·answer=null·cites=[]·evidence_ids=[]·code_checks=[]·
+      prompt_version=null·bundles=[]·토큰·지연 = 계획 호출분) → 10 으로. LLM 1회로 끝
+8  (290-2) piece = domain.ask_bundles.extract(facts, rule_id, plan.bundles)   (04 "질문 답변 묶음") — 마스킹 조각 + 인용 키 목록
+   (290-2) ans = ask_llm.answer(question_llm, piece, deadline=deadline)       ask_answer_v1, 선체크·1회·재시도 없음 같음
+      answerable=true + cites 빈 · answer 400자 초과·빈 문자열 → LlmInvalidOutput(502)
+9  (290-2) answerable=false → NO_DATA (answer·cites 무시, code_checks=[])
+   (290-2) answerable=true → code_checks = ask_checks(facts, answer, cites, piece.keys)  (06 "질문 답변에 도는 코드 검사")
+      하나라도 match=false → UNVERIFIED (answer=null·cites=[]·evidence_ids=[]) / 전부 match → ANSWERED
+      evidence_ids = cites 의 fact 키 → 거래 ID 합집합(attach_evidence 와 같은 방식, 거래 없는 키는 기여 0)
+10 generations 신규 행 (kind=ASK·draft_id=null·case_no·status=SUCCEEDED·request(질문 원문)·facts(원본)·
+      response = API 응답 + "plan"{kind, out_of_scope_reason, bundles} + "llm_answer"{answerable, answer, cites}(답 호출 때만)·
+      llm_model·prompt_version(답, OUT_OF_SCOPE 면 null)·tokens·latency = 두 호출 합)
+   예외 → status=FAILED·error="<code>: <메시지 앞 48자>" 저장 후 그대로 raise (요약과 같음)
+11 응답 AskResponse — 상태 4종 모두 200
+```
+
+- 평가자(LLM 검사) 없음 — 요약과 같은 수준. 답 문장은 코드 검사만.
+- `generations.kind=ASK`·`draft_id=null` — Alembic 변경 없음(`kind` 는 `String(16)`, CHECK 없음, 부분 UNIQUE 는 `kind='DRAFT'` 만 — `shared/03`).
+- 저장은 `SummaryRepository.save(..., kind="ASK")` — 기본값 `SUMMARY` 라 요약 호출은 그대로.
+- 로그에는 케이스 번호·상태·질문/답 길이·시간만. 질문·답 본문·프롬프트 전문 금지(NFR-COM-04).
+- **290-1 범위**: 0~7·10 — 범위 밖 경로는 끝까지(응답·저장). 범위 안이면 8 의 묶음 조각(`ask_bundles.extract`)까지 만들고 답 단계가 없어 `INTERNAL`("answer step not wired")로 FAILED 저장 — **290-2 에서 이 FAILED 경로를 지움**(답 단계로 바뀜). 라우터(`router.py` `/cases/ask`)·8 의 답 호출·9 는 290-2 — 290-1 만 머지된 상태에서는 엔드포인트가 없어 밖에서 닿지 않는다.
+
 ## 시간 예산 — 실측 전 가정값, W2 수요일 측정 뒤 조정
 
 | 단계 | 예산 | 상수 (`domain/constants.py` / `.env`) |
 |---|---|---|
 | 초안 요청 전체(AI 안) | **80초** — 백엔드 타임아웃 90초보다 10초 짧게 | `DRAFT_BUDGET_S=80` |
 | 요약 요청 전체(AI 안) | **40초** — Jira SCRUM-129, 단 `LLM_TIMEOUT_S` 이상(기동 불변식) | `SUMMARY_BUDGET_S=40` |
+| 질문 답변 요청 전체(AI 안) | **20초** — 설계 문서 5.5(백엔드 전체 30초). `ASK_LLM_TIMEOUT_S` 이상(기동 불변식) | `ASK_BUDGET_S=20` |
+| 질문 답변 LLM 1회(계획·답 각각) | **10초 — 호출 전체**(작업별이 아님). `min(10초, 요청 deadline 남은 시간)` 이 지나면 읽기를 끊고 `LlmUnavailable`. 호출 전 남은 < 10초면 부르지 않음. 재시도·재생성 0 | `ASK_LLM_TIMEOUT_S=10` · `complete_json(total_timeout_s=)` |
 | 죽은 PROCESSING 판정 | 예산 + 30초 = **110초** | `STALE_PROCESSING_S` |
 | LLM 호출 1회 | **35초** | `LLM_TIMEOUT_S=35` |
 | 스키마 실패 재생성 | 남은 예산 **≥ 40초**일 때만 | `REGEN_MIN_REMAINING_S=40` |
@@ -163,7 +205,7 @@
 
 **구현 위치 (SCRUM-45)** — 마감 시각 `deadline`은 `draft_service.create()`가 요청 검증(0) 직후·선점(1) 전에 `clock() + DRAFT_BUDGET_S`로 정하고 `narrative_generator.generate(..., deadline=deadline)`에 넘긴다. 앞 단계(DB·검색)가 느려 선체크가 실패해도 같은 흐름으로 `_fail`이 generations 행을 FAILED로 닫는다. 생성기는 **첫 LLM 호출 전**(남은 < `LLM_TIMEOUT_S` → `LlmUnavailable`)과 **스키마 실패 뒤**(남은 < `REGEN_MIN_REMAINING_S` → 재생성 없이 `LlmInvalidOutput`) 두 지점에서만 남은 예산을 본다 — 호출마다 LLM 타임아웃을 줄이지는 않는다(09 2026-10-31). 시계는 `Callable[[], float]`로 `draft_service`·`narrative_generator`에 주입(기본 `time.monotonic`), `domain/`은 시계를 만지지 않는다(01).
 
-**불변식 (기동 때 검증, `shared/config.Settings._check_time_budget`)** — `DRAFT_BUDGET_S >= LLM_TIMEOUT_S` **그리고** `REGEN_MIN_REMAINING_S >= LLM_TIMEOUT_S` **그리고** `VERIFY_BUDGET_S >= LLM_TIMEOUT_S`(SCRUM-92). 어기면 `ValidationError` 로 기동 실패 — `.env` 를 잘못 적어 LLM 1회조차 못 부르는 상태로 서버가 살아 있지 않게.
+**불변식 (기동 때 검증, `shared/config.Settings._check_time_budget`)** — `DRAFT_BUDGET_S >= LLM_TIMEOUT_S` **그리고** `REGEN_MIN_REMAINING_S >= LLM_TIMEOUT_S` **그리고** `VERIFY_BUDGET_S >= LLM_TIMEOUT_S`(SCRUM-92) **그리고** `ASK_BUDGET_S >= ASK_LLM_TIMEOUT_S`(SCRUM-290 — 질문 답변은 전역 `LLM_TIMEOUT_S`(35)와 비교하지 않는다. 비교하면 20 < 35 로 기동 실패). 어기면 `ValidationError` 로 기동 실패 — `.env` 를 잘못 적어 LLM 1회조차 못 부르는 상태로 서버가 살아 있지 않게.
 
 **verify 구현 위치 (SCRUM-92)** — `verify_service.verify()` 가 generation 로드 직후 `deadline = clock() + VERIFY_BUDGET_S` 를 정해 `judge.run(..., deadline=deadline)` 에 넘긴다. `Judge` 는 스키마 실패 뒤 **두 번째 호출 직전**에 남은 예산을 보고 `< LLM_TIMEOUT_S` 면 재시도 없이 바로 `LlmInvalidOutput`. 첫 호출 선체크는 draft 와 달리 생략한다 — verify 흐름에서 judge 가 유일한 LLM 호출이고 앞 단계가 가벼움(코드 검사·facts 로드만). 시계는 `Callable[[], float]`(기본 `time.monotonic`) 로 주입, `domain/` 은 시계를 만지지 않는다.
 
