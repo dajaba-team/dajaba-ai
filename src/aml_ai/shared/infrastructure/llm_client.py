@@ -95,7 +95,12 @@ class RecordedLlmClient:
 class HttpLlmClient:
     """OpenAI Responses API + Structured Output(json_schema). provider 1종(docs/str/07·09)."""
 
-    def __init__(self, settings: Settings, http: httpx.Client | None = None) -> None:
+    def __init__(
+        self,
+        settings: Settings,
+        http: httpx.Client | None = None,
+        async_transport: httpx.AsyncBaseTransport | None = None,
+    ) -> None:
         if settings.llm_provider != "openai":
             raise RuntimeError(
                 f"LLM_PROVIDER='{settings.llm_provider}' 는 구현되지 않음 — 지금은 'openai' 만"
@@ -104,6 +109,7 @@ class HttpLlmClient:
             raise RuntimeError("LLM_API_KEY 가 비어 있음 — docs/shared/05")
         self._s = settings
         self._http = http or httpx.Client(timeout=settings.llm_timeout_s)
+        self._async_transport = async_transport
 
     def complete_json(
         self,
@@ -157,7 +163,11 @@ class HttpLlmClient:
         try:
             if total_timeout_s is not None:
                 resp = post_within(
-                    self._http, url, body=body, headers=headers, total_timeout_s=total_timeout_s
+                    self._async_transport,
+                    url,
+                    body=body,
+                    headers=headers,
+                    total_timeout_s=total_timeout_s,
                 )
             else:
                 resp = self._post_once(url, body, headers, timeout_s)
