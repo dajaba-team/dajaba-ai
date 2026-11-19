@@ -25,6 +25,7 @@ from aml_ai.str.domain.request_hash import request_hash
 from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.generation_repository import ClaimReuse, GenerationRepository
 from aml_ai.str.infrastructure.judge import Judge
+from aml_ai.str.infrastructure.keyword_search import make_keyword_search
 from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
 from aml_ai.str.infrastructure.reference_snippet import prompt_references
 from aml_ai.str.infrastructure.retriever import Retriever
@@ -56,7 +57,7 @@ class DraftService:
             session=session,
             reader=TransactionReader(session),
             fewshot=FewshotStore(session, prompt_name=settings.narrative_prompt),
-            retriever=Retriever(session, make_embedding_client(settings), enabled=settings.rag_enabled),
+            retriever=_retriever(session, settings),
             generator=NarrativeGenerator(llm, settings, settings.narrative_prompt, clock=clock),
             judge=Judge(llm, settings, clock=clock, schema_retry=0),  # SCRUM-147 — 초안 호출 상한 ≤4
             rewriter=NarrativeRewriter(llm, settings, clock=clock),
@@ -173,3 +174,20 @@ class DraftService:
             log.warning("retrieval_unavailable")
             return []
         return prompt_references(self.generator.prompt_version, refs)
+
+
+def _retriever(session: Session, settings: Settings) -> Retriever:
+    """SCRUM-275 — 빈칸 채우기는 스위치 켬 + v4 일 때만. release = end_read(외부 호출 전 연결 반납, SCRUM-122).
+
+    채우기 PG 2차는 같은 엔진의 별도 짧은 세션 — 실패해도 초안 세션은 그대로(추가 검토 1 high).
+    """
+    fill = settings.rag_gap_fill_active
+    return Retriever(
+        session,
+        make_embedding_client(settings),
+        enabled=settings.rag_enabled,
+        gap_fill=fill,
+        keyword=make_keyword_search(settings) if fill else None,
+        release=lambda: end_read(session),
+        fill_session=lambda: Session(bind=session.get_bind(), expire_on_commit=False),
+    )

@@ -32,3 +32,13 @@ PAYMENT_FORMAT_EN: dict[str, str] = {  # IBM 원문 7종. Reinvestment 는 코�
 }
 OTHER_BANKS_EN = "accounts at other financial institutions"  # other_bank_accounts > 0
 MULTI_CURRENCY_EN = "multiple currencies"  # 통화 종류(입금 ∪ 출금 by_currency) ≥ 2 또는 미등록 통화 있음
+
+# ---- SCRUM-275 빈칸만 채우기 · ES 키워드 (docs/str/10 "빈칸만 채우기")
+QUERY_KIND_KEYWORD = "kw"  # 키워드 검색어 종류 — 벡터 검색어 (a)(b)(c) 와 따로
+KEYWORD_FIELDS: dict[str, str] = {QUERY_LANG_EN: "text_en", QUERY_LANG_KO: "text_ko"}  # 언어 → ES 본문 필드
+KEYWORD_ANALYZERS: dict[str, str] = {
+    QUERY_LANG_EN: "english",
+    QUERY_LANG_KO: "cjk",
+}  # nori 는 이미지에 없음 → 2차
+ES_BULK_BATCH = 200  # 색인 도구 _bulk 한 번에 보낼 청크 수
+ES_ADMIN_TIMEOUT_S = 30.0  # 색인 도구(색인 만들기·_bulk) 타임아웃 — 검색 타임아웃은 ELASTIC_TIMEOUT_S

@@ -20,8 +20,10 @@ from aml_ai.str.domain.constants_rag_query import (
     MULTI_CURRENCY_EN,
     OTHER_BANKS_EN,
     PAYMENT_FORMAT_EN,
+    QUERY_KIND_KEYWORD,
     QUERY_KINDS,
     QUERY_LANG_EN,
+    QUERY_LANG_KO,
 )
 
 TYPOLOGY_KO = {  # 앞 6개 = v2 룰 순서(Typology 와 같게), 뒤 = 원천·후보 값
@@ -50,10 +52,19 @@ TYPOLOGY_PATTERN_EN = {
     "GATHER_SCATTER": "funds are pooled into one account and then distributed to many accounts",
 }
 
+# SCRUM-275 — ES 키워드 국문 검색어용(국문 문서 ↔ 국문). 영문 패턴과 같은 뜻, 숫자 0.
+TYPOLOGY_PATTERN_KO = {
+    "FAN_IN": "여러 송금인이 한 계좌로 입금",
+    "FAN_OUT": "한 계좌에서 여러 수취인에게 송금",
+    "CYCLE": "자금이 여러 계좌를 거쳐 원래 계좌로 되돌아옴",
+    "SCATTER_GATHER": "자금을 여러 중간 계좌로 나눴다가 한 계좌로 다시 모음",
+    "GATHER_SCATTER": "자금을 한 계좌로 모은 뒤 여러 계좌로 나눠 보냄",
+}
+
 
 @dataclass(frozen=True)
 class SearchQuery:
-    kind: str  # "a" | "b" | "c"
+    kind: str  # "a" | "b" | "c" | "kw"(SCRUM-275 키워드)
     lang: str  # "en" | "ko" — 벡터 검색은 "en" 만
     text: str
 
@@ -110,4 +121,22 @@ def build_queries(facts: Facts, kinds: tuple[str, ...] = QUERY_KINDS) -> list[Se
             seen.add(sentence)
         if len(queries) >= RAG_MAX_QUERIES:
             break
+    return queries
+
+
+def keyword_queries(facts: Facts) -> list[SearchQuery]:
+    """SCRUM-275 ES 키워드 검색어 — 영문(`TYPOLOGY_PATTERN_EN`) → 국문(유형 이름 + `TYPOLOGY_PATTERN_KO`) 순.
+
+    문장이 없는 언어는 빠짐. 유형이 없으면 [].
+    """
+    code = facts.typology.value if facts.typology else ""
+    if not code:
+        return []
+    queries: list[SearchQuery] = []
+    english = TYPOLOGY_PATTERN_EN.get(code)
+    if english:
+        queries.append(SearchQuery(QUERY_KIND_KEYWORD, QUERY_LANG_EN, english))
+    korean = " ".join(p for p in (TYPOLOGY_KO.get(code), TYPOLOGY_PATTERN_KO.get(code)) if p)
+    if korean:
+        queries.append(SearchQuery(QUERY_KIND_KEYWORD, QUERY_LANG_KO, korean))
     return queries

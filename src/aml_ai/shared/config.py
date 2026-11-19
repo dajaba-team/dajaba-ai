@@ -63,6 +63,13 @@ class Settings(BaseSettings):
     embedding_dim: int = Field(default=1536, alias="EMBEDDING_DIM")
     rag_enabled: bool = Field(default=False, alias="RAG_ENABLED")
     corpus_dir: Path = Field(default=Path("corpus"), alias="CORPUS_DIR")
+    # SCRUM-275 빈칸만 채우기(v4 경로만, 기본 끔) · ES 키워드 검색 — docs/str/10 "빈칸만 채우기", shared/05
+    rag_gap_fill_enabled: bool = Field(default=False, alias="RAG_GAP_FILL_ENABLED")
+    elastic_url: str = Field(default="http://elasticsearch:9200", alias="ELASTIC_URL")
+    elastic_username: str = Field(default="elastic", alias="ELASTIC_USERNAME")
+    elastic_password: str = Field(default="", alias="ELASTIC_PASSWORD", repr=False)
+    elastic_index: str = Field(default="ai_reference_chunks_v1", alias="ELASTIC_INDEX")
+    elastic_timeout_s: float = Field(default=1.0, gt=0, alias="ELASTIC_TIMEOUT_S")
 
     # 목업 스위치
     ai_scoring_mock: bool = Field(default=True, alias="AI_SCORING_MOCK")  # aml-ml 없을 때 고정 점수
@@ -112,6 +119,11 @@ class Settings(BaseSettings):
             user, host = rest.split("@", 1)
             return f"{scheme}//{user}:{self.app_ai_password}@{host}"
         return self.database_url
+
+    @property
+    def rag_gap_fill_active(self) -> bool:
+        """SCRUM-275 — 빈칸 채우기는 스위치 켬 + v4 경로에서만(v2·v3 는 지금 검색 그대로, str/10)."""
+        return self.rag_gap_fill_enabled and self.narrative_prompt == "narrative_v4"
 
 
 @lru_cache

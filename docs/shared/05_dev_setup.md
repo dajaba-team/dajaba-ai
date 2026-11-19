@@ -93,6 +93,12 @@ docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -
 | `EMBEDDING_DIM` | `1536` | 벡터 차원. 마이그레이션 `embedding vector(1536)` 은 **고정**(Settings import 안 함) — 바꾸려면 `reference_chunks` 테이블 비우고 전부 재적재 + 다음 번호 마이그레이션 (`shared/03`·`str/10`) |
 | `RAG_ENABLED` | `false` | **코드 기본 `false` 유지**(SCRUM-125) — 녹화·CI 안정, `.env` 에서만 `true` 로 켬. 켜면 user 프롬프트의 `{{references}}` 가 바뀌어 녹화 키 깨짐 → 녹화 통합 테스트는 꺼진 상태 전제. 안건 22 되돌림 스위치 |
 | `CORPUS_DIR` | `corpus` | 코퍼스 PDF 위치 |
+| `RAG_GAP_FILL_ENABLED` | `false` | **SCRUM-275 빈칸만 채우기 스위치 — 코드 기본 `false`**(판정 통과 전까지). 켜고 `NARRATIVE_PROMPT=narrative_v4` 일 때만, 지금 경로(필터 켬)가 1~`RAG_TOP_K`-1 건이면 남는 칸을 필터 끈 합치기(벡터 + ES 키워드)로 채움. 끄려면 `.env` 에서 `false` + 앱 재시작(재배포 없음). `str/10` "빈칸만 채우기" |
+| `ELASTIC_URL` | `http://elasticsearch:9200` | compose 안(`dajaba_default`) 주소. ES 는 호스트 포트가 없어 호스트에서 직접 돌리면 안 닿음 — AI 컨테이너 안에서 |
+| `ELASTIC_USERNAME` | `elastic` | 백엔드 compose `elasticsearch` 의 계정 |
+| `ELASTIC_PASSWORD` | `""` | **값은 노션** — 백엔드 `.env` 의 `ELASTIC_PASSWORD` 와 같은 값. 비면 키워드 목록 없이 벡터만(경고 1줄, 값 없음) |
+| `ELASTIC_INDEX` | `ai_reference_chunks_v1` | 키워드 검색 색인 이름(`tools/index_es.py` 가 만듦). `retrieval_version` 꼬리에 들어감 |
+| `ELASTIC_TIMEOUT_S` | `1.0` | 키워드 검색 호출 타임아웃(연결+읽기, 초). 넘으면 키워드 목록 없이 계속(fail-open) |
 
 ### 목업 스위치 — 평소 `true`, 실제 LLM/점수 때 `false`
 

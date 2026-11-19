@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from aml_ai.shared.config import Settings
+from aml_ai.str.domain.constants_rag_query import QUERY_KINDS
 
 
 def scoring_mode(settings: Settings) -> str:
@@ -28,12 +29,18 @@ def model_versions() -> tuple[str | None, str | None]:
 
 
 def retrieval_version(settings: Settings) -> str | None:
-    """{embedding_model}@{manifest_sha256[:8]} — RAG 꺼져 있으면 None."""
+    """{embedding_model}@{manifest_sha256[:8]} — RAG 꺼져 있으면 None.
+
+    SCRUM-275: 빈칸 채우기가 켜져 있으면(v4 만) 꼬리 `+fill:{검색어 종류}+kw:{ELASTIC_INDEX}` (str/10 "버전").
+    """
     manifest = settings.corpus_dir / "manifest.json"
     if not settings.rag_enabled or not manifest.exists():
         return None
     digest = hashlib.sha256(manifest.read_bytes()).hexdigest()[:8]
-    return f"{settings.embedding_model}@{digest}"
+    version = f"{settings.embedding_model}@{digest}"
+    if settings.rag_gap_fill_active:
+        version += f"+fill:{''.join(QUERY_KINDS)}+kw:{settings.elastic_index}"
+    return version
 
 
 def file_sha256(path: Path) -> str:

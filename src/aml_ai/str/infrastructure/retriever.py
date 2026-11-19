@@ -1,9 +1,14 @@
 """RAG 검색 (docs/str/10). 기본은 질의 한 번, 평가용 다중 질의는 RRF로 합친다.
 
 enabled=False (RAG_ENABLED) 면 항상 [] — 안건 22 되돌림 조건의 스위치.
+gap_fill=True (SCRUM-275, v4 만) 면 한 번 찾기 결과가 1~k-1 건일 때 남는 칸만 `retriever_fill` 로 채움.
+fill_session = 채우기 PG 2차용 별도 세션 팩토리(초안은 draft_service 가 주입). 없으면 공유 세션 — 테스트·하네스용.
 """
 
 from __future__ import annotations
+
+from collections.abc import Callable
+from contextlib import AbstractContextManager, nullcontext
 
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -20,6 +25,7 @@ from aml_ai.str.domain.constants import (
     REFERENCE_TEXT_MAX_CHARS,
 )
 from aml_ai.str.domain.constants_rag_query import QUERY_KINDS
+from aml_ai.str.domain.rag_fill import needs_fill
 from aml_ai.str.domain.rag_fusion import Candidate, rrf_fuse
 from aml_ai.str.domain.rag_queries import (
     TYPOLOGY_KO as TYPOLOGY_KO,
@@ -33,6 +39,8 @@ from aml_ai.str.domain.rag_queries import (
 from aml_ai.str.domain.rag_queries import (
     build_query as build_query,
 )
+from aml_ai.str.infrastructure.keyword_search import KeywordSearch
+from aml_ai.str.infrastructure.retriever_fill import fill_gaps
 
 
 class Retriever:
@@ -46,6 +54,10 @@ class Retriever:
         multi_query: bool = RAG_MULTI_QUERY,
         typology_filter: bool = True,
         query_kinds: tuple[str, ...] = QUERY_KINDS,
+        gap_fill: bool = False,
+        keyword: KeywordSearch | None = None,
+        release: Callable[[], None] | None = None,
+        fill_session: Callable[[], AbstractContextManager[Session]] | None = None,
     ) -> None:
         self._s = session
         self._embed = embedder
@@ -54,13 +66,24 @@ class Retriever:
         self._multi_query = multi_query
         self._typology_filter = typology_filter
         self._query_kinds = query_kinds
+        self._gap_fill = gap_fill
+        self._keyword = keyword
+        self._release = release or (lambda: None)
+        self._fill_session = fill_session or (lambda: nullcontext(self._s))
 
     def retrieve(self, facts: Facts) -> list[Reference]:
         if not self._enabled or facts.typology is None:
             return []
         if not self._multi_query:
             vec = self._embed.embed([build_query(facts)])[0]
-            return self._search(vec, facts.typology.value)
+            first = self._search(vec, facts.typology.value)
+            if not self._gap_fill or not needs_fill(len(first), self._k):
+                return first
+            return fill_gaps(
+                facts, vec, first, k=self._k, embedder=self._embed, keyword=self._keyword, release=self._release,
+                unfiltered=lambda s, v: self._candidates(v, None, limit=RAG_CANDIDATES, typology_filter=False, session=s),
+                cosines=lambda s, v, ids: self._cosines(v, ids, session=s), open_session=self._fill_session,
+            )  # fmt: skip
         queries = build_queries(facts, self._query_kinds)
         vectors = self._embed.embed([q.text for q in queries])
         if len(vectors) != len(queries):
@@ -92,16 +115,23 @@ class Retriever:
         ]
 
     def _candidates(
-        self, vec: list[float], typology: str | None, *, limit: int, typology_filter: bool
+        self,
+        vec: list[float],
+        typology: str | None,
+        *,
+        limit: int,
+        typology_filter: bool,
+        session: Session | None = None,
     ) -> list[Reference]:
         predicate = "WHERE typologies @> ARRAY[:ty]::text[] " if typology_filter else ""
         params = {"vec": str(vec), "k": limit, "cand": RAG_CANDIDATES}
         if typology_filter:
             params["ty"] = typology
         try:
-            with self._s.begin_nested():
-                self._s.execute(text("SET LOCAL hnsw.iterative_scan = relaxed_order"))
-                rows = self._s.execute(
+            db = session or self._s
+            with db.begin_nested():
+                db.execute(text("SET LOCAL hnsw.iterative_scan = relaxed_order"))
+                rows = db.execute(
                     text(
                         "WITH r AS MATERIALIZED ("
                         "  SELECT chunk_id, doc_id, doc_title, page, text, "
@@ -118,15 +148,34 @@ class Retriever:
                 ).all()
         except SQLAlchemyError as exc:
             raise RetrievalUnavailable("rag search failed") from exc
-        return [
-            Reference(
-                chunk_id=row.chunk_id,
-                doc_id=row.doc_id,
-                doc_title=row.doc_title,
-                page=row.page,
-                score=float(row.score),
-                text=(row.text or "")[:REFERENCE_TEXT_MAX_CHARS],
-            )
-            for row in rows
-            if row.score is not None
-        ]
+        return [_reference(row) for row in rows if row.score is not None]
+
+    def _cosines(
+        self, vec: list[float], chunk_ids: list[str], *, session: Session | None = None
+    ) -> list[Reference]:
+        """SCRUM-275 — 채울 후보의 (a) 기준 cosine. DB 에 없는 chunk_id 는 빠짐. 실패해도 세션은 savepoint 로 복구."""
+        try:
+            db = session or self._s
+            with db.begin_nested():
+                rows = db.execute(
+                    text(
+                        "SELECT chunk_id, doc_id, doc_title, page, text, "
+                        "       1 - (embedding <=> CAST(:vec AS vector)) AS score "
+                        "FROM ai.reference_chunks WHERE chunk_id = ANY(:ids)"
+                    ),
+                    {"vec": str(vec), "ids": list(chunk_ids)},
+                ).all()
+        except SQLAlchemyError as exc:
+            raise RetrievalUnavailable("rag cosine failed") from exc
+        return [_reference(row) for row in rows if row.score is not None]
+
+
+def _reference(row) -> Reference:  # noqa: ANN001 — SQLAlchemy Row
+    return Reference(
+        chunk_id=row.chunk_id,
+        doc_id=row.doc_id,
+        doc_title=row.doc_title,
+        page=row.page,
+        score=float(row.score),
+        text=(row.text or "")[:REFERENCE_TEXT_MAX_CHARS],
+    )
