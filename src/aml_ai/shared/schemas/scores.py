@@ -22,11 +22,13 @@ class FailureCode(StrEnum):
     """FAILED 일 때만 채운다 (10/29 준혁 확인, docs/shared/01).
 
     백엔드는 이 값으로 재처리 대상을 거른다 — 다시 보내서 결과가 달라질 수 있는 건 COMPUTE_ERROR 뿐.
-    TRANSACTION_NOT_FOUND 는 AI 서버가, 나머지 셋은 aml_ml 이 정한다.
+    TRANSACTION_NOT_FOUND 는 AI 서버가, 나머지 넷은 aml_ml 이 정한다.
+    RULE_NOT_SUPPORTED: aml_ml 이 정함. 모델이 지원하지 않는 룰. 다시 보내도 같은 결과라 백엔드 재처리 안 함(재처리는 COMPUTE_ERROR 와 코드 없음만)
     """
 
     TRANSACTION_NOT_FOUND = "TRANSACTION_NOT_FOUND"
     HISTORY_NOT_SUPPORTED = "HISTORY_NOT_SUPPORTED"
+    RULE_NOT_SUPPORTED = "RULE_NOT_SUPPORTED"
     REQUIRED_INPUT_MISSING = "REQUIRED_INPUT_MISSING"
     COMPUTE_ERROR = "COMPUTE_ERROR"
 
