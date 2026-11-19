@@ -82,6 +82,8 @@ docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -
 | `REGEN_MIN_REMAINING_S` | `40.0` | 재생성 최소 남은 시간(초안) |
 | `SUMMARY_REGEN_MIN_REMAINING_S` | `15.0` | 재생성 최소 남은 시간(요약) |
 | `SUMMARY_LLM_TIMEOUT_S` | `15.0` | 요약 호출 타임아웃 |
+| `ASK_BUDGET_S` | `20.0` | 질문 답변 시간 예산 (SCRUM-290, 설계 문서 5.5 — 백엔드 전체 30초). `ASK_LLM_TIMEOUT_S` 이상(기동 불변식) |
+| `ASK_LLM_TIMEOUT_S` | `10.0` | 질문 답변 LLM 1회(계획·답 각각) 타임아웃. 전역 `LLM_TIMEOUT_S` 와 별도 |
 | `STALE_PROCESSING_S` | `110.0` | 오래된 PROCESSING 정리 기준, `DRAFT_BUDGET_S + 30` (`shared/03`) |
 
 ### RAG · 임베딩 (SCRUM-125 — 활성)

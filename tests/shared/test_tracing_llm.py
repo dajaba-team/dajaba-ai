@@ -46,7 +46,7 @@ def test_one_call_records_one_generation() -> None:
         out = client.complete_json(**CALL)
 
     assert out is stub.result
-    assert stub.calls == [{**CALL, "timeout_s": None}]
+    assert stub.calls == [{**CALL, "timeout_s": None}]  # total_timeout_s 는 값 없으면 안 넘김
     assert len(tracer.observations) == 1
     obs = tracer.observations[0]
     final = obs.merged()
@@ -70,6 +70,13 @@ def test_timeout_s_is_passed_through() -> None:
     client, stub = _traced(FakeTracer())
     client.complete_json(**CALL, timeout_s=12.5)
     assert stub.calls[0]["timeout_s"] == 12.5
+
+
+def test_total_timeout_s_is_passed_through() -> None:
+    """SCRUM-290 추가 검토 1 — 질문 답변의 호출 전체 제한도 그대로 넘김."""
+    client, stub = _traced(FakeTracer())
+    client.complete_json(**CALL, timeout_s=10.0, total_timeout_s=10.0)
+    assert stub.calls[0]["total_timeout_s"] == 10.0
 
 
 def test_dash_request_id_has_no_seed_but_keeps_metadata() -> None:

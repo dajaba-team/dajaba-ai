@@ -127,6 +127,7 @@ class TracedLlmClient:
         max_tokens: int,
         tag: str,
         timeout_s: float | None = None,
+        total_timeout_s: float | None = None,  # SCRUM-290 — 질문 답변만 값
     ) -> LlmResult:
         with _observe(
             self._tracer,
@@ -136,6 +137,8 @@ class TracedLlmClient:
             model=model,
             input={"system": system, "user": user},
         ) as obs:
+            # 값이 있을 때만 넘김 — 초안·검증·요약 호출 모양은 그대로(SCRUM-290)
+            limits = {"total_timeout_s": total_timeout_s} if total_timeout_s is not None else {}
             result = self._inner.complete_json(
                 system=system,
                 user=user,
@@ -143,14 +146,11 @@ class TracedLlmClient:
                 max_tokens=max_tokens,
                 tag=tag,
                 timeout_s=timeout_s,
+                **limits,
             )
             if obs is not None:
-                _safe_call(
-                    obs.update,
-                    output=result.text,
-                    model=result.model,
-                    usage_details={"input": result.tokens_in, "output": result.tokens_out},
-                )
+                usage = {"input": result.tokens_in, "output": result.tokens_out}
+                _safe_call(obs.update, output=result.text, model=result.model, usage_details=usage)
             return result
 
 

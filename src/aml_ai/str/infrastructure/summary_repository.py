@@ -1,4 +1,4 @@
-"""요약 `generations` 행 저장 (SCRUM-129) — 선점·펜싱 없음, 매번 새 행."""
+"""요약·질문 답변 `generations` 행 저장 (SCRUM-129·290) — 선점·펜싱 없음, 매번 새 행."""
 
 from __future__ import annotations
 
@@ -29,16 +29,20 @@ class SummaryRepository:
         meta: dict[str, object],
         status: str,
         error: str | None = None,
+        kind: str = "SUMMARY",
     ) -> None:
-        """status=SUCCEEDED 또는 FAILED. facts 는 실패 저장에서 None 가능(ORM 칸이 nullable)."""
+        """status=SUCCEEDED 또는 FAILED. facts 는 실패 저장에서 None 가능(ORM 칸이 nullable).
+
+        kind 는 SUMMARY(기본) 또는 ASK(SCRUM-290) — draft_id 없이 case_no 로 남는 두 종류.
+        """
         values = {k: meta[k] for k in _META_COLS if k in meta}
         row = Generation(
             generation_id=generation_id,
-            kind="SUMMARY",
+            kind=kind,
             draft_id=None,
             case_no=case_no,
             request=request,
-            request_hash="",  # 요약은 해시 없음(선점 안 함)
+            request_hash="",  # 요약·질문 답변은 해시 없음(선점 안 함)
             facts=facts.model_dump(mode="json") if facts is not None else None,
             response=response_payload,
             status=status,

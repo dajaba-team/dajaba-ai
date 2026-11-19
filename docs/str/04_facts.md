@@ -178,6 +178,43 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 
 마스킹은 **검증에 영향이 없다** — 코드 검증은 원본 facts와 narrative를 대조하고, narrative에는 계좌가 뒤 4자리로만 나오므로 `ACCOUNT_ID_MATCH`는 마스킹 표현(`****BD30`)과 원본 끝 4자리를 같은 것으로 본다(06).
 
+### 질문 속 계좌 (`ask_question.py`, SCRUM-290 — 설계 문서 13절 1번)
+
+질문 답변의 **질문 문자열**도 LLM 에 가기 전에 계좌 모양을 가린다. 저장(`generations.request`)·응답은 원문. 순수 함수 `mask_question(text) -> str` — 돌려주는 값은 **LLM 에 가는 복사본**이다.
+
+순서(SCRUM-290 추가 검토 1): **① NFKC 정규화 → ② 계좌 가리기 → ③ 격리**(`<`·`>` 바꾸기, `ask_llm.render_plan_user`). ① 로 전각(`１０＿８０００ＥＢＤ３０`)·전각 기호가 ASCII 가 된 뒤에 ② 가 돈다. NFKC 는 LLM 복사본에만 — 원문은 그대로 저장.
+
+| 모양 | 정규식 (`constants_ask`, 영문은 대소문자 무관) | 바꾼 모양 |
+|---|---|---|
+| 은행 번호 붙은 계좌 키 | `RE_ASK_ACCOUNT_FULL` — 앞이 영숫자가 아닌 `숫자1~4_` + `[0-9A-Z*]` 이어지다 **영숫자 4자로 끝남**, 뒤가 영숫자가 아님 | `mask_account_key()` — `10_8000EBD30` → `10_****BD30` |
+| 은행 번호 없는 맨 계좌 | `RE_ASK_ACCOUNT_BARE` — 앞뒤가 영숫자가 아닌 8자 이상 `[0-9A-Z]` 토큰, **숫자와 영문자를 둘 다** 포함 | `****` + 끝 4자리 — `8000EBD30` → `****BD30` |
+
+- 앞뒤에 붙은 기호(`**8000EBD30**`·`` `8000EBD30` ``·`8000EBD30.`·`(10_8000EBD30)`)는 경계로만 보고 토큰을 건너뛰지 않는다 — 별표가 앞에 붙었다고 맨 계좌 검사에서 빠지지 않음.
+- 이미 가려진 모양(`10_****BD30`·`****BD30`)만 정확히 그대로 남는다 — 앞 것은 다시 가려도 같은 값, 뒤 것은 남은 꼬리가 4자라 8자 규칙에 안 걸림.
+- 숫자만인 토큰(`20220902`·금액)과 영문자만인 토큰(`ACH`·`FAN_IN`)은 맨 계좌로 보지 않는다 — 날짜·금액·코드값 질문이 깨지지 않게.
+- 못 가리는 모양(알고 남김, 09): 하이픈·공백으로 끊어 쓴 계좌(`8000-EBD-30`) — 끊긴 조각이 8자 미만이라 맨 계좌 규칙에 안 걸림.
+
+## 질문 답변 묶음 (`ask_bundles.py`, SCRUM-290 — 설계 문서 6.2)
+
+계획 LLM 이 고른 묶음(1~3개) → **마스킹 facts 조각 + 인용 키 목록**. 순수 함수 `extract(facts, rule_id, bundles, labels) -> AskPiece` (`labels` 는 `infrastructure/display_labels.load_display_labels()` 결과를 서비스가 넘김 — domain 은 파일을 안 읽음). 묶음 이름 목록은 `domain/constants.ASK_BUNDLES`(8개, 이 순서). 키 이름은 위 "fact 키" 표 그대로 — 조각에 들어간 칸 중 **이 케이스 `fact_keys(facts)` 에 실제로 있는 키만** 인용 키가 된다.
+
+| 묶음 | 꺼내는 마스킹 facts 칸 | 인용 키 |
+|---|---|---|
+| `subject` | `subject`(account_key 마스킹) · `customer` · `prior_alert_count` · `reporting_institution` | `subject` · `subject.account_key` · `subject.entity_name` · `subject.entity_type` · `customer.<칸>` · `prior_alert_count` |
+| `flows` | `period` · `inbound` · `outbound` · `internal` · `amount_range` · `direction` · `unmapped_currencies` | `period` · `inbound.count` · `inbound.amount.<통화>` · `outbound.count` · `outbound.amount.<통화>` · `internal.count` · `amount_range.<통화>.min/max` · `direction` · `unmapped_currencies.<이름>` |
+| `counterparties` | `counterparties` · `counterparty_banks` | `counterparties.count` · `counterparty_banks.same_bank_accounts` · `counterparty_banks.other_bank_accounts` |
+| `formats` | `payment_formats` · `payment_format_counts` · `direction` | `payment_formats` · `payment_format_counts.<방식>` · `direction` |
+| `paths` | `paths` — `VERIFIED` 면 kind·count·max_hops·max_accounts(마스킹과 같음), 아니면 **빈 조각** | `paths.count` · `paths.max_hops` · `paths.max_accounts` · `paths.kind` |
+| `observations` | `observations` — name·value·unit·window_start·window_end·basis (**baseline 뺌**) | `observations.<이름>` |
+| `score_reasons` | `model_signals` · `observations` — name·value·unit·**baseline** | `model_signals` · `observations.<이름>` |
+| `rule_facts` | `typology` · `typology_source` · 경보 `rule_id` · `period` | `typology` · `period` |
+
+- 조각은 마스킹본(`mask_for_llm`)에서 꺼낸다 — 거래 ID 없음, 계좌 뒤 4자리. 같은 칸이 두 묶음에 걸리면(`direction`·`period`·`observations`) 한 번만 넣는다. `observations`·`score_reasons` 를 함께 고르면 관측 항목은 두 칸 집합의 합(window·basis·baseline 모두).
+- **넣지 않는 것**: `excluded_self_transfer_count`(인용 키가 없고 COUNT 검사 집합에도 없어 쓰면 MISMATCH) · `indirect`(마스킹이 이미 뺌) · 경보 `rule_facts` 숫자와 `window_start/end`(facts 밖 숫자·날짜라 검사에서 거짓 UNVERIFIED) · 기여값(SHAP 숫자 — 어느 묶음에도 없음, 규약 3절).
+- `observations`·`score_reasons` 를 나눈 이유: 이유 질문의 "모델 설명"(05 `ask_answer_v1` "모델이 주목한 점:")은 `score_reasons` 에서만 나오게 하고, 관측 사실 질문은 기준값 없이 값만 본다. `score_reasons` 는 설계 문서 6.2 의 "키 없음"이 아니라 `model_signals` 키(근거 거래 없음)와 `observations.<이름>` 을 인용한다 — 키가 없으면 이유 답이 cites 를 못 채워 502 가 된다.
+- 코드값 한글 표기: 조각에 나온 코드(업종·위험 등급·목적·결제 방식·유형·엔티티 유형·관측 이름·관측 단위)의 표기만 `labels` 로 함께 준다(`contracts/display_labels_v1.json`, 05 narrative_v4 "표기 사전"과 같은 파일). **통화는 표기를 주지 않고 ISO 코드 그대로** — 금액 검사가 통화 코드 짝으로 가장 안정적으로 읽는다(summary_v1 규칙 2 와 같음).
+- 묶음 이름이 목록 밖이면 함수가 `ValueError` — 서비스까지 오기 전에 `AskPlanOut` 스키마가 먼저 막는다(`LLM_INVALID_OUTPUT`).
+
 ## 표시용 파생은 facts 가 아니다 (SCRUM-228, 2026-11-17)
 
 narrative_v4 의 **표기 사전·슬롯 문장·derived 플래그·사유/종합의견 카탈로그 선택**(05 narrative_v4 절)은 facts 에서 **표시용으로 파생한 값**이다 — facts 스키마·`fact_keys`·응답 `facts` 에 넣지 않고, 검증(06)도 대조하지 않는다. 검증은 지금처럼 조립된 본문을 facts 원값과 대조한다. 파생 함수는 `str/domain/` 순수 함수로 facts(마스킹본)를 읽기만 하고, 새 숫자를 만들지 않는다(쉼표·날짜 형식만, 합산·환산·반올림 없음). 플래그는 bool 뿐.
