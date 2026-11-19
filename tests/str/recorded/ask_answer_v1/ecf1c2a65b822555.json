@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"확인된 입금 합계는 9800.25 EUR, 42750.50 USD로 보여요. 통화가 매핑되지 않은 입금 1건은 합계 금액이 자료에 없어 확인하기 어려워요.\",\"cites\":[\"inbound.amount.EUR\",\"inbound.amount.USD\",\"unmapped_currencies.Peso Uruguay\"]}", "model": "gpt-6.1-sol"}

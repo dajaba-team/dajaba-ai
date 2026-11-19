@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"통화별로 보면 EUR의 최대·최소 입금액은 모두 9800.25 EUR이고, USD의 최대 입금액은 30250.50 USD, 최소 입금액은 12500.00 USD로 보여요. 통화가 달라 전체 최대·최소는 비교하기 어려워요.\",\"cites\":[\"amount_range.EUR.min\",\"amount_range.EUR.max\",\"amount_range.USD.min\",\"amount_range.USD.max\"]}", "model": "gpt-6.1-sol"}

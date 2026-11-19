@@ -1,10 +1,10 @@
-"""AskService 290-1 — 계획·범위 밖·저장·예산 (SCRUM-290, 08 "질문 답변" 줄 · 03 `/v1/cases/ask`)."""
+"""AskService — 계획·범위 밖·저장·예산 (SCRUM-290, 08 "질문 답변" 줄 · 03 `/v1/cases/ask`). 답 단계는 test_ask_service_answer."""
 
 from __future__ import annotations
 
 import pytest
 
-from aml_ai.shared.errors import AiError, InvalidRequest, LlmInvalidOutput, LlmUnavailable
+from aml_ai.shared.errors import InvalidRequest, LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.schemas.str import AskStatus
 from tests.log_support import stdout_json_logging
 from tests.str.ask_service_support import StubLlm, ask_request, build_service, plan_text
@@ -98,18 +98,6 @@ def test_budget_short_before_plan_call_is_unavailable_and_no_llm() -> None:
     assert llm.calls == []
     assert repo.saved[0]["status"] == "FAILED"
     assert repo.saved[0]["error"].startswith("LLM_UNAVAILABLE")
-
-
-def test_in_scope_is_internal_failed_until_answer_step() -> None:
-    """290-1 — 범위 안은 묶음 조각까지 만든 뒤 INTERNAL FAILED (03, 290-2 에서 지움)."""
-    llm = StubLlm([plan_text("FACT", None, ["counterparties"])])
-    svc, repo = build_service(llm)
-    with pytest.raises(AiError) as exc:
-        svc.ask(ask_request("입금 상대 계좌는 몇 개야?"))
-    assert exc.value.code == "INTERNAL" and exc.value.status == 500
-    assert len(llm.calls) == 1
-    assert repo.saved[0]["status"] == "FAILED"
-    assert repo.saved[0]["error"].startswith("INTERNAL: answer step not wired")
 
 
 def test_evidence_outside_alert_is_400_before_llm() -> None:

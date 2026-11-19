@@ -142,7 +142,7 @@
 - `generations.kind=SUMMARY`·`draft_id=null` — Alembic 변경 없음(`str/orm.py` 이미 nullable).
 - 재시도 1회는 **스키마 실패** 또는 **코드 검사 실패** 둘 중 하나로만 — 각 경우 남은 예산 ≥ `REGEN_MIN_REMAINING_S` 일 때. 두 번 다 안 돌림.
 
-## `POST /v1/cases/ask` (SCRUM-290 — 290-1 계획·범위 밖까지, 290-2 답·검사·라우터)
+## `POST /v1/cases/ask` (SCRUM-290)
 
 요청·응답 모양은 `shared/01` 질문 답변 절(규약 §5.4, `shared/schemas/str/ask.py`). 2단계 호출 — LLM 은 **계획(묶음 고르기)** 과 **답** 두 번만, 순서는 코드가 고정(09 2026-11-19). 선점·중복 방지 없음(요약과 같음, 409 없음).
 
@@ -164,17 +164,23 @@
       AskPlanOut 스키마 위반(목록 밖·0개·4개·중복 묶음, kind 와 사유·묶음 짝 어긋남) → LlmInvalidOutput(502)
 7  plan.kind == OUT_OF_SCOPE → 응답 조립(kind=null·out_of_scope_reason·answer=null·cites=[]·evidence_ids=[]·code_checks=[]·
       prompt_version=null·bundles=[]·토큰·지연 = 계획 호출분) → 10 으로. LLM 1회로 끝
-8  (290-2) piece = domain.ask_bundles.extract(facts, rule_id, plan.bundles)   (04 "질문 답변 묶음") — 마스킹 조각 + 인용 키 목록
-   (290-2) ans = ask_llm.answer(question_llm, piece, deadline=deadline)       ask_answer_v1, 선체크·1회·재시도 없음 같음
+8  piece = domain.ask_bundles.extract(facts, rule_id, plan.bundles)   (04 "질문 답변 묶음") — 마스킹 조각 + 인용 키 목록
+   ans = ask_llm.answer(question_llm, piece, deadline=deadline)       ask_answer_v1 (05) — 계획과 같은 선체크(남은 < ASK_LLM_TIMEOUT_S → 502)·
+      호출 전체 제한 min(ASK_LLM_TIMEOUT_S, 남은)·마감 뒤 도착 거부, 1회·재시도 없음
       answerable=true + cites 빈 · answer 400자 초과·빈 문자열 → LlmInvalidOutput(502)
-9  (290-2) answerable=false → NO_DATA (answer·cites 무시, code_checks=[])
-   (290-2) answerable=true → code_checks = ask_checks(facts, answer, cites, piece.keys)  (06 "질문 답변에 도는 코드 검사")
+9  answerable=false → NO_DATA (answer·cites 무시, code_checks=[])
+   answerable=true → code_checks = domain.ask_checks.run(facts, answer, cites, piece.keys)  (06 "질문 답변에 도는 코드 검사")
       하나라도 match=false → UNVERIFIED (answer=null·cites=[]·evidence_ids=[]) / 전부 match → ANSWERED
       evidence_ids = cites 의 fact 키 → 거래 ID 합집합(attach_evidence 와 같은 방식, 거래 없는 키는 기여 0)
 10 generations 신규 행 (kind=ASK·draft_id=null·case_no·status=SUCCEEDED·request(질문 원문)·facts(원본)·
       response = API 응답 + "plan"{kind, out_of_scope_reason, bundles} + "llm_answer"{answerable, answer, cites}(답 호출 때만)·
       llm_model·prompt_version(답, OUT_OF_SCOPE 면 null)·tokens·latency = 두 호출 합)
-   예외 → status=FAILED·error="<code>: <메시지 앞 48자>" 저장 후 그대로 raise (요약과 같음)
+   성공 저장 시간 제한(SCRUM-290 2/2 추가 검토 1): 남은 = deadline − clock() ≤ 0 이면 성공 저장 안 함 → LlmUnavailable(502).
+      남았으면 같은 트랜잭션에 set_config(statement_timeout·lock_timeout = 남은 ms, 트랜잭션 한정) 뒤 INSERT·flush,
+      커밋 직전 다시 clock() > deadline 이면 rollback → LlmUnavailable. **커밋이 시작되면 결과를 그대로 씀**(추가 검토 2 — 커밋 중 마감을 넘겨도
+      SUCCEEDED·응답 그대로. 20초 예산이 백엔드 30초보다 10초 짧은 여유가 이 몫, 시간 값 안 바꿈). 시간 제한·잠금 대기로 취소(57014·55P03)도 rollback → LlmUnavailable
+      (풀 연결 대기는 엔진 공통 pool_timeout 이라 이 호출만 못 묶음 — 09 알고 남김). 요약 저장은 시간 제한 없음 그대로
+   예외 → status=FAILED·error="<code>: <메시지 앞 48자>" 저장 후 그대로 raise (요약과 같음). FAILED 저장은 시간 제한 없음 — 백엔드 30초가 바깥 제한(09 알고 남김)
 11 응답 AskResponse — 상태 4종 모두 200
 ```
 
@@ -182,7 +188,8 @@
 - `generations.kind=ASK`·`draft_id=null` — Alembic 변경 없음(`kind` 는 `String(16)`, CHECK 없음, 부분 UNIQUE 는 `kind='DRAFT'` 만 — `shared/03`).
 - 저장은 `SummaryRepository.save(..., kind="ASK")` — 기본값 `SUMMARY` 라 요약 호출은 그대로.
 - 로그에는 케이스 번호·상태·질문/답 길이·시간만. 질문·답 본문·프롬프트 전문 금지(NFR-COM-04).
-- **290-1 범위**: 0~7·10 — 범위 밖 경로는 끝까지(응답·저장). 범위 안이면 8 의 묶음 조각(`ask_bundles.extract`)까지 만들고 답 단계가 없어 `INTERNAL`("answer step not wired")로 FAILED 저장 — **290-2 에서 이 FAILED 경로를 지움**(답 단계로 바뀜). 라우터(`router.py` `/cases/ask`)·8 의 답 호출·9 는 290-2 — 290-1 만 머지된 상태에서는 엔드포인트가 없어 밖에서 닿지 않는다.
+- 라우터 `str/api/router.py` `POST /cases/ask`(main 이 `/v1` 붙임)는 **동기 `def`** — 이벤트 루프가 도는 스레드에서 `complete_json(total_timeout_s=)` 을 부르면 500(SCRUM-322 알고 남김). 응답 조립(상태 3종)은 `application/ask_answer.py`, 검사·근거는 `domain/ask_checks.py`(순수).
+- 시간(SCRUM-290 2/2 ★A): 답 선체크를 지나려면 facts 읽기 + 계획 ≤ `ASK_BUDGET_S − ASK_LLM_TIMEOUT_S`(10초). 지나면 답 끝 ≤ deadline, 그 뒤 검사·저장(ms 단위)만 — 최악 응답 ≈ 20초 + 수십 ms(백엔드 30초 안). 계획+답 합계 실측(08 "결과 — 답")이 20초를 넘어도 이 PR 에서 숫자를 바꾸지 않고 기록만(09).
 
 ## 시간 예산 — 실측 전 가정값, W2 수요일 측정 뒤 조정
 

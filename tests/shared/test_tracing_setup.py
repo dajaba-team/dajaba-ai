@@ -9,12 +9,13 @@ from __future__ import annotations
 import logging
 import threading
 import time
+from collections.abc import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
 from opentelemetry import trace as otel_trace
 
-from aml_ai.shared.config import get_settings
+from aml_ai.shared.config import Settings, get_settings
 from aml_ai.shared.infrastructure import tracing
 from aml_ai.shared.infrastructure.embedding_client import HttpEmbeddingClient, make_embedding_client
 from aml_ai.shared.infrastructure.llm_client import HttpLlmClient, RecordedLlmClient, make_llm_client
@@ -27,6 +28,19 @@ from tests.shared.tracing_support import (
     enable_tracing,
     tracing_records,
 )
+
+
+@pytest.fixture(autouse=True)
+def _no_dotenv(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """리포 루트 `.env` 를 읽지 않는다 — 로컬 `.env` 의 `LANGFUSE_*` 값이 기본값 검사를 흔들지 않게.
+
+    `get_settings()` 가 앱 안쪽에서 불려도 같은 설정을 쓰도록 `Settings.model_config` 를 바꾼다.
+    환경 변수(`monkeypatch.setenv`)는 그대로 읽힌다.
+    """
+    monkeypatch.setitem(Settings.model_config, "env_file", None)
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()  # 이 파일의 설정이 다음 테스트로 새지 않게
 
 
 def _real_llm(monkeypatch: pytest.MonkeyPatch) -> None:

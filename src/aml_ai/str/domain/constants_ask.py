@@ -6,6 +6,8 @@ import re
 
 ASK_PLAN_PROMPT = "ask_plan_v1"  # 05 ask_plan_v1 — 녹화 커밋 때 FROZEN_PROMPTS
 ASK_PLAN_MAX_TOKENS = 1000  # 출력은 JSON 한 줄이지만 추론 토큰 몫을 남김(summary 1500 보다 짧게)
+ASK_ANSWER_PROMPT = "ask_answer_v1"  # 05 ask_answer_v1 — 녹화 커밋 때 FROZEN_PROMPTS
+ASK_ANSWER_MAX_TOKENS = 1500  # 답 ≤400자 + cites + 추론 몫(요약과 같음)
 
 # 04 "질문 속 계좌" (SCRUM-290 추가 검토 1) — NFKC 뒤에 적용, 영문 대소문자 무관. 앞뒤 기호(`*`·`` ` ``·`.`)는 경계로만
 _ALNUM = "0-9A-Za-z"
@@ -16,3 +18,6 @@ RE_ASK_ACCOUNT_BARE = re.compile(
     rf"(?<![{_ALNUM}])(?=[{_ALNUM}]*[0-9])(?=[{_ALNUM}]*[A-Za-z])[{_ALNUM}]{{8,}}(?![{_ALNUM}])"
 )
 ACCOUNT_MASK = "****"
+
+# 06 "질문 답변" 2번 — 응답 EVIDENCE_IN_SCOPE.draft_value 고정 표시(cites 는 모델 자유 문자열이라 반사 안 함, 추가 검토 1)
+EVIDENCE_OUT_OF_SCOPE_MARK = "인용 키 범위 밖 {n}개"
