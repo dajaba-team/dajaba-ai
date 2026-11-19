@@ -267,6 +267,7 @@
 | 2026-11-19 (SCRUM-290 알고 남김 — 다른 경로의 같은 구멍) | **초안·고쳐 쓰기·검증·요약 LLM 호출도 작업별 timeout 만** — `narrative_generator`·`narrative_rewriter`·`judge` 는 `timeout_s` 없음(클라이언트 기본 `llm_timeout_s=35` 작업별), `summary_generator` 는 `summary_llm_timeout_s=15` 작업별(코드 확인 11/19). 느린 분할 응답이면 각 예산(80·80·40초)을 넘겨도 결과를 받을 수 있음. 이번엔 안 고침 — **별도 이슈 후보**: 세 경로에도 `total_timeout_s` 를 넘기기(각자 선체크·재생성 규칙과 함께) | 공통 기본 동작을 바꾸면 초안·검증·요약 녹화·시간 테스트가 같이 바뀜(이 이슈 "기존 경로 동작 안 바꿈") | 이번 PR 에서 같이 고치기 |
 | 2026-11-19 (SCRUM-290 알고 남김 — 끊어 쓴 계좌) | 질문 속 계좌를 하이픈·공백으로 끊어 쓰면(`8000-EBD-30`) 가리지 못함 — 조각이 8자 미만 | 끊긴 조각까지 잡으면 날짜(`2022-09-02`)·금액·코드 질문이 깨짐. 계좌 키 원문은 `_` 하나만 쓰는 모양이라 1차는 둠 | 하이픈 허용 정규식(날짜 오탐) |
 | 2026-11-19 (SCRUM-290 알고 남김 — 추가 검토 2) | **질문 답변 전체 마감 — 호출자는 마감에 502·늦은 결과 버림·저장 FAILED. 헤더 대기 중 마감이면 작업 스레드·연결은 헤더 도착 또는 읽기 제한(10초)까지 남음(자원만, 결과 영향 없음). 소켓째 끊기는 httpx 공개 API 로 불가(실험: client.close 안 끊김, 소켓 shutdown 끊김) — 초안·검증·요약 같은 구멍과 함께 별도 이슈** | 소켓 shutdown 은 httpx 비공개 속성(`HTTPTransport._pool`) 의존이나 transport 직접 작성(60~70줄)이 필요하고, 남는 건 결과가 아닌 자원 문제 | httpx 비공개 `_pool` 교체 / 직접 만든 transport / 비동기 클라이언트로 전환(동기 서비스·라우터라 범위 큼) |
+| 2026-11-19 (SCRUM-130 2/2 ①, 준영·진희) | `/v1/scores` failure_code 에 `RULE_NOT_SUPPORTED` 추가(5값), 재처리 안 함 | rc1 이 R03·R05·R06 에 실제로 보내는 값이고, 이력 부족과 뜻이 다름 — 다시 보내도 같은 결과 | `HISTORY_NOT_SUPPORTED` 로 묶기(이력 부족과 뜻이 달라 재처리·화면 설명이 틀림) / `REQUIRED_INPUT_MISSING` 으로 묶기 |
 
 ## 미결 (회의·측정 뒤)
 
@@ -317,3 +318,4 @@
 | 규약 예시(`contracts/examples/*`)·04 facts 예시 JSON 의 reasons·관측값이 지어낸 이름·옛 형식(`account_in_counterparties_24h`·basis `distinct_inbound_counterparties`) — 실제 형식으로 바꾸면 백엔드 사본·해시 벡터(`narrative_hash_v2.json`)가 따라옴 | 진희, 백엔드와 같이 |
 | 판정 문장은 숫자가 없어 06 이 "미치지 않음 ↔ 충족함" 같은 뒤집기를 못 잡음(SCRUM-265 2/2) — 지금 v4 는 코드 조립이라 문제없지만, LLM 편집자(시연 뒤)를 붙일 때 판정 문장은 편집 대상에서 뺄 것 | 진희, LLM 편집자 작업 때 |
 | `corpus/manifest.json` 의 FinCEN PDF 주소 5개(sar-narrative·tbml-2006·funnel·msb-ko·money-mule)가 404 — FinCEN 이 `/sites/default/files/shared/…` 를 `/system/files/…` 로 옮김(SCRUM-281 ★A 11/19 확인, 예 FIN-2014-A005 새 주소 200). 이용 조건 ② "공식 링크만"과 걸림. 이번엔 안 고침 | **닫음**(2026-11-19, SCRUM-293) — 5개 모두 `/system/files/` 새 주소(200 PDF · sha256·쪽수 manifest 와 같음). url 만 바뀌어 검색 결과 같음, retrieval_version 앞 8자만 바뀜(파일 해시 설계대로) |
+| R03·R05·R06 점수 방식 — R01~R06 모두 케이스까지(진희 11/19), 방법은 준영 님 답 뒤 | 준영 답 뒤 진희 |

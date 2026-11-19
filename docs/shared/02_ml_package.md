@@ -29,7 +29,7 @@ def features(
 | `AlertInput` | 규약 2절 경보 JSON과 1:1 — `alert_id`, `rule_id`, `account_key`, `reference_ts`, `window_start`, `window_end`, `transaction_ids`, `rule_facts` | **확정(안건 6)**: 서비스 필드명 유지, 매핑은 패키지 안에서 — 아래 "학습 ↔ 서비스 필드". `alert_id`는 문자열 |
 | `transactions` | 요청 500건의 경보가 가리키는 거래를 AI 서버 `transaction_reader`가 `ops.transactions`에서 한 번에 SELECT해 DataFrame으로. 컬럼은 서비스 DB 그대로(`transaction_id, ts, from_account_key, to_account_key, amount_paid, currency_paid, amount_received, currency_received, payment_format, is_self_transfer`). `is_laundering`·`pattern_*`는 **없다** | **확정 — 아래 "입력 범위"**(대상 계좌 24h + 근거 거래) |
 | `ScoreResult` | `alert_id`, `score: float \| None`, `data_quality_status`, `failure_code`, `reasons`, `evidence_transaction_ids`, `context_transaction_ids` | 아래 행별 |
-| `ScoreResult.failure_code` | **확정(10/29 준혁)**: `FAILED`일 때만 `HISTORY_NOT_SUPPORTED` / `REQUIRED_INPUT_MISSING` / `COMPUTE_ERROR` 중 하나, 그 밖엔 `None`. `TRANSACTION_NOT_FOUND`는 패키지가 아니라 AI 서버가 정한다(없는 ID가 있는 경보는 패키지에 안 넘김). 백엔드 재처리는 `COMPUTE_ERROR`만 — 다시 돌려도 같은 결과가 나올 실패는 나머지 둘로 | 준영: 패키지 안 사유 → 세 코드 대응표 |
+| `ScoreResult.failure_code` | **확정(10/29 준혁)**: `FAILED`일 때만 `HISTORY_NOT_SUPPORTED` / `RULE_NOT_SUPPORTED` / `REQUIRED_INPUT_MISSING` / `COMPUTE_ERROR` 중 하나, 그 밖엔 `None`. `TRANSACTION_NOT_FOUND`는 패키지가 아니라 AI 서버가 정한다(없는 ID가 있는 경보는 패키지에 안 넘김). 백엔드 재처리는 `COMPUTE_ERROR`만 — 다시 돌려도 같은 결과가 나올 실패는 나머지 셋으로 | 준영: 패키지 안 사유 → 네 코드 대응표 |
 | `ScoreResult.data_quality_status` | **확정(안건 4)**: `OK` / `SHORT_HISTORY`(지원·검증된 이력 부족, 점수 있음) / `MISSING_INPUT`(지원·검증된 입력 결측, 점수 있음) / `FAILED`(점수 산출 불가). `FAILED`면 `score=None`. 백엔드는 FAILED 경보를 **저위험으로 취급하지 않고** 보존·재처리 | 판정은 아래 "품질 판정"(10/28 준영) |
 | `ScoreResult.evidence_transaction_ids` | **확정(안건 7)**: 경보 안 거래 ⊆ `AlertInput.transaction_ids`. STR이 쓰는 것 | — |
 | `ScoreResult.context_transaction_ids` | **확정(안건 7)**: 경보 밖 참고 거래(과거 이력·이웃). 대표만 제한 반환(상한은 상수), STR 본문에 쓰지 않음 | 상한 개수 준영 |
@@ -37,6 +37,8 @@ def features(
 | 실패 | 경보 하나가 실패하면 그 경보만 `score=None, data_quality_status="FAILED"`, `failure_code`, `reasons=[]`, `threshold`는 모델 값 유지. 예외를 던져 500건 전체를 죽이지 않는다. 요청 전체 503은 모델 미로드(`MODEL_UNAVAILABLE`)와 AI 서버 DB 조회 장애(`DB_UNAVAILABLE`) 둘뿐 | 확정(준영 10/28, 준혁 10/29) |
 | 결정성 | 같은 입력 → 같은 출력. 난수 없음 | — |
 | 의존성 | pandas/polars, xgboost 또는 lightgbm, shap. **torch·GNN 없음**(MVP). **Python 3.12** (`requires-python >=3.12,<3.13` — AI 서버와 같은 인터프리터) | 준영: polars를 쓰면 AI 서버도 설치. 3.12 휠 확인 |
+
+**rc1 실패 코드 대응**: `InputError`(6룰 밖 `rule_id` 포함) → `REQUIRED_INPUT_MISSING` · `HistoryError` → `HISTORY_NOT_SUPPORTED` · `UnsupportedRuleError`(R03·R05·R06) → `RULE_NOT_SUPPORTED` · 그 밖 예외·추론 실패 → `COMPUTE_ERROR`. `reasons`(TreeSHAP) 계산 실패는 FAILED 아님(OK + `reasons=[]`). 지원 룰은 R01·R02·R04이며, R03·R05·R06은 `FAILED` + `RULE_NOT_SUPPORTED`.
 
 ## 입력 범위 (10/28 확정, 준영 답)
 
@@ -64,7 +66,7 @@ def features(
 
 - 이력 부족 + 지원되는 결측이 같이 있고 점수가 나오면 대표 상태는 `MISSING_INPUT`, 이력 부족은 AI 내부 기록에.
 - baseline만 없으면 `baseline.value=null`, 그것만으로 점수를 막지 않는다.
-- 품질 사유(왜 FAILED인지)의 자세한 내용은 `ai.predictions` 내부 기록에. API로는 재처리 판단용 `failure_code` 네 값만 공개(10/29 확정).
+- 품질 사유(왜 FAILED인지)의 자세한 내용은 `ai.predictions` 내부 기록에. API로는 재처리 판단용 `failure_code` 다섯 값만 공개(10/29 확정, 11/19 `RULE_NOT_SUPPORTED` 추가).
 
 ### 학습 ↔ 서비스 필드 (안건 6)
 
@@ -74,6 +76,7 @@ def features(
 
 ## 설치·버전
 
+- 첫 연결 태그 `v0.1.0rc1`(11/19, dajaba-team/dajaba-ml), 설치는 SCRUM-130 2/2 ②
 - AI 서버 `pyproject.toml`: `aml-ml @ git+https://github.com/<org>/aml-ml.git@v0.1.0` — **tag로 고정**. `main` 브랜치를 가리키지 않는다.
 - 준영이 새 모델을 내면: 리포에 tag → 진희가 `pyproject.toml` 한 줄 바꾸는 PR → `MODEL_VERSION`이 바뀐 것을 `/v1/health`에서 확인 → `ai.model_versions`에 행 추가(준영).
 - **점수 모드 `/v1/health` `scoring_mode`** (SCRUM-130, 11/12) — 점수가 고정 점수인지 실제 모델인지 밖에서 보이게. 판단은 `shared/versioning.scoring_mode(settings)`:

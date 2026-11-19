@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from aml_ai.shared.schemas.alerts import Alert
-from aml_ai.shared.schemas.scores import ScoreItem
+from aml_ai.shared.schemas.scores import FailureCode, ScoreItem
 from aml_ai.shared.schemas.str import CodeCheck, Facts, NarrativeOut, VerifyRequest, VerifyResponse
 from tests.conftest import EXAMPLES, FIXTURES, load_json
 
@@ -118,7 +118,37 @@ def test_score_failed_item_needs_failure_code() -> None:
     with pytest.raises(ValidationError):
         ScoreItem.model_validate({**failed, "failure_code": None})
     with pytest.raises(ValidationError):
-        ScoreItem.model_validate({**failed, "failure_code": "TIMEOUT"})  # 4값 밖
+        ScoreItem.model_validate({**failed, "failure_code": "TIMEOUT"})  # 5값 밖
+
+
+def test_score_failed_rule_not_supported_valid() -> None:
+    items = load_json(EXAMPLES / "score_response.json")["scores"]
+    failed = next(i for i in items if i["data_quality_status"] == "FAILED")
+    item = ScoreItem.model_validate({**failed, "failure_code": "RULE_NOT_SUPPORTED"})
+    assert item.failure_code == FailureCode.RULE_NOT_SUPPORTED
+
+
+def test_score_ok_rule_not_supported_rejected() -> None:
+    ok = load_json(EXAMPLES / "score_response.json")["scores"][0]
+    with pytest.raises(ValidationError, match="failure_code is only for FAILED items"):
+        ScoreItem.model_validate({**ok, "failure_code": "RULE_NOT_SUPPORTED"})
+
+
+def test_score_unknown_rule_failure_code_rejected() -> None:
+    items = load_json(EXAMPLES / "score_response.json")["scores"]
+    failed = next(i for i in items if i["data_quality_status"] == "FAILED")
+    with pytest.raises(ValidationError):
+        ScoreItem.model_validate({**failed, "failure_code": "RULE_UNKNOWN"})
+
+
+def test_score_failure_codes_exactly_five() -> None:
+    assert {c.value for c in FailureCode} == {
+        "TRANSACTION_NOT_FOUND",
+        "HISTORY_NOT_SUPPORTED",
+        "RULE_NOT_SUPPORTED",
+        "REQUIRED_INPUT_MISSING",
+        "COMPUTE_ERROR",
+    }
 
 
 def test_score_ok_item_has_no_failure_code() -> None:
