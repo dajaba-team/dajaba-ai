@@ -1,0 +1,307 @@
+{
+  "_doc": "SCRUM-275 평가 세트 (docs/str/10 \"평가 세트\"). facts = base 픽스처 + overrides(범주 칸만 — 계좌·금액·이름 0). 정답은 answers_*.json(위치만, 원문 0).",
+  "queries": [
+    {
+      "id": "D01",
+      "split": "dev",
+      "typology": "CYCLE",
+      "base": "facts_cycle_nopaths.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "inflow_outflow_ratio_2h"
+        ],
+        "direction": "MIXED",
+        "payment_formats": [
+          "Wire"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 0,
+          "other_bank_accounts": 3
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D02",
+      "split": "dev",
+      "typology": "CYCLE",
+      "base": "facts_cycle_nopaths.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "account_in_counterparties_24h",
+          "outflow_ratio_2h"
+        ],
+        "direction": "MIXED",
+        "payment_formats": [
+          "ACH"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 3,
+          "other_bank_accounts": 0
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D03",
+      "split": "dev",
+      "typology": "CYCLE",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "cross_border_amount_24h"
+        ],
+        "direction": "MIXED",
+        "payment_formats": [
+          "Wire",
+          "ACH"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 1,
+          "other_bank_accounts": 3
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D04",
+      "split": "dev",
+      "typology": "CYCLE",
+      "base": "facts_cycle_nopaths.json",
+      "overrides": {
+        "industry": null,
+        "model_signals": [
+          "distinct_recipients_24h"
+        ],
+        "direction": "OUTBOUND",
+        "payment_formats": [
+          "Cheque"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 1,
+          "other_bank_accounts": 2
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D05",
+      "split": "dev",
+      "typology": "CYCLE",
+      "base": "facts_cycle_nopaths.json",
+      "overrides": {
+        "industry": "RESTAURANT",
+        "model_signals": [
+          "inflow_outflow_ratio_2h",
+          "distinct_senders_24h"
+        ],
+        "direction": "INBOUND",
+        "payment_formats": [
+          "Cash"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 0,
+          "other_bank_accounts": 3
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D06",
+      "split": "dev",
+      "typology": "CYCLE",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "outflow_ratio_2h"
+        ],
+        "direction": "MIXED",
+        "payment_formats": [
+          "Bitcoin"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 2,
+          "other_bank_accounts": 2
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D07",
+      "split": "dev",
+      "typology": "FAN_IN",
+      "base": "facts_fan_in.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "distinct_senders_24h"
+        ],
+        "direction": "INBOUND",
+        "payment_formats": [
+          "Wire"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 1,
+          "other_bank_accounts": 2
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D08",
+      "split": "dev",
+      "typology": "FAN_IN",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "account_in_counterparties_24h",
+          "cross_border_amount_24h"
+        ],
+        "direction": "INBOUND",
+        "payment_formats": [
+          "ACH",
+          "Wire"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 1,
+          "other_bank_accounts": 3
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D09",
+      "split": "dev",
+      "typology": "FAN_OUT",
+      "base": "facts_fan_out.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "distinct_recipients_24h",
+          "outflow_ratio_2h"
+        ],
+        "direction": "OUTBOUND",
+        "payment_formats": [
+          "Wire"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 0,
+          "other_bank_accounts": 3
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D10",
+      "split": "dev",
+      "typology": "FAN_OUT",
+      "base": "facts_fan_out.json",
+      "overrides": {
+        "industry": null,
+        "model_signals": [
+          "outflow_ratio_2h"
+        ],
+        "direction": "OUTBOUND",
+        "payment_formats": [
+          "Cash"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 3,
+          "other_bank_accounts": 0
+        }
+      },
+      "expect_empty": false
+    },
+    {
+      "id": "D11",
+      "split": "dev",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "inflow_outflow_ratio_2h"
+        ],
+        "direction": "MIXED",
+        "payment_formats": [
+          "ACH"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 0,
+          "other_bank_accounts": 3
+        }
+      },
+      "expect_empty": true
+    },
+    {
+      "id": "D12",
+      "split": "dev",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "cross_border_amount_24h"
+        ],
+        "direction": "MIXED",
+        "payment_formats": [
+          "Wire"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 1,
+          "other_bank_accounts": 2
+        }
+      },
+      "expect_empty": true
+    },
+    {
+      "id": "D13",
+      "split": "dev",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "distinct_senders_24h",
+          "distinct_recipients_24h"
+        ],
+        "direction": "MIXED",
+        "payment_formats": [
+          "ACH"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 0,
+          "other_bank_accounts": 3
+        }
+      },
+      "expect_empty": true
+    },
+    {
+      "id": "D14",
+      "split": "dev",
+      "typology": "FX_RELAY",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "cross_border_amount_24h"
+        ],
+        "direction": "MIXED",
+        "payment_formats": [
+          "Wire",
+          "Bitcoin"
+        ],
+        "counterparty_banks": {
+          "same_bank_accounts": 1,
+          "other_bank_accounts": 3
+        }
+      },
+      "expect_empty": true
+    }
+  ]
+}
