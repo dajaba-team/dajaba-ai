@@ -101,12 +101,12 @@
 |---|---|---|
 | 요청 = 요약 요청 6칸 + `question` | `AskRequest(SummaryRequest)` 상속 — `case_no`·`alert`·`evidence_transaction_ids`·`reasons`·`prior_alert_count`·`reporting_institution` 이 요약과 같은 이름·값·필수 여부. `to_facts_input()` 도 같음 | `shared/schemas/str/ask.py` `AskRequest` |
 | 요청 `question` 1~300 | NFC 뒤 UTF-16 코드 단위(`utf16_len_nfc`, 검증 수정본과 같음). **앞뒤 공백을 자르지 않고 원문 그대로**, 공백만이면 거부 → 400 `INVALID_REQUEST`. **백엔드도 같은 규칙** — trim 하지 않고 같은 단위로 셈(어긋나면 백엔드 통과·AI 400 이 생김) | `AskRequest.question` · `ASK_QUESTION_MAX` |
-| 요청 `evidence_transaction_ids ⊆ alert.transaction_ids` | **요약과 같은 부분집합 규칙**(설계 5.4 의 "≠ 경보 거래 목록"은 초안 규칙이라 따르지 않음). **백엔드도 같은 규칙** — 요약 조립을 그대로 씀. AI 쪽 검사는 서비스(다음 이슈) | — |
+| 요청 `evidence_transaction_ids ⊆ alert.transaction_ids` | **요약과 같은 부분집합 규칙**(설계 5.4 의 "≠ 경보 거래 목록"은 초안 규칙이라 따르지 않음). **백엔드도 같은 규칙** — 요약 조립을 그대로 씀. AI 쪽 검사는 `ask_service._validate`(SCRUM-290) | — |
 | 응답 `status` 4종 | `ANSWERED`·`NO_DATA`·`UNVERIFIED`·`OUT_OF_SCOPE`, 넷 다 200. 안내 문구는 화면이 정함 | `AskStatus` |
 | 응답 `kind` · `out_of_scope_reason` | `kind` = `FACT`·`WHY`, `OUT_OF_SCOPE` 면 `null`. `out_of_scope_reason` = `EDIT_REQUEST`·`OUTSIDE_CASE`·`JUDGMENT`, `OUT_OF_SCOPE` 일 때만 값 | `AskKind`·`OutOfScopeReason` |
 | 응답 `answer` · `cites` · `evidence_ids` | `ANSWERED` 만 `answer`(≤400 NFC·UTF-16, 공백만 X)·`cites` ≥1. `cites`·`bundles` 원소는 빈 문자열·공백만 거부, 같은 값 두 번 거부. `evidence_ids` 는 `ANSWERED` 라도 비어도 됨(**설계와 다름** — `typology` 같은 키는 거래가 안 달림). 다른 상태는 `null`·`[]`·`[]` | `AskResponse` · `ASK_ANSWER_MAX` |
 | 응답 `code_checks` | 기존 `CodeCheck` 그대로 — **`reason` 칸 있음**(설계 예시엔 없음, match=false 면 필수). 상태와 짝: `ANSWERED` 면 전부 match=true(빈 목록 허용) · `UNVERIFIED` 면 match=false ≥1 · `NO_DATA`·`OUT_OF_SCOPE` 면 `[]` | `CodeCheck` |
-| 응답 `generation_meta` | 새 `AskGenerationMeta` — `llm_model`·`prompt_version`·`plan_prompt_version`·`bundles`·`server_version`·`tokens_in`·`tokens_out`·`latency_ms`. 초안·요약의 `few_shot_ids`·`references` 없음. 토큰·지연은 **계획+답 두 호출 합계**. `prompt_version` 은 답 프롬프트 — `OUT_OF_SCOPE`(답 호출 안 함)만 `null`. `bundles` 는 `OUT_OF_SCOPE` 면 `[]`, 아니면 1~3개(`list[str]`, 이름 목록 enum 은 다음 이슈) | `AskGenerationMeta` · `ASK_BUNDLES_MAX` |
+| 응답 `generation_meta` | 새 `AskGenerationMeta` — `llm_model`·`prompt_version`·`plan_prompt_version`·`bundles`·`server_version`·`tokens_in`·`tokens_out`·`latency_ms`. 초안·요약의 `few_shot_ids`·`references` 없음. 토큰·지연은 **계획+답 두 호출 합계**. `prompt_version` 은 답 프롬프트 — `OUT_OF_SCOPE`(답 호출 안 함)만 `null`. `bundles` 는 `OUT_OF_SCOPE` 면 `[]`, 아니면 1~3개(`list[str]`, 값은 `AskBundle` 8개(`shared/schemas/str/ask_llm.py`, LLM 출력 쪽) — 규약 칸은 `list[str]` 그대로) | `AskGenerationMeta` · `ASK_BUNDLES_MAX` |
 | 응답 `produced_at` · `case_no` · `generation_id` | 요약과 같음(`SystemTimestamp`, `g-<hex8>`) | `AskResponse` |
 
 상태별 칸 규칙은 스키마(`model_validator`)가 본다 — 백엔드 `requireAskResponse` 도 같은 규칙. 새 에러 코드 없음. 예시는 `ask_request.json` + 상태별 응답 4개.

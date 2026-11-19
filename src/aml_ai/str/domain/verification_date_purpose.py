@@ -13,13 +13,13 @@ from aml_ai.str.domain.constants import (
     COUNT_CLAUSE_SPLIT,
     DATE_CONTEXT_WINDOW,
     OBSERVATION_WORDS,
-    ONBOARD_WORDS,
     RE_DATE_DOT,
     RE_DATE_ISO,
     RE_DATE_KO,
     RE_DATE_KO_NOYEAR,
     RE_DATE_SLASH,
 )
+from aml_ai.str.domain.verification_date_onboard import onboard_word_spans, trade_start_verdict
 from aml_ai.str.domain.verification_date_scan import DateMention, DatePurpose
 
 
@@ -30,13 +30,13 @@ def assign_purpose(text: str, m: DateMention) -> DateMention:
     bracket = _enclosing_bracket(text, m.span)
     if bracket is not None:
         has_obs = _bracket_has_observation(text, bracket)
-        has_onboard = _text_has_word(text[bracket[0] : bracket[1]], ONBOARD_WORDS)
+        has_onboard = bool(onboard_word_spans(text[bracket[0] : bracket[1]]))
         if has_obs and has_onboard:
             return _replace_purpose(m, DatePurpose.UNPARSED)
         if has_obs:
             return _replace_purpose(m, DatePurpose.OBSERVATION)
     lo, hi = _clause_bounds(text, m.span)  # 개설 단어는 같은 절 날짜에만(SCRUM-131 2/n 추가 검토 1차)
-    verdict = _onboard_verdict(text[lo:hi], (m.span[0] - lo, m.span[1] - lo))
+    verdict = _onboard_verdict(text[lo:hi], (m.span[0] - lo, m.span[1] - lo), has_time=m.time is not None)
     if verdict == "UNPARSED":
         return _replace_purpose(m, DatePurpose.UNPARSED)
     if verdict == "ONBOARD":
@@ -109,34 +109,26 @@ def _text_has_word(text: str, words: tuple[str, ...]) -> bool:
     return any(w in text for w in words)
 
 
-def _onboard_verdict(text: str, span: tuple[int, int]) -> str:
+def _onboard_verdict(text: str, span: tuple[int, int], *, has_time: bool) -> str:
     """개설 단어가 가장 가까운 날짜 하나에만 붙는다(text = 날짜가 든 절). 범위에 걸리면·거리 같으면 UNPARSED."""
-    for word in ONBOARD_WORDS:
-        wlen = len(word)
-        for idx in _find_all(text, word):
-            word_span = (idx, idx + wlen)
-            if _in_range_expression(text, idx, span):
-                return "UNPARSED"
-            if _distance(word_span, span) > DATE_CONTEXT_WINDOW:
-                continue
-            closer, equal = _rival_distance(text, word_span, span)
-            if equal:
-                return "UNPARSED"
-            if closer:
-                continue  # 개설 단어가 다른 날짜에 더 가까움 → 이 날짜는 거래
-            return "ONBOARD"
+    for w_start, w_end, trade_start in onboard_word_spans(
+        text
+    ):  # `거래 시작` 신호는 verification_date_onboard
+        word_span = (w_start, w_end)
+        trade = trade_start_verdict(text, w_start, w_end, has_time=has_time) if trade_start else "ONBOARD"
+        if trade == "TRANSACTION":
+            continue  # 개설 신호 없는 `거래 시작` — 개설 단어로 안 봄
+        if _in_range_expression(text, w_start, span):
+            return "UNPARSED"
+        if _distance(word_span, span) > DATE_CONTEXT_WINDOW:
+            continue
+        closer, equal = _rival_distance(text, word_span, span)
+        if equal:
+            return "UNPARSED"
+        if closer:
+            continue  # 개설 단어가 다른 날짜에 더 가까움 → 이 날짜는 거래
+        return trade  # ONBOARD, 또는 `거래 시작` 신호 충돌이면 UNPARSED
     return "TRANSACTION"
-
-
-def _find_all(text: str, word: str) -> list[int]:
-    out: list[int] = []
-    start = 0
-    while True:
-        i = text.find(word, start)
-        if i == -1:
-            return out
-        out.append(i)
-        start = i + 1
 
 
 def _in_range_expression(text: str, word_idx: int, span: tuple[int, int]) -> bool:

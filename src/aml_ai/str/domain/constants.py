@@ -136,7 +136,14 @@ TIME_OF_DAY_WORDS: tuple[str, ...] = ("아침", "점심", "저녁", "새벽", "�
 # 날짜 용도 분류 (★A 1·2).
 # ONBOARD_WORDS — ±DATE_CONTEXT_WINDOW 자 안 가장 가까운 날짜가 개설일 용도.
 # `등록일` 은 SCRUM-131 2/n(`등록` 단독은 X — `등록 업종`). 같은 절 날짜에만 붙음(verification_date_purpose).
-ONBOARD_WORDS: tuple[str, ...] = ("개설", "가입", "신규", "거래 시작", "등록일")
+# `거래 시작` 은 신호로 나눔(SCRUM-290 2/2 추가 검토 2, verification_date_onboard, 09 2026-11-20) —
+# 개설 신호(뒤 `일`·앞 DATE_CONTEXT_WINDOW 자 `고객`) 둘 다 + 기간 신호 없음 → 개설일, 개설 신호 없음 → 거래, 그 밖 UNPARSED.
+ONBOARD_WORDS: tuple[str, ...] = ("개설", "가입", "신규", "등록일")
+TRADE_START_WORD = "거래 시작"
+TRADE_START_PERIOD_SUFFIX = "일시"  # 기간 신호 — "거래 시작일시는 <period.start>"
+TRADE_START_ONBOARD_SUFFIX = "일"  # 개설 신호 — "거래 시작일은 <onboarded_at>" (`일시` 는 아님)
+ONBOARD_CUSTOMER_WORD = "고객"  # 개설 신호
+TRADE_START_PERIOD_WORDS: tuple[str, ...] = ("기간", "부터", "까지")  # 기간 신호(같은 절)
 DATE_CONTEXT_WINDOW = 10  # 글자 수(코드포인트)
 
 # OBSERVATION_WORDS — 괄호 안 또는 여는 괄호 바로 앞(공백 제외)에 있으면 observation 용도.
@@ -144,7 +151,9 @@ DATE_CONTEXT_WINDOW = 10  # 글자 수(코드포인트)
 OBSERVATION_WORDS: tuple[str, ...] = ("관측값", "관측 구간", "관측")
 
 # COUNT_MATCH (SCRUM-60, 06). 절 분리: 양옆 모두 숫자인 쉼표·소수점만 보존, 그 밖 분리(adv. 3차).
-COUNT_CLAUSE_SPLIT = re.compile(r"(?<!\d)[.,;]|[.,;](?!\d)|\n")
+# 줄 경계 — 절 나누기·`거래 시작` 꾸밈 판정이 같이 씀(SCRUM-290 2/2 추가 검토 6, 06 DATE ②)
+LINE_BREAK_CHARS = "\n\r\u2028\u2029"
+COUNT_CLAUSE_SPLIT = re.compile(rf"(?<!\d)[.,;]|[.,;](?!\d)|[{LINE_BREAK_CHARS}]")
 PRIOR_ALERT_WORDS: tuple[str, ...] = ("과거 경보", "이전 경보", "앞서 경보")
 COUNT_OBSERVATION_WORDS: tuple[str, ...] = ("관측", "모델")  # DATE 와 별개(DATE 동작 안 바꿈)
 PATH_WORDS: tuple[str, ...] = ("경로", "고리", "순환")

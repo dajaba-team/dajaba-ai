@@ -25,7 +25,7 @@ _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "summary_v1": SummaryOut,  # SCRUM-129 — HttpLlmClient 가 Structured Output 스키마로 씀
     "rewrite_v1": NarrativeOutV2,  # SCRUM-147 — 섹션 7개 재사용 (초안 안 고쳐 쓰기 전용)
     "ask_plan_v1": AskPlanOut,  # SCRUM-290 — 질문 답변 계획
-    "ask_answer_v1": AskAnswerOut,  # SCRUM-290 — 질문 답변 답(프롬프트 파일은 290-2)
+    "ask_answer_v1": AskAnswerOut,  # SCRUM-290 — 질문 답변 답
 }
 
 
