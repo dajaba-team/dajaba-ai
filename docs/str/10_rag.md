@@ -407,7 +407,7 @@ facts → (a) build_query 임베딩 1회 → PG 1차(필터 켬, 지금 SQL) →
    0 < n < K, gap_fill 켬
      → release()  (DB 연결 반납 — SCRUM-122, 외부 호출 중 연결 안 듦)
      → 검색어 (b)(c) 임베딩 1회(배치) + ES 키워드(언어별, 짧은 타임아웃)
-     → PG 2차(필터 끔): 벡터 검색어 (a)(b)(c) 마다 후보 RAG_CANDIDATES + 키워드로만 찾은 청크의 (a) cosine
+     → PG 2차(필터 끔, 별도 짧은 세션): 벡터 검색어 (a)(b)(c) 마다 후보 RAG_CANDIDATES + 키워드로만 찾은 청크의 (a) cosine
      → RRF 합치기(rag_fusion.rrf_fuse 그대로) → 1차 chunk_id 건너뜀 → 남는 칸만 → 1차 + 채운 칸
 ```
 
@@ -420,7 +420,7 @@ facts → (a) build_query 임베딩 1회 → PG 1차(필터 켬, 지금 SQL) →
 | 실패 | 결과 |
 |---|---|
 | ES 타임아웃 · 연결 실패 · 401 · 404(색인 없음) · `ELASTIC_PASSWORD` 빈 값 | 키워드 목록 없이 벡터 목록만으로 채움. 경고 1줄(`keyword_unavailable reason=…`, 값·본문 없음) |
-| (b)(c) 임베딩 실패 · PG 2차 실패 · 합치기 층 예외 | **1차 결과만** 반환(경고 1줄) |
+| (b)(c) 임베딩 실패 · PG 2차 실패(연결 끊김 포함) · 합치기 층 예외 | **1차 결과만** 반환(경고 1줄). PG 2차는 `draft_service` 가 주입한 같은 엔진의 **별도 짧은 세션**에서만 돌아, 실패해도 그 세션만 닫히고 초안 세션은 1차 상태 그대로(추가 검토 1 — 공유 세션이면 연결이 끊긴 뒤 다음 `end_read` 에서 초안 전체가 실패) |
 | (a) 임베딩·PG 1차 실패 | 지금처럼 `RetrievalUnavailable` → `[]` |
 
 색인 문서 수와 DB 행 수가 다른지는 **색인 도구에서만** 확인(요청마다 `_count` 안 부름 — 시간).
@@ -476,8 +476,11 @@ facts → (a) build_query 임베딩 1회 → PG 1차(필터 켬, 지금 SQL) →
 
 **도구**(손 실행, pytest 수집 안 됨 — 판정 숫자는 `tests/str/rag_eval_v2_support.py` 상수 = 위 기준):
 - 정답 초벌 `tests/str/rag_answer_draft_live.py` — 호스트에서(PDF 쪽 안 순번 복원에 pymupdf). `answer_draft.json` → `--expand` 로 `answers_*.json`(이미 있으면 덮어쓰지 않음 — 확인 내용 보호)
-- 색인 `tools/index_es.py` · 평가 `tests/str/rag_eval_v2_live.py --split dev|holdout [--no-keyword]` — AI 컨테이너 안에서(ES 호스트 포트 없음). 결과 `result_{split}.json` 은 chunk_id·시간·채운 칸 cosine 만
-- **보류용 거절 규칙**(실행 전): 보류용 결과가 이미 있음 · 개발용 결과 없음 · 개발용 마지막 결과와 키워드 설정이 다름 · 보류용 정답 확인 안 끝남. 보류용 판정 = 개발용 + 보류용 실행 결과로(②③ 은 30개 전부)
+- 색인 `tools/index_es.py` · 평가 `tests/str/rag_eval_v2_live.py --split dev|holdout [--no-keyword]` — AI 컨테이너 안에서(ES 호스트 포트 없음). 결과 `result_{split}.json` 은 chunk_id·시간·채운 칸 cosine 만. **Dockerfile 은 안 바꿈**(이미지에는 서비스 코드만 — SCRUM-256): 실행 때 `tools`·`tests` 를 **읽기 전용**으로 붙이고, 결과를 쓰는 `tests/str/rag_eval_v2` 만 쓰기로 겹쳐 붙임(이미지 WORKDIR `/app`):
+  - 색인: `docker compose run --rm -v "$PWD/tools:/app/tools:ro" -e PYTHONPATH=/app/src:/app ai python -m tools.index_es`
+  - 평가: `docker compose run --rm -v "$PWD/tests:/app/tests:ro" -v "$PWD/tests/str/rag_eval_v2:/app/tests/str/rag_eval_v2" -e PYTHONPATH=/app/src:/app ai python -m tests.str.rag_eval_v2_live --split dev`
+  - 정답 초벌은 컨테이너가 아니라 **호스트**(이미지에 pymupdf·`corpus/pdf` 없음, ES 안 씀)
+- **보류용 한 번만**(추가 검토 1 반영): 실행 전 거절 — 개발용 결과 없음 · 개발용 결과가 끝난 상태(`done`)가 아님 · 개발용 마지막 결과와 키워드 설정이 다름 · 보류용 정답 확인 안 끝남. 그다음 **검색 전에 보류용 원장 `tests/str/rag_eval_v2/holdout_ledger.jsonl` 에 예약**(추가 검토 2 반영 — 결과 파일과 분리) — 덧붙이기만 하는 git 추적 파일(빈 파일로 시작)에 잠금(flock) 안에서 보류용 세트 해시(`queries_holdout.json` sha256)·시각·상태(reserved → done | aborted)를 한 줄. 같은 해시가 원장에 있으면 거절(끝났든 중단됐든, 결과 파일을 지웠든 출력 경로를 바꿨든), 동시 실행도 하나만 통과, 원장이 없으면 만들지 않고 "원장 복구 필요"로 거절. 원장을 지우거나 고치면 git 에 드러남(git 기록까지 지우는 우회는 못 막음 — 원장은 git 으로 감사). 중간 실패해도 결과 파일(`status: aborted` · 본 질의 id)과 원장에 남음. 개발용은 중간 실패 때 지난 결과를 덮어쓰지 않음. 보류용 판정 = 개발용 + 보류용 실행 결과로(②③ 은 30개 전부)
 
 **켤 때 갖출 것**(통과해도 다 있어야 켬): 0건 규칙 테스트(SG·GS) · fail-open 테스트(위 표) · 스위치 env(`RAG_GAP_FILL_ENABLED`, 앱 재시작으로 끔) · 키워드 호출 짧은 타임아웃 + 초안 80초 예산 안 늘어난 시간 실측 · 채운 칸 `score` = (a) cosine · `retrieval_version` 꼬리(아래 "버전") · 오류 주입 13·14 통과 · 외부 호출 중 DB 연결 안 듦 · v4 에만.
 
