@@ -1,0 +1,496 @@
+{
+  "_doc": "SCRUM-304 holdout_v2 (docs/str/10 \"코퍼스 확장 판정 (holdout_v2)\"). facts = base 픽스처 + overrides(industry·model_signals 만). 질의 문자열은 build_query 로 다시 만듦. 정답 칸 없음. 시드 304 기계 추출(tests/str/rag_eval_corpus_draw.py).",
+  "queries": [
+    {
+      "id": "CY01",
+      "split": "holdout_v2",
+      "typology": "CYCLE",
+      "base": "facts_cycle_nopaths.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "outflow_ratio_2h",
+          "distinct_recipients_24h"
+        ]
+      },
+      "uses": [
+        "hit"
+      ]
+    },
+    {
+      "id": "CY02",
+      "split": "holdout_v2",
+      "typology": "CYCLE",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "account_in_counterparties_24h",
+          "distinct_recipients_24h"
+        ]
+      },
+      "uses": [
+        "hit"
+      ]
+    },
+    {
+      "id": "CY03",
+      "split": "holdout_v2",
+      "typology": "CYCLE",
+      "base": "facts_cycle_nopaths.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "cross_border_amount_24h",
+          "account_in_counterparties_24h"
+        ]
+      },
+      "uses": [
+        "hit"
+      ]
+    },
+    {
+      "id": "CY04",
+      "split": "holdout_v2",
+      "typology": "CYCLE",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "RESTAURANT",
+        "model_signals": [
+          "distinct_recipients_24h",
+          "cross_border_amount_24h"
+        ]
+      },
+      "uses": [
+        "hit"
+      ]
+    },
+    {
+      "id": "CY05",
+      "split": "holdout_v2",
+      "typology": "CYCLE",
+      "base": "facts_cycle_nopaths.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "distinct_senders_24h",
+          "outflow_ratio_2h"
+        ]
+      },
+      "uses": [
+        "hit"
+      ]
+    },
+    {
+      "id": "CY06",
+      "split": "holdout_v2",
+      "typology": "CYCLE",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "inflow_outflow_ratio_2h",
+          "distinct_senders_24h"
+        ]
+      },
+      "uses": [
+        "hit"
+      ]
+    },
+    {
+      "id": "CY07",
+      "split": "holdout_v2",
+      "typology": "CYCLE",
+      "base": "facts_cycle_nopaths.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "account_in_counterparties_24h",
+          "distinct_senders_24h"
+        ]
+      },
+      "uses": [
+        "hit"
+      ]
+    },
+    {
+      "id": "CY08",
+      "split": "holdout_v2",
+      "typology": "CYCLE",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "cross_border_amount_24h",
+          "distinct_recipients_24h"
+        ]
+      },
+      "uses": [
+        "hit"
+      ]
+    },
+    {
+      "id": "SG01",
+      "split": "holdout_v2",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "account_in_counterparties_24h",
+          "cross_border_amount_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "SG02",
+      "split": "holdout_v2",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RESTAURANT",
+        "model_signals": [
+          "distinct_senders_24h",
+          "distinct_recipients_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "SG03",
+      "split": "holdout_v2",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "distinct_senders_24h",
+          "cross_border_amount_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "SG04",
+      "split": "holdout_v2",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "distinct_senders_24h",
+          "account_in_counterparties_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "SG05",
+      "split": "holdout_v2",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "outflow_ratio_2h",
+          "distinct_senders_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "SG06",
+      "split": "holdout_v2",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "account_in_counterparties_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "SG07",
+      "split": "holdout_v2",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "outflow_ratio_2h",
+          "cross_border_amount_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "SG08",
+      "split": "holdout_v2",
+      "typology": "SCATTER_GATHER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "cross_border_amount_24h",
+          "distinct_senders_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "GS01",
+      "split": "holdout_v2",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "outflow_ratio_2h",
+          "distinct_senders_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "GS02",
+      "split": "holdout_v2",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "inflow_outflow_ratio_2h",
+          "distinct_senders_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "GS03",
+      "split": "holdout_v2",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "inflow_outflow_ratio_2h",
+          "distinct_recipients_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "GS04",
+      "split": "holdout_v2",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": [
+          "account_in_counterparties_24h",
+          "inflow_outflow_ratio_2h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "GS05",
+      "split": "holdout_v2",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RESTAURANT",
+        "model_signals": [
+          "account_in_counterparties_24h",
+          "cross_border_amount_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "GS06",
+      "split": "holdout_v2",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "RESTAURANT",
+        "model_signals": [
+          "inflow_outflow_ratio_2h",
+          "cross_border_amount_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "GS07",
+      "split": "holdout_v2",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "TRADING",
+        "model_signals": [
+          "inflow_outflow_ratio_2h",
+          "cross_border_amount_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "GS08",
+      "split": "holdout_v2",
+      "typology": "GATHER_SCATTER",
+      "base": "facts_scatter_gather.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "distinct_recipients_24h",
+          "cross_border_amount_24h"
+        ]
+      },
+      "uses": [
+        "hit",
+        "empty"
+      ]
+    },
+    {
+      "id": "FX01",
+      "split": "holdout_v2",
+      "typology": "FX_RELAY",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "RESTAURANT",
+        "model_signals": [
+          "distinct_recipients_24h",
+          "outflow_ratio_2h"
+        ]
+      },
+      "uses": [
+        "empty"
+      ]
+    },
+    {
+      "id": "FX02",
+      "split": "holdout_v2",
+      "typology": "FX_RELAY",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "account_in_counterparties_24h",
+          "inflow_outflow_ratio_2h"
+        ]
+      },
+      "uses": [
+        "empty"
+      ]
+    },
+    {
+      "id": "FX03",
+      "split": "holdout_v2",
+      "typology": "FX_RELAY",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "cross_border_amount_24h",
+          "inflow_outflow_ratio_2h"
+        ]
+      },
+      "uses": [
+        "empty"
+      ]
+    },
+    {
+      "id": "FX04",
+      "split": "holdout_v2",
+      "typology": "FX_RELAY",
+      "base": "facts_multi_currency.json",
+      "overrides": {
+        "industry": "WHOLESALE",
+        "model_signals": [
+          "inflow_outflow_ratio_2h",
+          "distinct_senders_24h"
+        ]
+      },
+      "uses": [
+        "empty"
+      ]
+    },
+    {
+      "id": "NR01",
+      "split": "holdout_v2",
+      "typology": null,
+      "base": "facts_fan_in_b.json",
+      "overrides": {
+        "industry": "RETAIL",
+        "model_signals": []
+      },
+      "uses": [
+        "reference"
+      ],
+      "note": "참고 — 유형 없으면 [] 경로 확인용, 컷오프 연구는 SCRUM-308"
+    },
+    {
+      "id": "NR02",
+      "split": "holdout_v2",
+      "typology": null,
+      "base": "facts_fan_in_b.json",
+      "overrides": {
+        "industry": "MANUFACTURING",
+        "model_signals": []
+      },
+      "uses": [
+        "reference"
+      ],
+      "note": "참고 — 유형 없으면 [] 경로 확인용, 컷오프 연구는 SCRUM-308"
+    }
+  ]
+}
