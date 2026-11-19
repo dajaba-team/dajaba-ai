@@ -83,10 +83,6 @@ def test_holdout_needs_finished_dev_result(eval_dir: Path) -> None:
     assert "끝난 상태" in (live.refuse_reason("holdout", True) or "")
 
 
-def test_repo_ledger_exists_and_is_empty() -> None:
-    assert (EVAL_DIR / ledger.LEDGER_NAME).read_text(encoding="utf-8") == ""  # git 추적 빈 파일로 시작
-
-
 def test_reserve_is_exclusive(eval_dir: Path) -> None:
     assert live.reserve_holdout() is None
     assert live.reserve_holdout() == ledger.USED

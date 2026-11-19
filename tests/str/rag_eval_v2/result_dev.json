@@ -1,0 +1,283 @@
+{
+  "split": "dev",
+  "status": "done",
+  "finished_at": "2026-11-19T06:44:36+00:00",
+  "keyword": true,
+  "elastic_index": "ai_reference_chunks_v1",
+  "embedding_model": "text-embedding-3-small",
+  "constants": {
+    "RAG_TOP_K": 3,
+    "RAG_CANDIDATES": 10,
+    "MIN_SIMILARITY": 0.0,
+    "RAG_RRF_K": 60
+  },
+  "answers_unchecked": [],
+  "runs": [
+    {
+      "id": "D01",
+      "split": "dev",
+      "typology": "CYCLE",
+      "expect_empty": false,
+      "first": [
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234"
+      ],
+      "on": [
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d"
+      ],
+      "grades": [
+        0
+      ],
+      "ms_off": 566,
+      "ms_on": 514,
+      "filled_cosine": [
+        0.4037
+      ]
+    },
+    {
+      "id": "D02",
+      "split": "dev",
+      "typology": "CYCLE",
+      "expect_empty": false,
+      "first": [
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f"
+      ],
+      "on": [
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d"
+      ],
+      "grades": [
+        0
+      ],
+      "ms_off": 170,
+      "ms_on": 593,
+      "filled_cosine": [
+        0.4104
+      ]
+    },
+    {
+      "id": "D03",
+      "split": "dev",
+      "typology": "CYCLE",
+      "expect_empty": false,
+      "first": [
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f"
+      ],
+      "on": [
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d"
+      ],
+      "grades": [
+        0
+      ],
+      "ms_off": 228,
+      "ms_on": 734,
+      "filled_cosine": [
+        0.4203
+      ]
+    },
+    {
+      "id": "D04",
+      "split": "dev",
+      "typology": "CYCLE",
+      "expect_empty": false,
+      "first": [
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f"
+      ],
+      "on": [
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544"
+      ],
+      "grades": [
+        0
+      ],
+      "ms_off": 185,
+      "ms_on": 698,
+      "filled_cosine": [
+        0.3258
+      ]
+    },
+    {
+      "id": "D05",
+      "split": "dev",
+      "typology": "CYCLE",
+      "expect_empty": false,
+      "first": [
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f"
+      ],
+      "on": [
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d"
+      ],
+      "grades": [
+        0
+      ],
+      "ms_off": 187,
+      "ms_on": 570,
+      "filled_cosine": [
+        0.432
+      ]
+    },
+    {
+      "id": "D06",
+      "split": "dev",
+      "typology": "CYCLE",
+      "expect_empty": false,
+      "first": [
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234"
+      ],
+      "on": [
+        "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d"
+      ],
+      "grades": [
+        0
+      ],
+      "ms_off": 213,
+      "ms_on": 452,
+      "filled_cosine": [
+        0.4087
+      ]
+    },
+    {
+      "id": "D07",
+      "split": "dev",
+      "typology": "FAN_IN",
+      "expect_empty": false,
+      "first": [
+        "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+        "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+        "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3"
+      ],
+      "on": [
+        "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+        "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+        "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3"
+      ],
+      "grades": [],
+      "ms_off": 251,
+      "ms_on": 206,
+      "filled_cosine": []
+    },
+    {
+      "id": "D08",
+      "split": "dev",
+      "typology": "FAN_IN",
+      "expect_empty": false,
+      "first": [
+        "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+        "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+        "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3"
+      ],
+      "on": [
+        "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+        "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+        "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3"
+      ],
+      "grades": [],
+      "ms_off": 313,
+      "ms_on": 230,
+      "filled_cosine": []
+    },
+    {
+      "id": "D09",
+      "split": "dev",
+      "typology": "FAN_OUT",
+      "expect_empty": false,
+      "first": [
+        "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+        "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+        "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+      ],
+      "on": [
+        "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+        "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+        "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+      ],
+      "grades": [],
+      "ms_off": 334,
+      "ms_on": 330,
+      "filled_cosine": []
+    },
+    {
+      "id": "D10",
+      "split": "dev",
+      "typology": "FAN_OUT",
+      "expect_empty": false,
+      "first": [
+        "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+        "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+        "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+      ],
+      "on": [
+        "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+        "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+        "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+      ],
+      "grades": [],
+      "ms_off": 234,
+      "ms_on": 267,
+      "filled_cosine": []
+    },
+    {
+      "id": "D11",
+      "split": "dev",
+      "typology": "SCATTER_GATHER",
+      "expect_empty": true,
+      "first": [],
+      "on": [],
+      "grades": [],
+      "ms_off": 204,
+      "ms_on": 222,
+      "filled_cosine": []
+    },
+    {
+      "id": "D12",
+      "split": "dev",
+      "typology": "SCATTER_GATHER",
+      "expect_empty": true,
+      "first": [],
+      "on": [],
+      "grades": [],
+      "ms_off": 287,
+      "ms_on": 206,
+      "filled_cosine": []
+    },
+    {
+      "id": "D13",
+      "split": "dev",
+      "typology": "GATHER_SCATTER",
+      "expect_empty": true,
+      "first": [],
+      "on": [],
+      "grades": [],
+      "ms_off": 308,
+      "ms_on": 206,
+      "filled_cosine": []
+    },
+    {
+      "id": "D14",
+      "split": "dev",
+      "typology": "FX_RELAY",
+      "expect_empty": true,
+      "first": [],
+      "on": [],
+      "grades": [],
+      "ms_off": 293,
+      "ms_on": 173,
+      "filled_cosine": []
+    }
+  ]
+}
