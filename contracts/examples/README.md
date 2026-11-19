@@ -14,6 +14,11 @@
 | `verify_response_passed.json` | `str.VerifyResponse` (PASSED 예시, SCRUM-61) |
 | `summary_request.json` | `str.SummaryRequest` (SCRUM-129) |
 | `summary_response.json` | `str.SummaryResponse` (SCRUM-129) |
+| `ask_request.json` | `str.AskRequest` (SCRUM-288) |
+| `ask_response_answered.json` | `str.AskResponse` (ANSWERED, SCRUM-288) |
+| `ask_response_no_data.json` | `str.AskResponse` (NO_DATA, SCRUM-288) |
+| `ask_response_unverified.json` | `str.AskResponse` (UNVERIFIED, SCRUM-288) |
+| `ask_response_out_of_scope.json` | `str.AskResponse` (OUT_OF_SCOPE, SCRUM-288) |
 | `error.json` | `errors.ErrorBody` |
 
 규약 v0.2 (10/27·10/28) 반영 — SCRUM-12. 바꿀 때는 여기와 schemas 를 같은 PR 에서.

@@ -1,0 +1,39 @@
+{
+  "produced_at": "2026-11-27T02:10:00Z",
+  "case_no": "CASE-2022-000057",
+  "generation_id": "g-91ab33c0",
+  "status": "ANSWERED",
+  "kind": "FACT",
+  "out_of_scope_reason": null,
+  "answer": "입금 상대 계좌는 3개예요.",
+  "cites": [
+    "counterparties.count"
+  ],
+  "evidence_ids": [
+    104221,
+    104233,
+    104301
+  ],
+  "code_checks": [
+    {
+      "check": "COUNT_MATCH",
+      "section": null,
+      "draft_value": "3개",
+      "source_value": "counterparties.count=3",
+      "match": true,
+      "reason": null
+    }
+  ],
+  "generation_meta": {
+    "llm_model": "(API가 돌려준 모델 ID)",
+    "prompt_version": "ask_answer_v1",
+    "plan_prompt_version": "ask_plan_v1",
+    "bundles": [
+      "counterparties"
+    ],
+    "server_version": "a1b2c3d",
+    "tokens_in": 1450,
+    "tokens_out": 120,
+    "latency_ms": 6200
+  }
+}

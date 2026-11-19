@@ -93,6 +93,24 @@
 | 요청 `reasons`·`prior_alert_count` 필수 | **SCRUM-129 — 규약 §6.1 11/6 반영(v0.4 추가 20번)**. 요약도 `model_signals`·`observations` 를 facts 에 채우려면 초안과 같은 입력이 필요. `reasons: list[Reason]`(점수 응답 그대로)·`prior_alert_count: int ge=0` **필수**. `reporting_institution: str \| None = None` 선택(없으면 `subject.bank_name` 폴백, 초안과 같음). Facts 모양 그대로(요약 전용 처리 없음) | `shared/schemas/str/summary.py` `SummaryRequest` |
 | 응답 `produced_at` · `case_no` · `generation_id` · `summary_lines[1..6]` · `model_focus: str \| None` · `code_checks` · `generation_meta` | **`produced_at`**(`SystemTimestamp` — UTC `Z` 초 단위, 초안 `5.2`·`SCRUM-52` 와 같음, 백엔드 `case_summaries.produced_at` NOT NULL 제약)·`generation_id`(`g-<hex8>`, 저장 행 PK 와 같음)는 서비스가 조립해 덧붙임. LLM 출력 `summary_lines`·`model_focus`(SummaryOut 스키마). `model_focus` 는 `model_signals` 이름만 쓴 한 줄 — 서비스가 **이름을 지운 뒤 남은 글자에 숫자가 있을 때만** `null`. `code_checks` 는 요약 줄 한 덩어리로 4종(AMOUNT·DATE·COUNT·ACCOUNT_ID) — `EVIDENCE_IN_SCOPE`·`OPINION_PRESENT` 안 돌림. 코드 검사 실패해도 **200**, 백엔드는 검증 통과분만 저장 | `SummaryResponse`·`SummaryService` |
 
+### 질문 답변 요청·응답 `POST /v1/cases/ask` (규약 §5.4 제안, SCRUM-288)
+
+정본은 노션 「조사역 질문 답변 설계 문서」 5절(11/17) — 규약 반영은 11/23. 이번엔 계약(스키마·예시)만, 엔드포인트·서비스는 다음 이슈. 설계 문서와 다르게 간 곳은 아래 표 "설계와 다름" 칸.
+
+| 필드 | 메모 | 코드 자리 |
+|---|---|---|
+| 요청 = 요약 요청 6칸 + `question` | `AskRequest(SummaryRequest)` 상속 — `case_no`·`alert`·`evidence_transaction_ids`·`reasons`·`prior_alert_count`·`reporting_institution` 이 요약과 같은 이름·값·필수 여부. `to_facts_input()` 도 같음 | `shared/schemas/str/ask.py` `AskRequest` |
+| 요청 `question` 1~300 | NFC 뒤 UTF-16 코드 단위(`utf16_len_nfc`, 검증 수정본과 같음). **앞뒤 공백을 자르지 않고 원문 그대로**, 공백만이면 거부 → 400 `INVALID_REQUEST`. **백엔드도 같은 규칙** — trim 하지 않고 같은 단위로 셈(어긋나면 백엔드 통과·AI 400 이 생김) | `AskRequest.question` · `ASK_QUESTION_MAX` |
+| 요청 `evidence_transaction_ids ⊆ alert.transaction_ids` | **요약과 같은 부분집합 규칙**(설계 5.4 의 "≠ 경보 거래 목록"은 초안 규칙이라 따르지 않음). **백엔드도 같은 규칙** — 요약 조립을 그대로 씀. AI 쪽 검사는 서비스(다음 이슈) | — |
+| 응답 `status` 4종 | `ANSWERED`·`NO_DATA`·`UNVERIFIED`·`OUT_OF_SCOPE`, 넷 다 200. 안내 문구는 화면이 정함 | `AskStatus` |
+| 응답 `kind` · `out_of_scope_reason` | `kind` = `FACT`·`WHY`, `OUT_OF_SCOPE` 면 `null`. `out_of_scope_reason` = `EDIT_REQUEST`·`OUTSIDE_CASE`·`JUDGMENT`, `OUT_OF_SCOPE` 일 때만 값 | `AskKind`·`OutOfScopeReason` |
+| 응답 `answer` · `cites` · `evidence_ids` | `ANSWERED` 만 `answer`(≤400 NFC·UTF-16, 공백만 X)·`cites` ≥1. `cites`·`bundles` 원소는 빈 문자열·공백만 거부, 같은 값 두 번 거부. `evidence_ids` 는 `ANSWERED` 라도 비어도 됨(**설계와 다름** — `typology` 같은 키는 거래가 안 달림). 다른 상태는 `null`·`[]`·`[]` | `AskResponse` · `ASK_ANSWER_MAX` |
+| 응답 `code_checks` | 기존 `CodeCheck` 그대로 — **`reason` 칸 있음**(설계 예시엔 없음, match=false 면 필수). 상태와 짝: `ANSWERED` 면 전부 match=true(빈 목록 허용) · `UNVERIFIED` 면 match=false ≥1 · `NO_DATA`·`OUT_OF_SCOPE` 면 `[]` | `CodeCheck` |
+| 응답 `generation_meta` | 새 `AskGenerationMeta` — `llm_model`·`prompt_version`·`plan_prompt_version`·`bundles`·`server_version`·`tokens_in`·`tokens_out`·`latency_ms`. 초안·요약의 `few_shot_ids`·`references` 없음. 토큰·지연은 **계획+답 두 호출 합계**. `prompt_version` 은 답 프롬프트 — `OUT_OF_SCOPE`(답 호출 안 함)만 `null`. `bundles` 는 `OUT_OF_SCOPE` 면 `[]`, 아니면 1~3개(`list[str]`, 이름 목록 enum 은 다음 이슈) | `AskGenerationMeta` · `ASK_BUNDLES_MAX` |
+| 응답 `produced_at` · `case_no` · `generation_id` | 요약과 같음(`SystemTimestamp`, `g-<hex8>`) | `AskResponse` |
+
+상태별 칸 규칙은 스키마(`model_validator`)가 본다 — 백엔드 `requireAskResponse` 도 같은 규칙. 새 에러 코드 없음. 예시는 `ask_request.json` + 상태별 응답 4개.
+
 ### 에러 `schemas/errors.py` (규약 6.3)
 
 추가 `409 GENERATION_IN_PROGRESS`(`GenerationInProgress`), `503 DB_UNAVAILABLE`(`DbUnavailable`, 점수 요청 중 AI 서버 DB 조회 실패 — 백엔드 재시도 1회, 10/29). 삭제 `TRANSACTION_NOT_FOUND`(→ 400 메시지에 없는 ID), `EVIDENCE_OUT_OF_SCOPE`(→ 검증 결과), `LLM_TIMEOUT`(→ `LLM_UNAVAILABLE`). 나머지 그대로.
