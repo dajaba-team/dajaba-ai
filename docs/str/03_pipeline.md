@@ -156,8 +156,10 @@
 6  plan = ask_llm.plan(question_llm, deadline=deadline)                    ask_plan_v1, facts 값 안 줌
       선체크: 남은 < ASK_LLM_TIMEOUT_S → LlmUnavailable(502). LLM 1회 — 재시도·재생성 없음
       호출 전체 제한 total = min(ASK_LLM_TIMEOUT_S, deadline − clock()) 를 complete_json(total_timeout_s=) 로 넘김(SCRUM-290 추가 검토 1):
-        HttpLlmClient 가 응답 읽기를 작업 스레드에서 하고 total 이 지나면 그 응답을 닫아 끊고 LlmUnavailable(502).
-        (httpx timeout 은 읽기마다 다시 걸리는 작업별 제한이라, 조각이 10초 안 간격으로 오면 호출 전체는 끝없이 늘 수 있음)
+        HttpLlmClient 가 이 호출만 비동기 클라이언트(호출마다 새로 만들고 닫음)로 보내고 total 이 지나면 요청 작업을 취소 —
+        연결·요청 쓰기·응답 헤더 대기·본문 읽기 어디서든 마감 시각에 연결을 닫고 LlmUnavailable(502). 작업 스레드 없음,
+        마감 뒤 도착한 응답은 쓰지 않음, 재시도 0(SCRUM-322 — 헤더가 조각으로 오면 연결·작업 스레드가 마감 뒤에도 남던 것 고침)
+        (httpx timeout 은 읽기마다 다시 걸리는 작업별 제한이라, 조각이 10초 안 간격으로 오면 호출 전체는 끝없이 늘 수 있음 — 헤더 조각도 같음)
       호출이 돌아온 뒤에도 clock() > deadline 이면 결과를 받지 않고 LlmUnavailable — 녹화·다른 클라이언트도 같은 규칙. 마감 뒤 결과는 SUCCEEDED 로 저장하지 않음(FAILED)
       AskPlanOut 스키마 위반(목록 밖·0개·4개·중복 묶음, kind 와 사유·묶음 짝 어긋남) → LlmInvalidOutput(502)
 7  plan.kind == OUT_OF_SCOPE → 응답 조립(kind=null·out_of_scope_reason·answer=null·cites=[]·evidence_ids=[]·code_checks=[]·
@@ -189,9 +191,9 @@
 | 초안 요청 전체(AI 안) | **80초** — 백엔드 타임아웃 90초보다 10초 짧게 | `DRAFT_BUDGET_S=80` |
 | 요약 요청 전체(AI 안) | **40초** — Jira SCRUM-129, 단 `LLM_TIMEOUT_S` 이상(기동 불변식) | `SUMMARY_BUDGET_S=40` |
 | 질문 답변 요청 전체(AI 안) | **20초** — 설계 문서 5.5(백엔드 전체 30초). `ASK_LLM_TIMEOUT_S` 이상(기동 불변식) | `ASK_BUDGET_S=20` |
-| 질문 답변 LLM 1회(계획·답 각각) | **10초 — 호출 전체**(작업별이 아님). `min(10초, 요청 deadline 남은 시간)` 이 지나면 읽기를 끊고 `LlmUnavailable`. 호출 전 남은 < 10초면 부르지 않음. 재시도·재생성 0 | `ASK_LLM_TIMEOUT_S=10` · `complete_json(total_timeout_s=)` |
+| 질문 답변 LLM 1회(계획·답 각각) | **10초 — 호출 전체**(작업별이 아님). `min(10초, 요청 deadline 남은 시간)` 이 지나면 헤더 대기·본문 읽기 중 어디서든 연결을 끊고 `LlmUnavailable`(SCRUM-322). 호출 전 남은 < 10초면 부르지 않음. 재시도·재생성 0 | `ASK_LLM_TIMEOUT_S=10` · `complete_json(total_timeout_s=)` |
 | 죽은 PROCESSING 판정 | 예산 + 30초 = **110초** | `STALE_PROCESSING_S` |
-| LLM 호출 1회 | **35초** | `LLM_TIMEOUT_S=35` |
+| LLM 호출 1회 | **35초** — 작업별(연결·읽기마다 다시 걸림), 호출 전체 마감 없음. 초안·검증·요약에 전체 마감을 거는 건 다음 결정(09 미결, SCRUM-322) | `LLM_TIMEOUT_S=35` |
 | 스키마 실패 재생성 | 남은 예산 **≥ 40초**일 때만 | `REGEN_MIN_REMAINING_S=40` |
 | 고쳐 쓰기 평가자 (SCRUM-147) | **≤ 35초**, 남은 ≥ `LLM_TIMEOUT_S` 일 때만. 아니면 `rewrite.skipped_reason="budget"` | `LLM_TIMEOUT_S` 공용 |
 | 고쳐 쓰기 재작성 (SCRUM-147) | **≤ 35초**, 평가자 뒤 남은 ≥ `LLM_TIMEOUT_S` 일 때만. 스키마 실패 재생성 **0회** → `skipped_reason="schema"` | `LLM_TIMEOUT_S` 공용 |

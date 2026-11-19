@@ -2,10 +2,12 @@
 
 httpx timeout 은 읽기마다 다시 걸린다. 응답 조각이 제한보다 짧은 간격으로 계속 오면 호출 전체는 늘어난다.
 설계 문서 "읽기마다 9초, 제한 10초" 를 같은 비율의 짧은 시간(읽기 0.18초, 제한 0.2초)으로 재현.
+SCRUM-322 — 전체 제한 경로는 비동기 클라이언트라 같은 MockTransport 를 `async_transport=` 로도 주입(검사·숫자 그대로).
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from typing import Any
@@ -29,15 +31,25 @@ BODY = json.dumps(
 ).encode()
 
 
-class _SlowStream(httpx.SyncByteStream):
+class _SlowStream(httpx.SyncByteStream, httpx.AsyncByteStream):
+    """동기(total 없는 경로)·비동기(total 경로) 둘 다 — 조각마다 `delay_s` 늦게."""
+
     def __init__(self, delay_s: float, parts: int = 4) -> None:
         self._delay, self._parts = delay_s, parts
 
-    def __iter__(self):
+    def _pieces(self) -> list[bytes]:
         step = len(BODY) // self._parts + 1
-        for i in range(0, len(BODY), step):
+        return [BODY[i : i + step] for i in range(0, len(BODY), step)]
+
+    def __iter__(self):
+        for piece in self._pieces():
             time.sleep(self._delay)
-            yield BODY[i : i + step]
+            yield piece
+
+    async def __aiter__(self):
+        for piece in self._pieces():
+            await asyncio.sleep(self._delay)
+            yield piece
 
 
 def _client(monkeypatch: pytest.MonkeyPatch, delay_s: float, calls: list[Any]) -> HttpLlmClient:
@@ -50,8 +62,9 @@ def _client(monkeypatch: pytest.MonkeyPatch, delay_s: float, calls: list[Any]) -
         calls.append(req)
         return httpx.Response(200, stream=_SlowStream(delay_s))
 
-    http = httpx.Client(transport=httpx.MockTransport(handler), timeout=5.0)
-    return HttpLlmClient(get_settings(), http=http)
+    transport = httpx.MockTransport(handler)
+    http = httpx.Client(transport=transport, timeout=5.0)
+    return HttpLlmClient(get_settings(), http=http, async_transport=transport)
 
 
 def _call(client: HttpLlmClient, **kw):

@@ -1,15 +1,13 @@
-"""LLM 호출 전체 제한 — `complete_json(total_timeout_s=)` 일 때만 (SCRUM-290 추가 검토 1, docs/str/03).
+"""LLM 호출 전체 제한 — `complete_json(total_timeout_s=)` 일 때만 (SCRUM-322, docs/str/03).
 
-httpx timeout 은 연결·읽기 작업마다 다시 걸리는 제한이라, 응답 조각이 제한보다 짧은 간격으로 오면 호출 전체가
-끝없이 늘 수 있다. 여기서는 요청·본문 읽기를 작업 스레드에서 하고, 호출 전체가 `total_timeout_s` 를 넘기면
-열린 응답을 닫아 읽기를 끊고 `LlmUnavailable`. 그 뒤 도착한 결과는 버린다(재시도 없음).
+httpx timeout 은 연결·읽기마다 다시 걸리는 작업별 제한이라 헤더·본문 조각이 제한보다 짧은 간격으로 오면 호출 전체가 늘 수 있다.
+호출마다 비동기 클라이언트를 만들어 요청·본문 읽기 전체를 total 로 묶고, 마감이면 작업을 취소해 연결을 닫고 LlmUnavailable.
+작업 스레드 없음. 마감 뒤 결과는 버린다(재시도 없음).
 """
 
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import TimeoutError as FutureTimeout
-from contextlib import suppress
+import asyncio
 
 import httpx
 
@@ -17,34 +15,33 @@ from aml_ai.shared.errors import LlmUnavailable
 
 
 def post_within(
-    http: httpx.Client, url: str, *, body: dict, headers: dict[str, str], total_timeout_s: float
+    async_transport: httpx.AsyncBaseTransport | None,
+    url: str,
+    *,
+    body: dict,
+    headers: dict[str, str],
+    total_timeout_s: float,
 ) -> httpx.Response:
-    """본문까지 다 읽은 응답. 작업별 timeout 도 total 로 둬서 한 읽기가 그보다 오래 막히지 않게."""
-    opened: list[httpx.Response] = []
+    """호출마다 비동기 클라이언트를 만들고 본문까지 읽은 뒤 닫는다.
 
-    def run() -> httpx.Response:
-        req = http.build_request("POST", url, json=body, headers=headers, timeout=total_timeout_s)
-        resp = http.send(req, stream=True)
-        opened.append(resp)
-        try:
-            resp.read()
-        finally:
-            resp.close()
-        return resp
+    이미 이벤트 루프가 도는 스레드에서는 부르지 않는다 — 라우터가 동기 def 라 작업 스레드에서 부름.
+    """
+    return asyncio.run(
+        _post_within(async_transport, url, body=body, headers=headers, total_timeout_s=total_timeout_s)
+    )
 
-    pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="llm-total-timeout")
-    future = pool.submit(run)
+
+async def _post_within(
+    async_transport: httpx.AsyncBaseTransport | None,
+    url: str,
+    *,
+    body: dict,
+    headers: dict[str, str],
+    total_timeout_s: float,
+) -> httpx.Response:
     try:
-        return future.result(timeout=total_timeout_s)
-    except FutureTimeout:
-        for resp in opened:
-            _close_quietly(resp)
+        async with httpx.AsyncClient(transport=async_transport, timeout=total_timeout_s) as http:
+            # post 는 본문 읽기까지 포함한다.
+            return await asyncio.wait_for(http.post(url, json=body, headers=headers), timeout=total_timeout_s)
+    except TimeoutError:
         raise LlmUnavailable("llm total timeout") from None
-    finally:
-        pool.shutdown(wait=False, cancel_futures=True)
-
-
-def _close_quietly(resp: httpx.Response) -> None:
-    """다른 스레드가 읽는 중인 응답을 닫는다 — 실패해도 결과는 이미 버림."""
-    with suppress(Exception):  # 끊기 시도일 뿐, 호출 측은 이미 LlmUnavailable
-        resp.close()
