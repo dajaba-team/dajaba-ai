@@ -1,0 +1,417 @@
+{
+  "_doc": "SCRUM-304 기준 맞추기 표본 — 위치·chunk_id·유형만. 2차는 1차 미달 때만(docs/str/10 코퍼스 확장 판정).",
+  "population": 487,
+  "rounds": [
+    {
+      "seed": 304,
+      "rows": [
+        {
+          "row_id": "R1-01",
+          "chunk_id": "1359026c77371a4568d27663ae0792557d142478a2fb6d1785bb56c23b27cdf1",
+          "typology": "FAN_IN",
+          "doc_id": "fatf-pml-2018",
+          "page": 39,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-02",
+          "chunk_id": "1359026c77371a4568d27663ae0792557d142478a2fb6d1785bb56c23b27cdf1",
+          "typology": "FAN_OUT",
+          "doc_id": "fatf-pml-2018",
+          "page": 39,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-03",
+          "chunk_id": "1662ba93df426da60af4940e2c9771eabe4d3195e198493f7155b56bc5deeac6",
+          "typology": "CYCLE",
+          "doc_id": "fatf-tbml-2020",
+          "page": 15,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-04",
+          "chunk_id": "20acf4547a880d9a0622ad8c247236e5d1481becd4e91f2ae51a1f5bd6842ddc",
+          "typology": "FAN_OUT",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 28,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-05",
+          "chunk_id": "23329a6d9054242eabe9715c0e5707d871e4e99ed7c77f401970b22184fab128",
+          "typology": "FAN_IN",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-06",
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "typology": "FAN_OUT",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2
+        },
+        {
+          "row_id": "R1-07",
+          "chunk_id": "3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58",
+          "typology": "FAN_IN",
+          "doc_id": "fatf-pml-2018",
+          "page": 48,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-08",
+          "chunk_id": "327775902ce534daef0be564d0464a9d674eed1884768778f6ce0b19f2324c16",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 15,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-09",
+          "chunk_id": "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084",
+          "typology": "CYCLE",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 33,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-10",
+          "chunk_id": "4653c0115d50c02ec6f335aa8da3289ad9ccea95b441b5943f540ddb0bb4cc0b",
+          "typology": "FAN_IN",
+          "doc_id": "fatf-pml-2018",
+          "page": 28,
+          "pos": 2
+        },
+        {
+          "row_id": "R1-11",
+          "chunk_id": "4a17a0d2b4665a16b5deb8aec86d8b404f5d09ce9ac7ae4c10fab7eb6165e7e0",
+          "typology": "CYCLE",
+          "doc_id": "fatf-pml-2018",
+          "page": 32,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-12",
+          "chunk_id": "4b349bf1e1010986f9131971eadb10c1227db16cf4db6e811bd035fa6928da77",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 50,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-13",
+          "chunk_id": "744e240b1f3adbe368d8f05149f0c03a9393a7b8db0876425633a16c5705b65e",
+          "typology": "FAN_IN",
+          "doc_id": "fatf-pml-2018",
+          "page": 34,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-14",
+          "chunk_id": "8dd898f0a3febb171424677a9d5d5ba79ee29d8ca856d6d2d6ca7df774af24fc",
+          "typology": "CYCLE",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 24,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-15",
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "typology": "CYCLE",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-16",
+          "chunk_id": "9e965a61bfa14c02696f303feecbde39351ea535035b57bd47cc98616574eaeb",
+          "typology": "CYCLE",
+          "doc_id": "fatf-tbml-2006",
+          "page": 39,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-17",
+          "chunk_id": "a5f5bb29834bde053e8ab6f7ed6ce17c2ae16354a91cf764b55d3acc687a25bc",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 19,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-18",
+          "chunk_id": "ce697378e469d2eed1a1bf5e1684745f271e7b849b8b3a8206291b4b8142d225",
+          "typology": "CYCLE",
+          "doc_id": "fatf-pml-2018",
+          "page": 21,
+          "pos": 2
+        },
+        {
+          "row_id": "R1-19",
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "typology": "CYCLE",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2
+        },
+        {
+          "row_id": "R1-20",
+          "chunk_id": "dc71bb11e33b7d7c2d17c2423e4099d9eb88ebd2cf0c98593bba244ddf9b184c",
+          "typology": "CYCLE",
+          "doc_id": "fatf-pml-2018",
+          "page": 27,
+          "pos": 2
+        },
+        {
+          "row_id": "R1-21",
+          "chunk_id": "df5efee3964482e3b92c77cb6e4a5dcf2703c117a083bac691b09cc1adbe4e0f",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 23,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-22",
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "typology": "FAN_IN",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-23",
+          "chunk_id": "f8252977effcc8b47c6d5bf8fddf4b733d3f3b760a5129308f1896cf3731bdba",
+          "typology": "CYCLE",
+          "doc_id": "fatf-pml-2018",
+          "page": 18,
+          "pos": 1
+        },
+        {
+          "row_id": "R1-24",
+          "chunk_id": "fe630a90085b779a5ad6dd51cbcf5287c1e684a383d677e19f4aae1595c1b7ed",
+          "typology": "FAN_OUT",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 31,
+          "pos": 2
+        },
+        {
+          "row_id": "R1-25",
+          "chunk_id": "ff84d17b24754dbcf975ed9c2522b03c7ac0edc9afb3da8b3a4027d90c69c750",
+          "typology": "FAN_OUT",
+          "doc_id": "fatf-tbml-2006",
+          "page": 22,
+          "pos": 1
+        }
+      ]
+    },
+    {
+      "seed": 3042,
+      "rows": [
+        {
+          "row_id": "R2-01",
+          "chunk_id": "01ade36d395edc5078e255251654ca541aaaef7f559378160441d3bf2eccd177",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 20,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-02",
+          "chunk_id": "21c615317a754ca33eec16f435f02fb56f930b8f80664e76b1732ee6c0e3e21e",
+          "typology": "FAN_IN",
+          "doc_id": "fatf-pml-2018",
+          "page": 33,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-03",
+          "chunk_id": "3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58",
+          "typology": "FAN_OUT",
+          "doc_id": "fatf-pml-2018",
+          "page": 48,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-04",
+          "chunk_id": "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084",
+          "typology": "CYCLE",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 33,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-05",
+          "chunk_id": "41e147c77b03e6cd7ea10bfc7bddabf2d69b49b7de9ba293d1135e3457efff2e",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 7,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-06",
+          "chunk_id": "5c03f634cc8b1945d7ffbf50f1a2ca371a1dce40a2bb2b7d2d0c5b7c38f73a8c",
+          "typology": "FAN_OUT",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 31,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-07",
+          "chunk_id": "6b9899fd3d289158dc7200340150e6e4e6a0cfdd2e7f31c9721ce1fdcccc56ea",
+          "typology": "CYCLE",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 6,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-08",
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-09",
+          "chunk_id": "8e5844fd50da27fa2b9dfd27ba32ff7d0385c9e7a6de1d9a13c959cd5b3fef11",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-10",
+          "chunk_id": "906908130441714c33f2f3ac328a4202f6101adcdd903c7d8b8105d936c474b4",
+          "typology": "CYCLE",
+          "doc_id": "fatf-tbml-2006",
+          "page": 13,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-11",
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "typology": "CYCLE",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-12",
+          "chunk_id": "a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 27,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-13",
+          "chunk_id": "a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078",
+          "typology": "FAN_OUT",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 27,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-14",
+          "chunk_id": "a21325c913f3ac4014c318ab704d1a7ea048ab16c5aa2fc5bb488fa8d0ab4992",
+          "typology": "CYCLE",
+          "doc_id": "fatf-pml-2018",
+          "page": 15,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-15",
+          "chunk_id": "aa9fe2b72b3d24fb29a5dfb5f829003c12adeb1ed0536b115fe0ac1f237077fa",
+          "typology": "FAN_IN",
+          "doc_id": "fatf-tbml-2020",
+          "page": 30,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-16",
+          "chunk_id": "abe0a4a4fda1b365b526168b60dd70fcf8a6b0ad39e6c92e156e1a4cb987b817",
+          "typology": "CYCLE",
+          "doc_id": "fatf-pml-2018",
+          "page": 40,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-17",
+          "chunk_id": "ba81c983a05cc365f731accb2f4da1af348f35c6f8c0aa78bc16ddcb1c860702",
+          "typology": "FAN_IN",
+          "doc_id": "fincen-sar-narrative-2003",
+          "page": 18,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-18",
+          "chunk_id": "bf25038fb6f7d31a40a1ec6c69beb648dc3e9f0bb8861dc031fabb9582644ebb",
+          "typology": "FAN_OUT",
+          "doc_id": "fatf-pml-2018",
+          "page": 27,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-19",
+          "chunk_id": "c11e91c560f2279c41c316dff08b893a7f7b94ab0a8f9a580d480c362db2360c",
+          "typology": "CYCLE",
+          "doc_id": "fatf-tbml-2020",
+          "page": 23,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-20",
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "typology": "CYCLE",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-21",
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "typology": "FAN_IN",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-22",
+          "chunk_id": "db0bfee5bf52fd6b43ffda9521b079c86a95b68821eeab523beb3275255f1e33",
+          "typology": "CYCLE",
+          "doc_id": "fincen-msb-ko-2007",
+          "page": 37,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-23",
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "typology": "FAN_OUT",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1
+        },
+        {
+          "row_id": "R2-24",
+          "chunk_id": "e4b06460e4582bdbab9bde719d4dcd85a899580ab76d93f02b7947e0b71625e7",
+          "typology": "CYCLE",
+          "doc_id": "fatf-tbml-2020",
+          "page": 12,
+          "pos": 2
+        },
+        {
+          "row_id": "R2-25",
+          "chunk_id": "ff84d17b24754dbcf975ed9c2522b03c7ac0edc9afb3da8b3a4027d90c69c750",
+          "typology": "FAN_IN",
+          "doc_id": "fatf-tbml-2006",
+          "page": 22,
+          "pos": 1
+        }
+      ],
+      "reused_from_round1": 3
+    }
+  ]
+}
