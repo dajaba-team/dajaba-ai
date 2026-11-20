@@ -2,6 +2,7 @@
 
 import json
 import logging
+from collections import deque
 from dataclasses import asdict, dataclass
 from importlib import import_module
 from types import ModuleType
@@ -13,6 +14,9 @@ from aml_ai.shared.schemas.alerts import Alert
 from aml_ai.shared.schemas.scores import DataQualityStatus, FailureCode, Reason, ScoreItem
 
 MAX_REASONS = 3
+# 500건을 반씩 나누면 깊이 9에서 한 건까지 좁힐 수 있다.
+MAX_SCORE_SPLIT_DEPTH = 9
+MAX_SCORE_CALLS = 32
 log = logging.getLogger(__name__)
 
 
@@ -75,17 +79,54 @@ class AmlMlAdapter:
                 )
                 for a in alerts
             ]
-            results = self._package.score(
-                inputs,
-                self._pandas.DataFrame.from_records(transactions, columns=TX_COLUMNS),
-                coverage=[self._package.Coverage(**asdict(c)) for c in coverage],
-            )
-            if len(results) != len(alerts):
-                raise ValueError("invalid result count")
+            if len(coverage) != len(alerts):
+                raise ValueError("invalid coverage count")
+            frame = self._pandas.DataFrame.from_records(transactions, columns=TX_COLUMNS)
+            package_coverage = [self._package.Coverage(**asdict(c)) for c in coverage]
         except Exception as exc:
-            log.warning("scoring_batch_compute_error", extra={"error_type": type(exc).__name__})
+            log.warning("scoring_batch_prepare_error", extra={"error_type": type(exc).__name__})
             return [failed_score(a, self.version, FailureCode.COMPUTE_ERROR) for a in alerts]
-        return [self._validate(a, result) for a, result in zip(alerts, results, strict=True)]
+
+        scores: list[ScoreItem | None] = [None] * len(alerts)
+        pending = deque([(0, len(alerts), 0)])
+        calls = 0
+        unconfirmed = 0
+        while pending and calls < MAX_SCORE_CALLS:
+            start, end, depth = pending.popleft()
+            size = end - start
+            calls += 1
+            try:
+                results = self._package.score(inputs[start:end], frame, coverage=package_coverage[start:end])
+            except Exception as exc:
+                details = {"error_type": type(exc).__name__, "batch_size": size}
+                if size == 1:
+                    log.warning("scoring_alert_compute_error", extra=details)
+                    scores[start] = failed_score(alerts[start], self.version, FailureCode.COMPUTE_ERROR)
+                elif depth < MAX_SCORE_SPLIT_DEPTH:
+                    if depth == 0:
+                        log.warning("scoring_batch_recovery_started", extra=details)
+                    middle = start + size // 2
+                    pending.extend([(start, middle, depth + 1), (middle, end, depth + 1)])
+                else:
+                    unconfirmed += size
+                continue
+
+            if not isinstance(results, list) or len(results) != size:
+                log.warning("scoring_batch_invalid_result_count", extra={"batch_size": size})
+                continue
+            scores[start:end] = [
+                self._validate(a, result) for a, result in zip(alerts[start:end], results, strict=True)
+            ]
+
+        unconfirmed += sum(end - start for start, end, _ in pending)
+        if unconfirmed:
+            log.warning(
+                "scoring_batch_recovery_exhausted", extra={"unconfirmed_alerts": unconfirmed, "calls": calls}
+            )
+        return [
+            score if score is not None else failed_score(alert, self.version, FailureCode.COMPUTE_ERROR)
+            for alert, score in zip(alerts, scores, strict=True)
+        ]
 
     def _validate(self, alert: Alert, result: object) -> ScoreItem:
         try:

@@ -61,6 +61,12 @@ class ScoreService:
 
     def _model_scores(self, req: ScoreRequest) -> tuple[list[ScoreItem], ModelVersion]:
         try:
+            try:
+                history_bounds = self._s.scoring_history_bounds()
+            except ValueError as exc:
+                raise ModelUnavailable(
+                    "scoring history settings are invalid", history_config_error=str(exc)
+                ) from exc
             adapter = AmlMlAdapter.load()
             version = adapter.version
             with Session(get_engine()) as session, session.begin():
@@ -69,7 +75,7 @@ class ScoreService:
                     session, version.model_version, version.feature_version, version.threshold
                 ):
                     raise ModelUnavailable("scoring model is not registered for serving")
-                rows, coverage = read_transactions(session, req.alerts)
+                rows, coverage = read_transactions(session, req.alerts, history_bounds=history_bounds)
                 scores = self._score_batch(adapter, req.alerts, rows, coverage)
                 save_predictions(
                     session,

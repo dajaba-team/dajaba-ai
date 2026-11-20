@@ -69,14 +69,20 @@ def test_health_reports_served_model(health) -> None:
 
 
 def test_model_load_failure_does_not_prevent_str_startup(monkeypatch: pytest.MonkeyPatch) -> None:
+    attempted = False
+
     def broken_model(name: str) -> None:
+        nonlocal attempted
         assert name == "aml_ml"
+        attempted = True
         raise RuntimeError("invalid model artifact")
 
     monkeypatch.setattr(adapter, "import_module", broken_model)
     monkeypatch.setattr(versioning, "_served_model", ("prior-model", "prior-features"))
     monkeypatch.setattr(main, "db_ping", lambda _: "ok")
     monkeypatch.setenv("AI_SCORING_MOCK", "false")
+    monkeypatch.setenv("AI_SCORING_HISTORY_START", "2022-09-01T00:00:00")
+    monkeypatch.setenv("AI_SCORING_HISTORY_END", "2022-09-11T00:00:00")
     with TestClient(app) as client:
         assert client.get("/v1/health").json()["scoring_mode"] == "model"
         response = client.post(
@@ -86,6 +92,7 @@ def test_model_load_failure_does_not_prevent_str_startup(monkeypatch: pytest.Mon
         )
         assert response.status_code == 503
         assert response.json()["code"] == "MODEL_UNAVAILABLE"
+        assert attempted
         health_body = client.get("/v1/health").json()
         assert health_body["status"] == "ok"
         assert health_body["scoring_mode"] == "unavailable"

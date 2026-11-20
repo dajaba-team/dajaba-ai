@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -44,23 +43,6 @@ _TRANSACTIONS = text(f"""
 """)
 
 
-class _HistorySettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
-
-    ai_scoring_history_start: str = ""
-    ai_scoring_history_end: str = ""
-
-    def verified_bounds(self) -> tuple[datetime, datetime] | None:
-        try:
-            start = datetime.fromisoformat(self.ai_scoring_history_start)
-            end = datetime.fromisoformat(self.ai_scoring_history_end)
-        except ValueError:
-            return None
-        if start.tzinfo is None and end.tzinfo is None and start < end:
-            return start, end
-        return None
-
-
 @dataclass(frozen=True)
 class HistoryCoverage:
     requested_start: datetime
@@ -77,7 +59,7 @@ def history_start(reference: datetime) -> datetime | None:
 
 
 def read_transactions(
-    session: Session, alerts: list[Alert]
+    session: Session, alerts: list[Alert], *, history_bounds: tuple[datetime, datetime]
 ) -> tuple[list[dict[str, object]], list[HistoryCoverage | None]]:
     """근거 ID와 계좌별 [시작, 기준) 이력의 합집합을 한 번에 조회한다."""
     starts = [history_start(a.reference_ts) if "\x00" not in a.account_key else None for a in alerts]
@@ -97,15 +79,15 @@ def read_transactions(
     ).mappings()
     transactions = [dict(row) for row in rows]
     low, high = session.execute(_EXTENT).one()
-    bounds = _HistorySettings().verified_bounds()
+    verified_start, verified_end = history_bounds
 
     def coverage(start: datetime | None, end: datetime) -> HistoryCoverage | None:
         if start is None:
             return None
         status = "UNKNOWN"
-        if bounds is not None and low is not None and high is not None:
+        if low is not None and high is not None:
             # 마지막 거래 이후에도 적재가 검증된 구간에는 거래가 없을 수 있다.
-            status = "COMPLETE" if max(low, bounds[0]) <= start and end <= bounds[1] else "PARTIAL"
+            status = "COMPLETE" if max(low, verified_start) <= start and end <= verified_end else "PARTIAL"
         return HistoryCoverage(start, end, low, high, status)
 
     return transactions, [coverage(start, a.reference_ts) for a, start in zip(alerts, starts, strict=True)]

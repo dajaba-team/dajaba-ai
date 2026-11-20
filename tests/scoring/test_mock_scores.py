@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from aml_ai.main import app
 from aml_ai.scoring.application.score_service import ScoreService
+from aml_ai.shared.config import Settings, get_settings
 from aml_ai.shared.errors import DbUnavailable
 from tests.conftest import EXAMPLES, load_json
 
@@ -50,3 +51,49 @@ def test_scores_db_unavailable_is_whole_request_503(monkeypatch: pytest.MonkeyPa
         )
     assert r.status_code == 503
     assert r.json()["code"] == "DB_UNAVAILABLE"
+
+
+@pytest.mark.parametrize(
+    ("start", "end", "mock", "reason"),
+    [
+        ("", "2022-09-11T00:00:00", False, "missing_bound"),
+        ("bad", "2022-09-11T00:00:00", False, "invalid_format"),
+        ("2022-09-01T00:00:00+00:00", "2022-09-11T00:00:00", False, "invalid_timezone"),
+        ("2022-09-11T00:00:00", "2022-09-01T00:00:00", False, "invalid_order"),
+        ("bad", "", True, None),
+    ],
+)
+def test_scores_history_config_is_checked_only_in_model_mode(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    start: str,
+    end: str,
+    mock: bool,
+    reason: str | None,
+) -> None:
+    settings = Settings(
+        _env_file=None,
+        AI_SCORING_MOCK=mock,
+        AI_SCORING_HISTORY_START=start,
+        AI_SCORING_HISTORY_END=end,
+    )
+    monkeypatch.setattr("aml_ai.main.get_settings", lambda: settings)
+    monkeypatch.setitem(app.dependency_overrides, get_settings, lambda: settings)
+
+    def unexpected_load() -> None:
+        pytest.fail("model loading must not run")
+
+    monkeypatch.setattr("aml_ai.scoring.application.score_service.AmlMlAdapter.load", unexpected_load)
+    with TestClient(app) as c:
+        r = c.post(
+            "/v1/scores",
+            headers={"X-Internal-Key": "test-key"},
+            json=load_json(EXAMPLES / "score_request.json"),
+        )
+    if reason is None:
+        assert r.status_code == 200
+        assert r.json()["scoring_meta"]["model_version"] == "mock-0"
+    else:
+        assert r.status_code == 503
+        assert r.json()["code"] == "MODEL_UNAVAILABLE"
+        assert any(getattr(record, "history_config_error", None) == reason for record in caplog.records)

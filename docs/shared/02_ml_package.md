@@ -54,7 +54,7 @@ def features(
 
 ### coverage (패키지 내부 메타데이터, API 필드 아님)
 
-경보마다 하나: 요청한 조회 시작·종료, DB 최소·최대 거래 시각(확인 불가면 `null`), 이력 확보 상태 `COMPLETE / PARTIAL / UNKNOWN`. 적재 검증으로 전체 이력을 확보했다고 확인한 범위를 `AI_SCORING_HISTORY_START`와 `AI_SCORING_HISTORY_END`에 원본 시각(시간대 없는 ISO 8601)으로 설정한다. 두 값이 유효하지 않거나 거래가 비어 있으면 `UNKNOWN`이다. 24시간 창이 검증 범위를 벗어나거나 DB 첫 거래보다 앞서면 `PARTIAL`이다. 마지막 거래 이후에도 적재 검증 범위 안에서 조회한 구간은 거래가 0건일 수 있다. 전체 이력의 근거는 적재 검증이며, 조회 장애는 요청 전체 `DB_UNAVAILABLE`(503)이다.
+경보마다 하나: 요청한 조회 시작·종료, DB 최소·최대 거래 시각(확인 불가면 `null`), 이력 확보 상태 `COMPLETE / PARTIAL / UNKNOWN`. 적재 검증으로 전체 이력을 확보했다고 확인한 범위를 공용 설정 `AI_SCORING_HISTORY_START`와 `AI_SCORING_HISTORY_END`에 원본 시각(시간대 없는 ISO 8601)으로 지정한다. 실채점 모드에서 값이 누락되거나 형식이 잘못됐거나 시작이 종료보다 이르지 않으면 요청 전체가 `MODEL_UNAVAILABLE`(503)이며 설정 오류 사유를 로그에 남긴다. 유효한 설정에서 DB 거래가 비어 있으면 `UNKNOWN`이다. 24시간 창이 검증 범위를 벗어나거나 DB 첫 거래보다 앞서면 `PARTIAL`이다. 마지막 거래 이후에도 적재 검증 범위 안에서 조회한 구간은 거래가 0건일 수 있다. 전체 이력의 근거는 적재 검증이며, 조회 장애는 요청 전체 `DB_UNAVAILABLE`(503)이다.
 
 ### 품질 판정 (coverage → `data_quality_status`, 1:1 아님)
 
@@ -87,8 +87,10 @@ def features(
   | `false` + 그 밖 | `unavailable` |
 
   **기동 직후에는 mock이 꺼져도 `unavailable`**이다. 패키지 설치만으로 `model`을 노출하지 않는다. 같은 PR에서 `scoring_mode` 판단과 테스트를 추가하고, 동일 이미지에서 실제 `/v1/scores` rc1 점수와 `/v1/health`의 `model` 및 버전을 함께 확인한다. STR을 포함한 기동 판정은 유지한다.
+  시연 전에는 서버 재시작 → 정상 경보의 `/v1/scores` 채점·저장 성공 → `/v1/health`의 `scoring_mode=model` 확인 순서로 점검한다.
 - 모델 파일은 패키지 안에 두며 import 시 로드된다. 채점 어댑터의 호출 시점에만 `aml_ml`을 import한다. 공용 기동 경로의 모듈 상단에서 import하지 않으며, 로드 실패는 기존 채점 503 계약으로 격리한다.
 - `0005_scoring_tables`가 rc1 모델·피처 버전과 패키지의 `threshold`를 등록한다. 부분 유일 인덱스로 serving 행을 한 개만 허용한다. 로드한 모델과 serving 행이 일치하지 않으면 `MODEL_UNAVAILABLE`을 반환한다. `alert_features` 저장은 선택 사항이며, STR에서 저장 행을 읽는지 진희 님 확인 전에는 쓰지 않는다.
+- rc2 전환 시 `0005_scoring_tables`는 그대로 두고, 후속 마이그레이션에서 rc1을 `is_serving=false`로 바꾼 뒤 rc2 serving 행을 등록한다.
 
 ## AI 서버 쪽 (`src/aml_ai/scoring/`, 준영이 만들되 얇게 — str/ 과 같은 4계층)
 
