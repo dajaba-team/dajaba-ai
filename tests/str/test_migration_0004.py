@@ -105,11 +105,7 @@ def test_gin_index_on_typologies(_db_engine: Engine) -> None:
 
 
 def test_downgrade_drops_table(_db_engine: Engine) -> None:
-    """upgrade head 뒤 테이블 존재 → downgrade -1 → 사라짐 → upgrade head 복구.
-
-    develop 에서는 0004 가 없어 upgrade head 가 0003 에서 멈춤 → 첫 번째 assert 에서 fail
-    (trivially pass 를 막기 위해 '먼저 존재' 확인).
-    """
+    """Verify that downgrading from 0004 to 0003 drops reference_chunks."""
     from alembic import command
     from alembic.config import Config
 
@@ -118,17 +114,18 @@ def test_downgrade_drops_table(_db_engine: Engine) -> None:
     cfg = Config(str(REPO_ROOT / "alembic.ini"))
     cfg.set_main_option("sqlalchemy.url", str(_db_engine.url))
 
-    with _db_engine.connect() as conn:
-        exists_before = conn.execute(
-            text(
-                "SELECT 1 FROM information_schema.tables "
-                "WHERE table_schema='ai' AND table_name='reference_chunks'"
-            )
-        ).scalar()
-    assert exists_before, "upgrade head 뒤에도 ai.reference_chunks 없음 — 0004 가 반영 안 됨"
-
     try:
-        command.downgrade(cfg, "-1")  # 0004 → 0003
+        command.downgrade(cfg, "0004_reference_chunks")
+        with _db_engine.connect() as conn:
+            exists_before = conn.execute(
+                text(
+                    "SELECT 1 FROM information_schema.tables "
+                    "WHERE table_schema='ai' AND table_name='reference_chunks'"
+                )
+            ).scalar()
+        assert exists_before, "ai.reference_chunks must exist at revision 0004"
+
+        command.downgrade(cfg, "0003")
         with _db_engine.connect() as conn:
             exists_after = conn.execute(
                 text(
