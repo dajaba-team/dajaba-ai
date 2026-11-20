@@ -1,4 +1,4 @@
-"""고정된 rc1 패키지로 성공·누락·입력 실패가 같은 묶음에서 분리되는지 확인한다."""
+"""고정된 rc2 패키지의 성공·누락·입력 실패와 묶음 복구를 검증한다."""
 
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -13,7 +13,7 @@ from aml_ai.shared.schemas.scores import FailureCode
 from tests.conftest import EXAMPLES, load_json
 
 
-def test_rc1_respects_per_alert_outcomes() -> None:
+def test_rc2_respects_per_alert_outcomes() -> None:
     reference = datetime(2030, 1, 10, 12)
     start = reference - timedelta(hours=96)
     history_start = reference - timedelta(hours=24)
@@ -45,13 +45,14 @@ def test_rc1_respects_per_alert_outcomes() -> None:
     ]
     alerts = [
         template,
-        template.model_copy(update={"alert_id": "ALT-20300110-000002", "rule_id": "R05_SCATTER_GATHER"}),
+        template.model_copy(update={"alert_id": "ALT-20300110-000002", "rule_id": "R99_UNKNOWN"}),
         template.model_copy(update={"alert_id": "ALT-20300110-000003", "transaction_ids": [9]}),
         template.model_copy(update={"alert_id": "ALT-20300110-000004", "transaction_ids": [1]}),
         template.model_copy(update={"alert_id": "ALT-20300110-000005"}),
         template.model_copy(update={"alert_id": "ALT-20300110-000006", "window_start": history_start}),
     ]
     adapter = AmlMlAdapter.load()
+    assert adapter.version.package_version == "0.1.0rc2"
     scores = ScoreService._score_batch(adapter, alerts, rows, [complete] * 4 + [partial, complete])
 
     assert [item.alert_id for item in scores] == [a.alert_id for a in alerts]

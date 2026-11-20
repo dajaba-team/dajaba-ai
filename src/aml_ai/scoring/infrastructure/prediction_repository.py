@@ -13,7 +13,7 @@ from aml_ai.shared.schemas.scores import ScoreItem
 _SERVING_MODEL = text("""
     select 1 from ai.model_versions
      where model_version = :model and feature_version = :feature
-       and threshold = :threshold and is_serving
+       and threshold = :threshold and serving_package_version = :package_version and is_serving
 """)
 _INSERT = text("""
     insert into ai.predictions
@@ -25,7 +25,7 @@ _INSERT = text("""
 """).bindparams(bindparam("reasons", type_=JSONB))
 
 
-def is_registered(session: Session, model: str, feature: str, threshold: float) -> bool:
+def is_registered(session: Session, model: str, feature: str, threshold: float, package_version: str) -> bool:
     return (
         session.execute(
             _SERVING_MODEL,
@@ -33,6 +33,7 @@ def is_registered(session: Session, model: str, feature: str, threshold: float) 
                 "model": model,
                 "feature": feature,
                 "threshold": Decimal(str(threshold)),
+                "package_version": package_version,
             },
         ).scalar_one_or_none()
         is not None

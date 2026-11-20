@@ -5,6 +5,7 @@ import logging
 from collections import deque
 from dataclasses import asdict, dataclass
 from importlib import import_module
+from importlib.metadata import version as distribution_version
 from types import ModuleType
 from uuid import uuid4
 
@@ -25,6 +26,7 @@ class ModelVersion:
     model_version: str
     feature_version: str
     threshold: float
+    package_version: str
 
 
 def failed_score(alert: Alert, version: ModelVersion, code: FailureCode) -> ScoreItem:
@@ -52,8 +54,17 @@ class AmlMlAdapter:
         try:
             package = import_module("aml_ml")
             pandas = import_module("pandas")
-            version = ModelVersion(package.MODEL_VERSION, package.FEATURE_VERSION, package.THRESHOLD)
-            if not callable(package.score) or not 0 <= version.threshold <= 1:
+            version = ModelVersion(
+                package.MODEL_VERSION,
+                package.FEATURE_VERSION,
+                package.THRESHOLD,
+                distribution_version("aml-ml"),
+            )
+            if (
+                package.__version__ != version.package_version
+                or not callable(package.score)
+                or not 0 <= version.threshold <= 1
+            ):
                 raise ValueError("invalid model contract")
         except Exception as exc:
             raise ModelUnavailable(error_type=type(exc).__name__) from exc
