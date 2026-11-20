@@ -345,6 +345,24 @@ v4 초안은 코드 조립(LLM 0)이라 초안 단계 평가자가 없고 검증
 - 남은 2표는 1표씩·중앙값 영향 없음 — 안 고침(09). 유의성 주장 안 함(같은 사건 18건을 세 번 재며 문장을 고침 — 처음 보는 경보는 SCRUM-279 ★L-2)
 - 원본(git 무시, 커밋 안 함): `tests/str/recorded/_tmp/judge_stability_v4_20261118-064511.{json,jsonl}` · dry-run `judge_stability_v4_dry_20261118-064357.json`
 
+#### 결과 — ★L-2 실제 흐름 (SCRUM-279, 2026-11-21)
+
+처음 보는 경보 하나를 실제 rc2 점수부터 확정본까지 화면으로 한 바퀴(11/21 03:19~03:38, 로컬 develop, `scoring_mode=model`). **v4 초안 검증 통과, 결정 변경 0**(09 같은 날 줄).
+
+| 단계 | 결과 |
+|---|---|
+| 점수·케이스 | 9/7 경보 1,545 → rc2 점수 실패 0 → HIGH 27 → 케이스 27 (SCRUM-130) |
+| 대상 | CASE-2022-000011 · ALT-20220907-002491 · R02_FAN_IN · 점수 0.7272 · `xgb-medium-c2-31-w1-d4-dev130` · 이유 3개(`evidence_ach_fraction` +1.93 · `evidence_min_gap_seconds` +1.65 · `evidence_account_count` +0.37, 기준값 없음) |
+| 조사 | 배정 → 요약 `summary_v1` → 에스컬레이션 |
+| 초안 | DRF-000017 · `narrative_v4` · 생성 `4439f7ee…` → 수정본 2(거래자 섹션 문장 하나) |
+| 검증 | `5099bed2…` · `verify-2026.11.5+judge_v4` **통과** — 코드 검사 AMOUNT 3 · DATE 2 · COUNT 8 · ACCOUNT_ID 1 · EVIDENCE_IN_SCOPE 7 · OPINION_PRESENT 1 모두 통과, 평가 5항목 모두 5점 |
+| 사유 근거 | GROUNDS cites 에 `observations.evidence_ach_fraction` · `evidence_min_gap_seconds` · `evidence_account_count` → "ACH 비율은 1" · "최소 간격 관측값은 11880초" · "서로 다른 계좌 수 관측값은 6개" + 관측 구간·비교 기준값은 미확인 문장(SCRUM-264 거르기 그대로) |
+| 승인·제출 | 승인 요청(의심 유형 2 · 지점 3) → 승인(본점 3) → 모의 제출 → 확정본 PDF STR-2026-000001 3쪽 |
+
+- 초안은 v4 기본 경로라 코드 조립(`llm_model=code`, LLM 호출 없음 — `03_pipeline` ★A-8). 이번 한 바퀴의 LLM 호출은 요약(`summary_v1`)과 검증 평가자(judge_v4 3표)뿐 — 초안 764ms 는 녹화·캐시가 아님
+- 백엔드 `ops.ai_call_logs` 호출 7행(`/v1/scores` 4 · `/v1/cases/summary` · `/v1/str/drafts` · `/v1/str/verify`) 모두 200 · 재시도 0 · request_id 로 `ai.predictions`·`ai.generations`·`ai.verification_runs` 행과 이어짐(SCRUM-133)
+- 남은 것: 화면 피드백 중 AI 쪽은 요약 금액 표기에 천 단위 쉼표 없음(F3) 하나 — 이번에 안 고침. 한 사건이라 유의성 주장 안 함
+
 ### judge_v4 사전 기준 측정 (SCRUM-268, 09 "SCRUM-268 judge_v4 사전 기준 — 측정 전")
 
 기준 1(오류 잡는 힘 유지)·기준 2(판정 문장 뒤집기)를 한 실행에서. 기준 3(v4 시연 안정)은 SCRUM-269 뒤 254 ★L-1 2차(위 절 하네스, 등록 프롬프트 judge_v4)에서. **평가자·v4 문장 변경 없이 측정만, 실제 호출은 진희 터미널.**
