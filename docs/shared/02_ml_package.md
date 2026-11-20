@@ -1,6 +1,6 @@
 # 02. `aml-ml` 패키지 계약 — 준영 리포 ↔ AI 서버
 
-**10/26 확정(진희 제안, 준영 동의)**: 학습 코드는 준영의 별도 리포. AI 서버는 그 리포를 `pip install`되는 패키지 `aml-ml`로 받아 `scoring/application/`에서 import만 한다. 이유 — 학습할 때 쓴 피처 코드와 서빙할 때 쓰는 피처 코드가 한 벌이어야 train/serve skew가 안 생긴다. 모델 파일만 넘기는 방식(A)이나 준영이 서버를 따로 띄우는 방식(C)은 쓰지 않는다.
+**10/26 확정(진희 제안, 준영 동의)**: 학습 코드는 준영의 별도 리포. AI 서버는 그 리포를 `pip install`되는 패키지 `aml-ml`로 받아 채점 어댑터의 호출 시점에 불러온다. 이유 — 학습할 때 쓴 피처 코드와 서빙할 때 쓰는 피처 코드가 한 벌이어야 train/serve skew가 안 생긴다. 모델 파일만 넘기는 방식(A)이나 준영이 서버를 따로 띄우는 방식(C)은 쓰지 않는다.
 
 **10/28 상태**: 안건 2·4·7·10은 회의 확정. **안건 3·5·6은 준영 제안서(10/27, 「ML 입력·설명·피처 버전 AI 인터페이스 규약 설계 제안서」)와 10/28 답변(이력 부족·조회 범위·coverage)으로 확정** — 아래에 반영. **10/29**: 점수 항목별 실패·`failure_code`·DB 장애 503·적재 범위 **준혁 확인으로 확정**(SCRUM-41). 남은 것: 실제 첫 거래 시각(준혁 적재 후), `reasons` 정렬·기여 척도·버전 이름은 모델 검증 뒤 고정.
 
@@ -54,7 +54,7 @@ def features(
 
 ### coverage (패키지 내부 메타데이터, API 필드 아님)
 
-경보마다 하나: 요청한 조회 시작·종료(ISO 문자열), DB 최소·최대 거래 시각(같은 형식, 확인 불가면 `null`), 이력 확보 상태 `COMPLETE / PARTIAL / UNKNOWN`. DB 최소·최대 시각만으로 "전체 이력 확보"를 판정하지 않는다. 조회 실패·행 제한으로 잘림은 "정상 조회했는데 0건"과 구분한다 — 완전히 조회한 범위에 거래가 실제로 없을 때만 0건. 데이터 시작 직후처럼 24시간 창이 데이터 시작보다 앞서면 `PARTIAL`.
+경보마다 하나: 요청한 조회 시작·종료, DB 최소·최대 거래 시각(확인 불가면 `null`), 이력 확보 상태 `COMPLETE / PARTIAL / UNKNOWN`. 적재 검증으로 전체 이력을 확보했다고 확인한 범위를 공용 설정 `AI_SCORING_HISTORY_START`와 `AI_SCORING_HISTORY_END`에 원본 시각(시간대 없는 ISO 8601)으로 지정한다. 실채점 모드에서 값이 누락되거나 형식이 잘못됐거나 시작이 종료보다 이르지 않으면 요청 전체가 `MODEL_UNAVAILABLE`(503)이며 설정 오류 사유를 로그에 남긴다. 유효한 설정에서 DB 거래가 비어 있으면 `UNKNOWN`이다. 24시간 창이 검증 범위를 벗어나거나 DB 첫 거래보다 앞서면 `PARTIAL`이다. 마지막 거래 이후에도 적재 검증 범위 안에서 조회한 구간은 거래가 0건일 수 있다. 전체 이력의 근거는 적재 검증이며, 조회 장애는 요청 전체 `DB_UNAVAILABLE`(503)이다.
 
 ### 품질 판정 (coverage → `data_quality_status`, 1:1 아님)
 
@@ -66,7 +66,7 @@ def features(
 
 - 이력 부족 + 지원되는 결측이 같이 있고 점수가 나오면 대표 상태는 `MISSING_INPUT`, 이력 부족은 AI 내부 기록에.
 - baseline만 없으면 `baseline.value=null`, 그것만으로 점수를 막지 않는다.
-- 품질 사유(왜 FAILED인지)의 자세한 내용은 `ai.predictions` 내부 기록에. API로는 재처리 판단용 `failure_code` 다섯 값만 공개(10/29 확정, 11/19 `RULE_NOT_SUPPORTED` 추가).
+- 실패 코드는 `ai.predictions`에 기록한다. AI develop은 `RULE_NOT_SUPPORTED`를 지원한다. 백엔드 develop의 실패 코드 검증과 DB 제약에는 아직 이 값이 없다.
 
 ### 학습 ↔ 서비스 필드 (안건 6)
 
@@ -76,34 +76,46 @@ def features(
 
 ## 설치·버전
 
-- 첫 연결 태그 `v0.1.0rc1`(11/19, dajaba-team/dajaba-ml), 설치는 SCRUM-130 2/2 ②
-- AI 서버 `pyproject.toml`: `aml-ml @ git+https://github.com/<org>/aml-ml.git@v0.1.0` — **tag로 고정**. `main` 브랜치를 가리키지 않는다.
-- 준영이 새 모델을 내면: 리포에 tag → 진희가 `pyproject.toml` 한 줄 바꾸는 PR → `MODEL_VERSION`이 바뀐 것을 `/v1/health`에서 확인 → `ai.model_versions`에 행 추가(준영).
+- AI 서버는 공개 저장소의 태그된 버전만 설치한다. 최초 연결: `aml_ml @ git+https://github.com/dajaba-team/dajaba-ml.git@v0.1.0rc1`.
+- 준영의 SCRUM-130 연결 PR에 `pyproject.toml`, `uv.lock`, `Dockerfile`, 실제 채점 경로와 이 문서를 함께 넣는다. `python:3.12-slim`의 VCS 설치 단계 전에 Git을 설치하고 클린 빌드를 검증한다. 잠금 파일 변경과 이미지의 실제 설치 버전은 따로 확인한다. 새 모델은 새 태그를 내고 별도로 검증한 뒤 전환한다.
 - **점수 모드 `/v1/health` `scoring_mode`** (SCRUM-130, 11/12) — 점수가 고정 점수인지 실제 모델인지 밖에서 보이게. 판단은 `shared/versioning.scoring_mode(settings)`:
 
   | 조건 | `scoring_mode` |
   |---|---|
   | `AI_SCORING_MOCK=true` (기본) | `mock` |
-  | `false` + `score_service` 가 `aml_ml.score()` 를 실제로 부름 | `model` |
-  | `false` + 그 밖 | `unavailable` — `/v1/scores` 가 실패하는 상태 |
+  | `false` + 현재 프로세스에서 모델 점수 산출과 저장 성공 | `model` |
+  | `false` + 그 밖 | `unavailable` |
 
-  **지금(연결 전)은 `false` 면 패키지 유무와 상관없이 `unavailable`** — `score_service` 의 mock 아닌 분기가 아직 `NotImplementedError` 라, 패키지만 먼저 들어간 상태(tag → pyproject 한 줄 PR 직후)에 `model` 로 보이면 health 와 실제가 어긋남. **`model` 판단과 그 테스트는 `score_service` 연결 PR(SCRUM-130 나머지)에서 같이** 넣는다. 연결 뒤 순서: tag → pyproject PR → `AI_SCORING_MOCK=false` → `/v1/health` 에서 `scoring_mode: model`·`model_version` 확인. `status` 는 `scoring_mode` 와 상관없이 `ok`(기동 판단 안 바꿈, 경고는 백엔드 로그).
-- 모델 파일(`.json`/`.pkl`)은 **패키지 안에** 넣는다(수 MB). 패키지 import 시 로드. 100 MB를 넘기면 그때 릴리스 첨부 + 기동 시 다운로드로 바꾼다.
-- `MODEL_VERSION`과 `ai.model_versions.model_version`은 같은 문자열. 서빙되는 버전은 `is_serving=true` 한 행. `threshold`도 그 행에.
+  **기동 직후에는 mock이 꺼져도 `unavailable`**이다. 패키지 설치만으로 `model`을 노출하지 않는다. 같은 PR에서 `scoring_mode` 판단과 테스트를 추가하고, 동일 이미지에서 실제 `/v1/scores` rc1 점수와 `/v1/health`의 `model` 및 버전을 함께 확인한다. STR을 포함한 기동 판정은 유지한다.
+  시연 전에는 서버 재시작 → 정상 경보의 `/v1/scores` 채점·저장 성공 → `/v1/health`의 `scoring_mode=model` 확인 순서로 점검한다.
+- 모델 파일은 패키지 안에 두며 import 시 로드된다. 채점 어댑터의 호출 시점에만 `aml_ml`을 import한다. 공용 기동 경로의 모듈 상단에서 import하지 않으며, 로드 실패는 기존 채점 503 계약으로 격리한다.
+- `0005_scoring_tables`가 rc1 모델·피처 버전과 패키지의 `threshold`를 등록한다. 부분 유일 인덱스로 serving 행을 한 개만 허용한다. 로드한 모델과 serving 행이 일치하지 않으면 `MODEL_UNAVAILABLE`을 반환한다. `alert_features` 저장은 선택 사항이며, STR에서 저장 행을 읽는지 진희 님 확인 전에는 쓰지 않는다.
+- rc2 전환 시 `0005_scoring_tables`는 그대로 두고, 후속 마이그레이션에서 rc1을 `is_serving=false`로 바꾼 뒤 rc2 serving 행을 등록한다.
 
 ## AI 서버 쪽 (`src/aml_ai/scoring/`, 준영이 만들되 얇게 — str/ 과 같은 4계층)
 
 ```
 api/router.py                      POST /v1/scores — 요청 검증(schemas.alerts) → service → 응답(schemas.scores)
-application/score_service.py       transaction_reader → (없는 ID 경보는 FAILED·TRANSACTION_NOT_FOUND로 빼고) aml_ml.score(alerts, df) → prediction_repository.save → 응답 조립 + 버전
+application/score_service.py       transaction_reader → 누락 ID 경보 분리 → aml_ml_adapter.score(..., coverage=...) → 저장·응답
 domain/                            비어 있음 — 피처·모델 로직은 aml_ml
-infrastructure/orm.py              model_versions · alert_features · predictions (Alembic 0002)
-infrastructure/prediction_repository.py
+infrastructure/prediction_repository.py  ai.predictions 일괄 저장 (0005_scoring_tables)
+infrastructure/aml_ml_adapter.py   채점 호출 시점 import
+infrastructure/transaction_reader.py  STR과 분리된 채점용 ops 조회, 통화 DB 원문·전체 근거 ID 보존
 ```
 
 - 응답 조립: `score`·`threshold`·`data_quality_status`·`failure_code`·`reasons`·`evidence/context_transaction_ids`를 그대로, `prediction_id`는 서버가 발급(`FAILED`면 null).
+- 성공과 실패 모두 감사용 예측 행으로 저장한다. 실패 행의 내부 ID는 응답에 포함하지 않는다.
+- 거래 ID가 없으면 해당 경보만 `TRANSACTION_NOT_FOUND`로 실패 처리한다. 누락·실패를 0점으로 치환하지 않는다.
 - 트랜잭션: 요청 하나 = DB 트랜잭션 하나. 조회·저장 중 DB 오류면 롤백하고 `DbUnavailable`(503) — 일부 경보만 저장된 채 응답하지 않는다. 백엔드는 1회 재시도 뒤 묶음 실패, 배치 재실행(`alert_scores.alert_id` UNIQUE로 중복 막힘). 500건 **동기**, 배치 크기는 W4 실측 뒤 설정값만 조정(안건 10).
 - `aml_ml`이 아직 없을 때(W2~W3)는 `score_service.py`가 `AI_SCORING_MOCK=true`면 고정 점수를 돌려준다(뼈대에 들어 있음, alert_id로 0.05~0.95 결정적, `data_quality_status="OK"`, `reasons=[]`) — 백엔드 연동 테스트용. 패키지가 들어오면 플래그를 끈다.
+
+## rc1 제약과 시연 검증
+
+- rc1은 R01·R02·R04 중 `COMPLETE` 이력과 정확히 96시간의 경보 창을 갖춘 유효 입력만 채점한다. R03·R05·R06은 미지원이다.
+- 9/7 로컬 `0.1.0rc2.dev0`은 1,545건 전수 성공, 실패 코드별 0건이다. 사건형 R04 409건을 포함한다. HIGH 0.70은 27건, 0.72는 26건이고 둘 다 여섯 룰에서 최소 1건이다. LOW→MEDIUM 0.15 / HIGH 0.70은 시연 후보다. 여섯 룰 시연에는 원격 rc2 태그와 서버 재검증이 필요하며 발행일은 미확정이다. 열흘치 R04 평가와 실제 케이스 생성 확인은 별도다.
+- 격리 환경에서 500건 동기 요청의 DB 조회·채점·저장·응답을 모두 재고 백엔드 90초 한도에 대비한다. DL은 오프라인 전용이다.
+
+상세 검증 항목: [연동 제안서](DAJABA_AI_ML_INTEGRATION_PROPOSAL.md).
 
 ## 준영 리포 쪽에 바라는 것 (네 가지만)
 

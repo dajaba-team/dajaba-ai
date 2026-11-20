@@ -1,9 +1,11 @@
 FROM python:3.12-slim
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 UV_SYSTEM_PYTHON=1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/app/.venv/bin:${PATH}"
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir uv
 WORKDIR /app
-COPY pyproject.toml uv.lock* ./
-RUN uv pip install --system -r pyproject.toml || uv pip install --system .
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev --no-install-project --no-cache
 COPY src ./src
 COPY contracts/display_labels_v1.json ./contracts/display_labels_v1.json
 COPY corpus/manifest.json ./corpus/manifest.json

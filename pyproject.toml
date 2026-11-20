@@ -16,8 +16,7 @@ dependencies = [
     "httpx>=0.27",
     "python-json-logger>=2.0",
     "langfuse>=5.2.0,<6",  # SCRUM-274 — 서버 4.82.0, v5 = 서버 ≥ 4.59.0 (docs/shared/04 "추적")
-    # aml-ml: 준영 리포가 tag 를 내면 아래 한 줄을 연다 (docs/shared/02_ml_package.md)
-    # "aml-ml @ git+https://github.com/<org>/aml-ml.git@v0.1.0",
+    "aml-ml @ git+https://github.com/dajaba-team/dajaba-ml.git@v0.1.0rc1",
 ]
 
 [project.optional-dependencies]
@@ -39,6 +38,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/aml_ai"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

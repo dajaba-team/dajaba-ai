@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -79,6 +80,9 @@ class Settings(BaseSettings):
     ai_llm_mock: bool = Field(default=False, alias="AI_LLM_MOCK")  # 녹화 응답 재생
     recorded_dir: Path = Field(default=Path("tests/str/recorded"), alias="RECORDED_DIR")
 
+    ai_scoring_history_start: str = Field(default="", alias="AI_SCORING_HISTORY_START")
+    ai_scoring_history_end: str = Field(default="", alias="AI_SCORING_HISTORY_END")
+
     # 기동
     index_prompts_on_startup: bool = Field(default=True, alias="INDEX_PROMPTS_ON_STARTUP")
     server_version: str = Field(default="dev", alias="SERVER_VERSION")  # 빌드 시 git 짧은 해시 주입
@@ -113,6 +117,21 @@ class Settings(BaseSettings):
                 f"ask_budget_s({self.ask_budget_s}) must be >= ask_llm_timeout_s({self.ask_llm_timeout_s})"
             )
         return self
+
+    def scoring_history_bounds(self) -> tuple[datetime, datetime]:
+        """실채점 요청에서만 이력 범위를 검증한다."""
+        if not self.ai_scoring_history_start.strip() or not self.ai_scoring_history_end.strip():
+            raise ValueError("missing_bound")
+        try:
+            start = datetime.fromisoformat(self.ai_scoring_history_start)
+            end = datetime.fromisoformat(self.ai_scoring_history_end)
+        except ValueError:
+            raise ValueError("invalid_format") from None
+        if start.tzinfo is not None or end.tzinfo is not None:
+            raise ValueError("invalid_timezone")
+        if start >= end:
+            raise ValueError("invalid_order")
+        return start, end
 
     @property
     def sqlalchemy_url(self) -> str:
