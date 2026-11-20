@@ -28,7 +28,9 @@ HEADERS = {"X-Internal-Key": "test-key"}
 
 
 def migrate(engine: Engine, revision: str, *, downgrade: bool = False) -> None:
-    cfg = Config(str(ROOT / "alembic.ini"))
+    # alembic.ini의 로깅 설정이 이후 테스트의 로그 캡처를 건드리지 않게 한다.
+    cfg = Config()
+    cfg.set_main_option("script_location", str(ROOT / "migrations"))
     with pytest.MonkeyPatch.context() as env:
         env.setenv("DATABASE_URL", engine.url.render_as_string(hide_password=False))
         get_settings.cache_clear()
