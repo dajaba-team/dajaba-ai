@@ -72,9 +72,15 @@ class ScoreService:
             with Session(get_engine()) as session, session.begin():
                 session.execute(text("set transaction isolation level repeatable read"))
                 if not is_registered(
-                    session, version.model_version, version.feature_version, version.threshold
+                    session,
+                    version.model_version,
+                    version.feature_version,
+                    version.threshold,
+                    version.package_version,
                 ):
-                    raise ModelUnavailable("scoring model is not registered for serving")
+                    raise ModelUnavailable(
+                        "scoring model is not registered for serving", package_version=version.package_version
+                    )
                 rows, coverage = read_transactions(session, req.alerts, history_bounds=history_bounds)
                 scores = self._score_batch(adapter, req.alerts, rows, coverage)
                 save_predictions(
