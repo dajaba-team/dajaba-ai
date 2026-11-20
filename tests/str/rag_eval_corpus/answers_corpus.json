@@ -1,0 +1,197 @@
+{
+  "checked_by": "김종민",
+  "checked_at": "2026-11-20",
+  "draft_sha256": "3cf1a7c41a9c3b12f326e95d54096aaed3e7b8b00c91533bf11f563ca0bd9210",
+  "grades": {
+    "CYCLE": [
+      {
+        "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+        "grade": 0
+      },
+      {
+        "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+        "grade": 2
+      },
+      {
+        "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+        "grade": 0
+      },
+      {
+        "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+        "grade": 2
+      },
+      {
+        "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+        "grade": 2
+      },
+      {
+        "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+        "grade": 2
+      },
+      {
+        "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+        "grade": 1
+      },
+      {
+        "chunk_id": "43f9ccdb1fbfaf0d95d62969a70bc1d8021f853ff9961b62c6ec9cd801b5a1f2",
+        "grade": 0
+      },
+      {
+        "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+        "grade": 1
+      },
+      {
+        "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+        "grade": 0
+      },
+      {
+        "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+        "grade": 1
+      }
+    ],
+    "SCATTER_GATHER": [
+      {
+        "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+        "grade": 0
+      },
+      {
+        "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+        "grade": 0
+      },
+      {
+        "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+        "grade": 1
+      },
+      {
+        "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+        "grade": 1
+      },
+      {
+        "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+        "grade": 0
+      }
+    ],
+    "GATHER_SCATTER": [
+      {
+        "chunk_id": "be1dc7a1ecf9ceff9be3951bbb0590b60990caf7611f8425ee6c4f1364b55bbd",
+        "grade": 1
+      },
+      {
+        "chunk_id": "aa3872e1cc32f7b5cd8df8b2cbb1ef02cc2aac4e16905bee6ebcac782b6ea882",
+        "grade": 0
+      },
+      {
+        "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+        "grade": 0
+      },
+      {
+        "chunk_id": "bd693423d08fcadff9f0de2cf9cdcbd26202b359e0378e65d5269ba03e20d39d",
+        "grade": 1
+      },
+      {
+        "chunk_id": "132d0b12c936eaab887db48f26f1330bd6cb1bdcff1634684673215d63679d59",
+        "grade": 0
+      },
+      {
+        "chunk_id": "2016143da9482e169685a9599f4b1a01f9d4effb52d3702dc70d4d0e66c6c174",
+        "grade": 1
+      },
+      {
+        "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+        "grade": 1
+      },
+      {
+        "chunk_id": "643dfafe18b8b5c67cb677bf00092601eeccc09bb331d7e34a859764e6b462ca",
+        "grade": 0
+      },
+      {
+        "chunk_id": "f2afc450ca2a21d3cb52bfd367fcf713dfa061d373aa2487aed9f7c6ecd68b1e",
+        "grade": 1
+      },
+      {
+        "chunk_id": "3c8af66a0f6ecb8a1c8475379b305c792bcc2bd06e8aad7ff00a1b90aa1e6769",
+        "grade": 1
+      },
+      {
+        "chunk_id": "44beb50e23f0e4a04590c98ada1c053a3fb4291abb5cef7e24b8063281e54038",
+        "grade": 0
+      },
+      {
+        "chunk_id": "8be9e90ab686df9c96f3501c8a1f76d8b21732bf6578aefffebf8ec538e869cb",
+        "grade": 1
+      },
+      {
+        "chunk_id": "942518971f2ce699f4b71ce0fcb74d06b3c838df1747d337e3070cdfb3c791f6",
+        "grade": 0
+      },
+      {
+        "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+        "grade": 1
+      },
+      {
+        "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+        "grade": 0
+      },
+      {
+        "chunk_id": "c6ed0a9e8a8434da76f241d3285523a2b84a07207bdd16f3f51fc9eb91bf86a7",
+        "grade": 1
+      },
+      {
+        "chunk_id": "d621d4a93bb1184320ef11b4b26380cdeb208363b60cdfa32ff78a583cb810b5",
+        "grade": 1
+      },
+      {
+        "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+        "grade": 1
+      },
+      {
+        "chunk_id": "81f15b813d269241acce821a6abc254c2bfcff8c1ca2e6837c1efc38ae93ba80",
+        "grade": 0
+      },
+      {
+        "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+        "grade": 1
+      },
+      {
+        "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+        "grade": 1
+      },
+      {
+        "chunk_id": "43f9ccdb1fbfaf0d95d62969a70bc1d8021f853ff9961b62c6ec9cd801b5a1f2",
+        "grade": 0
+      },
+      {
+        "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+        "grade": 0
+      },
+      {
+        "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+        "grade": 0
+      },
+      {
+        "chunk_id": "871c7a697787633607f8329a9f2afb4d3542c02bc2fc717aeb65544f38486b93",
+        "grade": 0
+      },
+      {
+        "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+        "grade": 1
+      },
+      {
+        "chunk_id": "5d60dbc1c5d97c4172c538d4f0e552d486f4075e90f9872eac0eb8b092ab0c02",
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+        "grade": 1
+      }
+    ]
+  }
+}

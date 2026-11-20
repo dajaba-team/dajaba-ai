@@ -1,0 +1,5360 @@
+{
+  "prompt_version": "rag_answer_v2",
+  "prompt_sha256": "596995a02dee312aad0d71f1adacaefbeb48f05b0bbec140cba49e0006191aad",
+  "model": "gpt-6.1-terra",
+  "chunks": 297,
+  "graded": {
+    "CYCLE": [
+      {
+        "chunk_id": "2d2856cf174b811f87d9185b48f8116c576e6bfc79da300950d1a51f520dc2c1",
+        "doc_id": "apg-typologies-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "29858868cbb4ed5eb19d5b0e3c84fa0157da464977b682869597fb297f5b43da",
+        "doc_id": "apg-typologies-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "57e579ee7b1fbce507f1cc2d509efcabb0bbd10c413d95b569c3befa39fd53f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7c28138e41c6682be45533530198858b1fc412a7a2b2ff621568b10448c4b4bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b40a3db7c82d933defbf21d561d5b0e05afe6b0c431ea6fe9e216fac75339b51",
+        "doc_id": "apg-typologies-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5fb7d848e15b42b376e7fa8d86d3f74a32696ed04dc430a2614123430d3c71b",
+        "doc_id": "apg-typologies-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1288e1e550d0a11f75691578e9caa25b12b2173f604b8b53adb4819b9e903da0",
+        "doc_id": "apg-typologies-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "acef6206ef60105fb0411ebd7273ef9ccc2026d659e0978710211bb7b525d5d3",
+        "doc_id": "apg-typologies-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "250ba5e20c5f95434df31842e8bb63ae12ce1405588cf637745bd8948e3a850b",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "29722f95ea6bdcdd12bc0c813fdf3b292db4b2e492c5df258b06bbaf7d3ce5cd",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6383b386e8d6da84cf43a8a9bf41dca9d86c0ce110614a870e02ef0c7c1c21f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2367e218b653e1872b7f6bc9323a3926d62f051f6de3288423bef23eca8ae5a5",
+        "doc_id": "apg-typologies-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ee9c19caba49bc9c229cb677dd7127618a636dd3ffa569bf355026c9b8f35f85",
+        "doc_id": "apg-typologies-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5c56f57731ca2ac8b9b80f03fd69101c4ab57af544228747f08e79ef14efef52",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bac7748ee33e3dcdacb30972d097090df0c37d3fd227445b5ece20a6c103070e",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d565216439db3ebcb1b046cee168e81110f6fd633c31a76c2fe217e5e6537fa3",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1bcd13b6bbb547b1079198e61d5c1758bf4eb7ece906130e449c69cb9c948909",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "597737750d93c4425209dfee019fddc5da527383914d096cd81172e4e0bef883",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5fb094f43a8b15f107417acf1625f46df3282d3d95959ff44718209b9740faa7",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c3538ad3085ce6222b819397350f3d9c93752a19429b57928ccb3372d0e29da",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a68c4e6cc0c3c6a4d6a36cbcbd2171a4e55f798252473679c30e6de0a68f31a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f4a14a356385339504e7ad9b4959ca09da8d4035b59f9b127ea82335c2f8ab08",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "311035851fddcb76386f723d855c067ebf70e830d7c1be97bfa600b2dcc03896",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "504d580a17f08f185fde011bdeb011abbd1ae05ad98a9ba0e63c9cd51a17c9e5",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e0ac4b2f93cb61d494432e5306e2740d6893a330ccf483546285f72e013c7503",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "27f4615bee96c0f798165243268a0b424695cc52b305cc0e0e7097a54d664214",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b66df0083ba8546e8268b074a31a38aef193c6dbf2022745a09182f7c2a8bcd4",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d6a32596e99e83ee337471270fdfad6f02aa477525db87cb89921ae58363e686",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5694df98347976fc24bf5e7b5a483d3cc1ae478c3c73dccd6362c39502d0534a",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "64b7ad8d6486bfb9db36fc89b3ec5913514ada9a579e5e84d0a44eede216cdf3",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "86167eec6b5e9ef45fac6b67df8e4c0cb08fde468842bad065b55cbc6de50837",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "479bce6594057edd2371064b33773c79f5a2f93c3957724c455ccc6bf2e91dce",
+        "doc_id": "apg-typologies-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dce24f63ab5845ad1dc3bbe380668e144e8cdad359b75b4fc0bcdbbbc7f59b6a",
+        "doc_id": "apg-typologies-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bdef2824b5fc579c604d5a1bb41f72b2d804d154b105ffb387f638c36147409b",
+        "doc_id": "apg-typologies-2025",
+        "page": 16,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fde973910c6de0f40a8456d0dbfb2bd06d39caf79f2f3b673102960e2244ad52",
+        "doc_id": "apg-typologies-2025",
+        "page": 16,
+        "grade": 0
+      },
+      {
+        "chunk_id": "30ef0492088557d1cde73030725c074a3b2225b113835fd5478991eb7b9856d5",
+        "doc_id": "apg-typologies-2025",
+        "page": 17,
+        "grade": 0
+      },
+      {
+        "chunk_id": "486cc4ae41188f42021b02fbf53c719cd12f0a441ef95c5bfce5bdc88833368b",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6cf203a2bb0fd0d27afd176638318d449bf149dbb6cda36a1f560fd9e385754d",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7d3ee6b8d10fe970e6f26020bffb08ca790b80eb34c774b9ad42c7f5d629077f",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "737ef20ca66342731e08aed97c5f95fb04d3610d8d2d1149b0fbdc9202a4f477",
+        "doc_id": "apg-typologies-2025",
+        "page": 19,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ff447fe61ce4729d45b6ece3eac9307b31d1b1a873d1c301001be573e677d81f",
+        "doc_id": "apg-typologies-2025",
+        "page": 19,
+        "grade": 0
+      },
+      {
+        "chunk_id": "84331c7f8f8f4334571eefc140dc91c876bc101967f5c14365737ed7dfb7d66b",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aef572fb389b13e3085eb3cede1e4db456c876a5768e7bdfb6d3cc7819bccad6",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc5f6fe91f632829c2ba1f095381ddaad17a7b049262028bbcc29204cce198c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc247c2daa4ab6821a137bb9c6ad022b3aee1dce3ec975cd36188783a760026d",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d46a3525cdc1466821961f4142033cc5f34c83456dc7f4e8e46283bd1512117a",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ebce5949fab377607c81d0b93d300bc43a03d6f82dc17d03c85be58c2d0b802c",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3b222b1bc57192c2a06d24fee122021b01d5f3fbf0f6bee60283dad4aa2ad6ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 22,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5ca0e214968af141c1ae66c49affa0bfdfdc1a82fb048a7564ef602b9251028",
+        "doc_id": "apg-typologies-2025",
+        "page": 22,
+        "grade": 0
+      },
+      {
+        "chunk_id": "be1dc7a1ecf9ceff9be3951bbb0590b60990caf7611f8425ee6c4f1364b55bbd",
+        "doc_id": "apg-typologies-2025",
+        "page": 23,
+        "grade": 0
+      },
+      {
+        "chunk_id": "54d5b726cd410531cff362fae0fa2d952b9296785faf826ae5f0189e3be096da",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a0bb0011953c30acf526fa590b76726fe7f3d79173ef4a8ab0196df84e14557e",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dd92626fcc286b7eadb3010067fc4899d9387a4af3f6715a3e4123020658a5da",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "59f74106b8587e4edd8f6761334582238a6e9e5372747379feb17bada6b25332",
+        "doc_id": "apg-typologies-2025",
+        "page": 25,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5d943a174a3b1c1ecc7657d2cbb905546d73d7143ad7b4f3a8717be64a074a6b",
+        "doc_id": "apg-typologies-2025",
+        "page": 25,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2146001a6b29a3a8cb117eb4a6f2855201b32e89d5bf0e722a0e8e355017375",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d9d5d6f685f6215128fcfc6d1941c0fc01e78689c25a287023e5d37d4b7000ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "db2a91f9edcac71a26e910ea5881cb3acf1202aa3dc0e469766d8985653707aa",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "985a48293f0236a115094ab14c89f82907c9e8d7ad999d8e81cc490b27aabce6",
+        "doc_id": "apg-typologies-2025",
+        "page": 27,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c03f1d57522c5fd4ab67f4e1d7585fc7865881b87706d261682aa439b9c175e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 27,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d39e52363e0836a6b7c9a5071023f22e2d9ebf57b01e859fba9f26a0fdf08c46",
+        "doc_id": "apg-typologies-2025",
+        "page": 28,
+        "grade": 0
+      },
+      {
+        "chunk_id": "02b0062d4bccb5a0105f49656156036b09d79cb669904eb733d9425bf3b3184a",
+        "doc_id": "apg-typologies-2025",
+        "page": 29,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f04f5d783c11ad363aadef2285ee04bf35584ad68c98069b0735e84230939392",
+        "doc_id": "apg-typologies-2025",
+        "page": 29,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0cf8188588350e76e6015e5f15789161d88784a1b84c2d7608306f69040dc298",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "158f5fc0e0099835db132fb5bf889705d599a5eb2b57a78e557961bee0bd5bfe",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3e86c9ce7345c4ed8db403591c00fe2cbaf302f41d7bcb3c1a0206653819b1f7",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aa3872e1cc32f7b5cd8df8b2cbb1ef02cc2aac4e16905bee6ebcac782b6ea882",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bd693423d08fcadff9f0de2cf9cdcbd26202b359e0378e65d5269ba03e20d39d",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4624d3f35f0dff00c7018a75aad97f2c481407b09e1ffb3dc09513838efef9b8",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc167c0dead55b49e80221e23b3a83bdc1ecb4ff0754796c37ca574e621aaa56",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ebaa973ed2c16ab1e2b5d7c2439d28d04f5d5b09dfd2f163796e0431ba3c9a16",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1649cffdcac01cd80af23562518deb630c58b94893bb2c21cd2a5c4a7c726073",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "632d65bc7ddf65d865b9b843cac34febdf922dd8c521141089a28affe63fd032",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b83570fe1c26725a95376d55479c2d6beddddee5ededa71f7898aa0a4225c1c9",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "02c6998e595786c51ad8561f313bc91d0031d929d9402c2e38953d703a799b9d",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1df5e04ee22df55e23b1a20311f989a5b274087830d5fa4a133ddcca97aee97c",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c6924610cb2cc62a46dc3deb21f6ed07eae9ac5b8df95a4ef2340440439dc796",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "24d53b526ab17fb2362e5e38ce3e8adf95f77f205fb79dbf488bf468f9fa06eb",
+        "doc_id": "apg-typologies-2025",
+        "page": 35,
+        "grade": 0
+      },
+      {
+        "chunk_id": "596d89a50c83ca5fa920d889b27e9a898dd526e169bc5381d68fa6cb3636cdfe",
+        "doc_id": "apg-typologies-2025",
+        "page": 35,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1fd2375b59faf04773181ac331ac124c918b124e66886ff8efc5eb8edca5e2de",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "24b2b947b4e8f20152f13bda17c8019c900cc612b11f57dcebca7d4878d92bf1",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "38e40751117a98330db51e92c20060b2098c8f56e007ec8f2ade0e6db9c2116b",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "50e990372acac7ade2318bb5f89b00572ee816aab5d56c3d51347921da66314e",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9dfeb917d3ab1fafdc483ced70db1f3b5ef5fe5df5f8a5152f5f3fbefa1c4344",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c5b92c0d81b3bca7713ca169467424fb7dec728c709d60f247b6dc5479875afa",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4ce8ca41a41b971186db8e4dead38664fce7dc9ca6f03b2416392b37356a3f7d",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "576359b11182b54ae41526bacbcf1780c62724d61dbbe051765c5b6410900072",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e702816cefc142a5a6b590f1631bfa7fbb9a95483fbd8da86a86576a72d1719f",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "132d0b12c936eaab887db48f26f1330bd6cb1bdcff1634684673215d63679d59",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2016143da9482e169685a9599f4b1a01f9d4effb52d3702dc70d4d0e66c6c174",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 0
+      },
+      {
+        "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 0
+      },
+      {
+        "chunk_id": "066609c9a34306cf1f22d67775cfdc0ea3ae5b2022ed86caab7f2d56cdfa1ab2",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "25bbb48f5b36bff23447a2ca037d2a03b0d71150af0f03726c29d378173a5607",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "746c9b9a477171d0bb6dbb9d990f412762be99fbd2dffc01c4c22655188a35a5",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3a291563857aa0d7e3d93d5f3fd6c79c9b1230524fb21774a1bb041e801bcbce",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ab95f8b102a827e32843bf85d2d6a48c91326d2b2cb1bc3bd101b720c6da8b5d",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5b66767fe7cd00890484762ea4756c3ba5cee07ce75cd802ff6344967fba370",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e29d24ae70dcaced1a3af838e59f2c04f2139328446bb0ed6454fced1cedc70c",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "eb7a9c890ae9096f8a3129e6d2cc5871d760746f45bae450b748d66ea9e8f767",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ff65bb8d909e96310c8d3f71a5e55ae7e9d6348f30ed4f3ae9466fecd3b71ccc",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0c901921e6e3487b3e936dac3460b27f2d0c99515f23cae637dd3258de1e6af3",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ca5b9bc8a3ccdb284998cc5bad152e50e081d0c794a2a4bfb3c5961b5a830ae1",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dcc282d8d503bf6ee2d1bd7ce8eab57288de5385385c77658ddec7bc3386a4d7",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "643dfafe18b8b5c67cb677bf00092601eeccc09bb331d7e34a859764e6b462ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 44,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f2afc450ca2a21d3cb52bfd367fcf713dfa061d373aa2487aed9f7c6ecd68b1e",
+        "doc_id": "apg-typologies-2025",
+        "page": 44,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2a78bb73a50f5056c6ca5d78f61f66d3735b1e095e7b4c71a29f52b4a72353c1",
+        "doc_id": "apg-typologies-2025",
+        "page": 45,
+        "grade": 0
+      },
+      {
+        "chunk_id": "35f80f33b998fbeec37b30c30eec42e734b84fb1b009bb9cf2b365e40cdc50cf",
+        "doc_id": "apg-typologies-2025",
+        "page": 45,
+        "grade": 0
+      },
+      {
+        "chunk_id": "52377ac08ad7a56d3c2fa5c3e6c1b06c804dff3416d42512e1cb5479261f5eef",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8957f01555611b015bee181532a7366ce86190e52b3779c5b5ecde7cedbc6f92",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8e487b69dc0baff6f0c0dcd6c0411ff1081f2d146b85d0deb157129385c2e5a7",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3c8af66a0f6ecb8a1c8475379b305c792bcc2bd06e8aad7ff00a1b90aa1e6769",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 0
+      },
+      {
+        "chunk_id": "44beb50e23f0e4a04590c98ada1c053a3fb4291abb5cef7e24b8063281e54038",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8be9e90ab686df9c96f3501c8a1f76d8b21732bf6578aefffebf8ec538e869cb",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 0
+      },
+      {
+        "chunk_id": "19396834ba30ede628acab2079d46a9dab434208b3673f60e327915026516335",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7cd56c7e47863a4e38922edfa69075e4f9ebc7ed9f76473041b4dfbef76a5bbc",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e211442e1486869d7dc4b1fc9c0c3b928917fc31049d188f6f62be9e2e7a6946",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "13f14fbc2cce40172ed1de56a04968b4a403031ca89f077d358b16cd66ec647a",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "23a3821b49dceaa7782efb9e53b96ed6c53b7dfba4bb7a54b8836c10f85d2194",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fa32e1b8b409723ccb6c3d589f3a938558e84dd937d54cfa47db1d31b3bf231a",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1abfa63640bd65598e59e176d48ef255da683971f9ff33ef30dcbca232a1e0be",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4a43a2dc4361b2c247c3dd778adcd51ab2dd3f9c06a5a1973ea47ee08e7833a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bde6044f2ebb40fbfa5278a26aa8288a7100f5b9086f2bfd6723d387fc328c32",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 0
+      },
+      {
+        "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 0
+      },
+      {
+        "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 0
+      },
+      {
+        "chunk_id": "470ebd0d71d2fcd4276f2a96ac20634fd1782b485ea864c2ae45ad558c9e1017",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9e6c9eea78b1649c7999844cb10b795ed1b1f6b5e0caa7475b6c0f88bf41e1a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ecd8d998470ca912972bc261207d654b17e6d40f9ab19687551d37fc1118cb22",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 2
+      },
+      {
+        "chunk_id": "63fcf30087566c1e312e181d905ed731f95b3d45685a05a64acd608902e177c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "71087f3703b426f5422b0032aabfcaeb0659d019aa43a46d5f035fec96cc962f",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d4ad880d4f30556da28b290be1088d517c973c9ddceafcc2363f96c03f470391",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7d656d184fbe94ab7ec00930a9e740bc9b0238bab37b5fcfc50460379605e22a",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aa83a6ebfb3a7dc17cdff9cb3fb369d36cb5897a2001e3f93499fd933eaf055d",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d52b4af2f9cf5bac8ed3e55c533c6682366884b06b3f7f6ab6f0ae6b9c967795",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "51c111155c52623df92592deab5e5b5e28e8cfe386ed6b1ff46f8d3364d06582",
+        "doc_id": "apg-typologies-2025",
+        "page": 56,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8b47a6d268b570ed776f0e06ff2ff3251e786fd72cf0ddae06175e2356e47ab5",
+        "doc_id": "apg-typologies-2025",
+        "page": 56,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b6a955e16a44d809fcb5d59b2d29e63e886f4932301fe227c1a7c0d7ea0a18bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 57,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1605fd964facdd76445c51c02b33ce1d319980fc282b901719f2ab0fab5902d2",
+        "doc_id": "apg-typologies-2025",
+        "page": 58,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9ee841f2480eb2576c78812e3402eb21e196406c36a57dca71e36bb60a9be6ea",
+        "doc_id": "apg-typologies-2025",
+        "page": 58,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b355799b0eff9664d4e15eb1c91e028ea390bd3da59b11deca4f122bd3da40ef",
+        "doc_id": "apg-typologies-2025",
+        "page": 59,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ef9ef68c4521b6b5f6fc6f956676502604e48dc3bc29a9cbe5b2d61942d1d4e2",
+        "doc_id": "apg-typologies-2025",
+        "page": 59,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a2ab2e9ec68814020693912af8af88827344598225c7fd0230aba2716f355b2d",
+        "doc_id": "apg-typologies-2025",
+        "page": 60,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c29a0e6517d2004fc6bb957aa1811fc711533adfa5214cab35eab70defda9872",
+        "doc_id": "apg-typologies-2025",
+        "page": 60,
+        "grade": 0
+      },
+      {
+        "chunk_id": "91d043fd8d01fc83579589d13e4c13156e78d84a3f6b330df45ae7c6d62c75e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 61,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f9070b8f383fd65ec3047106e44c04a9fc3402402ca8f657cc5fb41b1632c020",
+        "doc_id": "apg-typologies-2025",
+        "page": 61,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1fd7690af347927e0495a63898c8fec86f67d4a9bfaba4f7f26dda9bc2d4c1ad",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5482e2870dfaca69d9bd4eb01ea325824aed1fdcce00ad84fed48a45df25ceae",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ab0ad533138b8fd42f627ab0995e6f8b1af17bec3e29285b4e376f2bdcda2457",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6403c6763c235b0ad0c6be173f53386e079a7905f18385ae86004c38a4a18c4d",
+        "doc_id": "apg-typologies-2025",
+        "page": 63,
+        "grade": 0
+      },
+      {
+        "chunk_id": "85b46e7f54976ba0fbb47e00ff6b554b3cb502fdbc11b4fec083553b70518a15",
+        "doc_id": "apg-typologies-2025",
+        "page": 63,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f5e1edd1a698dc98a9957bb5cc57b71dcf0b019ca4ca245a91e9523fb3d307b5",
+        "doc_id": "apg-typologies-2025",
+        "page": 64,
+        "grade": 0
+      },
+      {
+        "chunk_id": "104a02189c91090a757081e638b72e54515a78ed7f2c35505b509c31a4de79ac",
+        "doc_id": "apg-typologies-2025",
+        "page": 65,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9bc995533fdd7a5111cf4f306dfb880e6b9ea7463a9101a569a87c4fc4e7b012",
+        "doc_id": "apg-typologies-2025",
+        "page": 65,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7237592097b605b9ed43ca99987bc0dc7a09568076400b946120107492bd531e",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8ae6dc54de1595cb40433880675012cd186a076a316dc533f4d08a962d11d57b",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dc177e17ea7b30e6b08afb342271d9ea52a5a829cc6c83545a1c3b4412ba5709",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "682b8c64dd86124481e11bab420372498c659e1eaa9fc0d980b5008a123a2f59",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8df7ee53f514110974434c45d031ffb2799bcdece413007ba1965c5342bc132d",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2d3bf29ef7804c513f73663b9ccd64d68c64b78245fc09883b7bebb2a669ee3",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "23bbbb58cc826914a725156d70b9f2aa0027b2e6c402125a175d6d204b25abf2",
+        "doc_id": "apg-typologies-2025",
+        "page": 68,
+        "grade": 0
+      },
+      {
+        "chunk_id": "acc577ff8fa2ba960e2a55c4579bad1508f06c6167afd2435f7d38f503b46781",
+        "doc_id": "apg-typologies-2025",
+        "page": 68,
+        "grade": 0
+      },
+      {
+        "chunk_id": "12fd543c35752f48306d4fa85bce2af3db409e310a9bdb7a1c7aa1f468772ba7",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "49921fd217bb9316bd42d4543a8bea0e8cbee282bbdc4c8a40d8ebd2a3a63ea5",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dfb962c2e3093d9245151e6a7c31f1a10cfe1702fd75fd2bef9d36f1b167a655",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4666a8013bafe776d698e1bfd31c5d4e25af1d270601e3d80fde4cae3d3359bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 70,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c0d9856d1e6aae448f1e5eca5d1d99e337e81b60d57c7f36cea65b6a392b5961",
+        "doc_id": "apg-typologies-2025",
+        "page": 70,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5191281e7f4a89f297bd908197c94ce15c4a0d1be9efc3f6ed7faacf398ab28f",
+        "doc_id": "apg-typologies-2025",
+        "page": 71,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c07e4b3bbf414e44ef34f237e05a7e6ad2d572920462c9295136cf76868d43d0",
+        "doc_id": "apg-typologies-2025",
+        "page": 71,
+        "grade": 0
+      },
+      {
+        "chunk_id": "36221d101a2643c081a801b2f618aa92d35782434eb6d9c9c8640527feaa4b6f",
+        "doc_id": "apg-typologies-2025",
+        "page": 72,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cacbbc0596ccb6481225ec3029cd86c6abcb3717d94059081ca10413800269ac",
+        "doc_id": "apg-typologies-2025",
+        "page": 72,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1ae0fe93d648fd87cd7bd4a009d9becacb6381dc6d7e4de510680f29e60ff91c",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3290fccd08ac314566b6a14f24ed4fd26fa3305a794c48891c678381d11d4494",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "92c834a8dac4cdd734bd8e688722d1e5882139b4e1fa05ad4c082a5bb1259371",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b5b00adb4975f6ecc6fdb093ec87c0dc0f5367aec0d2fb0a2a572b1716ce0846",
+        "doc_id": "apg-typologies-2025",
+        "page": 74,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ef2e7d1bbbe7f6b6ae0369f56f16bb4caf9ac633a407ddebf16e8d2e602da83d",
+        "doc_id": "apg-typologies-2025",
+        "page": 74,
+        "grade": 0
+      },
+      {
+        "chunk_id": "051f072e3adac869e7902b9dde1a553f08be199e3c5c76b3d44866feb7fbac6b",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "503cf4699e5ee18fff83209b7e9bdc3be8d1f3002d0bdbf80120ba21e89a7a33",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dfb4dc422a5fceb12fd646c4b55b25ae535b5f326d50f18edb723a8079c6cfdb",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "743c1ac05ba2cd9a696b6c80fbb0c42d74ff03e8b752f0202883edb23df831ec",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "84dd70d5eaf69a77a5901c3df6f1abadf144666c97243c0b1ddbec70233734a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f188947ac50ee64227617a499dd30e2943b3e156451db85f07070f6cbe84a9d4",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "44452d9e0c6404fb339dfac662d77ff8a4689952818423ca75115e704559d364",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4b56c6e54806a809de1d2499cf379d6af471943d1d3d4adad5973e2025d3b246",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ccbba3d4db17e99508509832fa4d6d0f8345366dc8706e0a64fc9a1d0be53e26",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f21ebcf42f6bdc73565ad4c973a779d06adb293b34f0eaa02f14835648a42a3e",
+        "doc_id": "apg-typologies-2025",
+        "page": 78,
+        "grade": 0
+      },
+      {
+        "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+        "doc_id": "apg-typologies-2025",
+        "page": 79,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+        "doc_id": "apg-typologies-2025",
+        "page": 79,
+        "grade": 2
+      },
+      {
+        "chunk_id": "268c21f4b1765ab7d05474e9405b0bf23e5503adc8552a88a5d0b2f42a8c113c",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bb86a32b04b36b24351c9710f89288da32a2986844ba6b03d923274954364957",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c55fa5faa208384f87d94d478ddf09d01136d8205c40b8c1a014f5a3183830d3",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "942518971f2ce699f4b71ce0fcb74d06b3c838df1747d337e3070cdfb3c791f6",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2cdda73b4885664a2d6f617b3e3a39210cdb3bf66a92e21a2bd062235a7be5ec",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5ab5967f77e62edde1d054b7e51a5ab1962604bcc5ed778eaed453215d89534c",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f892abdf4124cf7e4ba8825d3baf97bf30dbd3f868f5a1e1ff636b9029b0fd5e",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "803c7a26db72b06e6f7c25a87c8899d0e68f8b0956c5335bcea9ac0f50da0d58",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e8f2857c05426d9fcda10ae248ca9d0ae19c532857ccab2d3e5f4d38c0fe85ad",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f7464c4dce69aa6e2cd9450b56dc57f0b2bd074082988532f44c26192646d328",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "299a523488b8cc4863a1b29614b1cd5f63f1ac9e9ad0701c61e64a712cbe700f",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c68766f27e5b9b597e73efd65bf06e7302348f1bf6b508b0c6282ce67b1eb36",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8ab669dcf0e0882b102a6fc6f0090a761c918e899f361d2711694170bda64bb",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "17839ec1e90e4e49bcef854a0a5a4ae6ffc2928ed23e78619283b4c5ef62b61f",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "76ad97210cce582ad3b50faee038601339422cbeb4602e2d0a75e8233b9ba061",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "986cc0423575ca52d24368de49619a2ddb47c704373239dcc5a8c7d8327244d0",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0e494ce0628aa4510b373c084a2021f5446fd838c5c56170a0bfe11da30d336b",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "40d74196bef8d0605dbecc24add01201f22f6d771838a99ce09122b590e58a94",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d1dc69d38c7f9aa8164b8f2614acbf12065b87c35ba55a002c62cfdc9a557463",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9ab23b9fed9927009a5a63a3df62d0a7619526116a15701f5ee4a76e8702a395",
+        "doc_id": "apg-typologies-2025",
+        "page": 87,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ecca91617659851c401d925eaae37039e2c618653d40d1811aee7323095e4e17",
+        "doc_id": "apg-typologies-2025",
+        "page": 87,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8c16ef2af5a95a6d26e1078da9d8201ff3c644fc5d7b55d9885ad7c825de73a0",
+        "doc_id": "apg-typologies-2025",
+        "page": 88,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2e64f74265b9007e53e07c6871fe1908497fe68acb1046e7d5841fd1d691056",
+        "doc_id": "apg-typologies-2025",
+        "page": 88,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5fa9b24f34d8d6791fe355a2773c955b0bf5579d8f64ead08774bbc0d5015ee0",
+        "doc_id": "apg-typologies-2025",
+        "page": 89,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c088276141ad2178c0e56a45db15a9a5a6612b3ebecce3e23a64caa09f148ded",
+        "doc_id": "apg-typologies-2025",
+        "page": 89,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4d1dc4abe892fe28e4d27c0919e97f6f75df428f48987131c90c57bed57ba2ea",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "60f9333f7b96a530f176ff4cd4793d0e01a7506358ecd552c5a54d43fb5333b7",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6f847a266d21c2a2ae43e885c659ed693f49c9b4ac1e60867144f064ab9550b8",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "52928070999dd74b5fa778e4619b95c0b910b459bd5dc26b440ff5810cb91fe1",
+        "doc_id": "apg-typologies-2025",
+        "page": 91,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5ac5a0a7b2242d4d6156eb4a763f9d82fce9695651648cbd125b7bb9800d16f7",
+        "doc_id": "apg-typologies-2025",
+        "page": 91,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a5ed18447136108fde54f98ecd002db15cf9491c2010f8f5b0a871db1986d1ab",
+        "doc_id": "apg-typologies-2025",
+        "page": 92,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dd9d81c2032b5d9b2074fb543ddcb2ceabf93ff292009858cea2ea4825d606f5",
+        "doc_id": "apg-typologies-2025",
+        "page": 92,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4e459e59b162e5146f01fb69681002936d1e2f326854e78b4375abd5c8ffae8c",
+        "doc_id": "apg-typologies-2025",
+        "page": 93,
+        "grade": 0
+      },
+      {
+        "chunk_id": "904a6efd691f132ffc982be9eeb1288caec69603e2211458d208437834755a0b",
+        "doc_id": "apg-typologies-2025",
+        "page": 93,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0b4be313c2c6ef5d4f781cee7b624b47d8293fcc4bb764b89b89a62ba01bbfbe",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "803f66938b1b8590714367aba9bb6bc601ee44ac3a1c69d46aa0066828709702",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b51855569c4a8a4bbe26847f96698141c0f93017d4503d0fdc3da4a730f8bae4",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "01f2a0833d726a2fd457489c5ef9ddaf4d726354ac3c5f20bb6101fa70b930c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "39d480985ecad7f8f3a242d59132336458e8ec60e629d8f5263117730e012850",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f5b561b10ab09890ba2d8b232b9d98f50d3c49c211f8290c6460e56a15049b88",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b5fd9901abca91666235c81d289e5c5f0675d79acd6abff0d0231b3f9d05c8f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bfbab26d2fee1b3efd3ca7a9d68da55da1777f5dfea1f8e5d5dffaf229cfe6ed",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d7e6bb4236b0fd9d8d1d48054855d02ab04b636e3524f547771e3366b6634ba7",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0f3b57ee3dce7508200e519631a8948ddd955c05bf9f139ead39ad19ff58d250",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "465718995d1a13788d55c8bb2de75c653bc891101bc45362d859da3cbc6103e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8df0b1898b8f98a60d0a0eaa4fe2b71ffcd50e038db851299b36b646eb7eff7f",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a5ae66621933167a00c312321f82b0cd2097a706d06556baf0a42a323b97153e",
+        "doc_id": "apg-typologies-2025",
+        "page": 98,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1abbc22aabd70e4c88a52adb4340a4189861ac79c5fd8a08c5272be9de670101",
+        "doc_id": "apg-typologies-2025",
+        "page": 99,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ce2ed39233caabde11918f825985751bc03781108310c2d0208259615e3bbf9a",
+        "doc_id": "apg-typologies-2025",
+        "page": 99,
+        "grade": 0
+      },
+      {
+        "chunk_id": "659ee1c23336a96c3acc02f6afe6061a2d85b2a9ecc8cbc4e86fbc50a361c670",
+        "doc_id": "apg-typologies-2025",
+        "page": 100,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cafb9219ca3f767eeac61ee316291b85f9b74ba74aa06a7493fb14095180e76c",
+        "doc_id": "apg-typologies-2025",
+        "page": 101,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d70bb4049ae4beebf11d9f50c0914963a340261764b6e88b90ec5833bbd8ead4",
+        "doc_id": "apg-typologies-2025",
+        "page": 101,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0ee903b3a64e20f321b7903bb60c37813f630b7c38496b22269785ec656f0392",
+        "doc_id": "apg-typologies-2025",
+        "page": 102,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2502f1a90f9e6264ac005b6551735e2912b312a2d15962ee282c2000a12c00cc",
+        "doc_id": "fincen-cmln-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b381efbba785b462ad54b84dac25a202119c59cebe7d2cd94bb4165445d6827f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "67444f68fddbda3f8ffc35356f9abf15f112d09a71918873a0596c514d06501c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cf0c627f3b08ee56fecc2d6b8134a0b13d5c2f3c69e1f37b41752a059eacf670",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dc80027cb4ea503ca094f4807d29094bbedbbb37ecbe307025c5003ad91fc6da",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e23af4eab8d5e422afee262794edcaf6ee8b1e5689e36d593e88e5723d2f3d2f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f17780f35949a1900b1d88c60808ef24f50c3a03819c3c181a25db15698db150",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fc9ecf79f6249b0b1c80abe9234fdfaec7d492439aed78e9b8ccc6e6e7b68442",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "99cd1c0130f0147b525f4819914a596be501a53fb0f124004c6138b3b130a6ea",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c1640a7c6b3b7b5a4ad96d3da973d46821132c9bf3d735515970187314a5cc76",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c385dbf1d6c055b704267acafc19a6cab9e8703af7e4daacfeff262926799d3a",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "426697880c88bf5b67c89cff10de7de668eea749c7dfe913a05c1980e818715b",
+        "doc_id": "fincen-cmln-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "afebed2a5d06f41a7d88e155ee8de2a5119725b44edd5cb97b321ec320d13412",
+        "doc_id": "fincen-cmln-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4cd152108b43eb2c5dec10c9586afbea006a612310503b1af2db106f7a9bf630",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6f035d080925a7e0e53b583d1fdeabf130480e8d7f5a81b00749d0545530a4fa",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a6b4f703cd4da5ba5109a276828077443444b87eafdafadcde75c9010ca024dd",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "984ea39aa73e18db1787643eeb1a0334da0df60a5c5e556943c3d93d4b0eea60",
+        "doc_id": "fincen-cmln-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d0d4b5ac06ace095955a26d24a833f06b542fa219e163da9d7097f970b61cf3f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d9565451d1cce706a5f7dc801681a48a8dee0b0722b51c1ebff87aec5d4d3e75",
+        "doc_id": "fincen-cmln-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "daa76eb692982b9128d9b3a88248eb95416d3754945b7b5254878f4a27a05b4f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c6ed0a9e8a8434da76f241d3285523a2b84a07207bdd16f3f51fc9eb91bf86a7",
+        "doc_id": "fincen-cmln-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d621d4a93bb1184320ef11b4b26380cdeb208363b60cdfa32ff78a583cb810b5",
+        "doc_id": "fincen-cmln-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0be4522417587d0be5431d49a159e975fd0e3a95ab2533bba6e74f59eb0a9fd8",
+        "doc_id": "fincen-cmln-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "65a5971e4d5a57e93d8c47ea7e78bd6eb4e4a885e3c73b48eb404e3ff6231241",
+        "doc_id": "fincen-cmln-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "32272207d66c459e5d4ee34a4e9332e042534e6304c2775bef8c20bd7c8ac4b2",
+        "doc_id": "fincen-cmln-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a41f012b3743c4da47cf69f70bcac820e3d549b779cb8378624872d006319cab",
+        "doc_id": "fincen-cmln-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "32076d1c6f8968f63e0c25dbfc0bc59f6d74adc10b51062a298274b0df4ea4f8",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "58999d31ef4ae9032e655228d7bc59d8784357109ed21265f3df3cf1a132032f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "832ce13e186229baab3a282e73f43a3baee749c659096da561dad004d6e9ba4c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "357d6e03eb87bd5d66be3ae1c96e475b9322a9664a3c93c22fc5f22f6b5be297",
+        "doc_id": "fincen-cmln-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a1e350599d9ae1564b85671c64d71b67afd62f3bde8a7f6c1c5f2e12ac22e307",
+        "doc_id": "fincen-cmln-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "25d1ef7b7ebe24a3ffd746b0af0c04b207b00711d7f8658fc37fad561316e761",
+        "doc_id": "fincen-cmln-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5c38ed494ccedc2ad68b0d94895a032f655adeda2fffb474c8fb6fd22a5f9339",
+        "doc_id": "fincen-cmln-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "27b4d07b1045607fe0bad096a853ba96d20a8a9bba34cdd40cb5be03cc1c1c0c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "573667c8e607ff9c91cbc3c3fe63f752839a682998b11d606f64f74e676a7c12",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "95817b5018507eb42c8cc3977598df5e7e7eadd02ac900ac512dce7432d13068",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8131374cb4617232c58f916dc47b69e29404fe2a131e54a4e37e222b41ecf28",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "81f15b813d269241acce821a6abc254c2bfcff8c1ca2e6837c1efc38ae93ba80",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 1
+      },
+      {
+        "chunk_id": "43f9ccdb1fbfaf0d95d62969a70bc1d8021f853ff9961b62c6ec9cd801b5a1f2",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 1
+      },
+      {
+        "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "871c7a697787633607f8329a9f2afb4d3542c02bc2fc717aeb65544f38486b93",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 6,
+        "grade": 1
+      },
+      {
+        "chunk_id": "5d60dbc1c5d97c4172c538d4f0e552d486f4075e90f9872eac0eb8b092ab0c02",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f7d35b12f7c6015c7bedb98544cdce45531ab211cf22bac679dbb822d36f5d20",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 8,
+        "grade": 0
+      }
+    ],
+    "SCATTER_GATHER": [
+      {
+        "chunk_id": "2d2856cf174b811f87d9185b48f8116c576e6bfc79da300950d1a51f520dc2c1",
+        "doc_id": "apg-typologies-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "29858868cbb4ed5eb19d5b0e3c84fa0157da464977b682869597fb297f5b43da",
+        "doc_id": "apg-typologies-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "57e579ee7b1fbce507f1cc2d509efcabb0bbd10c413d95b569c3befa39fd53f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7c28138e41c6682be45533530198858b1fc412a7a2b2ff621568b10448c4b4bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b40a3db7c82d933defbf21d561d5b0e05afe6b0c431ea6fe9e216fac75339b51",
+        "doc_id": "apg-typologies-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5fb7d848e15b42b376e7fa8d86d3f74a32696ed04dc430a2614123430d3c71b",
+        "doc_id": "apg-typologies-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1288e1e550d0a11f75691578e9caa25b12b2173f604b8b53adb4819b9e903da0",
+        "doc_id": "apg-typologies-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "acef6206ef60105fb0411ebd7273ef9ccc2026d659e0978710211bb7b525d5d3",
+        "doc_id": "apg-typologies-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "250ba5e20c5f95434df31842e8bb63ae12ce1405588cf637745bd8948e3a850b",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "29722f95ea6bdcdd12bc0c813fdf3b292db4b2e492c5df258b06bbaf7d3ce5cd",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6383b386e8d6da84cf43a8a9bf41dca9d86c0ce110614a870e02ef0c7c1c21f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2367e218b653e1872b7f6bc9323a3926d62f051f6de3288423bef23eca8ae5a5",
+        "doc_id": "apg-typologies-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ee9c19caba49bc9c229cb677dd7127618a636dd3ffa569bf355026c9b8f35f85",
+        "doc_id": "apg-typologies-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5c56f57731ca2ac8b9b80f03fd69101c4ab57af544228747f08e79ef14efef52",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bac7748ee33e3dcdacb30972d097090df0c37d3fd227445b5ece20a6c103070e",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d565216439db3ebcb1b046cee168e81110f6fd633c31a76c2fe217e5e6537fa3",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1bcd13b6bbb547b1079198e61d5c1758bf4eb7ece906130e449c69cb9c948909",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "597737750d93c4425209dfee019fddc5da527383914d096cd81172e4e0bef883",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5fb094f43a8b15f107417acf1625f46df3282d3d95959ff44718209b9740faa7",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c3538ad3085ce6222b819397350f3d9c93752a19429b57928ccb3372d0e29da",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a68c4e6cc0c3c6a4d6a36cbcbd2171a4e55f798252473679c30e6de0a68f31a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f4a14a356385339504e7ad9b4959ca09da8d4035b59f9b127ea82335c2f8ab08",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "311035851fddcb76386f723d855c067ebf70e830d7c1be97bfa600b2dcc03896",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "504d580a17f08f185fde011bdeb011abbd1ae05ad98a9ba0e63c9cd51a17c9e5",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e0ac4b2f93cb61d494432e5306e2740d6893a330ccf483546285f72e013c7503",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "27f4615bee96c0f798165243268a0b424695cc52b305cc0e0e7097a54d664214",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b66df0083ba8546e8268b074a31a38aef193c6dbf2022745a09182f7c2a8bcd4",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d6a32596e99e83ee337471270fdfad6f02aa477525db87cb89921ae58363e686",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5694df98347976fc24bf5e7b5a483d3cc1ae478c3c73dccd6362c39502d0534a",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "64b7ad8d6486bfb9db36fc89b3ec5913514ada9a579e5e84d0a44eede216cdf3",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "86167eec6b5e9ef45fac6b67df8e4c0cb08fde468842bad065b55cbc6de50837",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "479bce6594057edd2371064b33773c79f5a2f93c3957724c455ccc6bf2e91dce",
+        "doc_id": "apg-typologies-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dce24f63ab5845ad1dc3bbe380668e144e8cdad359b75b4fc0bcdbbbc7f59b6a",
+        "doc_id": "apg-typologies-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bdef2824b5fc579c604d5a1bb41f72b2d804d154b105ffb387f638c36147409b",
+        "doc_id": "apg-typologies-2025",
+        "page": 16,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fde973910c6de0f40a8456d0dbfb2bd06d39caf79f2f3b673102960e2244ad52",
+        "doc_id": "apg-typologies-2025",
+        "page": 16,
+        "grade": 0
+      },
+      {
+        "chunk_id": "30ef0492088557d1cde73030725c074a3b2225b113835fd5478991eb7b9856d5",
+        "doc_id": "apg-typologies-2025",
+        "page": 17,
+        "grade": 0
+      },
+      {
+        "chunk_id": "486cc4ae41188f42021b02fbf53c719cd12f0a441ef95c5bfce5bdc88833368b",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6cf203a2bb0fd0d27afd176638318d449bf149dbb6cda36a1f560fd9e385754d",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7d3ee6b8d10fe970e6f26020bffb08ca790b80eb34c774b9ad42c7f5d629077f",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "737ef20ca66342731e08aed97c5f95fb04d3610d8d2d1149b0fbdc9202a4f477",
+        "doc_id": "apg-typologies-2025",
+        "page": 19,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ff447fe61ce4729d45b6ece3eac9307b31d1b1a873d1c301001be573e677d81f",
+        "doc_id": "apg-typologies-2025",
+        "page": 19,
+        "grade": 0
+      },
+      {
+        "chunk_id": "84331c7f8f8f4334571eefc140dc91c876bc101967f5c14365737ed7dfb7d66b",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aef572fb389b13e3085eb3cede1e4db456c876a5768e7bdfb6d3cc7819bccad6",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc5f6fe91f632829c2ba1f095381ddaad17a7b049262028bbcc29204cce198c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc247c2daa4ab6821a137bb9c6ad022b3aee1dce3ec975cd36188783a760026d",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d46a3525cdc1466821961f4142033cc5f34c83456dc7f4e8e46283bd1512117a",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ebce5949fab377607c81d0b93d300bc43a03d6f82dc17d03c85be58c2d0b802c",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3b222b1bc57192c2a06d24fee122021b01d5f3fbf0f6bee60283dad4aa2ad6ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 22,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5ca0e214968af141c1ae66c49affa0bfdfdc1a82fb048a7564ef602b9251028",
+        "doc_id": "apg-typologies-2025",
+        "page": 22,
+        "grade": 0
+      },
+      {
+        "chunk_id": "be1dc7a1ecf9ceff9be3951bbb0590b60990caf7611f8425ee6c4f1364b55bbd",
+        "doc_id": "apg-typologies-2025",
+        "page": 23,
+        "grade": 0
+      },
+      {
+        "chunk_id": "54d5b726cd410531cff362fae0fa2d952b9296785faf826ae5f0189e3be096da",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a0bb0011953c30acf526fa590b76726fe7f3d79173ef4a8ab0196df84e14557e",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dd92626fcc286b7eadb3010067fc4899d9387a4af3f6715a3e4123020658a5da",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "59f74106b8587e4edd8f6761334582238a6e9e5372747379feb17bada6b25332",
+        "doc_id": "apg-typologies-2025",
+        "page": 25,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5d943a174a3b1c1ecc7657d2cbb905546d73d7143ad7b4f3a8717be64a074a6b",
+        "doc_id": "apg-typologies-2025",
+        "page": 25,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2146001a6b29a3a8cb117eb4a6f2855201b32e89d5bf0e722a0e8e355017375",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d9d5d6f685f6215128fcfc6d1941c0fc01e78689c25a287023e5d37d4b7000ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "db2a91f9edcac71a26e910ea5881cb3acf1202aa3dc0e469766d8985653707aa",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "985a48293f0236a115094ab14c89f82907c9e8d7ad999d8e81cc490b27aabce6",
+        "doc_id": "apg-typologies-2025",
+        "page": 27,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c03f1d57522c5fd4ab67f4e1d7585fc7865881b87706d261682aa439b9c175e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 27,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d39e52363e0836a6b7c9a5071023f22e2d9ebf57b01e859fba9f26a0fdf08c46",
+        "doc_id": "apg-typologies-2025",
+        "page": 28,
+        "grade": 0
+      },
+      {
+        "chunk_id": "02b0062d4bccb5a0105f49656156036b09d79cb669904eb733d9425bf3b3184a",
+        "doc_id": "apg-typologies-2025",
+        "page": 29,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f04f5d783c11ad363aadef2285ee04bf35584ad68c98069b0735e84230939392",
+        "doc_id": "apg-typologies-2025",
+        "page": 29,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0cf8188588350e76e6015e5f15789161d88784a1b84c2d7608306f69040dc298",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "158f5fc0e0099835db132fb5bf889705d599a5eb2b57a78e557961bee0bd5bfe",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3e86c9ce7345c4ed8db403591c00fe2cbaf302f41d7bcb3c1a0206653819b1f7",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aa3872e1cc32f7b5cd8df8b2cbb1ef02cc2aac4e16905bee6ebcac782b6ea882",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bd693423d08fcadff9f0de2cf9cdcbd26202b359e0378e65d5269ba03e20d39d",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4624d3f35f0dff00c7018a75aad97f2c481407b09e1ffb3dc09513838efef9b8",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc167c0dead55b49e80221e23b3a83bdc1ecb4ff0754796c37ca574e621aaa56",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ebaa973ed2c16ab1e2b5d7c2439d28d04f5d5b09dfd2f163796e0431ba3c9a16",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1649cffdcac01cd80af23562518deb630c58b94893bb2c21cd2a5c4a7c726073",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "632d65bc7ddf65d865b9b843cac34febdf922dd8c521141089a28affe63fd032",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b83570fe1c26725a95376d55479c2d6beddddee5ededa71f7898aa0a4225c1c9",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "02c6998e595786c51ad8561f313bc91d0031d929d9402c2e38953d703a799b9d",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1df5e04ee22df55e23b1a20311f989a5b274087830d5fa4a133ddcca97aee97c",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c6924610cb2cc62a46dc3deb21f6ed07eae9ac5b8df95a4ef2340440439dc796",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "24d53b526ab17fb2362e5e38ce3e8adf95f77f205fb79dbf488bf468f9fa06eb",
+        "doc_id": "apg-typologies-2025",
+        "page": 35,
+        "grade": 0
+      },
+      {
+        "chunk_id": "596d89a50c83ca5fa920d889b27e9a898dd526e169bc5381d68fa6cb3636cdfe",
+        "doc_id": "apg-typologies-2025",
+        "page": 35,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1fd2375b59faf04773181ac331ac124c918b124e66886ff8efc5eb8edca5e2de",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "24b2b947b4e8f20152f13bda17c8019c900cc612b11f57dcebca7d4878d92bf1",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "38e40751117a98330db51e92c20060b2098c8f56e007ec8f2ade0e6db9c2116b",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "50e990372acac7ade2318bb5f89b00572ee816aab5d56c3d51347921da66314e",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9dfeb917d3ab1fafdc483ced70db1f3b5ef5fe5df5f8a5152f5f3fbefa1c4344",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c5b92c0d81b3bca7713ca169467424fb7dec728c709d60f247b6dc5479875afa",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4ce8ca41a41b971186db8e4dead38664fce7dc9ca6f03b2416392b37356a3f7d",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "576359b11182b54ae41526bacbcf1780c62724d61dbbe051765c5b6410900072",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e702816cefc142a5a6b590f1631bfa7fbb9a95483fbd8da86a86576a72d1719f",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "132d0b12c936eaab887db48f26f1330bd6cb1bdcff1634684673215d63679d59",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2016143da9482e169685a9599f4b1a01f9d4effb52d3702dc70d4d0e66c6c174",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 0
+      },
+      {
+        "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 0
+      },
+      {
+        "chunk_id": "066609c9a34306cf1f22d67775cfdc0ea3ae5b2022ed86caab7f2d56cdfa1ab2",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "25bbb48f5b36bff23447a2ca037d2a03b0d71150af0f03726c29d378173a5607",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "746c9b9a477171d0bb6dbb9d990f412762be99fbd2dffc01c4c22655188a35a5",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3a291563857aa0d7e3d93d5f3fd6c79c9b1230524fb21774a1bb041e801bcbce",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ab95f8b102a827e32843bf85d2d6a48c91326d2b2cb1bc3bd101b720c6da8b5d",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5b66767fe7cd00890484762ea4756c3ba5cee07ce75cd802ff6344967fba370",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e29d24ae70dcaced1a3af838e59f2c04f2139328446bb0ed6454fced1cedc70c",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "eb7a9c890ae9096f8a3129e6d2cc5871d760746f45bae450b748d66ea9e8f767",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ff65bb8d909e96310c8d3f71a5e55ae7e9d6348f30ed4f3ae9466fecd3b71ccc",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0c901921e6e3487b3e936dac3460b27f2d0c99515f23cae637dd3258de1e6af3",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ca5b9bc8a3ccdb284998cc5bad152e50e081d0c794a2a4bfb3c5961b5a830ae1",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dcc282d8d503bf6ee2d1bd7ce8eab57288de5385385c77658ddec7bc3386a4d7",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "643dfafe18b8b5c67cb677bf00092601eeccc09bb331d7e34a859764e6b462ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 44,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f2afc450ca2a21d3cb52bfd367fcf713dfa061d373aa2487aed9f7c6ecd68b1e",
+        "doc_id": "apg-typologies-2025",
+        "page": 44,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2a78bb73a50f5056c6ca5d78f61f66d3735b1e095e7b4c71a29f52b4a72353c1",
+        "doc_id": "apg-typologies-2025",
+        "page": 45,
+        "grade": 0
+      },
+      {
+        "chunk_id": "35f80f33b998fbeec37b30c30eec42e734b84fb1b009bb9cf2b365e40cdc50cf",
+        "doc_id": "apg-typologies-2025",
+        "page": 45,
+        "grade": 0
+      },
+      {
+        "chunk_id": "52377ac08ad7a56d3c2fa5c3e6c1b06c804dff3416d42512e1cb5479261f5eef",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8957f01555611b015bee181532a7366ce86190e52b3779c5b5ecde7cedbc6f92",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8e487b69dc0baff6f0c0dcd6c0411ff1081f2d146b85d0deb157129385c2e5a7",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3c8af66a0f6ecb8a1c8475379b305c792bcc2bd06e8aad7ff00a1b90aa1e6769",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 0
+      },
+      {
+        "chunk_id": "44beb50e23f0e4a04590c98ada1c053a3fb4291abb5cef7e24b8063281e54038",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8be9e90ab686df9c96f3501c8a1f76d8b21732bf6578aefffebf8ec538e869cb",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 0
+      },
+      {
+        "chunk_id": "19396834ba30ede628acab2079d46a9dab434208b3673f60e327915026516335",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7cd56c7e47863a4e38922edfa69075e4f9ebc7ed9f76473041b4dfbef76a5bbc",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e211442e1486869d7dc4b1fc9c0c3b928917fc31049d188f6f62be9e2e7a6946",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "13f14fbc2cce40172ed1de56a04968b4a403031ca89f077d358b16cd66ec647a",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "23a3821b49dceaa7782efb9e53b96ed6c53b7dfba4bb7a54b8836c10f85d2194",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fa32e1b8b409723ccb6c3d589f3a938558e84dd937d54cfa47db1d31b3bf231a",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1abfa63640bd65598e59e176d48ef255da683971f9ff33ef30dcbca232a1e0be",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4a43a2dc4361b2c247c3dd778adcd51ab2dd3f9c06a5a1973ea47ee08e7833a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bde6044f2ebb40fbfa5278a26aa8288a7100f5b9086f2bfd6723d387fc328c32",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 0
+      },
+      {
+        "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 0
+      },
+      {
+        "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 1
+      },
+      {
+        "chunk_id": "470ebd0d71d2fcd4276f2a96ac20634fd1782b485ea864c2ae45ad558c9e1017",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9e6c9eea78b1649c7999844cb10b795ed1b1f6b5e0caa7475b6c0f88bf41e1a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ecd8d998470ca912972bc261207d654b17e6d40f9ab19687551d37fc1118cb22",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 1
+      },
+      {
+        "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 0
+      },
+      {
+        "chunk_id": "63fcf30087566c1e312e181d905ed731f95b3d45685a05a64acd608902e177c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "71087f3703b426f5422b0032aabfcaeb0659d019aa43a46d5f035fec96cc962f",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d4ad880d4f30556da28b290be1088d517c973c9ddceafcc2363f96c03f470391",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7d656d184fbe94ab7ec00930a9e740bc9b0238bab37b5fcfc50460379605e22a",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aa83a6ebfb3a7dc17cdff9cb3fb369d36cb5897a2001e3f93499fd933eaf055d",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d52b4af2f9cf5bac8ed3e55c533c6682366884b06b3f7f6ab6f0ae6b9c967795",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "51c111155c52623df92592deab5e5b5e28e8cfe386ed6b1ff46f8d3364d06582",
+        "doc_id": "apg-typologies-2025",
+        "page": 56,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8b47a6d268b570ed776f0e06ff2ff3251e786fd72cf0ddae06175e2356e47ab5",
+        "doc_id": "apg-typologies-2025",
+        "page": 56,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b6a955e16a44d809fcb5d59b2d29e63e886f4932301fe227c1a7c0d7ea0a18bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 57,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1605fd964facdd76445c51c02b33ce1d319980fc282b901719f2ab0fab5902d2",
+        "doc_id": "apg-typologies-2025",
+        "page": 58,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9ee841f2480eb2576c78812e3402eb21e196406c36a57dca71e36bb60a9be6ea",
+        "doc_id": "apg-typologies-2025",
+        "page": 58,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b355799b0eff9664d4e15eb1c91e028ea390bd3da59b11deca4f122bd3da40ef",
+        "doc_id": "apg-typologies-2025",
+        "page": 59,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ef9ef68c4521b6b5f6fc6f956676502604e48dc3bc29a9cbe5b2d61942d1d4e2",
+        "doc_id": "apg-typologies-2025",
+        "page": 59,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a2ab2e9ec68814020693912af8af88827344598225c7fd0230aba2716f355b2d",
+        "doc_id": "apg-typologies-2025",
+        "page": 60,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c29a0e6517d2004fc6bb957aa1811fc711533adfa5214cab35eab70defda9872",
+        "doc_id": "apg-typologies-2025",
+        "page": 60,
+        "grade": 0
+      },
+      {
+        "chunk_id": "91d043fd8d01fc83579589d13e4c13156e78d84a3f6b330df45ae7c6d62c75e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 61,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f9070b8f383fd65ec3047106e44c04a9fc3402402ca8f657cc5fb41b1632c020",
+        "doc_id": "apg-typologies-2025",
+        "page": 61,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1fd7690af347927e0495a63898c8fec86f67d4a9bfaba4f7f26dda9bc2d4c1ad",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5482e2870dfaca69d9bd4eb01ea325824aed1fdcce00ad84fed48a45df25ceae",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ab0ad533138b8fd42f627ab0995e6f8b1af17bec3e29285b4e376f2bdcda2457",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6403c6763c235b0ad0c6be173f53386e079a7905f18385ae86004c38a4a18c4d",
+        "doc_id": "apg-typologies-2025",
+        "page": 63,
+        "grade": 0
+      },
+      {
+        "chunk_id": "85b46e7f54976ba0fbb47e00ff6b554b3cb502fdbc11b4fec083553b70518a15",
+        "doc_id": "apg-typologies-2025",
+        "page": 63,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f5e1edd1a698dc98a9957bb5cc57b71dcf0b019ca4ca245a91e9523fb3d307b5",
+        "doc_id": "apg-typologies-2025",
+        "page": 64,
+        "grade": 0
+      },
+      {
+        "chunk_id": "104a02189c91090a757081e638b72e54515a78ed7f2c35505b509c31a4de79ac",
+        "doc_id": "apg-typologies-2025",
+        "page": 65,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9bc995533fdd7a5111cf4f306dfb880e6b9ea7463a9101a569a87c4fc4e7b012",
+        "doc_id": "apg-typologies-2025",
+        "page": 65,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7237592097b605b9ed43ca99987bc0dc7a09568076400b946120107492bd531e",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8ae6dc54de1595cb40433880675012cd186a076a316dc533f4d08a962d11d57b",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dc177e17ea7b30e6b08afb342271d9ea52a5a829cc6c83545a1c3b4412ba5709",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "682b8c64dd86124481e11bab420372498c659e1eaa9fc0d980b5008a123a2f59",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8df7ee53f514110974434c45d031ffb2799bcdece413007ba1965c5342bc132d",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2d3bf29ef7804c513f73663b9ccd64d68c64b78245fc09883b7bebb2a669ee3",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "23bbbb58cc826914a725156d70b9f2aa0027b2e6c402125a175d6d204b25abf2",
+        "doc_id": "apg-typologies-2025",
+        "page": 68,
+        "grade": 0
+      },
+      {
+        "chunk_id": "acc577ff8fa2ba960e2a55c4579bad1508f06c6167afd2435f7d38f503b46781",
+        "doc_id": "apg-typologies-2025",
+        "page": 68,
+        "grade": 0
+      },
+      {
+        "chunk_id": "12fd543c35752f48306d4fa85bce2af3db409e310a9bdb7a1c7aa1f468772ba7",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "49921fd217bb9316bd42d4543a8bea0e8cbee282bbdc4c8a40d8ebd2a3a63ea5",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dfb962c2e3093d9245151e6a7c31f1a10cfe1702fd75fd2bef9d36f1b167a655",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4666a8013bafe776d698e1bfd31c5d4e25af1d270601e3d80fde4cae3d3359bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 70,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c0d9856d1e6aae448f1e5eca5d1d99e337e81b60d57c7f36cea65b6a392b5961",
+        "doc_id": "apg-typologies-2025",
+        "page": 70,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5191281e7f4a89f297bd908197c94ce15c4a0d1be9efc3f6ed7faacf398ab28f",
+        "doc_id": "apg-typologies-2025",
+        "page": 71,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c07e4b3bbf414e44ef34f237e05a7e6ad2d572920462c9295136cf76868d43d0",
+        "doc_id": "apg-typologies-2025",
+        "page": 71,
+        "grade": 0
+      },
+      {
+        "chunk_id": "36221d101a2643c081a801b2f618aa92d35782434eb6d9c9c8640527feaa4b6f",
+        "doc_id": "apg-typologies-2025",
+        "page": 72,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cacbbc0596ccb6481225ec3029cd86c6abcb3717d94059081ca10413800269ac",
+        "doc_id": "apg-typologies-2025",
+        "page": 72,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1ae0fe93d648fd87cd7bd4a009d9becacb6381dc6d7e4de510680f29e60ff91c",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3290fccd08ac314566b6a14f24ed4fd26fa3305a794c48891c678381d11d4494",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "92c834a8dac4cdd734bd8e688722d1e5882139b4e1fa05ad4c082a5bb1259371",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b5b00adb4975f6ecc6fdb093ec87c0dc0f5367aec0d2fb0a2a572b1716ce0846",
+        "doc_id": "apg-typologies-2025",
+        "page": 74,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ef2e7d1bbbe7f6b6ae0369f56f16bb4caf9ac633a407ddebf16e8d2e602da83d",
+        "doc_id": "apg-typologies-2025",
+        "page": 74,
+        "grade": 0
+      },
+      {
+        "chunk_id": "051f072e3adac869e7902b9dde1a553f08be199e3c5c76b3d44866feb7fbac6b",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "503cf4699e5ee18fff83209b7e9bdc3be8d1f3002d0bdbf80120ba21e89a7a33",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dfb4dc422a5fceb12fd646c4b55b25ae535b5f326d50f18edb723a8079c6cfdb",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "743c1ac05ba2cd9a696b6c80fbb0c42d74ff03e8b752f0202883edb23df831ec",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "84dd70d5eaf69a77a5901c3df6f1abadf144666c97243c0b1ddbec70233734a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f188947ac50ee64227617a499dd30e2943b3e156451db85f07070f6cbe84a9d4",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "44452d9e0c6404fb339dfac662d77ff8a4689952818423ca75115e704559d364",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4b56c6e54806a809de1d2499cf379d6af471943d1d3d4adad5973e2025d3b246",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ccbba3d4db17e99508509832fa4d6d0f8345366dc8706e0a64fc9a1d0be53e26",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f21ebcf42f6bdc73565ad4c973a779d06adb293b34f0eaa02f14835648a42a3e",
+        "doc_id": "apg-typologies-2025",
+        "page": 78,
+        "grade": 0
+      },
+      {
+        "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+        "doc_id": "apg-typologies-2025",
+        "page": 79,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+        "doc_id": "apg-typologies-2025",
+        "page": 79,
+        "grade": 0
+      },
+      {
+        "chunk_id": "268c21f4b1765ab7d05474e9405b0bf23e5503adc8552a88a5d0b2f42a8c113c",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bb86a32b04b36b24351c9710f89288da32a2986844ba6b03d923274954364957",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c55fa5faa208384f87d94d478ddf09d01136d8205c40b8c1a014f5a3183830d3",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "942518971f2ce699f4b71ce0fcb74d06b3c838df1747d337e3070cdfb3c791f6",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2cdda73b4885664a2d6f617b3e3a39210cdb3bf66a92e21a2bd062235a7be5ec",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5ab5967f77e62edde1d054b7e51a5ab1962604bcc5ed778eaed453215d89534c",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f892abdf4124cf7e4ba8825d3baf97bf30dbd3f868f5a1e1ff636b9029b0fd5e",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "803c7a26db72b06e6f7c25a87c8899d0e68f8b0956c5335bcea9ac0f50da0d58",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e8f2857c05426d9fcda10ae248ca9d0ae19c532857ccab2d3e5f4d38c0fe85ad",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f7464c4dce69aa6e2cd9450b56dc57f0b2bd074082988532f44c26192646d328",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "299a523488b8cc4863a1b29614b1cd5f63f1ac9e9ad0701c61e64a712cbe700f",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c68766f27e5b9b597e73efd65bf06e7302348f1bf6b508b0c6282ce67b1eb36",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8ab669dcf0e0882b102a6fc6f0090a761c918e899f361d2711694170bda64bb",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "17839ec1e90e4e49bcef854a0a5a4ae6ffc2928ed23e78619283b4c5ef62b61f",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "76ad97210cce582ad3b50faee038601339422cbeb4602e2d0a75e8233b9ba061",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "986cc0423575ca52d24368de49619a2ddb47c704373239dcc5a8c7d8327244d0",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0e494ce0628aa4510b373c084a2021f5446fd838c5c56170a0bfe11da30d336b",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "40d74196bef8d0605dbecc24add01201f22f6d771838a99ce09122b590e58a94",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d1dc69d38c7f9aa8164b8f2614acbf12065b87c35ba55a002c62cfdc9a557463",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9ab23b9fed9927009a5a63a3df62d0a7619526116a15701f5ee4a76e8702a395",
+        "doc_id": "apg-typologies-2025",
+        "page": 87,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ecca91617659851c401d925eaae37039e2c618653d40d1811aee7323095e4e17",
+        "doc_id": "apg-typologies-2025",
+        "page": 87,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8c16ef2af5a95a6d26e1078da9d8201ff3c644fc5d7b55d9885ad7c825de73a0",
+        "doc_id": "apg-typologies-2025",
+        "page": 88,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2e64f74265b9007e53e07c6871fe1908497fe68acb1046e7d5841fd1d691056",
+        "doc_id": "apg-typologies-2025",
+        "page": 88,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5fa9b24f34d8d6791fe355a2773c955b0bf5579d8f64ead08774bbc0d5015ee0",
+        "doc_id": "apg-typologies-2025",
+        "page": 89,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c088276141ad2178c0e56a45db15a9a5a6612b3ebecce3e23a64caa09f148ded",
+        "doc_id": "apg-typologies-2025",
+        "page": 89,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4d1dc4abe892fe28e4d27c0919e97f6f75df428f48987131c90c57bed57ba2ea",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "60f9333f7b96a530f176ff4cd4793d0e01a7506358ecd552c5a54d43fb5333b7",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6f847a266d21c2a2ae43e885c659ed693f49c9b4ac1e60867144f064ab9550b8",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "52928070999dd74b5fa778e4619b95c0b910b459bd5dc26b440ff5810cb91fe1",
+        "doc_id": "apg-typologies-2025",
+        "page": 91,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5ac5a0a7b2242d4d6156eb4a763f9d82fce9695651648cbd125b7bb9800d16f7",
+        "doc_id": "apg-typologies-2025",
+        "page": 91,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a5ed18447136108fde54f98ecd002db15cf9491c2010f8f5b0a871db1986d1ab",
+        "doc_id": "apg-typologies-2025",
+        "page": 92,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dd9d81c2032b5d9b2074fb543ddcb2ceabf93ff292009858cea2ea4825d606f5",
+        "doc_id": "apg-typologies-2025",
+        "page": 92,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4e459e59b162e5146f01fb69681002936d1e2f326854e78b4375abd5c8ffae8c",
+        "doc_id": "apg-typologies-2025",
+        "page": 93,
+        "grade": 0
+      },
+      {
+        "chunk_id": "904a6efd691f132ffc982be9eeb1288caec69603e2211458d208437834755a0b",
+        "doc_id": "apg-typologies-2025",
+        "page": 93,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0b4be313c2c6ef5d4f781cee7b624b47d8293fcc4bb764b89b89a62ba01bbfbe",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "803f66938b1b8590714367aba9bb6bc601ee44ac3a1c69d46aa0066828709702",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b51855569c4a8a4bbe26847f96698141c0f93017d4503d0fdc3da4a730f8bae4",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "01f2a0833d726a2fd457489c5ef9ddaf4d726354ac3c5f20bb6101fa70b930c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "39d480985ecad7f8f3a242d59132336458e8ec60e629d8f5263117730e012850",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f5b561b10ab09890ba2d8b232b9d98f50d3c49c211f8290c6460e56a15049b88",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b5fd9901abca91666235c81d289e5c5f0675d79acd6abff0d0231b3f9d05c8f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bfbab26d2fee1b3efd3ca7a9d68da55da1777f5dfea1f8e5d5dffaf229cfe6ed",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d7e6bb4236b0fd9d8d1d48054855d02ab04b636e3524f547771e3366b6634ba7",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0f3b57ee3dce7508200e519631a8948ddd955c05bf9f139ead39ad19ff58d250",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "465718995d1a13788d55c8bb2de75c653bc891101bc45362d859da3cbc6103e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8df0b1898b8f98a60d0a0eaa4fe2b71ffcd50e038db851299b36b646eb7eff7f",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a5ae66621933167a00c312321f82b0cd2097a706d06556baf0a42a323b97153e",
+        "doc_id": "apg-typologies-2025",
+        "page": 98,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1abbc22aabd70e4c88a52adb4340a4189861ac79c5fd8a08c5272be9de670101",
+        "doc_id": "apg-typologies-2025",
+        "page": 99,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ce2ed39233caabde11918f825985751bc03781108310c2d0208259615e3bbf9a",
+        "doc_id": "apg-typologies-2025",
+        "page": 99,
+        "grade": 0
+      },
+      {
+        "chunk_id": "659ee1c23336a96c3acc02f6afe6061a2d85b2a9ecc8cbc4e86fbc50a361c670",
+        "doc_id": "apg-typologies-2025",
+        "page": 100,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cafb9219ca3f767eeac61ee316291b85f9b74ba74aa06a7493fb14095180e76c",
+        "doc_id": "apg-typologies-2025",
+        "page": 101,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d70bb4049ae4beebf11d9f50c0914963a340261764b6e88b90ec5833bbd8ead4",
+        "doc_id": "apg-typologies-2025",
+        "page": 101,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0ee903b3a64e20f321b7903bb60c37813f630b7c38496b22269785ec656f0392",
+        "doc_id": "apg-typologies-2025",
+        "page": 102,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2502f1a90f9e6264ac005b6551735e2912b312a2d15962ee282c2000a12c00cc",
+        "doc_id": "fincen-cmln-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b381efbba785b462ad54b84dac25a202119c59cebe7d2cd94bb4165445d6827f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "67444f68fddbda3f8ffc35356f9abf15f112d09a71918873a0596c514d06501c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cf0c627f3b08ee56fecc2d6b8134a0b13d5c2f3c69e1f37b41752a059eacf670",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dc80027cb4ea503ca094f4807d29094bbedbbb37ecbe307025c5003ad91fc6da",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e23af4eab8d5e422afee262794edcaf6ee8b1e5689e36d593e88e5723d2f3d2f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f17780f35949a1900b1d88c60808ef24f50c3a03819c3c181a25db15698db150",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fc9ecf79f6249b0b1c80abe9234fdfaec7d492439aed78e9b8ccc6e6e7b68442",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "99cd1c0130f0147b525f4819914a596be501a53fb0f124004c6138b3b130a6ea",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c1640a7c6b3b7b5a4ad96d3da973d46821132c9bf3d735515970187314a5cc76",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c385dbf1d6c055b704267acafc19a6cab9e8703af7e4daacfeff262926799d3a",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "426697880c88bf5b67c89cff10de7de668eea749c7dfe913a05c1980e818715b",
+        "doc_id": "fincen-cmln-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "afebed2a5d06f41a7d88e155ee8de2a5119725b44edd5cb97b321ec320d13412",
+        "doc_id": "fincen-cmln-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4cd152108b43eb2c5dec10c9586afbea006a612310503b1af2db106f7a9bf630",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6f035d080925a7e0e53b583d1fdeabf130480e8d7f5a81b00749d0545530a4fa",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a6b4f703cd4da5ba5109a276828077443444b87eafdafadcde75c9010ca024dd",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "984ea39aa73e18db1787643eeb1a0334da0df60a5c5e556943c3d93d4b0eea60",
+        "doc_id": "fincen-cmln-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d0d4b5ac06ace095955a26d24a833f06b542fa219e163da9d7097f970b61cf3f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d9565451d1cce706a5f7dc801681a48a8dee0b0722b51c1ebff87aec5d4d3e75",
+        "doc_id": "fincen-cmln-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "daa76eb692982b9128d9b3a88248eb95416d3754945b7b5254878f4a27a05b4f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c6ed0a9e8a8434da76f241d3285523a2b84a07207bdd16f3f51fc9eb91bf86a7",
+        "doc_id": "fincen-cmln-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d621d4a93bb1184320ef11b4b26380cdeb208363b60cdfa32ff78a583cb810b5",
+        "doc_id": "fincen-cmln-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0be4522417587d0be5431d49a159e975fd0e3a95ab2533bba6e74f59eb0a9fd8",
+        "doc_id": "fincen-cmln-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "65a5971e4d5a57e93d8c47ea7e78bd6eb4e4a885e3c73b48eb404e3ff6231241",
+        "doc_id": "fincen-cmln-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "32272207d66c459e5d4ee34a4e9332e042534e6304c2775bef8c20bd7c8ac4b2",
+        "doc_id": "fincen-cmln-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a41f012b3743c4da47cf69f70bcac820e3d549b779cb8378624872d006319cab",
+        "doc_id": "fincen-cmln-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "32076d1c6f8968f63e0c25dbfc0bc59f6d74adc10b51062a298274b0df4ea4f8",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "58999d31ef4ae9032e655228d7bc59d8784357109ed21265f3df3cf1a132032f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "832ce13e186229baab3a282e73f43a3baee749c659096da561dad004d6e9ba4c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "357d6e03eb87bd5d66be3ae1c96e475b9322a9664a3c93c22fc5f22f6b5be297",
+        "doc_id": "fincen-cmln-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a1e350599d9ae1564b85671c64d71b67afd62f3bde8a7f6c1c5f2e12ac22e307",
+        "doc_id": "fincen-cmln-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "25d1ef7b7ebe24a3ffd746b0af0c04b207b00711d7f8658fc37fad561316e761",
+        "doc_id": "fincen-cmln-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5c38ed494ccedc2ad68b0d94895a032f655adeda2fffb474c8fb6fd22a5f9339",
+        "doc_id": "fincen-cmln-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "27b4d07b1045607fe0bad096a853ba96d20a8a9bba34cdd40cb5be03cc1c1c0c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "573667c8e607ff9c91cbc3c3fe63f752839a682998b11d606f64f74e676a7c12",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "95817b5018507eb42c8cc3977598df5e7e7eadd02ac900ac512dce7432d13068",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8131374cb4617232c58f916dc47b69e29404fe2a131e54a4e37e222b41ecf28",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "81f15b813d269241acce821a6abc254c2bfcff8c1ca2e6837c1efc38ae93ba80",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "43f9ccdb1fbfaf0d95d62969a70bc1d8021f853ff9961b62c6ec9cd801b5a1f2",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "871c7a697787633607f8329a9f2afb4d3542c02bc2fc717aeb65544f38486b93",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5d60dbc1c5d97c4172c538d4f0e552d486f4075e90f9872eac0eb8b092ab0c02",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f7d35b12f7c6015c7bedb98544cdce45531ab211cf22bac679dbb822d36f5d20",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 8,
+        "grade": 0
+      }
+    ],
+    "GATHER_SCATTER": [
+      {
+        "chunk_id": "2d2856cf174b811f87d9185b48f8116c576e6bfc79da300950d1a51f520dc2c1",
+        "doc_id": "apg-typologies-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "29858868cbb4ed5eb19d5b0e3c84fa0157da464977b682869597fb297f5b43da",
+        "doc_id": "apg-typologies-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "57e579ee7b1fbce507f1cc2d509efcabb0bbd10c413d95b569c3befa39fd53f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7c28138e41c6682be45533530198858b1fc412a7a2b2ff621568b10448c4b4bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b40a3db7c82d933defbf21d561d5b0e05afe6b0c431ea6fe9e216fac75339b51",
+        "doc_id": "apg-typologies-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5fb7d848e15b42b376e7fa8d86d3f74a32696ed04dc430a2614123430d3c71b",
+        "doc_id": "apg-typologies-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1288e1e550d0a11f75691578e9caa25b12b2173f604b8b53adb4819b9e903da0",
+        "doc_id": "apg-typologies-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "acef6206ef60105fb0411ebd7273ef9ccc2026d659e0978710211bb7b525d5d3",
+        "doc_id": "apg-typologies-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "250ba5e20c5f95434df31842e8bb63ae12ce1405588cf637745bd8948e3a850b",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "29722f95ea6bdcdd12bc0c813fdf3b292db4b2e492c5df258b06bbaf7d3ce5cd",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6383b386e8d6da84cf43a8a9bf41dca9d86c0ce110614a870e02ef0c7c1c21f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2367e218b653e1872b7f6bc9323a3926d62f051f6de3288423bef23eca8ae5a5",
+        "doc_id": "apg-typologies-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ee9c19caba49bc9c229cb677dd7127618a636dd3ffa569bf355026c9b8f35f85",
+        "doc_id": "apg-typologies-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5c56f57731ca2ac8b9b80f03fd69101c4ab57af544228747f08e79ef14efef52",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bac7748ee33e3dcdacb30972d097090df0c37d3fd227445b5ece20a6c103070e",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d565216439db3ebcb1b046cee168e81110f6fd633c31a76c2fe217e5e6537fa3",
+        "doc_id": "apg-typologies-2025",
+        "page": 9,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1bcd13b6bbb547b1079198e61d5c1758bf4eb7ece906130e449c69cb9c948909",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "597737750d93c4425209dfee019fddc5da527383914d096cd81172e4e0bef883",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5fb094f43a8b15f107417acf1625f46df3282d3d95959ff44718209b9740faa7",
+        "doc_id": "apg-typologies-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c3538ad3085ce6222b819397350f3d9c93752a19429b57928ccb3372d0e29da",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a68c4e6cc0c3c6a4d6a36cbcbd2171a4e55f798252473679c30e6de0a68f31a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f4a14a356385339504e7ad9b4959ca09da8d4035b59f9b127ea82335c2f8ab08",
+        "doc_id": "apg-typologies-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "311035851fddcb76386f723d855c067ebf70e830d7c1be97bfa600b2dcc03896",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "504d580a17f08f185fde011bdeb011abbd1ae05ad98a9ba0e63c9cd51a17c9e5",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e0ac4b2f93cb61d494432e5306e2740d6893a330ccf483546285f72e013c7503",
+        "doc_id": "apg-typologies-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "27f4615bee96c0f798165243268a0b424695cc52b305cc0e0e7097a54d664214",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b66df0083ba8546e8268b074a31a38aef193c6dbf2022745a09182f7c2a8bcd4",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d6a32596e99e83ee337471270fdfad6f02aa477525db87cb89921ae58363e686",
+        "doc_id": "apg-typologies-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5694df98347976fc24bf5e7b5a483d3cc1ae478c3c73dccd6362c39502d0534a",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "64b7ad8d6486bfb9db36fc89b3ec5913514ada9a579e5e84d0a44eede216cdf3",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "86167eec6b5e9ef45fac6b67df8e4c0cb08fde468842bad065b55cbc6de50837",
+        "doc_id": "apg-typologies-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "479bce6594057edd2371064b33773c79f5a2f93c3957724c455ccc6bf2e91dce",
+        "doc_id": "apg-typologies-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dce24f63ab5845ad1dc3bbe380668e144e8cdad359b75b4fc0bcdbbbc7f59b6a",
+        "doc_id": "apg-typologies-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bdef2824b5fc579c604d5a1bb41f72b2d804d154b105ffb387f638c36147409b",
+        "doc_id": "apg-typologies-2025",
+        "page": 16,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fde973910c6de0f40a8456d0dbfb2bd06d39caf79f2f3b673102960e2244ad52",
+        "doc_id": "apg-typologies-2025",
+        "page": 16,
+        "grade": 0
+      },
+      {
+        "chunk_id": "30ef0492088557d1cde73030725c074a3b2225b113835fd5478991eb7b9856d5",
+        "doc_id": "apg-typologies-2025",
+        "page": 17,
+        "grade": 0
+      },
+      {
+        "chunk_id": "486cc4ae41188f42021b02fbf53c719cd12f0a441ef95c5bfce5bdc88833368b",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6cf203a2bb0fd0d27afd176638318d449bf149dbb6cda36a1f560fd9e385754d",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7d3ee6b8d10fe970e6f26020bffb08ca790b80eb34c774b9ad42c7f5d629077f",
+        "doc_id": "apg-typologies-2025",
+        "page": 18,
+        "grade": 0
+      },
+      {
+        "chunk_id": "737ef20ca66342731e08aed97c5f95fb04d3610d8d2d1149b0fbdc9202a4f477",
+        "doc_id": "apg-typologies-2025",
+        "page": 19,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ff447fe61ce4729d45b6ece3eac9307b31d1b1a873d1c301001be573e677d81f",
+        "doc_id": "apg-typologies-2025",
+        "page": 19,
+        "grade": 0
+      },
+      {
+        "chunk_id": "84331c7f8f8f4334571eefc140dc91c876bc101967f5c14365737ed7dfb7d66b",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aef572fb389b13e3085eb3cede1e4db456c876a5768e7bdfb6d3cc7819bccad6",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc5f6fe91f632829c2ba1f095381ddaad17a7b049262028bbcc29204cce198c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 20,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc247c2daa4ab6821a137bb9c6ad022b3aee1dce3ec975cd36188783a760026d",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d46a3525cdc1466821961f4142033cc5f34c83456dc7f4e8e46283bd1512117a",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ebce5949fab377607c81d0b93d300bc43a03d6f82dc17d03c85be58c2d0b802c",
+        "doc_id": "apg-typologies-2025",
+        "page": 21,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3b222b1bc57192c2a06d24fee122021b01d5f3fbf0f6bee60283dad4aa2ad6ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 22,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5ca0e214968af141c1ae66c49affa0bfdfdc1a82fb048a7564ef602b9251028",
+        "doc_id": "apg-typologies-2025",
+        "page": 22,
+        "grade": 0
+      },
+      {
+        "chunk_id": "be1dc7a1ecf9ceff9be3951bbb0590b60990caf7611f8425ee6c4f1364b55bbd",
+        "doc_id": "apg-typologies-2025",
+        "page": 23,
+        "grade": 2
+      },
+      {
+        "chunk_id": "54d5b726cd410531cff362fae0fa2d952b9296785faf826ae5f0189e3be096da",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a0bb0011953c30acf526fa590b76726fe7f3d79173ef4a8ab0196df84e14557e",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dd92626fcc286b7eadb3010067fc4899d9387a4af3f6715a3e4123020658a5da",
+        "doc_id": "apg-typologies-2025",
+        "page": 24,
+        "grade": 0
+      },
+      {
+        "chunk_id": "59f74106b8587e4edd8f6761334582238a6e9e5372747379feb17bada6b25332",
+        "doc_id": "apg-typologies-2025",
+        "page": 25,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5d943a174a3b1c1ecc7657d2cbb905546d73d7143ad7b4f3a8717be64a074a6b",
+        "doc_id": "apg-typologies-2025",
+        "page": 25,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2146001a6b29a3a8cb117eb4a6f2855201b32e89d5bf0e722a0e8e355017375",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d9d5d6f685f6215128fcfc6d1941c0fc01e78689c25a287023e5d37d4b7000ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "db2a91f9edcac71a26e910ea5881cb3acf1202aa3dc0e469766d8985653707aa",
+        "doc_id": "apg-typologies-2025",
+        "page": 26,
+        "grade": 0
+      },
+      {
+        "chunk_id": "985a48293f0236a115094ab14c89f82907c9e8d7ad999d8e81cc490b27aabce6",
+        "doc_id": "apg-typologies-2025",
+        "page": 27,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c03f1d57522c5fd4ab67f4e1d7585fc7865881b87706d261682aa439b9c175e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 27,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d39e52363e0836a6b7c9a5071023f22e2d9ebf57b01e859fba9f26a0fdf08c46",
+        "doc_id": "apg-typologies-2025",
+        "page": 28,
+        "grade": 0
+      },
+      {
+        "chunk_id": "02b0062d4bccb5a0105f49656156036b09d79cb669904eb733d9425bf3b3184a",
+        "doc_id": "apg-typologies-2025",
+        "page": 29,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f04f5d783c11ad363aadef2285ee04bf35584ad68c98069b0735e84230939392",
+        "doc_id": "apg-typologies-2025",
+        "page": 29,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0cf8188588350e76e6015e5f15789161d88784a1b84c2d7608306f69040dc298",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "158f5fc0e0099835db132fb5bf889705d599a5eb2b57a78e557961bee0bd5bfe",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3e86c9ce7345c4ed8db403591c00fe2cbaf302f41d7bcb3c1a0206653819b1f7",
+        "doc_id": "apg-typologies-2025",
+        "page": 30,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aa3872e1cc32f7b5cd8df8b2cbb1ef02cc2aac4e16905bee6ebcac782b6ea882",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bd693423d08fcadff9f0de2cf9cdcbd26202b359e0378e65d5269ba03e20d39d",
+        "doc_id": "apg-typologies-2025",
+        "page": 31,
+        "grade": 1
+      },
+      {
+        "chunk_id": "4624d3f35f0dff00c7018a75aad97f2c481407b09e1ffb3dc09513838efef9b8",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bc167c0dead55b49e80221e23b3a83bdc1ecb4ff0754796c37ca574e621aaa56",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ebaa973ed2c16ab1e2b5d7c2439d28d04f5d5b09dfd2f163796e0431ba3c9a16",
+        "doc_id": "apg-typologies-2025",
+        "page": 32,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1649cffdcac01cd80af23562518deb630c58b94893bb2c21cd2a5c4a7c726073",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "632d65bc7ddf65d865b9b843cac34febdf922dd8c521141089a28affe63fd032",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b83570fe1c26725a95376d55479c2d6beddddee5ededa71f7898aa0a4225c1c9",
+        "doc_id": "apg-typologies-2025",
+        "page": 33,
+        "grade": 0
+      },
+      {
+        "chunk_id": "02c6998e595786c51ad8561f313bc91d0031d929d9402c2e38953d703a799b9d",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1df5e04ee22df55e23b1a20311f989a5b274087830d5fa4a133ddcca97aee97c",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c6924610cb2cc62a46dc3deb21f6ed07eae9ac5b8df95a4ef2340440439dc796",
+        "doc_id": "apg-typologies-2025",
+        "page": 34,
+        "grade": 0
+      },
+      {
+        "chunk_id": "24d53b526ab17fb2362e5e38ce3e8adf95f77f205fb79dbf488bf468f9fa06eb",
+        "doc_id": "apg-typologies-2025",
+        "page": 35,
+        "grade": 0
+      },
+      {
+        "chunk_id": "596d89a50c83ca5fa920d889b27e9a898dd526e169bc5381d68fa6cb3636cdfe",
+        "doc_id": "apg-typologies-2025",
+        "page": 35,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1fd2375b59faf04773181ac331ac124c918b124e66886ff8efc5eb8edca5e2de",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "24b2b947b4e8f20152f13bda17c8019c900cc612b11f57dcebca7d4878d92bf1",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "38e40751117a98330db51e92c20060b2098c8f56e007ec8f2ade0e6db9c2116b",
+        "doc_id": "apg-typologies-2025",
+        "page": 36,
+        "grade": 0
+      },
+      {
+        "chunk_id": "50e990372acac7ade2318bb5f89b00572ee816aab5d56c3d51347921da66314e",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9dfeb917d3ab1fafdc483ced70db1f3b5ef5fe5df5f8a5152f5f3fbefa1c4344",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c5b92c0d81b3bca7713ca169467424fb7dec728c709d60f247b6dc5479875afa",
+        "doc_id": "apg-typologies-2025",
+        "page": 37,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4ce8ca41a41b971186db8e4dead38664fce7dc9ca6f03b2416392b37356a3f7d",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "576359b11182b54ae41526bacbcf1780c62724d61dbbe051765c5b6410900072",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e702816cefc142a5a6b590f1631bfa7fbb9a95483fbd8da86a86576a72d1719f",
+        "doc_id": "apg-typologies-2025",
+        "page": 38,
+        "grade": 0
+      },
+      {
+        "chunk_id": "132d0b12c936eaab887db48f26f1330bd6cb1bdcff1634684673215d63679d59",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2016143da9482e169685a9599f4b1a01f9d4effb52d3702dc70d4d0e66c6c174",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 0
+      },
+      {
+        "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+        "doc_id": "apg-typologies-2025",
+        "page": 39,
+        "grade": 1
+      },
+      {
+        "chunk_id": "066609c9a34306cf1f22d67775cfdc0ea3ae5b2022ed86caab7f2d56cdfa1ab2",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "25bbb48f5b36bff23447a2ca037d2a03b0d71150af0f03726c29d378173a5607",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "746c9b9a477171d0bb6dbb9d990f412762be99fbd2dffc01c4c22655188a35a5",
+        "doc_id": "apg-typologies-2025",
+        "page": 40,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3a291563857aa0d7e3d93d5f3fd6c79c9b1230524fb21774a1bb041e801bcbce",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ab95f8b102a827e32843bf85d2d6a48c91326d2b2cb1bc3bd101b720c6da8b5d",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e5b66767fe7cd00890484762ea4756c3ba5cee07ce75cd802ff6344967fba370",
+        "doc_id": "apg-typologies-2025",
+        "page": 41,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e29d24ae70dcaced1a3af838e59f2c04f2139328446bb0ed6454fced1cedc70c",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "eb7a9c890ae9096f8a3129e6d2cc5871d760746f45bae450b748d66ea9e8f767",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ff65bb8d909e96310c8d3f71a5e55ae7e9d6348f30ed4f3ae9466fecd3b71ccc",
+        "doc_id": "apg-typologies-2025",
+        "page": 42,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0c901921e6e3487b3e936dac3460b27f2d0c99515f23cae637dd3258de1e6af3",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ca5b9bc8a3ccdb284998cc5bad152e50e081d0c794a2a4bfb3c5961b5a830ae1",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dcc282d8d503bf6ee2d1bd7ce8eab57288de5385385c77658ddec7bc3386a4d7",
+        "doc_id": "apg-typologies-2025",
+        "page": 43,
+        "grade": 0
+      },
+      {
+        "chunk_id": "643dfafe18b8b5c67cb677bf00092601eeccc09bb331d7e34a859764e6b462ca",
+        "doc_id": "apg-typologies-2025",
+        "page": 44,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f2afc450ca2a21d3cb52bfd367fcf713dfa061d373aa2487aed9f7c6ecd68b1e",
+        "doc_id": "apg-typologies-2025",
+        "page": 44,
+        "grade": 1
+      },
+      {
+        "chunk_id": "2a78bb73a50f5056c6ca5d78f61f66d3735b1e095e7b4c71a29f52b4a72353c1",
+        "doc_id": "apg-typologies-2025",
+        "page": 45,
+        "grade": 0
+      },
+      {
+        "chunk_id": "35f80f33b998fbeec37b30c30eec42e734b84fb1b009bb9cf2b365e40cdc50cf",
+        "doc_id": "apg-typologies-2025",
+        "page": 45,
+        "grade": 0
+      },
+      {
+        "chunk_id": "52377ac08ad7a56d3c2fa5c3e6c1b06c804dff3416d42512e1cb5479261f5eef",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8957f01555611b015bee181532a7366ce86190e52b3779c5b5ecde7cedbc6f92",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8e487b69dc0baff6f0c0dcd6c0411ff1081f2d146b85d0deb157129385c2e5a7",
+        "doc_id": "apg-typologies-2025",
+        "page": 46,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3c8af66a0f6ecb8a1c8475379b305c792bcc2bd06e8aad7ff00a1b90aa1e6769",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 0
+      },
+      {
+        "chunk_id": "44beb50e23f0e4a04590c98ada1c053a3fb4291abb5cef7e24b8063281e54038",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8be9e90ab686df9c96f3501c8a1f76d8b21732bf6578aefffebf8ec538e869cb",
+        "doc_id": "apg-typologies-2025",
+        "page": 47,
+        "grade": 1
+      },
+      {
+        "chunk_id": "19396834ba30ede628acab2079d46a9dab434208b3673f60e327915026516335",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7cd56c7e47863a4e38922edfa69075e4f9ebc7ed9f76473041b4dfbef76a5bbc",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e211442e1486869d7dc4b1fc9c0c3b928917fc31049d188f6f62be9e2e7a6946",
+        "doc_id": "apg-typologies-2025",
+        "page": 48,
+        "grade": 0
+      },
+      {
+        "chunk_id": "13f14fbc2cce40172ed1de56a04968b4a403031ca89f077d358b16cd66ec647a",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "23a3821b49dceaa7782efb9e53b96ed6c53b7dfba4bb7a54b8836c10f85d2194",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fa32e1b8b409723ccb6c3d589f3a938558e84dd937d54cfa47db1d31b3bf231a",
+        "doc_id": "apg-typologies-2025",
+        "page": 49,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1abfa63640bd65598e59e176d48ef255da683971f9ff33ef30dcbca232a1e0be",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4a43a2dc4361b2c247c3dd778adcd51ab2dd3f9c06a5a1973ea47ee08e7833a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bde6044f2ebb40fbfa5278a26aa8288a7100f5b9086f2bfd6723d387fc328c32",
+        "doc_id": "apg-typologies-2025",
+        "page": 50,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 0
+      },
+      {
+        "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 0
+      },
+      {
+        "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+        "doc_id": "apg-typologies-2025",
+        "page": 51,
+        "grade": 0
+      },
+      {
+        "chunk_id": "470ebd0d71d2fcd4276f2a96ac20634fd1782b485ea864c2ae45ad558c9e1017",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9e6c9eea78b1649c7999844cb10b795ed1b1f6b5e0caa7475b6c0f88bf41e1a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ecd8d998470ca912972bc261207d654b17e6d40f9ab19687551d37fc1118cb22",
+        "doc_id": "apg-typologies-2025",
+        "page": 52,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+        "doc_id": "apg-typologies-2025",
+        "page": 53,
+        "grade": 0
+      },
+      {
+        "chunk_id": "63fcf30087566c1e312e181d905ed731f95b3d45685a05a64acd608902e177c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "71087f3703b426f5422b0032aabfcaeb0659d019aa43a46d5f035fec96cc962f",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d4ad880d4f30556da28b290be1088d517c973c9ddceafcc2363f96c03f470391",
+        "doc_id": "apg-typologies-2025",
+        "page": 54,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7d656d184fbe94ab7ec00930a9e740bc9b0238bab37b5fcfc50460379605e22a",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "aa83a6ebfb3a7dc17cdff9cb3fb369d36cb5897a2001e3f93499fd933eaf055d",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d52b4af2f9cf5bac8ed3e55c533c6682366884b06b3f7f6ab6f0ae6b9c967795",
+        "doc_id": "apg-typologies-2025",
+        "page": 55,
+        "grade": 0
+      },
+      {
+        "chunk_id": "51c111155c52623df92592deab5e5b5e28e8cfe386ed6b1ff46f8d3364d06582",
+        "doc_id": "apg-typologies-2025",
+        "page": 56,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8b47a6d268b570ed776f0e06ff2ff3251e786fd72cf0ddae06175e2356e47ab5",
+        "doc_id": "apg-typologies-2025",
+        "page": 56,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b6a955e16a44d809fcb5d59b2d29e63e886f4932301fe227c1a7c0d7ea0a18bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 57,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1605fd964facdd76445c51c02b33ce1d319980fc282b901719f2ab0fab5902d2",
+        "doc_id": "apg-typologies-2025",
+        "page": 58,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9ee841f2480eb2576c78812e3402eb21e196406c36a57dca71e36bb60a9be6ea",
+        "doc_id": "apg-typologies-2025",
+        "page": 58,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b355799b0eff9664d4e15eb1c91e028ea390bd3da59b11deca4f122bd3da40ef",
+        "doc_id": "apg-typologies-2025",
+        "page": 59,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ef9ef68c4521b6b5f6fc6f956676502604e48dc3bc29a9cbe5b2d61942d1d4e2",
+        "doc_id": "apg-typologies-2025",
+        "page": 59,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a2ab2e9ec68814020693912af8af88827344598225c7fd0230aba2716f355b2d",
+        "doc_id": "apg-typologies-2025",
+        "page": 60,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c29a0e6517d2004fc6bb957aa1811fc711533adfa5214cab35eab70defda9872",
+        "doc_id": "apg-typologies-2025",
+        "page": 60,
+        "grade": 0
+      },
+      {
+        "chunk_id": "91d043fd8d01fc83579589d13e4c13156e78d84a3f6b330df45ae7c6d62c75e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 61,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f9070b8f383fd65ec3047106e44c04a9fc3402402ca8f657cc5fb41b1632c020",
+        "doc_id": "apg-typologies-2025",
+        "page": 61,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1fd7690af347927e0495a63898c8fec86f67d4a9bfaba4f7f26dda9bc2d4c1ad",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5482e2870dfaca69d9bd4eb01ea325824aed1fdcce00ad84fed48a45df25ceae",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ab0ad533138b8fd42f627ab0995e6f8b1af17bec3e29285b4e376f2bdcda2457",
+        "doc_id": "apg-typologies-2025",
+        "page": 62,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6403c6763c235b0ad0c6be173f53386e079a7905f18385ae86004c38a4a18c4d",
+        "doc_id": "apg-typologies-2025",
+        "page": 63,
+        "grade": 0
+      },
+      {
+        "chunk_id": "85b46e7f54976ba0fbb47e00ff6b554b3cb502fdbc11b4fec083553b70518a15",
+        "doc_id": "apg-typologies-2025",
+        "page": 63,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f5e1edd1a698dc98a9957bb5cc57b71dcf0b019ca4ca245a91e9523fb3d307b5",
+        "doc_id": "apg-typologies-2025",
+        "page": 64,
+        "grade": 0
+      },
+      {
+        "chunk_id": "104a02189c91090a757081e638b72e54515a78ed7f2c35505b509c31a4de79ac",
+        "doc_id": "apg-typologies-2025",
+        "page": 65,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9bc995533fdd7a5111cf4f306dfb880e6b9ea7463a9101a569a87c4fc4e7b012",
+        "doc_id": "apg-typologies-2025",
+        "page": 65,
+        "grade": 0
+      },
+      {
+        "chunk_id": "7237592097b605b9ed43ca99987bc0dc7a09568076400b946120107492bd531e",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8ae6dc54de1595cb40433880675012cd186a076a316dc533f4d08a962d11d57b",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dc177e17ea7b30e6b08afb342271d9ea52a5a829cc6c83545a1c3b4412ba5709",
+        "doc_id": "apg-typologies-2025",
+        "page": 66,
+        "grade": 0
+      },
+      {
+        "chunk_id": "682b8c64dd86124481e11bab420372498c659e1eaa9fc0d980b5008a123a2f59",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8df7ee53f514110974434c45d031ffb2799bcdece413007ba1965c5342bc132d",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2d3bf29ef7804c513f73663b9ccd64d68c64b78245fc09883b7bebb2a669ee3",
+        "doc_id": "apg-typologies-2025",
+        "page": 67,
+        "grade": 0
+      },
+      {
+        "chunk_id": "23bbbb58cc826914a725156d70b9f2aa0027b2e6c402125a175d6d204b25abf2",
+        "doc_id": "apg-typologies-2025",
+        "page": 68,
+        "grade": 0
+      },
+      {
+        "chunk_id": "acc577ff8fa2ba960e2a55c4579bad1508f06c6167afd2435f7d38f503b46781",
+        "doc_id": "apg-typologies-2025",
+        "page": 68,
+        "grade": 0
+      },
+      {
+        "chunk_id": "12fd543c35752f48306d4fa85bce2af3db409e310a9bdb7a1c7aa1f468772ba7",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "49921fd217bb9316bd42d4543a8bea0e8cbee282bbdc4c8a40d8ebd2a3a63ea5",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dfb962c2e3093d9245151e6a7c31f1a10cfe1702fd75fd2bef9d36f1b167a655",
+        "doc_id": "apg-typologies-2025",
+        "page": 69,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4666a8013bafe776d698e1bfd31c5d4e25af1d270601e3d80fde4cae3d3359bd",
+        "doc_id": "apg-typologies-2025",
+        "page": 70,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c0d9856d1e6aae448f1e5eca5d1d99e337e81b60d57c7f36cea65b6a392b5961",
+        "doc_id": "apg-typologies-2025",
+        "page": 70,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5191281e7f4a89f297bd908197c94ce15c4a0d1be9efc3f6ed7faacf398ab28f",
+        "doc_id": "apg-typologies-2025",
+        "page": 71,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c07e4b3bbf414e44ef34f237e05a7e6ad2d572920462c9295136cf76868d43d0",
+        "doc_id": "apg-typologies-2025",
+        "page": 71,
+        "grade": 0
+      },
+      {
+        "chunk_id": "36221d101a2643c081a801b2f618aa92d35782434eb6d9c9c8640527feaa4b6f",
+        "doc_id": "apg-typologies-2025",
+        "page": 72,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cacbbc0596ccb6481225ec3029cd86c6abcb3717d94059081ca10413800269ac",
+        "doc_id": "apg-typologies-2025",
+        "page": 72,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1ae0fe93d648fd87cd7bd4a009d9becacb6381dc6d7e4de510680f29e60ff91c",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3290fccd08ac314566b6a14f24ed4fd26fa3305a794c48891c678381d11d4494",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "92c834a8dac4cdd734bd8e688722d1e5882139b4e1fa05ad4c082a5bb1259371",
+        "doc_id": "apg-typologies-2025",
+        "page": 73,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b5b00adb4975f6ecc6fdb093ec87c0dc0f5367aec0d2fb0a2a572b1716ce0846",
+        "doc_id": "apg-typologies-2025",
+        "page": 74,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ef2e7d1bbbe7f6b6ae0369f56f16bb4caf9ac633a407ddebf16e8d2e602da83d",
+        "doc_id": "apg-typologies-2025",
+        "page": 74,
+        "grade": 0
+      },
+      {
+        "chunk_id": "051f072e3adac869e7902b9dde1a553f08be199e3c5c76b3d44866feb7fbac6b",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "503cf4699e5ee18fff83209b7e9bdc3be8d1f3002d0bdbf80120ba21e89a7a33",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dfb4dc422a5fceb12fd646c4b55b25ae535b5f326d50f18edb723a8079c6cfdb",
+        "doc_id": "apg-typologies-2025",
+        "page": 75,
+        "grade": 0
+      },
+      {
+        "chunk_id": "743c1ac05ba2cd9a696b6c80fbb0c42d74ff03e8b752f0202883edb23df831ec",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "84dd70d5eaf69a77a5901c3df6f1abadf144666c97243c0b1ddbec70233734a3",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f188947ac50ee64227617a499dd30e2943b3e156451db85f07070f6cbe84a9d4",
+        "doc_id": "apg-typologies-2025",
+        "page": 76,
+        "grade": 0
+      },
+      {
+        "chunk_id": "44452d9e0c6404fb339dfac662d77ff8a4689952818423ca75115e704559d364",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4b56c6e54806a809de1d2499cf379d6af471943d1d3d4adad5973e2025d3b246",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ccbba3d4db17e99508509832fa4d6d0f8345366dc8706e0a64fc9a1d0be53e26",
+        "doc_id": "apg-typologies-2025",
+        "page": 77,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f21ebcf42f6bdc73565ad4c973a779d06adb293b34f0eaa02f14835648a42a3e",
+        "doc_id": "apg-typologies-2025",
+        "page": 78,
+        "grade": 0
+      },
+      {
+        "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+        "doc_id": "apg-typologies-2025",
+        "page": 79,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+        "doc_id": "apg-typologies-2025",
+        "page": 79,
+        "grade": 0
+      },
+      {
+        "chunk_id": "268c21f4b1765ab7d05474e9405b0bf23e5503adc8552a88a5d0b2f42a8c113c",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bb86a32b04b36b24351c9710f89288da32a2986844ba6b03d923274954364957",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c55fa5faa208384f87d94d478ddf09d01136d8205c40b8c1a014f5a3183830d3",
+        "doc_id": "apg-typologies-2025",
+        "page": 80,
+        "grade": 0
+      },
+      {
+        "chunk_id": "942518971f2ce699f4b71ce0fcb74d06b3c838df1747d337e3070cdfb3c791f6",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 1
+      },
+      {
+        "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+        "doc_id": "apg-typologies-2025",
+        "page": 81,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2cdda73b4885664a2d6f617b3e3a39210cdb3bf66a92e21a2bd062235a7be5ec",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5ab5967f77e62edde1d054b7e51a5ab1962604bcc5ed778eaed453215d89534c",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f892abdf4124cf7e4ba8825d3baf97bf30dbd3f868f5a1e1ff636b9029b0fd5e",
+        "doc_id": "apg-typologies-2025",
+        "page": 82,
+        "grade": 0
+      },
+      {
+        "chunk_id": "803c7a26db72b06e6f7c25a87c8899d0e68f8b0956c5335bcea9ac0f50da0d58",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e8f2857c05426d9fcda10ae248ca9d0ae19c532857ccab2d3e5f4d38c0fe85ad",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f7464c4dce69aa6e2cd9450b56dc57f0b2bd074082988532f44c26192646d328",
+        "doc_id": "apg-typologies-2025",
+        "page": 83,
+        "grade": 0
+      },
+      {
+        "chunk_id": "299a523488b8cc4863a1b29614b1cd5f63f1ac9e9ad0701c61e64a712cbe700f",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c68766f27e5b9b597e73efd65bf06e7302348f1bf6b508b0c6282ce67b1eb36",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8ab669dcf0e0882b102a6fc6f0090a761c918e899f361d2711694170bda64bb",
+        "doc_id": "apg-typologies-2025",
+        "page": 84,
+        "grade": 0
+      },
+      {
+        "chunk_id": "17839ec1e90e4e49bcef854a0a5a4ae6ffc2928ed23e78619283b4c5ef62b61f",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "76ad97210cce582ad3b50faee038601339422cbeb4602e2d0a75e8233b9ba061",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "986cc0423575ca52d24368de49619a2ddb47c704373239dcc5a8c7d8327244d0",
+        "doc_id": "apg-typologies-2025",
+        "page": 85,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0e494ce0628aa4510b373c084a2021f5446fd838c5c56170a0bfe11da30d336b",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "40d74196bef8d0605dbecc24add01201f22f6d771838a99ce09122b590e58a94",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d1dc69d38c7f9aa8164b8f2614acbf12065b87c35ba55a002c62cfdc9a557463",
+        "doc_id": "apg-typologies-2025",
+        "page": 86,
+        "grade": 0
+      },
+      {
+        "chunk_id": "9ab23b9fed9927009a5a63a3df62d0a7619526116a15701f5ee4a76e8702a395",
+        "doc_id": "apg-typologies-2025",
+        "page": 87,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ecca91617659851c401d925eaae37039e2c618653d40d1811aee7323095e4e17",
+        "doc_id": "apg-typologies-2025",
+        "page": 87,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8c16ef2af5a95a6d26e1078da9d8201ff3c644fc5d7b55d9885ad7c825de73a0",
+        "doc_id": "apg-typologies-2025",
+        "page": 88,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d2e64f74265b9007e53e07c6871fe1908497fe68acb1046e7d5841fd1d691056",
+        "doc_id": "apg-typologies-2025",
+        "page": 88,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5fa9b24f34d8d6791fe355a2773c955b0bf5579d8f64ead08774bbc0d5015ee0",
+        "doc_id": "apg-typologies-2025",
+        "page": 89,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c088276141ad2178c0e56a45db15a9a5a6612b3ebecce3e23a64caa09f148ded",
+        "doc_id": "apg-typologies-2025",
+        "page": 89,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4d1dc4abe892fe28e4d27c0919e97f6f75df428f48987131c90c57bed57ba2ea",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "60f9333f7b96a530f176ff4cd4793d0e01a7506358ecd552c5a54d43fb5333b7",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6f847a266d21c2a2ae43e885c659ed693f49c9b4ac1e60867144f064ab9550b8",
+        "doc_id": "apg-typologies-2025",
+        "page": 90,
+        "grade": 0
+      },
+      {
+        "chunk_id": "52928070999dd74b5fa778e4619b95c0b910b459bd5dc26b440ff5810cb91fe1",
+        "doc_id": "apg-typologies-2025",
+        "page": 91,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5ac5a0a7b2242d4d6156eb4a763f9d82fce9695651648cbd125b7bb9800d16f7",
+        "doc_id": "apg-typologies-2025",
+        "page": 91,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a5ed18447136108fde54f98ecd002db15cf9491c2010f8f5b0a871db1986d1ab",
+        "doc_id": "apg-typologies-2025",
+        "page": 92,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dd9d81c2032b5d9b2074fb543ddcb2ceabf93ff292009858cea2ea4825d606f5",
+        "doc_id": "apg-typologies-2025",
+        "page": 92,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4e459e59b162e5146f01fb69681002936d1e2f326854e78b4375abd5c8ffae8c",
+        "doc_id": "apg-typologies-2025",
+        "page": 93,
+        "grade": 0
+      },
+      {
+        "chunk_id": "904a6efd691f132ffc982be9eeb1288caec69603e2211458d208437834755a0b",
+        "doc_id": "apg-typologies-2025",
+        "page": 93,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0b4be313c2c6ef5d4f781cee7b624b47d8293fcc4bb764b89b89a62ba01bbfbe",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "803f66938b1b8590714367aba9bb6bc601ee44ac3a1c69d46aa0066828709702",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b51855569c4a8a4bbe26847f96698141c0f93017d4503d0fdc3da4a730f8bae4",
+        "doc_id": "apg-typologies-2025",
+        "page": 94,
+        "grade": 0
+      },
+      {
+        "chunk_id": "01f2a0833d726a2fd457489c5ef9ddaf4d726354ac3c5f20bb6101fa70b930c7",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "39d480985ecad7f8f3a242d59132336458e8ec60e629d8f5263117730e012850",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f5b561b10ab09890ba2d8b232b9d98f50d3c49c211f8290c6460e56a15049b88",
+        "doc_id": "apg-typologies-2025",
+        "page": 95,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b5fd9901abca91666235c81d289e5c5f0675d79acd6abff0d0231b3f9d05c8f4",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "bfbab26d2fee1b3efd3ca7a9d68da55da1777f5dfea1f8e5d5dffaf229cfe6ed",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d7e6bb4236b0fd9d8d1d48054855d02ab04b636e3524f547771e3366b6634ba7",
+        "doc_id": "apg-typologies-2025",
+        "page": 96,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0f3b57ee3dce7508200e519631a8948ddd955c05bf9f139ead39ad19ff58d250",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "465718995d1a13788d55c8bb2de75c653bc891101bc45362d859da3cbc6103e0",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "8df0b1898b8f98a60d0a0eaa4fe2b71ffcd50e038db851299b36b646eb7eff7f",
+        "doc_id": "apg-typologies-2025",
+        "page": 97,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a5ae66621933167a00c312321f82b0cd2097a706d06556baf0a42a323b97153e",
+        "doc_id": "apg-typologies-2025",
+        "page": 98,
+        "grade": 0
+      },
+      {
+        "chunk_id": "1abbc22aabd70e4c88a52adb4340a4189861ac79c5fd8a08c5272be9de670101",
+        "doc_id": "apg-typologies-2025",
+        "page": 99,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ce2ed39233caabde11918f825985751bc03781108310c2d0208259615e3bbf9a",
+        "doc_id": "apg-typologies-2025",
+        "page": 99,
+        "grade": 0
+      },
+      {
+        "chunk_id": "659ee1c23336a96c3acc02f6afe6061a2d85b2a9ecc8cbc4e86fbc50a361c670",
+        "doc_id": "apg-typologies-2025",
+        "page": 100,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cafb9219ca3f767eeac61ee316291b85f9b74ba74aa06a7493fb14095180e76c",
+        "doc_id": "apg-typologies-2025",
+        "page": 101,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d70bb4049ae4beebf11d9f50c0914963a340261764b6e88b90ec5833bbd8ead4",
+        "doc_id": "apg-typologies-2025",
+        "page": 101,
+        "grade": 0
+      },
+      {
+        "chunk_id": "0ee903b3a64e20f321b7903bb60c37813f630b7c38496b22269785ec656f0392",
+        "doc_id": "apg-typologies-2025",
+        "page": 102,
+        "grade": 0
+      },
+      {
+        "chunk_id": "2502f1a90f9e6264ac005b6551735e2912b312a2d15962ee282c2000a12c00cc",
+        "doc_id": "fincen-cmln-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "b381efbba785b462ad54b84dac25a202119c59cebe7d2cd94bb4165445d6827f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "67444f68fddbda3f8ffc35356f9abf15f112d09a71918873a0596c514d06501c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "cf0c627f3b08ee56fecc2d6b8134a0b13d5c2f3c69e1f37b41752a059eacf670",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "dc80027cb4ea503ca094f4807d29094bbedbbb37ecbe307025c5003ad91fc6da",
+        "doc_id": "fincen-cmln-2025",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "e23af4eab8d5e422afee262794edcaf6ee8b1e5689e36d593e88e5723d2f3d2f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "f17780f35949a1900b1d88c60808ef24f50c3a03819c3c181a25db15698db150",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "fc9ecf79f6249b0b1c80abe9234fdfaec7d492439aed78e9b8ccc6e6e7b68442",
+        "doc_id": "fincen-cmln-2025",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "99cd1c0130f0147b525f4819914a596be501a53fb0f124004c6138b3b130a6ea",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c1640a7c6b3b7b5a4ad96d3da973d46821132c9bf3d735515970187314a5cc76",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c385dbf1d6c055b704267acafc19a6cab9e8703af7e4daacfeff262926799d3a",
+        "doc_id": "fincen-cmln-2025",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "426697880c88bf5b67c89cff10de7de668eea749c7dfe913a05c1980e818715b",
+        "doc_id": "fincen-cmln-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "afebed2a5d06f41a7d88e155ee8de2a5119725b44edd5cb97b321ec320d13412",
+        "doc_id": "fincen-cmln-2025",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "4cd152108b43eb2c5dec10c9586afbea006a612310503b1af2db106f7a9bf630",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6f035d080925a7e0e53b583d1fdeabf130480e8d7f5a81b00749d0545530a4fa",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a6b4f703cd4da5ba5109a276828077443444b87eafdafadcde75c9010ca024dd",
+        "doc_id": "fincen-cmln-2025",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "984ea39aa73e18db1787643eeb1a0334da0df60a5c5e556943c3d93d4b0eea60",
+        "doc_id": "fincen-cmln-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d0d4b5ac06ace095955a26d24a833f06b542fa219e163da9d7097f970b61cf3f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d9565451d1cce706a5f7dc801681a48a8dee0b0722b51c1ebff87aec5d4d3e75",
+        "doc_id": "fincen-cmln-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "daa76eb692982b9128d9b3a88248eb95416d3754945b7b5254878f4a27a05b4f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 8,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c6ed0a9e8a8434da76f241d3285523a2b84a07207bdd16f3f51fc9eb91bf86a7",
+        "doc_id": "fincen-cmln-2025",
+        "page": 9,
+        "grade": 1
+      },
+      {
+        "chunk_id": "d621d4a93bb1184320ef11b4b26380cdeb208363b60cdfa32ff78a583cb810b5",
+        "doc_id": "fincen-cmln-2025",
+        "page": 9,
+        "grade": 1
+      },
+      {
+        "chunk_id": "0be4522417587d0be5431d49a159e975fd0e3a95ab2533bba6e74f59eb0a9fd8",
+        "doc_id": "fincen-cmln-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "65a5971e4d5a57e93d8c47ea7e78bd6eb4e4a885e3c73b48eb404e3ff6231241",
+        "doc_id": "fincen-cmln-2025",
+        "page": 10,
+        "grade": 0
+      },
+      {
+        "chunk_id": "32272207d66c459e5d4ee34a4e9332e042534e6304c2775bef8c20bd7c8ac4b2",
+        "doc_id": "fincen-cmln-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a41f012b3743c4da47cf69f70bcac820e3d549b779cb8378624872d006319cab",
+        "doc_id": "fincen-cmln-2025",
+        "page": 11,
+        "grade": 0
+      },
+      {
+        "chunk_id": "32076d1c6f8968f63e0c25dbfc0bc59f6d74adc10b51062a298274b0df4ea4f8",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "58999d31ef4ae9032e655228d7bc59d8784357109ed21265f3df3cf1a132032f",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "832ce13e186229baab3a282e73f43a3baee749c659096da561dad004d6e9ba4c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 12,
+        "grade": 0
+      },
+      {
+        "chunk_id": "357d6e03eb87bd5d66be3ae1c96e475b9322a9664a3c93c22fc5f22f6b5be297",
+        "doc_id": "fincen-cmln-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a1e350599d9ae1564b85671c64d71b67afd62f3bde8a7f6c1c5f2e12ac22e307",
+        "doc_id": "fincen-cmln-2025",
+        "page": 13,
+        "grade": 0
+      },
+      {
+        "chunk_id": "25d1ef7b7ebe24a3ffd746b0af0c04b207b00711d7f8658fc37fad561316e761",
+        "doc_id": "fincen-cmln-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5c38ed494ccedc2ad68b0d94895a032f655adeda2fffb474c8fb6fd22a5f9339",
+        "doc_id": "fincen-cmln-2025",
+        "page": 14,
+        "grade": 0
+      },
+      {
+        "chunk_id": "27b4d07b1045607fe0bad096a853ba96d20a8a9bba34cdd40cb5be03cc1c1c0c",
+        "doc_id": "fincen-cmln-2025",
+        "page": 15,
+        "grade": 0
+      },
+      {
+        "chunk_id": "573667c8e607ff9c91cbc3c3fe63f752839a682998b11d606f64f74e676a7c12",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "95817b5018507eb42c8cc3977598df5e7e7eadd02ac900ac512dce7432d13068",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 1,
+        "grade": 0
+      },
+      {
+        "chunk_id": "a8131374cb4617232c58f916dc47b69e29404fe2a131e54a4e37e222b41ecf28",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 2,
+        "grade": 0
+      },
+      {
+        "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 1
+      },
+      {
+        "chunk_id": "81f15b813d269241acce821a6abc254c2bfcff8c1ca2e6837c1efc38ae93ba80",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 0
+      },
+      {
+        "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 3,
+        "grade": 1
+      },
+      {
+        "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 1
+      },
+      {
+        "chunk_id": "43f9ccdb1fbfaf0d95d62969a70bc1d8021f853ff9961b62c6ec9cd801b5a1f2",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 4,
+        "grade": 0
+      },
+      {
+        "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "871c7a697787633607f8329a9f2afb4d3542c02bc2fc717aeb65544f38486b93",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 0
+      },
+      {
+        "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 5,
+        "grade": 1
+      },
+      {
+        "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 6,
+        "grade": 0
+      },
+      {
+        "chunk_id": "5d60dbc1c5d97c4172c538d4f0e552d486f4075e90f9872eac0eb8b092ab0c02",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 7,
+        "grade": 0
+      },
+      {
+        "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 7,
+        "grade": 1
+      },
+      {
+        "chunk_id": "f7d35b12f7c6015c7bedb98544cdce45531ab211cf22bac679dbb822d36f5d20",
+        "doc_id": "fintrac-underground-banking-2023",
+        "page": 8,
+        "grade": 0
+      }
+    ]
+  }
+}

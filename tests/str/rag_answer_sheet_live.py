@@ -3,6 +3,8 @@
     PYTHONPATH=. uv run --frozen --extra dev python -m tests.str.rag_answer_sheet_live export --out <리포 밖 폴더>
     PYTHONPATH=. uv run --frozen --extra dev python -m tests.str.rag_answer_sheet_live apply --csv <CSV> --check-only
     PYTHONPATH=. uv run --frozen --extra dev python -m tests.str.rag_answer_sheet_live apply --csv <확인된 CSV> --checker <이름>
+    PYTHONPATH=. uv run --frozen --extra dev python -m tests.str.rag_answer_sheet_live export-calibration --out <리포 밖 폴더>
+    PYTHONPATH=. uv run --frozen --extra dev python -m tests.str.rag_answer_sheet_live check-calibration --csv <확인된 CSV>
 
 export = 초벌(`answer_draft.json`) + DB 본문(읽기 전용, 초벌이 LLM 에 보낸 그 칸) → 리포 밖 폴더에 CSV + 등급 안내 md.
 본문이 든 파일은 리포 안에 쓰지 않음 — `--out` 이나 그 조상 폴더가 리포와 같은 폴더(samefile — 대소문자 변형·상대
@@ -171,7 +173,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--checker", default="", help="반영 때 필수(--check-only 면 안 씀)")
     ap.add_argument("--check-only", action="store_true", help="점검만 — 파일 안 씀")
     ap.add_argument("--checked-at", default=datetime.now(UTC).date().isoformat())
+    from tests.str import rag_calibration_sheet as cal  # SCRUM-305 기준 맞추기 25행 — 순환 import 피해 여기서
+
+    cal.add_commands(sub)
+    from tests.str import rag_corpus_sheet_live as corpus  # SCRUM-305 태그 확인 시트
+
+    corpus.add_commands(sub)
     args = parser.parse_args(argv)
+    if args.cmd in cal.COMMANDS:
+        return cal.run_command(args, lambda: read_db()[1])
+    if args.cmd in corpus.COMMANDS:
+        return corpus.run_command(args)
     if args.cmd == "export" and inside_repo(args.out):  # DB 를 읽기 전에 먼저 막음
         print(INSIDE_REPO)
         return 2

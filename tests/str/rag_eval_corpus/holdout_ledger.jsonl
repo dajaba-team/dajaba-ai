@@ -1,1 +1,3 @@
 {"set_sha256": "cd66f3b7c4e9c1f434aef9fa2456046621440facfdcae793ba3567971428139a", "status": "reserved", "pre_sha256": "30f1262032e29a838bcc6a2fe0bb6ab7fada1f9090f79779a0b08f407d540ca7", "grades_sha256": "231885bc3926f75ed9d5773abb79706bcad0905ff1adb1df1fb021b5b98b0288", "at": "2026-11-20T05:31:07+00:00"}
+{"set_sha256": "cd66f3b7c4e9c1f434aef9fa2456046621440facfdcae793ba3567971428139a", "status": "judged", "prior": {"CYCLE": "pass", "SCATTER_GATHER": "not_judged", "GATHER_SCATTER": "pass"}, "prior_sha256": "ef38033fcf1e7487ec9d59fe3d94d744cb6a6e709a8b25e4963c84405b3d39f5", "from_prior_sha256": null, "at": "2026-11-20T05:32:49+00:00"}
+{"set_sha256": "cd66f3b7c4e9c1f434aef9fa2456046621440facfdcae793ba3567971428139a", "status": "done", "at": "2026-11-20T05:32:49+00:00"}

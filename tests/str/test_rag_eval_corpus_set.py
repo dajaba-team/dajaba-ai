@@ -8,13 +8,12 @@ import pytest
 
 from aml_ai.str.domain.rag_queries import build_query
 from tests.str import rag_eval_corpus_draw as draw
-from tests.str import rag_eval_v2_ledger as ledger
+from tests.str import rag_eval_corpus_ledger as corpus_ledger
 from tests.str.rag_eval_corpus_draw import INDUSTRIES, SIGNALS, UNRELATED_INDUSTRIES, draw_queries
 from tests.str.rag_eval_corpus_guard import normalized_sha256
 from tests.str.rag_eval_corpus_support import CORPUS_EVAL_DIR, UNRELATED_NOTE, load_queries, query_text
 from tests.str.rag_eval_v2_support import build_facts
 from tests.str.rag_eval_v2_support import load_queries as load_v2
-from tests.str.test_rag_eval_v2_ledger_format import consumed_problems, ledger_problems
 
 _QUERIES = load_queries()
 _V2_TEXTS = {build_query(build_facts(q)) for split in ("dev", "holdout") for q in load_v2(split)}
@@ -121,8 +120,7 @@ def test_override_values_come_from_draw_vocabulary() -> None:
         assert q["overrides"]["industry"] in {*INDUSTRIES, *UNRELATED_INDUSTRIES}
 
 
-def test_ledger_starts_empty_and_well_formed() -> None:
-    path = CORPUS_EVAL_DIR / ledger.LEDGER_NAME
-    assert path.is_file() and path.read_text(encoding="utf-8") == ""
-    assert ledger_problems(CORPUS_EVAL_DIR, consumed=[]) == []
-    assert consumed_problems(CORPUS_EVAL_DIR, consumed=[]) == []
+def test_ledger_exists_and_well_formed() -> None:
+    """305 부터 corpus 원장은 `rag_eval_corpus_ledger` 형식(예약 줄 pre_sha256·판정 줄) — 빈 파일도 통과."""
+    assert (CORPUS_EVAL_DIR / corpus_ledger.LEDGER_NAME).is_file()
+    assert corpus_ledger.problems(CORPUS_EVAL_DIR) == []

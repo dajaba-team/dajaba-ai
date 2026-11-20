@@ -23,6 +23,8 @@ manifest는 Docker 이미지에도 복사한다(`Dockerfile` `COPY corpus/manife
 | `fincen-msb-ko-2007` | FinCEN, 금전 서비스 업체 지침 (한국어, 2007, 52쪽) | 코퍼스의 국문 자료 1개(유형 태그 없음 — 필터를 켜면 검색에 안 나옴) — 한국어 질의 매칭 재료 |
 | `fincen-money-mule-2020` | FinCEN Advisory FIN-2020-A003, Money Mule Schemes (2020, 8쪽) | 머니 뮬 정의·수법. 레드플래그 목록은 PDF 텍스트로 안 뽑힘(정의·수법 문단만) |
 
+2026-11-20 SCRUM-305 채택으로 3개 추가 → **11개 · 722 청크**: `fincen-cmln-2025`(FinCEN FIN-2025-A003, 15쪽) · `fintrac-underground-banking-2023`(FINTRAC-2023-OA002, 8쪽) · `apg-typologies-2025`(APG 2025, 102쪽) — CYCLE·SG·GS 근거, 쪽 단위 태그(아래 "305 실행 기록").
+
 KoFIU 「자금세탁 의심거래 참고유형 사례집」은 금융회사 AML 담당자에게만 배포되고 공개본이 없다(2025.12.22 금융위 보도자료). 안 넣는다. 적색신호의 국문 표현은 FFIEC 부록 F를 번역한 청크로.
 
 ### 코퍼스 태그 근거 (SCRUM-125, 2026-11-11)
@@ -560,6 +562,7 @@ SCRUM-275 판정 미달(위 "결과 (11/19)") 원인이 코퍼스라서, SCRUM-3
 
 - 같은 유형 질의는 앞부분이 같고 끝의 신호·업종 단어만 달라 top-3 가 크게 겹칠 수 있다 — 질의 8개가 독립 8번의 시험은 아니다(숫자는 그대로)
 - 재판정 때 `prior` 를 빼고 첫 판정처럼 부르는 길은 판정 함수만으로는 못 막는다 — 원장(첫 판정 기록 해시·같은 세트 첫 판정 한 번)으로 막는다(305)
+- **태그를 확인자 등급으로 정해(SCRUM-305 ★A 4) 기준 ① 은 순위 품질보다 "관련 근거가 있고 태그됐는가"를 주로 잰다** — 유형 필터 경로라 태그된 청크만 후보이고, 태그가 곧 확인자가 등급 ≥ 1 을 준 청크의 쪽이다(결과 보기 전, 09 2026-11-20)
 
 ### 질의 세트 (`tests/str/rag_eval_corpus/queries_holdout.json`)
 
@@ -574,7 +577,7 @@ SCRUM-275 판정 미달(위 "결과 (11/19)") 원인이 코퍼스라서, SCRUM-3
 - `build_query(facts)` 가 쓰는 칸은 **유형(한국어·코드·영문 패턴) + `model_signals` + `customer.industry`** 뿐. 그래서 overrides 는 `industry`·`model_signals` 두 칸만 저장(방향·결제 방식·자행/타행 수·base 픽스처는 질의 문자열도, 기본 검색 경로 `RAG_MULTI_QUERY = False` 의 결과도 바꾸지 않음)
 - **기계 추출**: 시드 `304` · 후보 = 신호 1~2개 순열(275 질의에 나온 신호 6개) × 업종 5칸(RETAIL·WHOLESALE·TRADING·RESTAURANT·없음) · 섞은 순서대로, 기존 dev·holdout 30개 또는 이미 뽑은 것과 같은 문자열은 건너뜀. 유형 순서 CYCLE → SG → GS → FX_RELAY 로 같은 난수열을 이어 씀. base 는 CYCLE 이 `facts_cycle_nopaths.json`·`facts_multi_currency.json` 번갈아, SG·GS `facts_scatter_gather.json`, FX_RELAY `facts_multi_currency.json`(문자열에 영향 없음). 무관한 질의 = 유형 null · 신호 0 · 업종 RETAIL·MANUFACTURING. 테스트가 같은 규칙으로 다시 만들어 파일과 같은지 확인
 - 정답 칸 없음 · 계좌·금액 없음 · 검색은 305 에서 원장 예약 뒤 한 번
-- 원장 `tests/str/rag_eval_corpus/holdout_ledger.jsonl`(빈 파일로 시작) — 275 원장 모듈 `tests/str/rag_eval_v2_ledger.py` 를 폴더만 바꿔 그대로 씀
+- 원장 `tests/str/rag_eval_corpus/holdout_ledger.jsonl`(빈 파일로 시작) — 275 원장 모듈 `tests/str/rag_eval_v2_ledger.py` 를 폴더만 바꿔 그대로 씀 → **SCRUM-305 ★A 6 에서 새 모듈 `tests/str/rag_eval_corpus_ledger.py` 로**(275 모듈은 예약 줄에 `pre_sha256`·판정 줄을 못 담음 — 아래 "305 실행 기록")
 
 ### 판정 함수 (`tests/str/rag_eval_corpus_support.py` · 입력 고정·대조 `rag_eval_corpus_guard.py` — 숫자는 상수, 합성 입력 테스트만)
 
@@ -598,10 +601,95 @@ SCRUM-275 판정 미달(위 "결과 (11/19)") 원인이 코퍼스라서, SCRUM-3
 
 - ②에서 빠진 유형(적재 뒤 태그 ≥ 1)의 결과 · 무관한 질의 결과 · ③ 밀려난 정답 청크 수
 - **유형별 질의 간 top-3 겹침(평균 Jaccard)** — 위 한계 줄의 크기를 숫자로 남김
+- **태그된 청크 중 확인자 등급 0 비율(유형별)** — 태그가 쪽 단위라 같은 쪽의 다른 청크도 함께 태그됨, 그 크기를 남김(SCRUM-305 ★A 4, 결과 보기 전)
+
+### 305 실행 기록 (SCRUM-305 — 위 기준·질의·판정 함수·표본은 그대로, 실행만)
+
+**자료** (공식 주소에서 받음 11/20 — 원문 PDF 는 리포에 안 올림, `corpus/pdf/` 에만)
+
+| `id` | 발행 | 쪽 | sha256 앞 8 | 청크(예상, 기존 규칙) | 비고 |
+|---|---|---|---|---|---|
+| `fincen-cmln-2025` | FinCEN Advisory FIN-2025-A003 (2025-08-28) | 15 | `5a2654b1` | 34 | 이름이 비슷한 "FIN-2025-Alert003"(다른 문서)과 다름 |
+| `fintrac-underground-banking-2023` | FINTRAC-2023-OA002 (2023-07) | 8 | `17956599` | 17 | 그림 1(p2)은 이미지 — 단계 글자가 추출 텍스트에 없음, 바로 앞 문단이 흐름을 글로 설명. OCR 안 함 |
+| `apg-typologies-2025` | APG Yearly Typologies Report 2025 | 102 | `94c66a4c` | 246 | 공식 파일 이름 "for adoption" · PDF 메타 "revised" · 사이트의 유일한 2025 판(11/20 진희 확인) → manifest `note` |
+
+- 전체 청크 425 → 722(예상). 이용 조건: PDF 안에 문구 없음 → ⑨(11/19 멘토 확인) · manifest 새 3줄에만 `terms`·`terms_checked`(⑥ 이행)
+
+**태그** (★A 3·4) — 기준은 `rag2/00_tagging_criteria.md`·`01_term_map.md` 그대로, 기구는 manifest `typology_pages`(쪽 단위) 그대로
+1. 새 297청크 × CYCLE·SG·GS 를 LLM 초벌(275 평가 도구와 같은 방식 — 기준서 문장, 출력 `doc_id`·`page`·`pos`·`grade` 만, 실제 호출은 진희 터미널)
+2. 초벌 ≥ 1 청크를 외부 확인자가 등급으로 확인(확인 단위 청크 × 유형 — 기준서 `rag2/04_checker_guide.md`, 시트에 LLM 등급 칸 없음)
+3. 확인 등급 ≥ 1 청크가 있는 쪽만 그 유형으로 `typology_pages` → **새 3문서 청크만 지우고 다시 적재**(기존 425 청크·벡터 그대로, `ON CONFLICT DO NOTHING` 이라 태그를 바꾸려면 지워야 함)
+4. 쪽 단위라 같은 쪽의 다른 청크도 태그됨 → 그 청크까지 실행 전에 확인해야 "확인 완료"(판정 안 함 조건). 초벌 0 청크는 확인하지 않음(275 FAN 범위와 같은 방식) — 한계·참고 기록은 위
+- **새 3문서에 FAN_IN·FAN_OUT 태그 0**: 테스트(manifest 3줄의 `typologies`·`typology_pages`) + 실행 도구 사전 점검(DB 집계 ≠ 0 이면 예약 전에 거절). 적재 도구는 안 고침
+
+**태그 도구** (적재 뒤 — 진희 OK 11/20)
+- **초벌**: `tests/str/rag_corpus_draft_live.py`(손 실행, 진희 터미널) — DB 의 새 3문서 청크(297)만 × CYCLE·SCATTER_GATHER·GATHER_SCATTER 로 LLM 에 등급(0·1·2)만 물음. 프롬프트 **`tools/prompts/rag_answer_v2.md`**(새 버전 — v1 은 FAN_IN·FAN_OUT·CYCLE 정의뿐이라 SG·GS 정의를 `rag2/00_tagging_criteria.md` 와 같은 뜻으로 더함, v1 은 안 고침). 결과 `tests/str/rag_eval_corpus/answer_draft_corpus.json` = chunk_id·doc_id·page·grade + 프롬프트 sha256·모델(본문 0). FAN·FX_RELAY 는 안 물음
+- **확인 시트 범위**(청크 × 유형): 유형마다 ① 초벌 ≥ 1 청크가 있는 **쪽(후보 쪽)의 새 문서 청크 전부**(쪽 단위 태그라 같은 쪽 다른 청크도 태그될 수 있음) ② **이미 그 유형으로 태그된 기존 청크 전부**(CYCLE 2 — 확인 완료 = 그 유형 태그 청크 전부). 시트는 기준 맞추기와 같은 모양(등급·LLM 칸 없음, 기준서 04·00 사본, 리포 밖) — `rag_answer_sheet_live.py` 하위 명령 `export-corpus --out <리포 밖>` · `apply-corpus --csv <확인된 CSV> --checker <이름>`
+- **반영**: `apply-corpus` = 시트를 초벌 범위와 대조(행·유형·chunk_id·등급 0·1·2·확인자 이름) → `answers_corpus.json`(checked_by·checked_at·초벌 sha256·grades) + 새 3문서의 **`typology_pages`**(확인 등급 ≥ 1 청크가 있는 쪽) → `corpus/manifest.json` 의 새 3줄만 바꿈(기존 8줄은 글자 그대로, FAN 키 거절)
+- **다시 적재 = 새 3문서 행만 지우고 넣음**(★A 3-① 그대로) — `ON CONFLICT DO NOTHING` 이라 그냥 적재하면 이미 있는 297행의 `typologies` 가 안 바뀜. `UPDATE typologies` 대신 지우고 넣는 이유: 태그 계산을 적재 도구(manifest `typology_pages` → 쪽 단위) 한 곳에 두어 manifest 와 DB 가 어긋나지 않게. `chunk_id`(= content_hash)는 태그와 무관해 확인 등급·초벌의 chunk_id 가 그대로 맞음. 기존 8문서 행은 `DELETE … WHERE doc_id IN (새 3문서)` 밖이라 안 건드림. 적재 도구는 11문서를 다시 임베딩하지만 기존 425행은 충돌로 건너뜀
+- **태그 도구 지킬 것**(추가 검토 1): ① 초벌 전체 실행 전에 새 3문서가 34·17·246 으로 다 적재됐는지 ② export·apply 양쪽에서 유형별 초벌의 (chunk_id, 문서, 쪽) 전체 = 지금 DB 의 새 3문서 청크 전체, 기존 CYCLE 태그 청크 = 기준선 2개(`ffiec-redflags` p6) — 다르면 시트·반영 안 함 ③ apply 는 행마다 문서·쪽·본문을 그 chunk_id 의 DB 원본과 대조(275 `body_matches`) ④ 새 3 id 가 manifest 에 한 번씩·한 줄 한 문서 모양이어야 하고, 새 3줄에 FAN·FX_RELAY 가 있으면 거절. 새 3문서 × 3유형의 쪽 목록은 매번 새로 계산(0 이 된 쪽은 지움), 쓴 뒤 다시 파싱해 확인 ⑤ 등급 파일·manifest 는 manifest 잠금 하나 안에서 임시 파일로 만든 뒤 등급 파일은 덮지 않게 게시(hard link), manifest 는 원자적 교체 — 중단 뒤 같은 입력(확인자·등급·초벌 해시)으로 다시 돌리면 남은 반영만, 다른 입력은 거절, 다 반영됐으면 "할 일 없음"(1) ⑥ 초벌은 시험·전체 모두 결과 파일이 있으면 거절, LLM 호출 전에 `.running` 표식을 배타 생성(동시 실행 하나만), 완성본은 임시 파일 → 덮지 않게 게시
+- **추가 검토 2**: ⑦ 확인 시트의 `확인등급` 칸은 `행ID=` 로 미리 채워 내보내고(예 `CY-001=` — 추가 검토 3 에서 ⑯ 계산 ID 로 바꿈), 확인자는 뒤에 0·1·2 만 붙임 — 반영은 칸의 행ID 가 그 행과 같고 숫자가 0·1·2 일 때만(등급 열만 정렬한 시트 거절). 칸 앞뒤 공백과 `=` 앞뒤 공백은 허용(`CY-001= 2`·` CY-001=2 `), 그 밖(숫자 둘·다른 글자·행ID 다름)은 거절 ⑧ `run`·`preflight` 는 PreRun 을 만들기 전에 같은 DB 스냅샷에서 등급 파일로 계산한 새 3문서 쪽 = manifest `typology_pages`, 그 쪽의 새 청크 + 기존 CYCLE 2 = DB 유형별 태그 청크 ID 인지 대조 — 다르면(등급 게시 뒤 manifest 교체 실패·재적재 안 함) 예약 전에 거절 ⑨ 반영한 등급 해시를 `CORPUS_DIR/pdf/.applied_corpus_grades.json`(git 무시 폴더 — `.gitignore` 안 고침)에 기록하고, 교체하지 않는 공용 잠금 `CORPUS_DIR/pdf/.apply_corpus.lock` 아래에서 대조 — 다른 작업 트리가 다른 등급으로 반영하면 거절 ⑩ 새 3문서는 문서 단위 `typologies` 가 비어 있어야 반영(쪽 단위만) ⑪ 기준 맞추기 `check-calibration` 도 같은 원본 대조(문서·쪽은 회차 원본, 본문은 DB 원문) ⑫ PDF 의존(`pymupdf`)은 쪽 복원 함수 안에서만 import — `--extra dev` 만으로 시트·초벌 CLI 가 뜸
+- **추가 검토 3**: ⑬ `preflight`·`reserve`·`run` 은 예약·실행 전에 `answers_corpus.json` 과 공용 반영 표식(`CORPUS_DIR/pdf/.applied_corpus_grades.json`)이 둘 다 있고 확인자·초벌 해시·등급 해시가 같은지 확인 — `apply-corpus` 재시도는 표식까지 복구해야 완료 ⑭ 등급 파일의 `draft_sha256` = 실제 초벌 파일 해시, 초벌의 유형별 새 3문서 전체 (chunk_id, 문서, 쪽) = 같은 스냅샷 DB 의 새 3문서 청크(후보 없던 문서 포함, 34·17·246) · 기존 태그 = 기준선 ⑮ 따로 실행하는 `preflight`·`reserve` 도 `snapshot_session()` 하나에서 모든 DB 읽기 ⑯ 등급 칸 앞 ID 는 (유형, chunk_id)로 계산(`CY-<chunk_id 앞 8>=`) — 행 열의 순번(`CY-001`)은 표시용, 반영은 계산값과 대조(다른 초벌 시트의 등급 칸 복사 거절) ⑰ DB 의 FX_RELAY 태그 청크 = manifest 로 계산한 FX_RELAY 청크(305 는 빈 집합)
+- **추가 검토 4**: ⑱ 예약 전, 같은 스냅샷에서 **기대 코퍼스 전체 = DB 전체** — manifest 를 문서 표로 바꾸기 전에 새 3 id 가 한 번씩·모든 id 가 한 번씩·새 3문서 문서 단위 `typologies` 빔을 확인. 기대 = 기존 425(275 초벌 `rag_eval_v2/answer_draft.json` 에 기록된 (chunk_id, 문서, 쪽) + manifest 기존 줄로 `resolve_typologies` — FAN_IN 19·FAN_OUT 6·CYCLE 2, 전체 해시를 상수로 고정) + 초벌의 새 297 (chunk_id, 문서, 쪽) + manifest 새 줄로 `resolve_typologies`. (chunk_id, 문서, 쪽, 태그 집합) 전체가 DB 스냅샷과 같아야 `reserve`·`run`. 다르면 문서별 개수(빠짐·더 있음·태그 다름)를 알리고 멈춤 — ⑰ FX_RELAY 대조는 이 안에 들어감. 알고 남김: 반영 표식은 작업 트리별 `corpus` 경로에 생김(305 태그 반영·preflight·reserve·run 은 한 리포에서만) · `preflight` 스냅샷과 예약 줄 사이 재적재 커밋은 `run` 이 검색 전에 불일치로 멈춤(예약만 쓰임)
+- **추가 검토 5(마지막)**: ⑲ 태그 계산 전에 manifest 문서 id 집합 = 기존 425 의 문서 id ∪ 새 3 id(정확히 11개) — 빠진·더 있는 id 를 알리고 멈춤(태그 없는 기존 문서 줄이 빠져도 잡힘). 검증 뒤에는 없는 문서를 빈 태그로 치지 않음
+- 테스트(DB·LLM 0): `test_rag_corpus_tags.py`(초벌 범위·시트 범위·쪽 목록 다시 계산·manifest 새 3줄만·FAN·FX_RELAY·8문서/압축 manifest 거절·청크 집합·기존 태그 기준선) · `test_rag_corpus_sheet.py`(blind 시트·열만 정렬한 CSV 거절·두 번째 쓰기 실패 뒤 재시도·다른 입력 거절·동시 apply 하나만) · `test_rag_corpus_draft.py`(결과 파일 덮지 않음·동시 실행 하나만)
+- 다시 적재 뒤 확인: 전체 722 · 문서별 청크 수·태그 청크 수(기존 8문서는 4·13·10 그대로) · 새 3문서 FAN 0 · 유형별 태그 수 = `typology_pages` 쪽의 청크 수. **ES v2 다시 색인 필요**(ES 문서에 `typologies` 칸이 있음 — v1 은 안 건드림, 판정은 PG 라 판정 전 필수는 아니지만 채택 뒤 전환용)
+
+**적재·되돌리기** (진희 터미널, 시연 녹화와 안 겹치게)
+- 적재 전 `ai.reference_chunks` 를 `pg_dump`(리포 밖) · ES 는 원래 색인 `ai_reference_chunks_v1` 을 둔 채 새 색인 `ai_reference_chunks_v2`(판정은 유형 필터 → pgvector top-3 라 ES 안 씀, `.env` `ELASTIC_INDEX` 전환은 채택 뒤에만)
+- 복원 = 표 비우고 덤프 되살림 + `corpus/manifest.json` 을 develop 으로 되돌림(`retrieval_version` 이 manifest 해시라 같이) · **복원 확인**: 청크 425 · 태그 FAN_IN 19·FAN_OUT 6·CYCLE 2·SG 0·GS 0 · manifest 해시 = 304 때 · 304 기준선 FAN D07~D10 hit@3 1.0 · ES v1 문서 수 425
+
+**원장** `tests/str/rag_eval_corpus_ledger.py`(새, 275 모듈 안 고침 — 같은 덧붙이기) · 파일은 위 `holdout_ledger.jsonl` · **세트 식별 = 질의 목록의 정규화 해시**(304 가 고정한 `QUERIES_SHA256` 과 같은 함수 — 질의 파일 서식만 바꿔 다시 예약하는 길을 막음, 추가 검토 2). **원장이 예약·판정 줄 전에 그 해시가 304 고정값인지 직접 대조**(축소·재정렬·id 변경 세트는 예약·판정 0, `judge` 는 받은 질의와 `eval_dir` 둘 다 대조 — 추가 검토 5) · `record` 는 done·aborted 만, 판정 줄은 `judge_locked` 만 · `judge_locked` 는 **잠근 파일에서 원장 전체를 한 번만 읽고** 그 목록으로 `problems`·예약 줄·prior 를 고름(경로를 다시 열지 않음 — 추가 검토 3) — 위반이 있으면 판정 안 함
+
+| 305 지킬 것 | 어디서 |
+|---|---|
+| ① 새 문서 FAN 태그 0 | 테스트 + 실행 도구 사전 점검 |
+| ② 예약 줄(검색 전)에 `PreRun.sha256()` + **등급표 해시**, `holdout_v2` 한 번 | `reserve(eval_dir, pre_sha256, grades_sha256)` — 같은 세트 해시가 있으면 거절. 등급표 해시 = 예약 전에 검증한 확인자 등급 파일의 정규화 sha256(추가 검토 1) |
+| ③ 첫 판정 `Prior.from_verdict(...).sha256()` 기록, 재판정은 원장 `prior` 만 | `judge_locked` — **원장 읽기(예약 줄·마지막 판정 줄)부터 판정·판정 줄 기록까지 한 잠금 안**. 판정 줄에 계산에 쓴 `from_prior_sha256` — 잠금 안 최신 값과 다르면 거절. 앞 판정의 미달(fail)을 뒤 판정이 풀면 거절(추가 검토 1) |
+| ④ `prior_sha256`·`pre_sha256`·등급표 해시는 원장 값만 | `judge(eval_dir, runs, pre, grades_doc, fan)` — 해시·prior 인자 없음. 등급표 스냅샷의 해시가 예약 줄과 다르면 판정 전에 거절 |
+| ⑤ 같은 세트 `prior=None` 두 번 거절 | 상태 전이 표 — 첫 판정은 `reserved` 바로 뒤에만 |
+
+**상태 전이**(기록 함수와 형식 점검 `problems` 가 같은 표 `TRANSITIONS` — 추가 검토 1): (없음) → `reserved` → `judged`(첫 판정) → `done` · `done` → `judged`(재판정, 원장 prior) → `done` · `reserved`·`judged` → `aborted` · **`aborted` 뒤에는 아무 줄도 안 됨**(판정 금지)
+
+**검색 시작 문**(추가 검토 3, `tests/str/rag_eval_corpus_gate.py`) — `holdout_v2` 를 두 번 검색하는 길을 작업 트리 밖에서도 막음
+1. **질의 스냅샷**: 질의 파일을 한 번 읽어 304 가 고정한 정규화 해시(`QUERIES_SHA256`)와 대조 — 다르면(id 만 바꿔도) 예약 전에 거절. 검색·판정은 그 스냅샷으로. **`judge` 도 manifest 를 만들기 전에 같은 대조**(받은 질의 목록, 생략하면 `eval_dir` 에서 읽음) — 질의·결과에서 같은 행을 함께 빼도 판정 줄 전에 거절(추가 검토 4)
+2. **예약 → 커밋 → 검색**: `reserve` 가 원장에 예약 줄을 쓰고 멈춤 → 진희가 원장 파일을 커밋 → `run` 은 `git show HEAD:원장` 에 같은 예약 줄(세트·실행 전 고정값·등급표 해시)이 있고, 작업 트리 원장의 이 세트 줄이 예약 한 줄뿐일 때만 검색
+3. **같은 코퍼스 스냅샷**(추가 검토 4): `run` 은 태그 집계(`PreRun`)·전체 검색(질의 30 + D07~D10)을 **한 `REPEATABLE READ` 읽기 전용 트랜잭션·한 세션**에서 함 — 집계 직후 다른 세션이 복원·적재를 커밋해도 검색은 집계 당시 코퍼스를 봄. 그 스냅샷의 `PreRun`·등급표 해시가 커밋된 예약 줄과 같아야 표식을 만들고 검색. 검색은 PG 만(유형 필터 → pgvector top-3, `RAG_MULTI_QUERY`·빈칸 채우기 끔이라 ES 안 씀)
+4. **검색 표식**: 검색 직전에 git ref `refs/holdout-v2/<세트 해시 앞 16>` 를 "없을 때만 만들기"(`git update-ref <ref> HEAD 0…0`)로 원자적으로 만듦 — 이미 있으면 거절. ref 는 같은 클론의 모든 작업 트리가 공유하고 원장 파일 복원과 무관 → 새 작업 트리·빈 원장 복원·중단 뒤 다시 돌리기 모두 검색 0회
+
+**실행 도구** `tests/str/rag_eval_corpus_live.py`(새, 손 실행·pytest 수집 X — 275 `rag_eval_v2_live` 방식) — 하위 명령 `reserve`(질의 스냅샷 대조·preflight → 예약 줄 → 커밋 명령 출력, 검색 0) · `preflight`(DB 읽기 전용 집계 + 확인자 등급 파일 → `PreRun`·문제, 원장 0) · `run`(질의 스냅샷 대조 · 문제·결과 파일이 있으면 멈춤 → **preflight 에서 검증한 등급표를 스냅샷으로** — 그 해시·실행 전 고정값이 커밋된 예약 줄과 같아야 함 → 검색 시작 문 → 질의 30개 원래 검색 + D07~D10 확장 뒤 검색 → **등급 파일을 다시 읽어 스냅샷과 다르면(삭제·변경) 판정 안 하고 aborted·종료 코드 3** → 스냅샷으로 판정 → 결과 파일 → done, 중간 실패는 aborted) · `rejudge`(결과 파일로 다시 판정 — 원장 prior, 지금 등급 파일 해시가 예약 줄과 다르면 거절, 끝나면 done) · `check-restore`(425·태그 수·manifest 해시 + **D07~D10 실제 검색**(임베딩 호출) · 준혁 등급 hit@3 1.0 — 하나라도 다르거나 검색이 실패하면 종료 코드 1, 추가 검토 1)
+- 순수 부분: `rag_eval_corpus_preflight.py`(FAN 점검·`PreRun`·복원 확인·참고 기록) · `rag_eval_corpus_run.judge`(원장 값으로만 `verdict` → 판정 줄 — `pre_sha256`·`prior`·`prior_sha256` 인자 없음) · 원장 `rag_eval_corpus_ledger.py`
+- 파일: 확인자 등급 `tests/str/rag_eval_corpus/answers_corpus.json`(`checked_by`·`checked_at`·`grades{유형: [{chunk_id, grade}]}` — 확인자 이름이 없으면 확인 안 끝남) · 결과 `result_holdout_v2.json`(chunk_id 만, 본문 0). ③ 확장 전 = 275 `result_dev.json` 의 원래 검색, 등급 = `answers_dev.json`(준혁)
+- 확인자 시트: `tests/str/rag_answer_sheet_live.py` 하위 명령 `export-calibration --out <리포 밖> [--round 1|2]`(시트 + 기준서 `04_checker_guide.md`·`00_tagging_criteria.md` 사본 — 04 가 함정 목록을 00 으로 가리킴, 등급 칸 이름은 기준서와 같은 `확인등급`. 출력 경로는 `expanduser().resolve()` 한 번으로 검사·쓰기 같은 값, 셸이 안 푼 `~` 가 든 경로는 거절 — 추가 검토 2) · `check-calibration --csv <확인된 CSV>`(본체 `rag_calibration_sheet.py` — 25행, 등급·LLM 칸 없음, 기준서 사본, 대조는 준혁 등급과 "1 이상인가" 20행). 태그 후보 청크 시트는 LLM 초벌 뒤(다음 단계)
+- 테스트(DB·검색 0): `test_rag_eval_corpus_ledger.py`(예약 줄 실행 전 고정값·등급표 해시 · 같은 세트 두 번·중단 뒤 거절 · 첫 판정은 예약 바로 뒤에만 · 정상 재판정 뒤 형식 통과 · 중단 뒤 판정 거절 · 미달 해제 거절 · **동시 재판정 둘 — 뒤엣것 거절** · 계산에 쓴 prior 가 최신이 아닌 줄·판정 줄 고친 값 거절) · `test_rag_eval_corpus_preflight.py`(manifest·DB FAN · `PreRun` 확인 완료 · 복원 집계 · `judge` 가 예약과 다른 `PreRun`·등급표 스냅샷 거절 · 재판정은 원장 prior) · `test_rag_eval_corpus_live_guard.py`(FAN·결과 파일이면 예약 전에 멈춤 · **검색 중 등급 파일 삭제·변경 → 판정 없이 aborted·종료 코드 3** · **복원 확인 D07~D10 hit@3 0.75·검색 실패 → 1**) · `test_rag_calibration_sheet.py`(25행 · `확인등급` 빔 · 기준서 04·00 사본 · 리포 안·덮어쓰기 거절 · 일치 20행 경계 · 1↔2 일치) · D07~D10 입력 읽기는 `rag_eval_corpus_fan.py` · DB 읽기(`snapshot_session`·태그 집계)는 `rag_eval_corpus_db.py` · 추가 검토 4: `test_rag_eval_corpus_preflight.py`(질의·결과에서 같은 행 2개를 빼면 판정 줄 전 거절 · 질의 생략 재판정도 대조) · `test_rag_eval_corpus_snapshot_db.py`(`-m db` — 스냅샷 세션의 집계는 다른 세션이 커밋한 적재를 안 봄, `repeatable read`·읽기 전용)
+
+**결과 (11/20)** — `holdout_v2` 1회(원장 reserved → judged → done, 검색 표식 `refs/holdout-v2/cd66f3b7c4e9c1f4`) → **채택(adopt)**
+
+- 적재: 전체 722 = 기존 425(그대로) + 새 297(34·17·246). 확인자 김종민 · 기준 맞추기 1회차 25행 중 22행 일치 · 확인 시트 46행(CYCLE 12 · SG 6 · GS 28)
+- 새 3문서 `typology_pages`: `apg-typologies-2025` CYCLE p53·79 · SG p51·53 · GS p23·31·39·44·47·81 / `fincen-cmln-2025` GS p9 / `fintrac-underground-banking-2023` CYCLE p4·6 · GS p3·4·5·7
+- 태그 청크: CYCLE 12(새 10 + 기존 2) · SG 6 · GS 28 · FAN_IN 19 · FAN_OUT 6(그대로) · 새 문서 FAN 0 · FX_RELAY 0
+
+| 기준 | 유형 | 질의 | hit@3 | 필요 | 태그 청크 | 결과 |
+|---|---|---|---|---|---|---|
+| ① | CYCLE | 8 | 8 | 6 | 12 | **통과** |
+| ① | SCATTER_GATHER | 8 | (8) | 6 | 6 | **판정 안 함**(태그 10 미만 — 결과 전에 정해짐, hit 는 참고) |
+| ① | GATHER_SCATTER | 8 | 8 | 6 | 28 | **통과** |
+| ② | 태그 0 유형 = FX_RELAY | 4 | 빈 결과 4/4 | 전부 0건 | 0 | 통과 |
+| ③ | FAN D07~D10 | 4 | 1.0 → 1.0 | ≥ 1.0 | — | 통과(밀려난 정답 0) |
+
+- 결론: ① 통과 2(≥ 2) · ② · ③ 통과 → **adopt**. 무관한 질의 2개(NR01·NR02)는 0건
+- **참고 기록**(판정에 안 씀): 태그 청크 중 확인자 등급 0 비율 CYCLE 0.42(5/12) · SG 0.67(4/6) · GS 0.46(13/28) · 같은 유형 질의 간 top-3 겹침(평균 Jaccard) CYCLE 0.875 · SG 0.73 · GS 0.56 · FX_RELAY 1.0(모두 빈 결과) · top-3 3건 미만 유형 FX_RELAY
+- 읽는 법(위 한계 그대로): 태그 후보가 유형마다 6~28개라 질의가 달라도 top-3 가 거의 같음 — CYCLE 8개 질의 모두 1위가 `fintrac-underground-banking-2023` p6(등급 1) · SG 는 모두 1위 `apg-typologies-2025` p53. 기존 CYCLE 2개(`ffiec-redflags` p6)는 top-3 밖으로 밀림. 기준 ① 은 "확인된 근거가 태그됐는가"를 잰 것 — 순위 품질은 따로 안 봄
+- GS 8개 질의 모두 1위가 확인 등급 0 청크(FINTRAC p5) — 쪽 단위 태그의 한계로, 화면 근거 1순위가 관련 약한 청크일 수 있음
+- 화면에 나올 CYCLE 근거(캡처 후보): `fintrac-underground-banking-2023` p6 · p4 · `apg-typologies-2025` p79
+- 결과 파일: `tests/str/rag_eval_corpus/result_holdout_v2.json`(chunk_id 만) · `answers_corpus.json` · `answer_draft_corpus.json` · 원장 `holdout_ledger.jsonl`
+- 채택 뒤 남은 것: `.env` `ELASTIC_INDEX` 를 `ai_reference_chunks_v2` 로(머지 뒤 · v1·덤프는 지우지 않음) · 시연 서버가 보는 코퍼스가 425 → 722 로 바뀌므로 녹화 화면 근거 영향 확인
 
 ## 버전
 
 `retrieval_version = f"{EMBEDDING_MODEL}@{manifest_sha256[:8]}"` → `generation_meta`, `generations.retrieval_version`.
+
+- **SCRUM-305**: manifest 에 새 3줄이 들어가면 manifest 해시가 바뀌어 `retrieval_version` 도 바뀐다. 복원하면 manifest 를 develop 으로 되돌려 304 때 값으로 돌아간다(위 "305 실행 기록").
 
 - **SCRUM-275**: `RAG_GAP_FILL_ENABLED` 가 켜져 있으면 꼬리를 붙임 — `{EMBEDDING_MODEL}@{manifest_sha256[:8]}+fill:{검색어 종류}+kw:{ELASTIC_INDEX}` (예 `text-embedding-3-small@ac39ff86+fill:abc+kw:ai_reference_chunks_v1`, 128자 안 — `generations.retrieval_version` String(128)). 끄면 지금 그대로. 백엔드는 health 로그에만 찍고 파싱하지 않음(`AiHealthCheck`) — 백엔드 변경 0. v2·v3 프롬프트면 켜져 있어도 채우지 않으므로 꼬리를 붙이지 않음.
 
@@ -638,7 +726,7 @@ W3 초안 생성·검증이 먼저 서 있어야 한다. 순서를 바꾸지 않
   ③ FATF·APG·Egmont 자료는 번역본 만들지 않음 → 2026-11-19 ⑨로 바뀜(번역 사용 가능)
   ④ 초안 본문에 원문 문장 반입 금지(v4 는 안 씀 · 규칙 8)
   ⑤ 임베딩 외부 API 전송은 처리용으로 보고 유지, 승인 STR 은 자체 임베딩(2차)
-  ⑥ 새 자료는 이용 조건 확인 뒤 적재(manifest 이용 조건·확인일 칸은 2차 자료 확장 때)
+  ⑥ 새 자료는 이용 조건 확인 뒤 적재(manifest 이용 조건·확인일 칸은 2차 자료 확장 때 → SCRUM-305 에서 새 3줄에 `terms`·`terms_checked`)
   ⑦ 발표 자료 출처는 '문서명 · 발행기관 · 연도'
   ⑧ 상업화·외부 서비스 땐 원 기관 허가부터 다시 봄
   ⑨ 2026-11-19 멘토 확인 — 비상업 포트폴리오·공개 자료라 임베딩·외부 임베딩 API·화면 발췌·번역에 써도 된다는 의견 → 팀 결정으로 사용(법률 판단 아님, 09 같은 날 줄). 원문 PDF 는 리포에 안 올림, 출처 표기(문서명·발행기관·연도) 유지

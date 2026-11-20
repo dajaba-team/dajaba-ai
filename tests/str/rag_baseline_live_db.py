@@ -10,7 +10,6 @@ from typing import TypedDict
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from tools.corpus_chunks import chunk_pdf_pages, compute_content_hash
-from tools.ingest_corpus import _read_pages
 
 from aml_ai.shared.db import get_engine
 from aml_ai.str.domain.constants import CHUNK_OVERLAP_TOKENS, CHUNK_TOKENS, RAG_CANDIDATES
@@ -87,6 +86,8 @@ def explain(session: Session, vector: list[float], typology: str) -> list[str]:
 
 
 def restore_sequences(manifest: dict, corpus_dir: Path) -> tuple[dict[str, int], dict[str, str]]:
+    from tools.ingest_corpus import _read_pages  # pymupdf(corpus extra) — 쪽 복원 때만(SCRUM-305 추가 검토 2)
+
     order: list[tuple[str, int, str]] = []
     unavailable: dict[str, str] = {}
     for meta in manifest["documents"]:
