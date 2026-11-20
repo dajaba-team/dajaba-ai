@@ -1,0 +1,13 @@
+chunk_id,doc_id,page,쪽안_청크순번,제안태그,출처,이유분류,확인등급,이웃청크
+21c615317a754ca33eec16f435f02fb56f930b8f80664e76b1732ee6c0e3e21e,fatf-pml-2018,33,1,FAN_IN,확인자 결정,기준 모호,FAN_IN=2,2=d9ee41dd
+3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58,fatf-pml-2018,48,1,FAN_IN;FAN_OUT,확인자 결정,기준 모호,FAN_IN=2;FAN_OUT=2,2=ea08ec60
+7e5d8ea759e731c558067d9df0da55e48057562577ed309ebc7a5d2347313a10,fatf-tbml-2020,53,2,FAN_IN,두 사람 일치,,FAN_IN=2,1=3383b727
+a5f5bb29834bde053e8ab6f7ed6ce17c2ae16354a91cf764b55d3acc687a25bc,fincen-msb-ko-2007,19,1,FAN_IN,두 사람 일치,,FAN_IN=2,2=835b41b5
+df5efee3964482e3b92c77cb6e4a5dcf2703c117a083bac691b09cc1adbe4e0f,fincen-msb-ko-2007,23,1,FAN_IN,두 사람 일치,,FAN_IN=2,
+a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078,fincen-msb-ko-2007,27,1,FAN_IN,확인자 결정,기준 모호,FAN_IN=2,
+4b349bf1e1010986f9131971eadb10c1227db16cf4db6e811bd035fa6928da77,fincen-msb-ko-2007,50,1,FAN_IN,확인자 결정,기준 모호,FAN_IN=2,
+0e816328e61917185d725a59410e3d1f9b770d9c57367f09374bbdc34f6af542,fincen-sar-narrative-2003,15,2,FAN_IN,두 사람 일치,,FAN_IN=2,1=32777590
+5be9725df12cb5494b77fbe305ea3c56745db0212523445f9d2706155d328ec5,fincen-sar-narrative-2003,16,2,FAN_IN,확인자 결정,단순 실수,FAN_IN=2,1=9ef56270
+ba81c983a05cc365f731accb2f4da1af348f35c6f8c0aa78bc16ddcb1c860702,fincen-sar-narrative-2003,18,2,FAN_IN,확인자 결정,단순 실수,FAN_IN=2,1=86ae7b8d
+01ade36d395edc5078e255251654ca541aaaef7f559378160441d3bf2eccd177,fincen-sar-narrative-2003,20,1,FAN_IN,두 사람 일치,,FAN_IN=2,2=feb735b6
+20acf4547a880d9a0622ad8c247236e5d1481becd4e91f2ae51a1f5bd6842ddc,fincen-sar-narrative-2003,28,1,FAN_OUT,두 사람 일치,,FAN_OUT=2,2=f603647f
