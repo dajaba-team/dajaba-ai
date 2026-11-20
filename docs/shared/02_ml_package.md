@@ -92,6 +92,7 @@ def features(
 - 모델 파일은 패키지 안에 두며 import 시 로드된다. 채점 어댑터의 호출 시점에만 `aml_ml`을 import한다. 공용 기동 경로의 모듈 상단에서 import하지 않으며, 로드 실패는 기존 채점 503 계약으로 격리한다.
 - `0005_scoring_tables`가 rc1 모델·피처 버전과 패키지의 `threshold`를 등록한다. 부분 유일 인덱스로 serving 행을 한 개만 허용한다. 로드한 모델과 serving 행이 일치하지 않으면 `MODEL_UNAVAILABLE`을 반환한다. `alert_features` 저장은 선택 사항이며, STR에서 저장 행을 읽는지 진희 님 확인 전에는 쓰지 않는다.
 - rc1과 rc2는 같은 모델·피처 버전을 쓰므로 `0006_serving_package_version`에서 기존 모델 행에 `serving_package_version=0.1.0rc2`를 기록한다. `0005_scoring_tables`, 모델 PK, 기존 예측의 FK, serving 플래그를 보존한다. 실채점은 설치 패키지 버전까지 serving 행과 일치해야 하며 누락 또는 불일치 시 `MODEL_UNAVAILABLE`(503)을 반환한다. 0005로 롤백하면 이 컬럼만 제거된다.
+- 같은 모델 행을 유지하는 근거는 모델 가중치 파일과 공통 룰 R01·R02·R04의 피처 계산이 동일하다는 점이다. 공개 rc1·rc2에 같은 v3 입력 25건(R01 10건·R02 5건·R04 10건)을 넣어 31개 피처 값과 점수가 모두 정확히 일치함을 확인했다.
 
 ## AI 서버 쪽 (`src/aml_ai/scoring/`, 준영이 만들되 얇게 — str/ 과 같은 4계층)
 
@@ -114,6 +115,8 @@ infrastructure/transaction_reader.py  STR과 분리된 채점용 ops 조회, 통
 
 - rc1은 R01·R02·R04 중 `COMPLETE` 이력과 정확히 96시간의 경보 창을 갖춘 유효 입력만 채점한다. R03·R05·R06은 미지원이다.
 - 9/7 로컬 `0.1.0rc2.dev0` 오프라인 검증은 사건형 R04 409건을 포함해 1,545건 모두 성공했다. HIGH 0.70은 27건, 0.72는 26건이고 둘 다 여섯 룰에서 최소 1건이다. 공개 rc2 전환의 서버 검증에는 기존 여섯 룰 42건 표본을 사용한다. 실제 9/7 요청과 케이스 생성은 별도다.
+- 공개 rc2 서버의 여섯 룰 표본 42건은 로컬 `0.1.0rc2.dev0`으로 저장한 `v3_42_scores.csv`와 점수가 모두 일치했다.
+- 시연 경계값은 **LOW→MEDIUM 0.15 · MEDIUM→HIGH 0.70**으로 확정했다. rc2 전환일에 백엔드 CasePolicy 환경변수로 함께 적용한다.
 - 격리 환경에서 500건 동기 요청의 DB 조회·채점·저장·응답을 모두 재고 백엔드 90초 한도에 대비한다. DL은 오프라인 전용이다.
 
 상세 검증 항목: [연동 제안서](DAJABA_AI_ML_INTEGRATION_PROPOSAL.md).

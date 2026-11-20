@@ -69,6 +69,77 @@ def test_rc2_respects_per_alert_outcomes() -> None:
     assert all(item.score is item.prediction_id is None for item in scores[1:])
 
 
+def test_rc2_scores_all_six_rules_in_one_batch() -> None:
+    reference = datetime(2030, 1, 10, 12)
+    window_start = reference - timedelta(hours=96)
+    history = HistoryCoverage(reference - timedelta(hours=24), reference, window_start, reference, "COMPLETE")
+    template = load_json(EXAMPLES / "score_request.json")["alerts"][0]
+    cases = [
+        ("R01_FAN_OUT", "R01_SUBJECT", [("R01_SUBJECT", f"R01_DST_{i}") for i in range(10)], {}),
+        ("R02_FAN_IN", "R02_SUBJECT", [(f"R02_SRC_{i}", "R02_SUBJECT") for i in range(5)], {}),
+        ("R03_FX_RELAY", "R03_SUBJECT", [("R03_SRC", "R03_SUBJECT"), ("R03_SUBJECT", "R03_DST")], {}),
+        ("R04_CYCLE", "R04_SUBJECT", [("R04_SUBJECT", "R04_MID"), ("R04_MID", "R04_SUBJECT")], {}),
+        (
+            "R05_SCATTER_GATHER",
+            "R05_SUBJECT",
+            [leg for i in range(3) for leg in (("R05_SRC", f"R05_MID_{i}"), (f"R05_MID_{i}", "R05_SUBJECT"))],
+            {"source_account_key": "R05_SRC", "intermediates": 3},
+        ),
+        (
+            "R06_GATHER_SCATTER",
+            "R06_SUBJECT",
+            [(f"R06_SRC_{i}", "R06_SUBJECT") for i in range(5)]
+            + [("R06_SUBJECT", f"R06_DST_{i}") for i in range(5)],
+            {"distinct_senders": 5, "distinct_receivers": 5},
+        ),
+    ]
+    alerts, transactions = [], []
+    for index, (rule, account, legs, facts) in enumerate(cases, 1):
+        ids = list(range(len(transactions) + 1, len(transactions) + len(legs) + 1))
+        if rule in {"R03_FX_RELAY", "R04_CYCLE", "R05_SCATTER_GATHER"}:
+            facts = {**facts, "paths": [ids[i : i + 2] for i in range(0, len(ids), 2)]}
+        if rule == "R04_CYCLE":
+            facts["hops_by_path"] = [2]
+        for offset, (uid, (sender, receiver)) in enumerate(zip(ids, legs, strict=True)):
+            transactions.append(
+                {
+                    "transaction_id": uid,
+                    "ts": reference - timedelta(minutes=len(legs) - offset),
+                    "from_account_key": sender,
+                    "to_account_key": receiver,
+                    "amount_paid": Decimal(100),
+                    "amount_received": Decimal(100),
+                    "currency_paid": "Euro" if rule == "R03_FX_RELAY" and offset == 1 else "US Dollar",
+                    "currency_received": "US Dollar",
+                    "payment_format": "Wire",
+                    "is_self_transfer": False,
+                }
+            )
+        alerts.append(
+            Alert.model_validate(
+                {
+                    **template,
+                    "alert_id": f"ALT-20300110-{index:06d}",
+                    "rule_id": rule,
+                    "account_key": account,
+                    "reference_ts": reference,
+                    "window_start": window_start,
+                    "window_end": reference,
+                    "transaction_ids": ids,
+                    "rule_facts": facts,
+                }
+            )
+        )
+
+    scores = ScoreService._score_batch(AmlMlAdapter.load(), alerts, transactions, [history] * len(alerts))
+
+    for alert, result in zip(alerts, scores, strict=True):
+        assert result.alert_id == alert.alert_id
+        assert result.failure_code is None, alert.rule_id
+        assert result.score is not None and 0 <= result.score <= 1, alert.rule_id
+        assert result.prediction_id and result.evidence_transaction_ids == alert.transaction_ids
+
+
 @pytest.fixture
 def batch_alerts() -> tuple[list[Alert], list[HistoryCoverage]]:
     template = Alert.model_validate(load_json(EXAMPLES / "score_request.json")["alerts"][0])
