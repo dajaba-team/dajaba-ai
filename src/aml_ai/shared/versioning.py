@@ -9,23 +9,19 @@ from pathlib import Path
 from aml_ai.shared.config import Settings
 from aml_ai.str.domain.constants_rag_query import QUERY_KINDS
 
+_served_model: tuple[str, str] | None = None
+
+
+def set_served_model(versions: tuple[str, str] | None) -> None:
+    global _served_model
+    _served_model = versions
+
 
 def scoring_mode(settings: Settings) -> str:
-    """목업이면 mock, score_service 가 aml_ml 을 실제로 부르기 전에는 패키지 유무와 무관하게 unavailable.
-
-    model 판단은 연결 PR(SCRUM-130 나머지)에서 넣는다.
-    """
-    return "mock" if settings.ai_scoring_mock else "unavailable"
-
-
-def model_versions() -> tuple[str | None, str | None]:
-    """aml_ml 이 설치돼 있으면 (MODEL_VERSION, FEATURE_VERSION), 아니면 (None, None)."""
-    try:
-        import aml_ml  # type: ignore[import-not-found]
-
-        return aml_ml.MODEL_VERSION, aml_ml.FEATURE_VERSION
-    except ImportError:
-        return None, None
+    """이 프로세스에서 실제 모델 점수 저장을 확인한 뒤 model을 알린다."""
+    if settings.ai_scoring_mock:
+        return "mock"
+    return "model" if _served_model is not None else "unavailable"
 
 
 def retrieval_version(settings: Settings) -> str | None:
@@ -48,7 +44,7 @@ def file_sha256(path: Path) -> str:
 
 
 def health_versions(settings: Settings) -> dict[str, str | None]:
-    mv, fv = model_versions()
+    mv, fv = (None if settings.ai_scoring_mock else _served_model) or (None, None)
     return {
         "server_version": settings.server_version,
         "model_version": mv,

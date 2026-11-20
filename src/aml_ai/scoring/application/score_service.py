@@ -4,12 +4,22 @@ from __future__ import annotations
 
 import time
 
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
+from aml_ai.scoring.infrastructure.aml_ml_adapter import AmlMlAdapter, ModelVersion, failed_score
+from aml_ai.scoring.infrastructure.prediction_repository import is_registered, save_predictions
+from aml_ai.scoring.infrastructure.transaction_reader import HistoryCoverage, read_transactions
 from aml_ai.shared.config import Settings
+from aml_ai.shared.db import get_engine
+from aml_ai.shared.errors import DbUnavailable, ModelUnavailable
 from aml_ai.shared.schemas.alerts import Alert, ScoreRequest
 from aml_ai.shared.schemas.scores import (
     Baseline,
     Contribution,
     DataQualityStatus,
+    FailureCode,
     Observation,
     Reason,
     ScoreItem,
@@ -17,6 +27,7 @@ from aml_ai.shared.schemas.scores import (
     ScoringMeta,
 )
 from aml_ai.shared.time_utils import utc_now
+from aml_ai.shared.versioning import set_served_model
 
 MOCK_THRESHOLD = 0.7
 MOCK_MODEL_VERSION = "mock-0"
@@ -34,7 +45,8 @@ class ScoreService:
             scores = [self._mock(a) for a in req.alerts]
             mv, fv = MOCK_MODEL_VERSION, MOCK_FEATURE_VERSION
         else:
-            raise NotImplementedError("준영: aml_ml.score() 연결 — docs/shared/02_ml_package.md")
+            scores, version = self._model_scores(req)
+            mv, fv = version.model_version, version.feature_version
         return ScoreResponse(
             batch_run_id=req.batch_run_id,
             scores=scores,
@@ -46,6 +58,57 @@ class ScoreService:
             ),
             produced_at=utc_now(),
         )
+
+    def _model_scores(self, req: ScoreRequest) -> tuple[list[ScoreItem], ModelVersion]:
+        try:
+            adapter = AmlMlAdapter.load()
+            version = adapter.version
+            with Session(get_engine()) as session, session.begin():
+                session.execute(text("set transaction isolation level repeatable read"))
+                if not is_registered(
+                    session, version.model_version, version.feature_version, version.threshold
+                ):
+                    raise ModelUnavailable("scoring model is not registered for serving")
+                rows, coverage = read_transactions(session, req.alerts)
+                scores = self._score_batch(adapter, req.alerts, rows, coverage)
+                save_predictions(
+                    session,
+                    scores,
+                    batch_run_id=req.batch_run_id,
+                    model=version.model_version,
+                    feature=version.feature_version,
+                )
+        except ModelUnavailable:
+            set_served_model(None)
+            raise
+        except SQLAlchemyError as exc:
+            raise DbUnavailable(error_type=type(exc).__name__) from exc
+        if any(item.score is not None for item in scores):
+            set_served_model((version.model_version, version.feature_version))
+        return scores, version
+
+    @staticmethod
+    def _score_batch(
+        adapter: AmlMlAdapter,
+        alerts: list[Alert],
+        rows: list[dict[str, object]],
+        coverage: list[HistoryCoverage | None],
+    ) -> list[ScoreItem]:
+        present_ids = {row["transaction_id"] for row in rows}
+        failed: dict[int, ScoreItem] = {}
+        ready_alerts: list[Alert] = []
+        ready_coverage: list[HistoryCoverage] = []
+        for i, (alert, history) in enumerate(zip(alerts, coverage, strict=True)):
+            if not present_ids.issuperset(alert.transaction_ids):
+                failed[i] = failed_score(alert, adapter.version, FailureCode.TRANSACTION_NOT_FOUND)
+            elif history is None:
+                failed[i] = failed_score(alert, adapter.version, FailureCode.REQUIRED_INPUT_MISSING)
+            else:
+                ready_alerts.append(alert)
+                ready_coverage.append(history)
+
+        scored = iter(adapter.score(ready_alerts, rows, ready_coverage) if ready_alerts else [])
+        return [failed[i] if i in failed else next(scored) for i in range(len(alerts))]
 
     @staticmethod
     def _mock(alert: Alert) -> ScoreItem:

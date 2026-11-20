@@ -1,21 +1,16 @@
-"""SCRUM-130 (1/2) — `/v1/health` 최상위 `scoring_mode` (docs/shared/02 「설치·버전」·05).
+"""채점 준비 상태와 STR 기동 상태는 독립이다."""
 
-값: `AI_SCORING_MOCK=true` → `mock`. `false` → `score_service` 가 `aml_ml` 을 실제로 부르기 전까지는
-패키지 유무와 상관없이 `unavailable`. `model` 판단과 그 테스트는 연결 PR(SCRUM-130 나머지)에서.
-`status` 는 `scoring_mode` 와 상관없이 `ok`. `.env` 영향을 막으려고 설정은 `_env_file=None` 으로 고정.
-"""
-
-from __future__ import annotations
-
-import sys
 from collections.abc import Iterator
-from types import ModuleType
 
 import pytest
 from fastapi.testclient import TestClient
 
+from aml_ai import main
 from aml_ai.main import app
+from aml_ai.scoring.infrastructure import aml_ml_adapter as adapter
+from aml_ai.shared import versioning
 from aml_ai.shared.config import Settings, get_settings
+from tests.conftest import EXAMPLES, load_json
 
 EXISTING_KEYS = {
     "status",
@@ -30,53 +25,74 @@ EXISTING_KEYS = {
 
 @pytest.fixture()
 def health(monkeypatch: pytest.MonkeyPatch) -> Iterator:
-    """`health(scoring_mock=...)` → (status_code, body). 인증 헤더 없이 부른다."""
     monkeypatch.delenv("AI_SCORING_MOCK", raising=False)
+    monkeypatch.setattr(versioning, "_served_model", None)
+    monkeypatch.setattr(main, "db_ping", lambda _: "ok")
 
     def call(**overrides: object) -> tuple[int, dict]:
         settings = Settings(_env_file=None, **overrides)  # type: ignore[arg-type]
         app.dependency_overrides[get_settings] = lambda: settings
-        with TestClient(app) as c:
-            r = c.get("/v1/health")
-        return r.status_code, r.json()
+        with TestClient(app) as client:
+            response = client.get("/v1/health")
+        return response.status_code, response.json()
 
     yield call
     app.dependency_overrides.pop(get_settings, None)
 
 
-def test_default_settings_is_mock(health) -> None:  # type: ignore[no-untyped-def]
+def test_default_settings_is_mock(health) -> None:
     code, body = health()
     assert code == 200
     assert body["scoring_mode"] == "mock"
     assert body["status"] == "ok"
 
 
-def test_mock_false_without_package_is_unavailable(health, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[no-untyped-def]
-    monkeypatch.setitem(sys.modules, "aml_ml", None)  # import aml_ml → ImportError
+def test_health_does_not_try_to_load_model(health, monkeypatch: pytest.MonkeyPatch) -> None:
+    def unexpected_import(name: str) -> None:
+        pytest.fail(f"health tried to import {name}")
+
+    monkeypatch.setattr(adapter, "import_module", unexpected_import)
     code, body = health(AI_SCORING_MOCK=False)
     assert code == 200
     assert body["scoring_mode"] == "unavailable"
-    assert body["status"] == "ok"  # 기동 판단은 그대로
+    assert body["status"] == "ok"
     assert body["model_version"] is None and body["feature_version"] is None
 
 
-def test_mock_false_with_package_is_still_unavailable_before_wiring(  # type: ignore[no-untyped-def]
-    health, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """패키지만 먼저 들어간 상태(연결 전) — health 버전은 패키지 값, 모드는 unavailable."""
-    fake = ModuleType("aml_ml")
-    fake.MODEL_VERSION = "fake-model-1"  # type: ignore[attr-defined]
-    fake.FEATURE_VERSION = "fake-feat-1"  # type: ignore[attr-defined]
-    monkeypatch.setitem(sys.modules, "aml_ml", fake)
+def test_health_reports_served_model(health) -> None:
+    versioning.set_served_model(("saved-model", "saved-features"))
     code, body = health(AI_SCORING_MOCK=False)
     assert code == 200
-    assert body["scoring_mode"] == "unavailable"
-    assert body["model_version"] == "fake-model-1"
-    assert body["feature_version"] == "fake-feat-1"
-    assert body["status"] == "ok"
+    assert body["scoring_mode"] == "model"
+    assert body["model_version"] == "saved-model"
+    assert body["feature_version"] == "saved-features"
 
 
-def test_existing_keys_unchanged_and_no_auth(health) -> None:  # type: ignore[no-untyped-def]
+def test_model_load_failure_does_not_prevent_str_startup(monkeypatch: pytest.MonkeyPatch) -> None:
+    def broken_model(name: str) -> None:
+        assert name == "aml_ml"
+        raise RuntimeError("invalid model artifact")
+
+    monkeypatch.setattr(adapter, "import_module", broken_model)
+    monkeypatch.setattr(versioning, "_served_model", ("prior-model", "prior-features"))
+    monkeypatch.setattr(main, "db_ping", lambda _: "ok")
+    monkeypatch.setenv("AI_SCORING_MOCK", "false")
+    with TestClient(app) as client:
+        assert client.get("/v1/health").json()["scoring_mode"] == "model"
+        response = client.post(
+            "/v1/scores",
+            headers={"X-Internal-Key": "test-key"},
+            json=load_json(EXAMPLES / "score_request.json"),
+        )
+        assert response.status_code == 503
+        assert response.json()["code"] == "MODEL_UNAVAILABLE"
+        health_body = client.get("/v1/health").json()
+        assert health_body["status"] == "ok"
+        assert health_body["scoring_mode"] == "unavailable"
+        assert "/v1/str/drafts" in client.get("/openapi.json").json()["paths"]
+
+
+def test_existing_keys_unchanged_and_no_auth(health) -> None:
     code, body = health()
     assert code == 200
     assert set(body) == EXISTING_KEYS | {"scoring_mode"}
