@@ -19,10 +19,11 @@ from aml_ai.shared.db import ping as db_ping
 from aml_ai.shared.errors import install_exception_handlers
 from aml_ai.shared.infrastructure.tracing import shutdown_tracer
 from aml_ai.shared.logging import RequestIdMiddleware, setup_logging
-from aml_ai.shared.versioning import health_versions, scoring_mode
+from aml_ai.shared.versioning import health_versions, retrieval_version_problem, scoring_mode
 from aml_ai.str.api.router import router as str_router
 from aml_ai.str.infrastructure.judge import judge_model_decision
 from aml_ai.str.infrastructure.prompt_index import check_frozen_prompts, index_prompt_files
+from aml_ai.str.infrastructure.retriever_rerank import rerank_response_model_problem, rerank_timeout_problem
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +36,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     if settings.rag_enabled and not settings.embedding_model:
         log.warning("embedding_model_missing")
     check_frozen_prompts()  # docs/str/05 동결 강제 — 파일 해시가 다르면 기동 실패
+    # SCRUM-308-2 — 꼬리 붙인 버전 > 128자 · 켠 리랭커 한도 > 8초 · 허용 응답 모델 빈 값이면 요청 받기 전에 기동 실패
+    problem = retrieval_version_problem(settings) or rerank_timeout_problem(settings)
+    if problem := problem or rerank_response_model_problem(settings):
+        raise RuntimeError(problem)
     _, reason = judge_model_decision(settings)
     if reason is not None:
         log.warning(

@@ -1,0 +1,3671 @@
+{
+  "_doc": "SCRUM-308 ② 리랭커 — chunk_id·위치·cosine·순서·시간·지표만, 원문·프롬프트·검색어 문장 0 (docs/str/10 308 절 ②).",
+  "finished_at": "2026-11-21T18:25:43+00:00",
+  "dry": false,
+  "configuration": {
+    "dry": false,
+    "criteria_commit": "87aef099a91be90440d79b65f0daff462aa73216",
+    "head": "662b86ec079df7e773517f893045a5e8aecf5376",
+    "answer_candidates_sha256": "517b6bed5e863126dfae631c0a1ba626fbfef106f5fbbd2b7db9ce841d028f73",
+    "queries_dev_sha256": "4e7f5ebd0befe82710eb9e6ff1a3793aed3aad37a9cf42247586e04468783091",
+    "positions_722_sha256": "129ff78aa62ef6a70af6161202e3de7f6316daa856e113aca1a3d567085fa9d0",
+    "facts_cycle_nopaths_sha256": "8a705ecd651294c775179a8077286d5b1466d4e6684d0f3818efcbd07a86d357",
+    "facts_fan_in_sha256": "de5de878dc980c749c20db79e486c2ead441491ed6725a07f715d3a614a451da",
+    "facts_fan_in_b_sha256": "1fd5eb23ac1c3728bcc2509e5e2f2bd49acfafe3aa6a8ddc68ba6a8e928a7aab",
+    "facts_fan_out_sha256": "2788fec3eef26296285e517b543647dc166d986b2d36ce7589223469055af420",
+    "facts_multi_currency_sha256": "4c636dfafa430e7c4f4fc75ac968f31bfd5d13628ee41e4417aa5ec032c4af18",
+    "facts_scatter_gather_sha256": "03561f7a648a870cdf7636ffdf78fee3e111d98f6b94ec130d4616c5612f1272",
+    "rerank_v1_sha256": "fb0caf66661cc1668a2b55fce0dc8e9b56bd291b21614fd0f49329c3c73f7336",
+    "embedding_model": "text-embedding-3-small",
+    "rerank_model": "gpt-6.1-terra",
+    "reasoning_effort": "low",
+    "temperature_supported": false,
+    "constants": {
+      "RAG_CANDIDATES": 10,
+      "MIN_SIMILARITY": 0.0,
+      "RAG_RERANK_MAX_TOKENS": 1000,
+      "RAG_RERANK_TIMEOUT_S": 8.0
+    },
+    "embedding_batches": 32,
+    "llm_calls": 60
+  },
+  "corpus_recheck": {
+    "chunks": 65,
+    "min_cos": 0.999957,
+    "below": 0
+  },
+  "baseline": {
+    "types": {
+      "FAN_IN": {
+        "n": 6,
+        "precision3": 1.0,
+        "hit3": 1.0
+      },
+      "FAN_OUT": {
+        "n": 6,
+        "precision3": 1.0,
+        "hit3": 1.0
+      },
+      "CYCLE": {
+        "n": 6,
+        "precision3": 0.667,
+        "hit3": 1.0
+      },
+      "SCATTER_GATHER": {
+        "n": 6,
+        "precision3": 0.389,
+        "hit3": 1.0
+      },
+      "GATHER_SCATTER": {
+        "n": 6,
+        "precision3": 0.611,
+        "hit3": 1.0
+      }
+    },
+    "mean_precision3": 0.819
+  },
+  "rounds": [
+    {
+      "metrics": {
+        "types": {
+          "FAN_IN": {
+            "n": 6,
+            "precision3": 1.0,
+            "hit3": 1.0
+          },
+          "FAN_OUT": {
+            "n": 6,
+            "precision3": 0.667,
+            "hit3": 1.0
+          },
+          "CYCLE": {
+            "n": 6,
+            "precision3": 0.667,
+            "hit3": 1.0
+          },
+          "SCATTER_GATHER": {
+            "n": 6,
+            "precision3": 0.556,
+            "hit3": 1.0
+          },
+          "GATHER_SCATTER": {
+            "n": 6,
+            "precision3": 1.0,
+            "hit3": 1.0
+          }
+        },
+        "mean_precision3": 0.833
+      },
+      "gain": 0.014,
+      "hit_drops": [],
+      "p95_ms": 3267.1,
+      "calls": 30,
+      "failed": 0,
+      "fail_rate": 0.0,
+      "checks": {
+        "precision_gain": false,
+        "no_hit_drop": true,
+        "p95": true,
+        "fail_rate": true
+      },
+      "passed": false,
+      "requested_model": "gpt-6.1-terra",
+      "response_models": [
+        "gpt-6.1-terra"
+      ]
+    },
+    {
+      "metrics": {
+        "types": {
+          "FAN_IN": {
+            "n": 6,
+            "precision3": 1.0,
+            "hit3": 1.0
+          },
+          "FAN_OUT": {
+            "n": 6,
+            "precision3": 0.667,
+            "hit3": 1.0
+          },
+          "CYCLE": {
+            "n": 6,
+            "precision3": 0.667,
+            "hit3": 1.0
+          },
+          "SCATTER_GATHER": {
+            "n": 6,
+            "precision3": 0.5,
+            "hit3": 1.0
+          },
+          "GATHER_SCATTER": {
+            "n": 6,
+            "precision3": 1.0,
+            "hit3": 1.0
+          }
+        },
+        "mean_precision3": 0.833
+      },
+      "gain": 0.014,
+      "hit_drops": [],
+      "p95_ms": 3379.9,
+      "calls": 30,
+      "failed": 0,
+      "fail_rate": 0.0,
+      "checks": {
+        "precision_gain": false,
+        "no_hit_drop": true,
+        "p95": true,
+        "fail_rate": true
+      },
+      "passed": false,
+      "requested_model": "gpt-6.1-terra",
+      "response_models": [
+        "gpt-6.1-terra"
+      ]
+    }
+  ],
+  "verdict": {
+    "judged": true,
+    "rounds_passed": [
+      false,
+      false
+    ],
+    "adopt": false
+  },
+  "queries": [
+    {
+      "id": "FI01",
+      "typology": "FAN_IN",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.378498
+        },
+        {
+          "rank": 2,
+          "chunk_id": "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.367802
+        },
+        {
+          "rank": 3,
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2,
+          "cosine": 0.354271
+        },
+        {
+          "rank": 4,
+          "chunk_id": "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+          "doc_id": "ffiec-redflags",
+          "page": 8,
+          "pos": 1,
+          "cosine": 0.351025
+        },
+        {
+          "rank": 5,
+          "chunk_id": "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 1,
+          "cosine": 0.339307
+        },
+        {
+          "rank": 6,
+          "chunk_id": "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.33309
+        },
+        {
+          "rank": 7,
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.329231
+        },
+        {
+          "rank": 8,
+          "chunk_id": "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.319906
+        },
+        {
+          "rank": 9,
+          "chunk_id": "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+          "doc_id": "fincen-funnel-2014",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.314997
+        },
+        {
+          "rank": 10,
+          "chunk_id": "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 1,
+          "cosine": 0.30951
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 3822.1,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 2993.2,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FI02",
+      "typology": "FAN_IN",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.409365
+        },
+        {
+          "rank": 2,
+          "chunk_id": "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 1,
+          "cosine": 0.364513
+        },
+        {
+          "rank": 3,
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2,
+          "cosine": 0.362322
+        },
+        {
+          "rank": 4,
+          "chunk_id": "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+          "doc_id": "ffiec-redflags",
+          "page": 8,
+          "pos": 1,
+          "cosine": 0.362026
+        },
+        {
+          "rank": 5,
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.358788
+        },
+        {
+          "rank": 6,
+          "chunk_id": "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.335428
+        },
+        {
+          "rank": 7,
+          "chunk_id": "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.325038
+        },
+        {
+          "rank": 8,
+          "chunk_id": "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+          "doc_id": "fincen-funnel-2014",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.31631
+        },
+        {
+          "rank": 9,
+          "chunk_id": "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.315537
+        },
+        {
+          "rank": 10,
+          "chunk_id": "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.302335
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 3267.1,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 3082.3,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FI03",
+      "typology": "FAN_IN",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.410821
+        },
+        {
+          "rank": 2,
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2,
+          "cosine": 0.387433
+        },
+        {
+          "rank": 3,
+          "chunk_id": "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.385805
+        },
+        {
+          "rank": 4,
+          "chunk_id": "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+          "doc_id": "ffiec-redflags",
+          "page": 8,
+          "pos": 1,
+          "cosine": 0.369442
+        },
+        {
+          "rank": 5,
+          "chunk_id": "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 1,
+          "cosine": 0.354306
+        },
+        {
+          "rank": 6,
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.342297
+        },
+        {
+          "rank": 7,
+          "chunk_id": "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 1,
+          "cosine": 0.340967
+        },
+        {
+          "rank": 8,
+          "chunk_id": "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.340831
+        },
+        {
+          "rank": 9,
+          "chunk_id": "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+          "doc_id": "fincen-funnel-2014",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.33835
+        },
+        {
+          "rank": 10,
+          "chunk_id": "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee",
+          "doc_id": "fatf-pml-2018",
+          "page": 43,
+          "pos": 2,
+          "cosine": 0.333942
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8"
+          ],
+          "ms": 2757.5,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8"
+          ],
+          "ms": 2422.8,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FI04",
+      "typology": "FAN_IN",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.398012
+        },
+        {
+          "rank": 2,
+          "chunk_id": "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 1,
+          "cosine": 0.362775
+        },
+        {
+          "rank": 3,
+          "chunk_id": "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+          "doc_id": "ffiec-redflags",
+          "page": 8,
+          "pos": 1,
+          "cosine": 0.356658
+        },
+        {
+          "rank": 4,
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2,
+          "cosine": 0.355627
+        },
+        {
+          "rank": 5,
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.353541
+        },
+        {
+          "rank": 6,
+          "chunk_id": "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.3369
+        },
+        {
+          "rank": 7,
+          "chunk_id": "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.331512
+        },
+        {
+          "rank": 8,
+          "chunk_id": "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.326315
+        },
+        {
+          "rank": 9,
+          "chunk_id": "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.321186
+        },
+        {
+          "rank": 10,
+          "chunk_id": "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+          "doc_id": "fincen-funnel-2014",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.313045
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 3085.9,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 3221.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FI05",
+      "typology": "FAN_IN",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.449646
+        },
+        {
+          "rank": 2,
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2,
+          "cosine": 0.404983
+        },
+        {
+          "rank": 3,
+          "chunk_id": "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 1,
+          "cosine": 0.400958
+        },
+        {
+          "rank": 4,
+          "chunk_id": "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+          "doc_id": "ffiec-redflags",
+          "page": 8,
+          "pos": 1,
+          "cosine": 0.394894
+        },
+        {
+          "rank": 5,
+          "chunk_id": "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.379728
+        },
+        {
+          "rank": 6,
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.37706
+        },
+        {
+          "rank": 7,
+          "chunk_id": "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.360936
+        },
+        {
+          "rank": 8,
+          "chunk_id": "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.352566
+        },
+        {
+          "rank": 9,
+          "chunk_id": "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+          "doc_id": "fincen-funnel-2014",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.350321
+        },
+        {
+          "rank": 10,
+          "chunk_id": "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.342139
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 3145.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 3437.6,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FI06",
+      "typology": "FAN_IN",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.388646
+        },
+        {
+          "rank": 2,
+          "chunk_id": "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+          "doc_id": "ffiec-redflags",
+          "page": 8,
+          "pos": 1,
+          "cosine": 0.363495
+        },
+        {
+          "rank": 3,
+          "chunk_id": "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 1,
+          "cosine": 0.355112
+        },
+        {
+          "rank": 4,
+          "chunk_id": "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+          "doc_id": "ffiec-redflags",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.351141
+        },
+        {
+          "rank": 5,
+          "chunk_id": "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+          "doc_id": "fincen-funnel-2014",
+          "page": 1,
+          "pos": 2,
+          "cosine": 0.349454
+        },
+        {
+          "rank": 6,
+          "chunk_id": "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+          "doc_id": "fincen-funnel-2014",
+          "page": 2,
+          "pos": 2,
+          "cosine": 0.345798
+        },
+        {
+          "rank": 7,
+          "chunk_id": "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.334636
+        },
+        {
+          "rank": 8,
+          "chunk_id": "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+          "doc_id": "ffiec-redflags",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.322291
+        },
+        {
+          "rank": 9,
+          "chunk_id": "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+          "doc_id": "fincen-funnel-2014",
+          "page": 3,
+          "pos": 1,
+          "cosine": 0.320023
+        },
+        {
+          "rank": 10,
+          "chunk_id": "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+          "doc_id": "fincen-funnel-2014",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.308642
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 2809.0,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb",
+            "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d",
+            "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544",
+            "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129",
+            "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c",
+            "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3",
+            "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83",
+            "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672",
+            "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8",
+            "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c"
+          ],
+          "ms": 2830.3,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FO01",
+      "typology": "FAN_OUT",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.370337
+        },
+        {
+          "rank": 2,
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "cosine": 0.367939
+        },
+        {
+          "rank": 3,
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.362868
+        },
+        {
+          "rank": 4,
+          "chunk_id": "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.335859
+        },
+        {
+          "rank": 5,
+          "chunk_id": "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.335623
+        },
+        {
+          "rank": 6,
+          "chunk_id": "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 1,
+          "cosine": 0.324303
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 2215.1,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 2904.0,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FO02",
+      "typology": "FAN_OUT",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "cosine": 0.343425
+        },
+        {
+          "rank": 2,
+          "chunk_id": "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.339911
+        },
+        {
+          "rank": 3,
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.32569
+        },
+        {
+          "rank": 4,
+          "chunk_id": "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.31072
+        },
+        {
+          "rank": 5,
+          "chunk_id": "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.307267
+        },
+        {
+          "rank": 6,
+          "chunk_id": "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 1,
+          "cosine": 0.30386
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 2756.2,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 3379.9,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FO03",
+      "typology": "FAN_OUT",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.362534
+        },
+        {
+          "rank": 2,
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "cosine": 0.350469
+        },
+        {
+          "rank": 3,
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.337989
+        },
+        {
+          "rank": 4,
+          "chunk_id": "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.323553
+        },
+        {
+          "rank": 5,
+          "chunk_id": "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.318455
+        },
+        {
+          "rank": 6,
+          "chunk_id": "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 1,
+          "cosine": 0.308084
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 3107.1,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 3253.4,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FO04",
+      "typology": "FAN_OUT",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "cosine": 0.372541
+        },
+        {
+          "rank": 2,
+          "chunk_id": "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.35727
+        },
+        {
+          "rank": 3,
+          "chunk_id": "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.342155
+        },
+        {
+          "rank": 4,
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.318559
+        },
+        {
+          "rank": 5,
+          "chunk_id": "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 1,
+          "cosine": 0.302697
+        },
+        {
+          "rank": 6,
+          "chunk_id": "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.297327
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 2122.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 2629.4,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FO05",
+      "typology": "FAN_OUT",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.366219
+        },
+        {
+          "rank": 2,
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.365172
+        },
+        {
+          "rank": 3,
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "cosine": 0.361615
+        },
+        {
+          "rank": 4,
+          "chunk_id": "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.346776
+        },
+        {
+          "rank": 5,
+          "chunk_id": "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.33536
+        },
+        {
+          "rank": 6,
+          "chunk_id": "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 1,
+          "cosine": 0.308754
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 2497.2,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 1934.0,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FO06",
+      "typology": "FAN_OUT",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.370956
+        },
+        {
+          "rank": 2,
+          "chunk_id": "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 2,
+          "cosine": 0.339311
+        },
+        {
+          "rank": 3,
+          "chunk_id": "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab",
+          "doc_id": "ffiec-redflags",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.318195
+        },
+        {
+          "rank": 4,
+          "chunk_id": "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.300885
+        },
+        {
+          "rank": 5,
+          "chunk_id": "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+          "doc_id": "ffiec-redflags",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.2877
+        },
+        {
+          "rank": 6,
+          "chunk_id": "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+          "doc_id": "ffiec-redflags",
+          "page": 5,
+          "pos": 1,
+          "cosine": 0.280352
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 3147.4,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19",
+            "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808",
+            "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d",
+            "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714",
+            "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a",
+            "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab"
+          ],
+          "ms": 2832.0,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "CY01",
+      "typology": "CYCLE",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.430565
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.422911
+        },
+        {
+          "rank": 3,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.375965
+        },
+        {
+          "rank": 4,
+          "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 2,
+          "cosine": 0.374952
+        },
+        {
+          "rank": 5,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.358272
+        },
+        {
+          "rank": 6,
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.330626
+        },
+        {
+          "rank": 7,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.327887
+        },
+        {
+          "rank": 8,
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.327506
+        },
+        {
+          "rank": 9,
+          "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.312391
+        },
+        {
+          "rank": 10,
+          "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 1,
+          "cosine": 0.298556
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2186.8,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2971.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "CY02",
+      "typology": "CYCLE",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.42977
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.419251
+        },
+        {
+          "rank": 3,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.368234
+        },
+        {
+          "rank": 4,
+          "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 2,
+          "cosine": 0.356657
+        },
+        {
+          "rank": 5,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.319011
+        },
+        {
+          "rank": 6,
+          "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.318128
+        },
+        {
+          "rank": 7,
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.303157
+        },
+        {
+          "rank": 8,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.30114
+        },
+        {
+          "rank": 9,
+          "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 1,
+          "cosine": 0.297488
+        },
+        {
+          "rank": 10,
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.296914
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2557.8,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2171.9,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "CY03",
+      "typology": "CYCLE",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.422505
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.404111
+        },
+        {
+          "rank": 3,
+          "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 2,
+          "cosine": 0.363442
+        },
+        {
+          "rank": 4,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.359852
+        },
+        {
+          "rank": 5,
+          "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.316675
+        },
+        {
+          "rank": 6,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.316667
+        },
+        {
+          "rank": 7,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.316518
+        },
+        {
+          "rank": 8,
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.299613
+        },
+        {
+          "rank": 9,
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.289997
+        },
+        {
+          "rank": 10,
+          "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 1,
+          "cosine": 0.28188
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2780.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2895.1,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "CY04",
+      "typology": "CYCLE",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.4214
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.417946
+        },
+        {
+          "rank": 3,
+          "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 2,
+          "cosine": 0.377021
+        },
+        {
+          "rank": 4,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.363816
+        },
+        {
+          "rank": 5,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.349861
+        },
+        {
+          "rank": 6,
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.3346
+        },
+        {
+          "rank": 7,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.329812
+        },
+        {
+          "rank": 8,
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.319474
+        },
+        {
+          "rank": 9,
+          "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.305499
+        },
+        {
+          "rank": 10,
+          "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 1,
+          "cosine": 0.30406
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2465.4,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2119.8,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "CY05",
+      "typology": "CYCLE",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.415542
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.402318
+        },
+        {
+          "rank": 3,
+          "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 2,
+          "cosine": 0.368187
+        },
+        {
+          "rank": 4,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.362405
+        },
+        {
+          "rank": 5,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.3188
+        },
+        {
+          "rank": 6,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.31634
+        },
+        {
+          "rank": 7,
+          "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.313459
+        },
+        {
+          "rank": 8,
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.299542
+        },
+        {
+          "rank": 9,
+          "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 1,
+          "cosine": 0.291055
+        },
+        {
+          "rank": 10,
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.283441
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2329.9,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2004.0,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "CY06",
+      "typology": "CYCLE",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.428586
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.425366
+        },
+        {
+          "rank": 3,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.37312
+        },
+        {
+          "rank": 4,
+          "chunk_id": "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 2,
+          "cosine": 0.366705
+        },
+        {
+          "rank": 5,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.32225
+        },
+        {
+          "rank": 6,
+          "chunk_id": "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 2,
+          "cosine": 0.319126
+        },
+        {
+          "rank": 7,
+          "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 2,
+          "cosine": 0.312825
+        },
+        {
+          "rank": 8,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.308131
+        },
+        {
+          "rank": 9,
+          "chunk_id": "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c",
+          "doc_id": "apg-typologies-2025",
+          "page": 79,
+          "pos": 1,
+          "cosine": 0.306357
+        },
+        {
+          "rank": 10,
+          "chunk_id": "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+          "doc_id": "ffiec-redflags",
+          "page": 6,
+          "pos": 1,
+          "cosine": 0.304744
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2505.3,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+            "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536",
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f",
+            "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860",
+            "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c"
+          ],
+          "ms": 2192.3,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "SG01",
+      "typology": "SCATTER_GATHER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.365902
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 3,
+          "cosine": 0.351186
+        },
+        {
+          "rank": 3,
+          "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 2,
+          "cosine": 0.325565
+        },
+        {
+          "rank": 4,
+          "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 1,
+          "cosine": 0.301158
+        },
+        {
+          "rank": 5,
+          "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 1,
+          "cosine": 0.294645
+        },
+        {
+          "rank": 6,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.291174
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813"
+          ],
+          "ms": 2765.9,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813"
+          ],
+          "ms": 2601.2,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "SG02",
+      "typology": "SCATTER_GATHER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.376085
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 3,
+          "cosine": 0.355529
+        },
+        {
+          "rank": 3,
+          "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 2,
+          "cosine": 0.302118
+        },
+        {
+          "rank": 4,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.294889
+        },
+        {
+          "rank": 5,
+          "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 1,
+          "cosine": 0.282664
+        },
+        {
+          "rank": 6,
+          "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 1,
+          "cosine": 0.269333
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813"
+          ],
+          "ms": 2921.1,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813"
+          ],
+          "ms": 2806.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "SG03",
+      "typology": "SCATTER_GATHER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.389936
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 3,
+          "cosine": 0.331226
+        },
+        {
+          "rank": 3,
+          "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 1,
+          "cosine": 0.315951
+        },
+        {
+          "rank": 4,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.309256
+        },
+        {
+          "rank": 5,
+          "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 2,
+          "cosine": 0.294025
+        },
+        {
+          "rank": 6,
+          "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 1,
+          "cosine": 0.288027
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5"
+          ],
+          "ms": 2149.2,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5"
+          ],
+          "ms": 2240.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "SG04",
+      "typology": "SCATTER_GATHER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.402528
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 3,
+          "cosine": 0.359911
+        },
+        {
+          "rank": 3,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.341092
+        },
+        {
+          "rank": 4,
+          "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 2,
+          "cosine": 0.335645
+        },
+        {
+          "rank": 5,
+          "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 1,
+          "cosine": 0.297638
+        },
+        {
+          "rank": 6,
+          "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 1,
+          "cosine": 0.288245
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813"
+          ],
+          "ms": 3031.2,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813"
+          ],
+          "ms": 2947.6,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "SG05",
+      "typology": "SCATTER_GATHER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.374944
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 3,
+          "cosine": 0.349042
+        },
+        {
+          "rank": 3,
+          "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 2,
+          "cosine": 0.298375
+        },
+        {
+          "rank": 4,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.286562
+        },
+        {
+          "rank": 5,
+          "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 1,
+          "cosine": 0.285595
+        },
+        {
+          "rank": 6,
+          "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 1,
+          "cosine": 0.268406
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813"
+          ],
+          "ms": 2711.0,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813"
+          ],
+          "ms": 3144.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "SG06",
+      "typology": "SCATTER_GATHER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 3,
+          "cosine": 0.382623
+        },
+        {
+          "rank": 2,
+          "chunk_id": "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 3,
+          "cosine": 0.330781
+        },
+        {
+          "rank": 3,
+          "chunk_id": "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 2,
+          "cosine": 0.317384
+        },
+        {
+          "rank": 4,
+          "chunk_id": "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+          "doc_id": "apg-typologies-2025",
+          "page": 51,
+          "pos": 1,
+          "cosine": 0.313446
+        },
+        {
+          "rank": 5,
+          "chunk_id": "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 1,
+          "cosine": 0.302928
+        },
+        {
+          "rank": 6,
+          "chunk_id": "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+          "doc_id": "apg-typologies-2025",
+          "page": 53,
+          "pos": 2,
+          "cosine": 0.294869
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5"
+          ],
+          "ms": 3067.5,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690",
+            "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749",
+            "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965",
+            "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e",
+            "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813",
+            "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5"
+          ],
+          "ms": 2738.8,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "GS01",
+      "typology": "GATHER_SCATTER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 3,
+          "cosine": 0.361318
+        },
+        {
+          "rank": 2,
+          "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 1,
+          "cosine": 0.35415
+        },
+        {
+          "rank": 3,
+          "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 3,
+          "cosine": 0.352963
+        },
+        {
+          "rank": 4,
+          "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+          "doc_id": "apg-typologies-2025",
+          "page": 39,
+          "pos": 1,
+          "cosine": 0.352065
+        },
+        {
+          "rank": 5,
+          "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+          "doc_id": "apg-typologies-2025",
+          "page": 31,
+          "pos": 3,
+          "cosine": 0.336825
+        },
+        {
+          "rank": 6,
+          "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.333417
+        },
+        {
+          "rank": 7,
+          "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.332843
+        },
+        {
+          "rank": 8,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.32837
+        },
+        {
+          "rank": 9,
+          "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 2,
+          "cosine": 0.327702
+        },
+        {
+          "rank": 10,
+          "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.325135
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 2915.0,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 1983.4,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "GS02",
+      "typology": "GATHER_SCATTER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 3,
+          "cosine": 0.348805
+        },
+        {
+          "rank": 2,
+          "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 2,
+          "cosine": 0.343074
+        },
+        {
+          "rank": 3,
+          "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 1,
+          "cosine": 0.332274
+        },
+        {
+          "rank": 4,
+          "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 3,
+          "cosine": 0.332042
+        },
+        {
+          "rank": 5,
+          "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+          "doc_id": "apg-typologies-2025",
+          "page": 39,
+          "pos": 1,
+          "cosine": 0.322413
+        },
+        {
+          "rank": 6,
+          "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.320902
+        },
+        {
+          "rank": 7,
+          "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.308544
+        },
+        {
+          "rank": 8,
+          "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.305393
+        },
+        {
+          "rank": 9,
+          "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+          "doc_id": "apg-typologies-2025",
+          "page": 31,
+          "pos": 3,
+          "cosine": 0.30465
+        },
+        {
+          "rank": 10,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.290493
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 2866.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4"
+          ],
+          "ms": 3018.4,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "GS03",
+      "typology": "GATHER_SCATTER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 3,
+          "cosine": 0.352765
+        },
+        {
+          "rank": 2,
+          "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+          "doc_id": "apg-typologies-2025",
+          "page": 39,
+          "pos": 1,
+          "cosine": 0.333641
+        },
+        {
+          "rank": 3,
+          "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 1,
+          "cosine": 0.323102
+        },
+        {
+          "rank": 4,
+          "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 3,
+          "cosine": 0.319574
+        },
+        {
+          "rank": 5,
+          "chunk_id": "2016143da9482e169685a9599f4b1a01f9d4effb52d3702dc70d4d0e66c6c174",
+          "doc_id": "apg-typologies-2025",
+          "page": 39,
+          "pos": 2,
+          "cosine": 0.310674
+        },
+        {
+          "rank": 6,
+          "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.302768
+        },
+        {
+          "rank": 7,
+          "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+          "doc_id": "apg-typologies-2025",
+          "page": 31,
+          "pos": 3,
+          "cosine": 0.298905
+        },
+        {
+          "rank": 8,
+          "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 2,
+          "cosine": 0.298028
+        },
+        {
+          "rank": 9,
+          "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.291427
+        },
+        {
+          "rank": 10,
+          "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.277865
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "2016143da9482e169685a9599f4b1a01f9d4effb52d3702dc70d4d0e66c6c174",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4"
+          ],
+          "ms": 3125.2,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "2016143da9482e169685a9599f4b1a01f9d4effb52d3702dc70d4d0e66c6c174",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4"
+          ],
+          "ms": 2222.3,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "GS04",
+      "typology": "GATHER_SCATTER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 3,
+          "cosine": 0.363092
+        },
+        {
+          "rank": 2,
+          "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 3,
+          "cosine": 0.360314
+        },
+        {
+          "rank": 3,
+          "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 1,
+          "cosine": 0.355912
+        },
+        {
+          "rank": 4,
+          "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.346321
+        },
+        {
+          "rank": 5,
+          "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+          "doc_id": "apg-typologies-2025",
+          "page": 39,
+          "pos": 1,
+          "cosine": 0.341466
+        },
+        {
+          "rank": 6,
+          "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 2,
+          "cosine": 0.339293
+        },
+        {
+          "rank": 7,
+          "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.339197
+        },
+        {
+          "rank": 8,
+          "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.335803
+        },
+        {
+          "rank": 9,
+          "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+          "doc_id": "apg-typologies-2025",
+          "page": 31,
+          "pos": 3,
+          "cosine": 0.331063
+        },
+        {
+          "rank": 10,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.327975
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 2759.9,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 2234.4,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "GS05",
+      "typology": "GATHER_SCATTER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 3,
+          "cosine": 0.361845
+        },
+        {
+          "rank": 2,
+          "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 3,
+          "cosine": 0.353885
+        },
+        {
+          "rank": 3,
+          "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 1,
+          "cosine": 0.332445
+        },
+        {
+          "rank": 4,
+          "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.332325
+        },
+        {
+          "rank": 5,
+          "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+          "doc_id": "apg-typologies-2025",
+          "page": 39,
+          "pos": 1,
+          "cosine": 0.331648
+        },
+        {
+          "rank": 6,
+          "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.327795
+        },
+        {
+          "rank": 7,
+          "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.316757
+        },
+        {
+          "rank": 8,
+          "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 2,
+          "cosine": 0.316744
+        },
+        {
+          "rank": 9,
+          "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+          "doc_id": "apg-typologies-2025",
+          "page": 31,
+          "pos": 3,
+          "cosine": 0.316164
+        },
+        {
+          "rank": 10,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.313166
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 3174.2,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 3117.6,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "GS06",
+      "typology": "GATHER_SCATTER",
+      "uses": [
+        "hit"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 3,
+          "cosine": 0.375947
+        },
+        {
+          "rank": 2,
+          "chunk_id": "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 3,
+          "cosine": 0.371514
+        },
+        {
+          "rank": 3,
+          "chunk_id": "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+          "doc_id": "apg-typologies-2025",
+          "page": 39,
+          "pos": 1,
+          "cosine": 0.352509
+        },
+        {
+          "rank": 4,
+          "chunk_id": "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 1,
+          "cosine": 0.336286
+        },
+        {
+          "rank": 5,
+          "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 4,
+          "pos": 1,
+          "cosine": 0.332491
+        },
+        {
+          "rank": 6,
+          "chunk_id": "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 3,
+          "pos": 2,
+          "cosine": 0.326987
+        },
+        {
+          "rank": 7,
+          "chunk_id": "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 5,
+          "pos": 2,
+          "cosine": 0.32655
+        },
+        {
+          "rank": 8,
+          "chunk_id": "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+          "doc_id": "apg-typologies-2025",
+          "page": 81,
+          "pos": 2,
+          "cosine": 0.325316
+        },
+        {
+          "rank": 9,
+          "chunk_id": "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+          "doc_id": "fintrac-underground-banking-2023",
+          "page": 7,
+          "pos": 1,
+          "cosine": 0.321175
+        },
+        {
+          "rank": 10,
+          "chunk_id": "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e",
+          "doc_id": "apg-typologies-2025",
+          "page": 31,
+          "pos": 3,
+          "cosine": 0.315241
+        }
+      ],
+      "rounds": [
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 2871.0,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        },
+        {
+          "order": [
+            "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369",
+            "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b",
+            "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247",
+            "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3",
+            "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71",
+            "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1",
+            "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+            "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb",
+            "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4",
+            "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e"
+          ],
+          "ms": 2909.7,
+          "failed": null,
+          "called": true,
+          "model": "gpt-6.1-terra",
+          "responded": true
+        }
+      ]
+    },
+    {
+      "id": "FX01",
+      "typology": "FX_RELAY",
+      "uses": [
+        "empty"
+      ],
+      "candidates": [],
+      "rounds": [
+        {
+          "order": [],
+          "ms": null,
+          "failed": null,
+          "called": false,
+          "model": null,
+          "responded": false
+        },
+        {
+          "order": [],
+          "ms": null,
+          "failed": null,
+          "called": false,
+          "model": null,
+          "responded": false
+        }
+      ]
+    },
+    {
+      "id": "FX02",
+      "typology": "FX_RELAY",
+      "uses": [
+        "empty"
+      ],
+      "candidates": [],
+      "rounds": [
+        {
+          "order": [],
+          "ms": null,
+          "failed": null,
+          "called": false,
+          "model": null,
+          "responded": false
+        },
+        {
+          "order": [],
+          "ms": null,
+          "failed": null,
+          "called": false,
+          "model": null,
+          "responded": false
+        }
+      ]
+    },
+    {
+      "id": "NR01",
+      "typology": null,
+      "uses": [
+        "reference"
+      ],
+      "candidates": [],
+      "rounds": [
+        {
+          "order": [],
+          "ms": null,
+          "failed": null,
+          "called": false,
+          "model": null,
+          "responded": false
+        },
+        {
+          "order": [],
+          "ms": null,
+          "failed": null,
+          "called": false,
+          "model": null,
+          "responded": false
+        }
+      ]
+    },
+    {
+      "id": "NR02",
+      "typology": null,
+      "uses": [
+        "reference"
+      ],
+      "candidates": [],
+      "rounds": [
+        {
+          "order": [],
+          "ms": null,
+          "failed": null,
+          "called": false,
+          "model": null,
+          "responded": false
+        },
+        {
+          "order": [],
+          "ms": null,
+          "failed": null,
+          "called": false,
+          "model": null,
+          "responded": false
+        }
+      ]
+    }
+  ]
+}

@@ -26,6 +26,8 @@ def _facts() -> Facts:
 
 
 class _Embed:
+    model = "test-embed"
+
     def __init__(self) -> None:
         self.calls: list[list[str]] = []
 

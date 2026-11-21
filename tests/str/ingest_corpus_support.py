@@ -27,6 +27,8 @@ def make_pdf(path: Path, pages: list[str]) -> tuple[str, int]:
 class FakeEmbedder:
     """고정 벡터 1536차원. 입력 수만큼 반환."""
 
+    model = "test-embed"
+
     def __init__(self, dim: int = _DIM) -> None:
         self._vec = [0.1] + [0.0] * (dim - 1)
 

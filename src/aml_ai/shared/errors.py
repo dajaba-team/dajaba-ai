@@ -55,6 +55,9 @@ class LlmInvalidOutput(AiError):
     """스키마 검증 실패 — 1회 재생성 뒤에도 실패했을 때. 백엔드 재시도 0회."""
 
     status, code = 502, "LLM_INVALID_OUTPUT"
+    # SCRUM-308-2 — 응답 본문 `model`(파싱 전에 읽음) · 본문을 받은 뒤의 해석 실패인지(검토 4). 밖에 안 나감
+    response_model: str | None = None
+    response_received: bool = False
 
 
 class LlmUnavailable(AiError):
@@ -86,6 +89,14 @@ class RetrievalUnavailable(AiError):
     """검색 실패. 호출자(draft_service)는 이걸 잡아 references=[] 로 진행한다 — 밖으로 나가지 않는다."""
 
     status, code = 502, "RETRIEVAL_UNAVAILABLE"
+
+
+class EmbeddingModelMismatch(RetrievalUnavailable):
+    """임베딩 응답 `model` 이 요청 모델(정규화 값)과 다르거나 없음(SCRUM-308-2 검토 4) — 다른 모델 벡터를 쓰지 않음."""
+
+
+class EmbeddingIndexInvalid(RetrievalUnavailable):
+    """임베딩 응답 `index` 가 0..n-1 순열이 아님(누락·중복·범위 밖, SCRUM-308-2 검토 5) — 입력과 벡터를 잘못 묶지 않음."""
 
 
 class FencedOut(AiError):

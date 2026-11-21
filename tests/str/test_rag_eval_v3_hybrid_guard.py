@@ -118,7 +118,7 @@ def test_write_is_exclusive_and_rejects_body_keys(tmp_path: Path) -> None:
 def test_condition_record_has_no_body_keys(monkeypatch: pytest.MonkeyPatch) -> None:
     query = {"id": "FI01", "typology": "FAN_IN", "uses": ["hit"]}
     empty = {"id": "FX01", "typology": "FX_RELAY", "uses": ["empty"]}
-    emb = PreparedEmbedding([SearchQuery("a", "en", "sentence")], [[0.0]])
+    emb = PreparedEmbedding([SearchQuery("a", "en", "sentence")], [[0.0]], "m")
     prepared = [Prepared(query, emb), Prepared(empty, emb)]
     positions = {"x": {"doc_id": "d", "page": 1, "pos": 1}}
     monkeypatch.setattr(live, "search", lambda p, c, s: ([("x", 0.5)] if p.query is query else [], 1.0))

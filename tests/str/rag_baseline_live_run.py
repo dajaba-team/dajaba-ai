@@ -29,6 +29,7 @@ from tests.str.rag_eval_live_support import build_facts
 class PreparedEmbedding:
     queries: list[SearchQuery]
     vectors: list[list[float]]
+    model: str  # 검색 SQL 이 같은 모델 행만 봄(SCRUM-308-2 검토 5) — 정규화한 질의 모델
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         if texts != [q.text for q in self.queries]:
@@ -47,7 +48,7 @@ def prepare(queries: list[SearchQuery], settings: Settings, dry: bool) -> Prepar
         vectors = make_embedding_client(settings).embed(texts)
     if len(vectors) != len(texts):
         raise ValueError("prepared embedding count mismatch")
-    return PreparedEmbedding(queries, vectors)
+    return PreparedEmbedding(queries, vectors, settings.embedding_model.strip())
 
 
 class RecordingRetriever(Retriever):

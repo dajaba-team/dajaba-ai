@@ -21,12 +21,13 @@ import httpx
 
 from aml_ai.shared.config import Settings
 from aml_ai.shared.errors import LlmUnavailable
+from aml_ai.shared.infrastructure.llm_receive import send_and_read
 from aml_ai.shared.infrastructure.llm_total_timeout import post_within
 from aml_ai.shared.infrastructure.openai_responses import (
     build_body,
-    extract_output_text,
     json_schema_for,
     parse_response,
+    read_output,
 )
 from aml_ai.shared.versioning import stable_json
 
@@ -45,6 +46,9 @@ class LlmResult:
     tokens_in: int
     tokens_out: int
     latency_ms: int
+    response_model: str | None = (
+        None  # SCRUM-308-2 — 응답 본문 `model` 그대로(없으면 None, 요청 모델로 안 채움)
+    )
 
 
 class LlmClient(Protocol):
@@ -130,26 +134,20 @@ class HttpLlmClient:
         from aml_ai.shared.schemas.str import llm_output_model
 
         schema = json_schema_for(llm_output_model(tag), name=tag)
-        body = build_body(
-            system,
-            user,
-            model,
-            max_tokens,
-            schema,
-            temperature_supported=self._s.llm_temperature_supported,
-            reasoning_effort=self._s.llm_reasoning_effort,
-        )
+        body = build_body(system, user, model, max_tokens, schema,
+                          temperature_supported=self._s.llm_temperature_supported,
+                          reasoning_effort=self._s.llm_reasoning_effort)  # fmt: skip
         started = time.perf_counter()
         raw = self._post(body, tag=tag, timeout_s=timeout_s, total_timeout_s=total_timeout_s)
         latency = int((time.perf_counter() - started) * 1000)
-        text = extract_output_text(raw)
-        usage = raw.get("usage") or {}
+        text, response_model, tokens_in, tokens_out = read_output(raw)
         return LlmResult(
             text=text,
             model=str(raw.get("model", model) or model),
-            tokens_in=int(usage.get("input_tokens", 0) or 0),
-            tokens_out=int(usage.get("output_tokens", 0) or 0),
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
             latency_ms=latency,
+            response_model=response_model,
         )
 
     def _post(
@@ -184,10 +182,10 @@ class HttpLlmClient:
     def _post_once(
         self, url: str, body: dict, headers: dict[str, str], timeout_s: float | None
     ) -> httpx.Response:
-        """기존 경로(초안·검증·요약) 그대로 — 작업별 timeout 만."""
-        if timeout_s is not None:
-            return self._http.post(url, json=body, headers=headers, timeout=timeout_s)
-        return self._http.post(url, json=body, headers=headers)
+        """기존 경로(초안·검증·요약) — 작업별 timeout 만. 상태 먼저 → 본문(검토 6, `llm_receive`)."""
+        extra = {} if timeout_s is None else {"timeout": timeout_s}
+        request = self._http.build_request("POST", url, json=body, headers=headers, **extra)
+        return send_and_read(self._http, request)
 
 
 def make_llm_client(settings: Settings) -> LlmClient:

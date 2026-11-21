@@ -66,7 +66,7 @@ def ref(cid: str, score: float) -> Reference:
 
 
 def prepared(keyword_lists: list[list[str]]) -> run.Prepared:
-    emb = PreparedEmbedding([SearchQuery("a", "en", "s")], [[0.0]])
+    emb = PreparedEmbedding([SearchQuery("a", "en", "s")], [[0.0]], "m")
     query = {"id": "FI01", "typology": "FAN_IN", "uses": ["hit"]}
     return run.Prepared(query, emb, keyword_lists, keyword_ms=5.0)
 

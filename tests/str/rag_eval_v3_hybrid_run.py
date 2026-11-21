@@ -62,7 +62,11 @@ def prepare_query(
     facts = build_facts(query)
     queries = build_queries(facts, ALL_KINDS)
     started = time.perf_counter()
-    embedding = prepare(queries, settings, dry) if queries else PreparedEmbedding([], [])
+    embedding = (
+        prepare(queries, settings, dry)
+        if queries
+        else PreparedEmbedding([], [], settings.embedding_model.strip())
+    )
     out = Prepared(query, embedding, embed_ms=(time.perf_counter() - started) * _MS)
     if keyword is not None:  # 실패(KeywordUnavailable · PartialSearch)는 잡지 않음 — 실행 중단
         started = time.perf_counter()

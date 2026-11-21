@@ -141,6 +141,8 @@ def test_verify_code_failed_still_commits_before_save(sqlite_session: Session) -
 class _TrackingEmbedder:
     """embed() 호출 시 session.in_transaction() 기록."""
 
+    model = "test-embed"
+
     def __init__(self, session: Session) -> None:
         self._s = session
         self.in_tx_at_call: list[bool] = []

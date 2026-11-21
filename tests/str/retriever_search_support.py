@@ -26,6 +26,8 @@ def vec_literal(v: list[float]) -> str:
 
 
 class FakeEmbedder:
+    model = "test-embed"  # insert_chunk 의 embedding_model 과 같음(검색 SQL 이 같은 모델만)
+
     def __init__(self, v: list[float]) -> None:
         self._vec = v
 

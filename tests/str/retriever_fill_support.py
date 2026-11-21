@@ -35,6 +35,8 @@ class Calls:
 
 
 class Embed:
+    model = "test-embed"
+
     def __init__(self, calls: Calls, fail_on: int | None = None) -> None:
         self.calls = calls
         self.fail_on = fail_on
