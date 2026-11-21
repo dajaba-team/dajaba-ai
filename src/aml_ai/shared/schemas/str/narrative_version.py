@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from aml_ai.shared.schemas.str.ask_llm import AskAnswerOut, AskPlanOut
 from aml_ai.shared.schemas.str.narrative import NarrativeOutV1, NarrativeOutV2
+from aml_ai.shared.schemas.str.rerank_llm import RerankOut
 from aml_ai.shared.schemas.str.summary import SummaryOut
 from aml_ai.shared.schemas.str.verify import JudgeOut, JudgeOutV2
 
@@ -26,6 +27,7 @@ _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "rewrite_v1": NarrativeOutV2,  # SCRUM-147 — 섹션 7개 재사용 (초안 안 고쳐 쓰기 전용)
     "ask_plan_v1": AskPlanOut,  # SCRUM-290 — 질문 답변 계획
     "ask_answer_v1": AskAnswerOut,  # SCRUM-290 — 질문 답변 답
+    "rerank_v1": RerankOut,  # SCRUM-308-2 — 참고 사례 후보 재정렬(표지 순서만)
 }
 
 

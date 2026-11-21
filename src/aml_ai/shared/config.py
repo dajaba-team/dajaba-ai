@@ -69,6 +69,13 @@ class Settings(BaseSettings):
     corpus_dir: Path = Field(default=Path("corpus"), alias="CORPUS_DIR")
     # SCRUM-275 빈칸만 채우기(v4 경로만, 기본 끔) · ES 키워드 검색 — docs/str/10 "빈칸만 채우기", shared/05
     rag_gap_fill_enabled: bool = Field(default=False, alias="RAG_GAP_FILL_ENABLED")
+    rag_rerank_enabled: bool = Field(
+        default=False, alias="RAG_RERANK_ENABLED"
+    )  # SCRUM-308-2 — str/10 "리랭커"
+    rag_rerank_model: str = Field(default="", alias="RAG_RERANK_MODEL")  # 비면 LLM_MODEL_JUDGE
+    rag_rerank_timeout_s: float = Field(default=8.0, gt=0, alias="RAG_RERANK_TIMEOUT_S")
+    # 운영이 순서를 받아들이는 실제 응답 모델 ID(판정 결과 `response_models` 한 값) — 켜고 비면 기동 실패
+    rag_rerank_response_model: str = Field(default="", alias="RAG_RERANK_RESPONSE_MODEL")
     elastic_url: str = Field(default="http://elasticsearch:9200", alias="ELASTIC_URL")
     elastic_username: str = Field(default="elastic", alias="ELASTIC_USERNAME")
     elastic_password: str = Field(default="", alias="ELASTIC_PASSWORD", repr=False)
@@ -150,6 +157,11 @@ class Settings(BaseSettings):
     def rag_gap_fill_active(self) -> bool:
         """SCRUM-275 — 빈칸 채우기는 스위치 켬 + v4 경로에서만(v2·v3 는 지금 검색 그대로, str/10)."""
         return self.rag_gap_fill_enabled and self.narrative_prompt == "narrative_v4"
+
+    @property
+    def rag_rerank_active(self) -> bool:
+        """SCRUM-308-2 — 리랭커는 스위치 켬 + v4 경로에서만(v2·v3 는 지금 검색 그대로, str/10 "리랭커")."""
+        return self.rag_rerank_enabled and self.narrative_prompt == "narrative_v4"
 
 
 @lru_cache

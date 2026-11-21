@@ -31,7 +31,11 @@ PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
 
 def load_prompt(name: str) -> tuple[str, str]:
     """prompts/{name}.md → (system, user 템플릿). '[system]' / '[user]' 로 나눈다."""
-    text = (PROMPTS_DIR / f"{name}.md").read_text(encoding="utf-8")
+    return parse_prompt((PROMPTS_DIR / f"{name}.md").read_text(encoding="utf-8"))
+
+
+def parse_prompt(text: str) -> tuple[str, str]:
+    """프롬프트 파일 글자 → (system, user 템플릿). 이미 읽은 바이트로 나눌 때(해시 대조 뒤, SCRUM-308-2)."""
     body = text.split("```text", 1)[1].rsplit("```", 1)[0] if "```text" in text else text
     _, system_and_user = body.split("[system]", 1)
     system, user = system_and_user.split("[user]", 1)

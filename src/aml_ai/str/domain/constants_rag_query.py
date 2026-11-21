@@ -42,3 +42,12 @@ KEYWORD_ANALYZERS: dict[str, str] = {
 }  # nori 는 이미지에 없음 → 2차
 ES_BULK_BATCH = 200  # 색인 도구 _bulk 한 번에 보낼 청크 수
 ES_ADMIN_TIMEOUT_S = 30.0  # 색인 도구(색인 만들기·_bulk) 타임아웃 — 검색 타임아웃은 ELASTIC_TIMEOUT_S
+
+# SCRUM-308-2 리랭커 (docs/str/10 "리랭커", 05 "rerank_v1")
+RERANK_PROMPT = "rerank_v1"
+RERANK_LABEL_PREFIX = "C"  # 후보 표지 C1~Cn — 64자 chunk_id 대신(코드가 되돌림)
+RAG_RERANK_MAX_TOKENS = 1000  # 추론 모델은 추론 토큰도 이 안 — 짧으면 형식 실패가 늘어남
+RERANK_MIN_CANDIDATES = 2  # 후보가 이보다 적으면 줄 세울 게 없어 LLM 호출 0
+RAG_RERANK_TIMEOUT_MAX_S = (
+    8.0  # 운영 상한(기동 검사) — 308 기준 ② 판정 한도와 같음. 8 이하는 허용(짧으면 폴백만 늘어남)
+)

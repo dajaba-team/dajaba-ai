@@ -26,7 +26,11 @@ def load_queries(split: str) -> list[dict[str, Any]]:
 
 def build_facts(query: dict[str, Any]) -> Facts:
     """base 픽스처 + 범주 칸 overrides → Facts(model_validate). 결제 방식을 바꾸면 방식별 건수는 비움."""
-    data = json.loads((FIXTURES / query["base"]).read_text(encoding="utf-8"))
+    return facts_from_data(json.loads((FIXTURES / query["base"]).read_text(encoding="utf-8")), query)
+
+
+def facts_from_data(data: dict[str, Any], query: dict[str, Any]) -> Facts:
+    """이미 읽은 base 픽스처 `data`(바꿈 — 복사본을 넘길 것)에 overrides → Facts. SCRUM-308-2 가 검증한 바이트로 씀."""
     over = query["overrides"]
     if set(over) - OVERRIDE_KEYS:
         raise ValueError(f"override keys: {sorted(set(over) - OVERRIDE_KEYS)}")

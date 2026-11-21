@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from aml_ai.shared.config import Settings
-from aml_ai.str.domain.constants_rag_query import QUERY_KINDS
+from aml_ai.str.domain.constants_rag_query import QUERY_KINDS, RERANK_PROMPT
 
 _served_model: tuple[str, str] | None = None
 
@@ -24,19 +24,35 @@ def scoring_mode(settings: Settings) -> str:
     return "model" if _served_model is not None else "unavailable"
 
 
-def retrieval_version(settings: Settings) -> str | None:
-    """{embedding_model}@{manifest_sha256[:8]} — RAG 꺼져 있으면 None.
+RETRIEVAL_VERSION_MAX = 128  # generations.retrieval_version String(128)
+MANIFEST_DIGEST_LEN = 8
 
-    SCRUM-275: 빈칸 채우기가 켜져 있으면(v4 만) 꼬리 `+fill:{검색어 종류}+kw:{ELASTIC_INDEX}` (str/10 "버전").
-    """
+
+def _retrieval_tail(settings: Settings) -> str:
+    """켜진 꼬리만, 순서 고정 — `+rr:{리랭커}`(SCRUM-308-2) → `+fill:{검색어 종류}+kw:{색인}`(SCRUM-275)."""
+    tail = f"+rr:{RERANK_PROMPT}" if settings.rag_rerank_active else ""
+    if settings.rag_gap_fill_active:
+        tail += f"+fill:{''.join(QUERY_KINDS)}+kw:{settings.elastic_index}"
+    return tail
+
+
+def retrieval_version(settings: Settings) -> str | None:
+    """{embedding_model}@{manifest_sha256[:8]} + 켜진 꼬리 — RAG 꺼져 있으면 None (str/10 "버전")."""
     manifest = settings.corpus_dir / "manifest.json"
     if not settings.rag_enabled or not manifest.exists():
         return None
-    digest = hashlib.sha256(manifest.read_bytes()).hexdigest()[:8]
-    version = f"{settings.embedding_model}@{digest}"
-    if settings.rag_gap_fill_active:
-        version += f"+fill:{''.join(QUERY_KINDS)}+kw:{settings.elastic_index}"
-    return version
+    digest = hashlib.sha256(manifest.read_bytes()).hexdigest()[:MANIFEST_DIGEST_LEN]
+    return f"{settings.embedding_model}@{digest}{_retrieval_tail(settings)}"
+
+
+def retrieval_version_problem(settings: Settings) -> str | None:
+    """기동 검사(추가 검토 1) — 켜진 꼬리까지 붙인 길이가 DB 칸(128)을 넘으면 이유. 초안 저장 실패를 요청 전에 막음."""
+    if not settings.rag_enabled:
+        return None
+    length = len(settings.embedding_model) + 1 + MANIFEST_DIGEST_LEN + len(_retrieval_tail(settings))
+    return (
+        f"retrieval_version {length}자 > {RETRIEVAL_VERSION_MAX}" if length > RETRIEVAL_VERSION_MAX else None
+    )
 
 
 def file_sha256(path: Path) -> str:

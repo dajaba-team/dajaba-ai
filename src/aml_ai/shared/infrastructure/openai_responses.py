@@ -35,7 +35,11 @@ def parse_response(resp: httpx.Response) -> dict[str, Any]:
     """
     status = resp.status_code
     if status == 200:
-        return _json_or_invalid(resp, _SAFE_MSG_INVALID)
+        try:
+            return _json_or_invalid(resp, _SAFE_MSG_INVALID)
+        except LlmInvalidOutput as exc:  # 본문은 받음 — 모델 식별 불가(None)도 집계 대상(SCRUM-308-2 검토 5)
+            exc.response_received = True
+            raise
     if status == 429:
         # 일 토큰 한도 초과만 BudgetExceeded(재시도 0), 나머지 rate_limit 은 LlmUnavailable(재시도 1).
         # 규약 6.3 LLM_BUDGET_EXCEEDED vs LLM_UNAVAILABLE 구분 (SCRUM-15 10/29).
@@ -98,6 +102,26 @@ def extract_output_text(raw: dict[str, Any]) -> str:
             if part.get("type") in ("output_text", "text") and isinstance(part.get("text"), str):
                 return part["text"]
     raise LlmInvalidOutput("llm output_text missing")
+
+
+def response_model_of(raw: object) -> str | None:
+    """응답 본문 `model` — strip 뒤 빈 값·문자열 아님은 None(요청 모델로 안 채움, SCRUM-308-2 검토 3·4)."""
+    model = raw.get("model") if isinstance(raw, dict) else None
+    return (model.strip() or None) if isinstance(model, str) else None
+
+
+def read_output(raw: dict) -> tuple[str, str | None, int, int]:
+    """(출력 문장, 응답 모델, 입력 토큰, 출력 토큰). 모델명을 **맨 먼저** 읽고, output·content·usage 해석의
+    어떤 오류(AttributeError·TypeError·ValueError·KeyError 포함)든 모델명을 실은 `LlmInvalidOutput` 으로(검토 4)."""
+    response_model = response_model_of(raw)
+    try:
+        usage = raw.get("usage") or {}
+        out = extract_output_text(raw), response_model
+        return (*out, int(usage.get("input_tokens", 0) or 0), int(usage.get("output_tokens", 0) or 0))
+    except Exception as exc:  # noqa: BLE001 — 본문은 받음: 해석 실패는 전부 형식 오류(모델명 보존)
+        err = exc if isinstance(exc, LlmInvalidOutput) else LlmInvalidOutput(_SAFE_MSG_INVALID)
+        err.response_model, err.response_received = response_model, True
+        raise err from (None if err is exc else exc)
 
 
 def build_body(

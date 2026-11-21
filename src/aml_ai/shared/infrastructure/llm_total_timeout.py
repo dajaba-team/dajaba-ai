@@ -12,6 +12,7 @@ import asyncio
 import httpx
 
 from aml_ai.shared.errors import LlmUnavailable
+from aml_ai.shared.infrastructure.llm_receive import send_and_read_async
 
 
 def post_within(
@@ -41,7 +42,8 @@ async def _post_within(
 ) -> httpx.Response:
     try:
         async with httpx.AsyncClient(transport=async_transport, timeout=total_timeout_s) as http:
-            # post 는 본문 읽기까지 포함한다.
-            return await asyncio.wait_for(http.post(url, json=body, headers=headers), timeout=total_timeout_s)
+            # 상태 먼저 → 본문 읽기까지 total 안에서(검토 6 — 200 뒤 압축 해제 실패는 받은 응답)
+            request = http.build_request("POST", url, json=body, headers=headers)
+            return await asyncio.wait_for(send_and_read_async(http, request), timeout=total_timeout_s)
     except TimeoutError:
         raise LlmUnavailable("llm total timeout") from None

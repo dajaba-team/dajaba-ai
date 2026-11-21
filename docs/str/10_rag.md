@@ -866,6 +866,75 @@ SCRUM-275 판정 미달(위 "결과 (11/19)") 원인이 코퍼스라서, SCRUM-3
 - **결론: 미리 적은 규칙을 못 넘음 → `MIN_SIMILARITY` 0.0 유지**(src·상수·`retrieval_version` 변경 0). 초안 경로에서 정답 없는 질의는 이미 0건(태그 0 유형 · 빈칸 채우기 규칙 3)이고, 필터 끈 쪽 정답 없는 질의 cosine(0.344~)이 정답 칸 최소(0.316)보다 높아 정답을 지키면서 없앨 것이 없음 — ★A 분포에서 본 예상대로
 - 확인 정답 밖 2칸(같은 청크)을 없애는 것은 참고 사례 칸을 비우기만 함(규칙 밖, 판정에 안 씀)
 
+### ② 리랭커 (308-2, 2026-11-22) — 미채택, `RAG_RERANK_ENABLED=false` 유지
+
+`tests/str/rag_eval_v3_rerank_live.py`(손 실행, 호스트) · 결과 `tests/str/rag_eval_v3/result_308_rerank.json`(위치·순서·값만, 원문 0). 기준 커밋 `87aef09` 그대로 판정(`judged=true`) — 다시 돌리지 않음.
+
+- **실측은 커밋 전 작업 폴더에서 실행**했고, 결과 파일의 `head`(`662b86e`)는 실행 시점 HEAD. 실행한 코드는 이 절과 같은 커밋으로 들어감
+- 실행 확인: 임베딩 `text-embedding-3-small` · 리랭커 응답 모델 1종 · LLM 호출 60(회차당 30 = 정답 있는 질의 5유형 × 6, FX_RELAY 2·무관 2 는 후보 0 → 호출 0) · 형식 실패 0 · 코퍼스 재임베딩 대조 65청크 전부 cos ≥ 0.99(최소 0.999957)
+- **결정: 미채택.** 두 회차 모두 4유형 precision@3 개선 **+0.014 < +0.10**. 나머지 세 조건(hit@3 하락 없음 · p95 3.27초 / 3.38초 · 형식 실패율 0)은 통과. 코드·프롬프트(`rerank_v1.md`)·fail-open 은 남김(기본 끔)
+- 한 유형은 만점이 됐고 한 유형은 떨어져서 켜지 않았다:
+
+| 유형 | 원래 순서 | 1회 | 2회 | 후보 안 정답을 완벽히 올렸을 때 |
+|---|---|---|---|---|
+| FAN_IN | 1.000 | 1.000 | 1.000 | 1.000 |
+| FAN_OUT | 1.000 | 0.667 | 0.667 | 1.000 |
+| CYCLE | 0.667 | 0.667 | 0.667 | 1.000 |
+| GATHER_SCATTER | 0.611 | 1.000 | 1.000 | 1.000 |
+| **4유형 평균** | **0.819** | **0.833** | **0.833** | 1.000 |
+| SCATTER_GATHER(평균 제외) | 0.389 | 0.556 | 0.500 | 0.667 |
+
+  - 마지막 열 = 같은 정답 기준(등급 ≥ 1 · `db_tagged=true`)으로 질의마다 min(3, 후보 안 정답 수)/3
+  - GATHER_SCATTER: 6 질의 모두 두 회차 모두 만점
+  - FAN_OUT: `ffiec-redflags` 4쪽 pos 2(확인자 등급 0, 태그 있음)를 12번(6 질의 × 2회) 모두 상위 3에 올림(원래 순위 4~6)
+  - CYCLE: `apg-typologies-2025` 53쪽 pos 3 을 12번 모두 상위 3에 올림(원래 순위 5·7) — 305 확인자 등급 0(정답 후보 파일엔 등급 ≥ 1 행만 옮겨서 이 유형 행이 없음) → 오답으로 셈
+  - FAN_IN 은 후보 10건이 전부 정답, FAN_OUT 은 후보 6건 중 5건이 정답이라 원래 만점 — 리랭커가 올릴 여지 0
+  - 두 회차 gain 이 같은 것은 정상: 호출된 30 질의 중 18개는 회차 간 전체 순서가 달랐고(따로 호출됨), 평균에 드는 4유형에서 상위 3 집합만 같았음
+- **한계**
+  - 유형 안 6 질의가 똑같이 움직여서 실질 표본은 유형 수(4)에 가깝다
+  - 판정이 청크 두 개의 등급에 달려 있다 — 위 FAN_OUT 청크·CYCLE 청크가 둘 다 정답이었다면 개선 폭 약 +0.18, 하나만이면 +0.097(가정 계산 — 이번 판정은 안 바꿈)
+  - 평균에 들지 않는 SCATTER_GATHER 는 6 질의 중 4개에서 상위 3 이 회차마다 달랐다 — 리랭커 결과가 호출마다 흔들릴 수 있다
+  - 초안 경로는 유형 필터 뒤 후보가 6~10개라 리랭커가 올릴 여지가 작다
+- **다음에 볼 것**(이번 범위 아님)
+  - 태그됐지만 등급 0 인 후보 청크(이번 후보에 나온 CYCLE 3 · SG 4 · GS 3 — 305 확인 등급 0)와 FAN 등급 0 청크를 외부 확인자가 다시 확인 — 어느 청크가 문제였는지 알리지 않고 전부 맡김. 등급이 바뀌면 새 정답 버전 · 새 기준 커밋 · 새 실험, 이번 판정은 안 고침
+  - 리랭커를 사례 검색 경로(후보가 많고 질의를 조사역이 직접 쓰는 곳)에서 따로 판정 — 효과는 아직 재지 않은 추정
+
+## 리랭커 (SCRUM-308-2, 2026-11-22 — 붙이되 기본 끔, 판정 통과해야 켬 → 판정 미채택, 위 결과 절 ②)
+
+판정 기준은 위 "청크 맥락·리랭커·컷오프 판정" ②(`87aef09`)를 그대로 쓴다 — 이 절은 **어떻게 붙이는지**만. **기본 끔**(`RAG_RERANK_ENABLED=false`) — 끄면 검색 결과·호출 수·`retrieval_version` 이 지금과 같다.
+
+```
+facts → (a) build_query 임베딩 1회 → PG(필터 켬, 지금 SQL) 후보 RAG_CANDIDATES(10)
+   리랭커 꺼짐 또는 v2·v3       → 앞 RAG_TOP_K(3) — 지금 그대로(후보 limit 3)
+   리랭커 켬 + v4, 후보 ≥ 2     → release()(DB 연결 반납, SCRUM-122) → LLM 1회(rerank_v1) → 순서 검사 → 앞 3
+   후보 0~1                    → LLM 호출 0
+   → (빈칸 채우기 켰으면 그 뒤 그대로 — 275 규칙)
+```
+
+- **v4 에서만**: `rag_rerank_active = RAG_RERANK_ENABLED and NARRATIVE_PROMPT == narrative_v4`(빈칸 채우기와 같은 모양). v2·v3(참고 사례를 프롬프트에 넣음)는 지금 검색 그대로
+- **보내는 것**: 질의 = 검색어 (a) `build_query(facts)`(유형·패턴·신호·업종 — 숫자·계좌·금액 0) 한 줄 + 후보마다 표지 `C1`~`Cn`(지금 순서)와 `Reference.text`(600자 — 화면에 나가는 것과 같음). `chunk_id`·문서 id·점수는 안 보냄. 이용 조건은 임베딩과 같은 공급자 → 같은 처리(⑨)
+- **받는 것**: 표지 순서 목록만(Structured Output `RerankOut{order: [표지…]}`) → 코드가 `chunk_id` 로 되돌림. **순서 검사**(`str/domain/rag_rerank.py`, 순수): 응답이 후보 표지의 **순열**이어야 함 — 빠짐·중복·없는 표지·다른 형식은 형식 실패
+- **fail-open**(각각 테스트): 시간 초과·공급자 오류(`LlmUnavailable`) · 형식 오류(`LlmInvalidOutput`·JSON) · 순서 검사 실패 → **원래 순서**, 경고 1줄 `rerank_failed reason=…`(이유 낱말만 — 본문·질의·응답 0). 초안은 계속
+- **`Reference.score`** 는 그대로 cosine(리랭커는 순서만, 점수를 밖에 안 냄 — 규약·`references` 모양 그대로)
+- **설정**: `RAG_RERANK_ENABLED`(false) · `RAG_RERANK_MODEL`(빈 값이면 `LLM_MODEL_JUDGE`) · `RAG_RERANK_TIMEOUT_S`(8 — 호출별 한도, 남은 예산으로 줄이지 않음: v4 초안은 LLM 0 이고 검색이 맨 앞) · 상수 `RAG_RERANK_MAX_TOKENS = 1000`(추론 토큰 포함 상한, `constants_rag_query.py`). 비밀값 0
+- **예산**: v4 초안은 코드 조립이라 리랭커 1회(≤ 8초)가 유일한 LLM 호출 — `DRAFT_BUDGET_S=80` 안. 켤 때 실측(켤 때 갖출 것)
+- **녹화**: `rerank_v1` 녹화는 안 만듦 — 녹화 재생(`AI_LLM_MOCK=true`)에서 켜면 녹화가 없어 원래 순서(fail-open). 켤 결론이 나면 시연용 녹화를 그때
+- **`retrieval_version`**: 켜졌을 때만 `+rr:rerank_v1`(빈칸 채우기 꼬리 앞)
+- **파일**: `str/prompts/rerank_v1.md`(새, `FROZEN_PROMPTS` 해시) · `shared/schemas/str/rerank_llm.py`(출력 모양) · `str/domain/rag_rerank.py`(순서 검사·적용, 순수) · `str/infrastructure/retriever_rerank.py`(LLM 호출·fail-open — 275 `retriever_fill` 과 같은 자리) · `Retriever(..., reranker=)` · `draft_service._retriever` 연결
+- **질의 신호·업종은 등록 목록(버전 V1)만**(추가 검토 2 — 1회차 모양 검사 대체): `str/domain/constants_rerank_registry.RAG_RERANK_REGISTRY_V1` — 신호 = 점수 모델 reason 이름 `aml_ml.FEATURE_NAMES`(0.1.0rc2, 31개) ∪ v3 평가 세트·base 픽스처 신호 6개 · 업종 = 고객 업종 표시 라벨 9개 ∪ 평가 세트 업종(RESTAURANT). 출처와 같은지 테스트가 대조. 신호·업종 중 하나라도 목록 밖이면 호출 0·원래 순서(`rerank_failed reason=unregistered_signal`). **새 신호가 생기면 목록부터 고치고(V2) — 목록 밖은 원래 순서**. 모의 점수의 `mock_feature` 는 목록에 없음(리랭커 원래 순서)
+- **프롬프트**: 바이트를 한 번 읽어 `FROZEN_PROMPTS` 와 대조한 템플릿을 캐시(`rerank_prompt`) — 실행·결과 해시가 같은 바이트. **만들기 실패**(템플릿·해시 등)도 fail-open: 리랭커 없이 기본 검색(`init_…`). 초안 서비스는 이미 만든 LLM 클라이언트를 같이 씀
+- **`retrieval_version` 길이 기동 검사**: 켜진 꼬리까지 붙인 길이가 128(`generations.retrieval_version`)을 넘으면 기동 실패 — 초안 저장 실패를 요청 전에 막음
+- **응답 모델·마감**(추가 검토 4): 응답 해석 경계(`openai_responses.read_output`)가 모델명을 **맨 먼저** 읽고(strip, 빈 값은 None), 그 뒤 output·content·usage 해석의 어떤 오류든 모델명을 실은 `LlmInvalidOutput`(`response_received=True`)으로. 리랭커는 진입 때 단조 시계로 마감(진입 + `RAG_RERANK_TIMEOUT_S`)을 잡고 순열을 돌려주기 직전에 다시 봐서, 지났으면 `deadline` 실패 → 원래 순서(운영·평가 공통)
+- **임베딩 응답 모델**(추가 검토 4 — 기본 경로에도 적용): 공통 `HttpEmbeddingClient.embed()` 가 배치마다 응답 본문 `model`(strip) = 요청 모델(strip)일 때만 벡터를 돌려줌. 다르거나 없으면 `EmbeddingModelMismatch`(`RetrievalUnavailable` 하위) — 운영 검색은 기존 임베딩 실패처럼 RAG 없이 진행, 적재 도구는 INSERT 전 중단. 요청·DB `embedding_model` 기록도 정규화 값
+- **켜기 전 확인 — 운영 타임아웃 상한 8초(기동 검사), 남은 요청 예산은 안 봄**(추가 검토 3): `RAG_RERANK_ENABLED=true` 면 `RAG_RERANK_TIMEOUT_S` 가 0 초과·8 이하여야 기동(`rerank_timeout_problem`). 8 이하는 허용(짧으면 폴백만 늘어남). v4 는 검색이 초안 맨 앞이라 남은 예산 검사는 이번 범위 밖
+- **응답 수신·허용 응답 모델**(추가 검토 5): HTTP 200 본문을 받은 뒤의 모든 해석 실패(JSON 디코딩·최상위가 객체 아님 포함)도 `LlmInvalidOutput(response_received=True, response_model=None)` — 판정 하네스는 "모델명 없는 응답"으로 세어 판정 안 함. **운영 `order()` 는 응답 모델이 `RAG_RERANK_RESPONSE_MODEL`(strip, 실제 응답 모델 ID)과 같을 때만 순열 적용**, 없거나 다르거나 빈 값이면 `response_model_mismatch` → 원래 순서. 하네스(`order_with_model`)는 이 값을 쓰지 않고 응답 모델을 모아 기록
+- **검색 SQL 의 임베딩 모델 조건·응답 index**(추가 검토 5 — 기본 경로, 리랭커와 무관): 운영 후보 검색(`_candidates`, 유형 필터 켬·끔 둘 다)과 빈칸 채우기 cosine 조회(`_cosines`)는 `embedding_model = 질의 모델(정규화)` 행만 — 차원이 같은 다른 모델 벡터와 순위를 섞지 않음. ES 키워드 경로는 벡터를 안 써서 그대로(키워드 후보도 cosine 은 같은 모델 행에서만 받음). 임베딩 응답은 `index` 로 입력 순서 복원 — 0..n-1 순열이 아니면(누락·중복·범위 밖) `EmbeddingIndexInvalid`(`RetrievalUnavailable` 하위: 운영 RAG 없이·적재 INSERT 전 중단), 단일 입력은 index 없으면 0
+- **수신 경계·동점 기준**(추가 검토 6): LLM 응답은 상태 먼저 받고 본문을 따로 읽음(`llm_receive`) — 200 뒤 본문 압축 해제 실패도 `LlmInvalidOutput(response_received=True, response_model=None)`, 200 이 아니면 지금 분류 그대로, 연결·읽기 끊김·시간 초과는 그대로 `LlmUnavailable`. 후보 SQL 바깥 정렬은 `ORDER BY 거리, chunk_id` — 기본 LIMIT 3 결과 = 리랭커 후보 LIMIT 10 의 앞 셋이라 리랭커 폴백(모델 불일치·마감·형식 오류) = 리랭커 끔. **기본 경로 동작 변경**: 거리가 같을 때만 순서가 chunk_id 로 고정(develop 은 동점 순서 미정)
+- **한계 — 임베딩 응답 index 타입**(추가 검토 6 M4, 알고 남김): `index` 는 정수만 온다고 봄(OpenAI 임베딩 응답 규격). 공급자가 불리언(`true`/`false`)을 보내면 Pydantic 이 1/0 으로 바꿔 순열 검사를 통과할 수 있음 — 규격 밖 응답이라 엄격 정수 검사는 넣지 않음
+- **켜는 절차**(추가 검토 5): ② 통과 결과의 `response_models` 한 값을 `RAG_RERANK_RESPONSE_MODEL` 에 넣고 `RAG_RERANK_ENABLED=true` — 켰는데 비면 기동 실패(`rerank_response_model_problem`)
+- **판정 하네스**(손 실행, 호스트 — ES 안 씀): `tests/str/rag_eval_v3_rerank_live.py` + 순수·거절 모듈 — 307·308-1 과 같은 모양(기준 커밋 `87aef09` 고정 · v3 입력·위치표 바이트 = 기준 커밋 · DB 722·태그 대조 · 결과 `result_308_rerank.json` 배타 생성 · 원문·프롬프트·검색어 문장 0). 실측은 첫 외부 호출 전에 녹화 재생(`AI_LLM_MOCK=true`)·빈 모델명(`RAG_RERANK_MODEL`·`LLM_MODEL_JUDGE` 각각 strip 뒤 폴백)·`LLM_REASONING_EFFORT` ≠ low·**`RAG_RERANK_TIMEOUT_S` ≠ 8** 거절 · DB `embedding_model` 이 정확히 하나이고 질의 모델과 같아야(사전 검사·후보 스냅샷 둘 다), 질의가 쓰는 base 픽스처도 기준 커밋과 바이트 대조 · 결과 경로 잠금 → **잠금 직후 결과 파일 다시 검사**(있으면 외부 호출 0 으로 끝). 질의 문장은 **검증한 픽스처 객체의 복사본만으로**(파일 재읽기 0) 한 번 만들어 (a) 임베딩(유형 있는 질의 32)·두 회차에 재사용 → 읽기 전용 REPEATABLE READ 스냅샷 하나에서 후보 10 → **정답 없는 질의에 결과가 하나라도 있으면 판정 중단** → 스냅샷 닫고 **코퍼스 재임베딩 대조**(추가 검토 4·5 — 적재 당시 응답 모델을 확인 못 한 기존 코퍼스: 평가 질의들의 유형 필터를 통과하는 **모든** 같은 모델 청크(순위와 무관 — 검토 5)의 저장 본문을 검증 경로로 다시 임베딩해 저장 벡터와 cos ≥ 0.99(정규화 후 내적, 유한값만 — 검토 5)일 때만 진행, 한 청크라도 아니거나 대상 0 이면 리랭커 호출 전 중단 · 결과에 `corpus_recheck{chunks, min_cos, below}` · 전체 재적재 대신) → 리랭커 2회(정답 있는 30 질의 × 2 = LLM 60, 타이머는 `order()` 만) → 회차별 precision@3·hit@3·호출 p95(정답 있는 질의 호출)·형식 실패율(**회차 전체 리랭커 대상 중 폴백** — 범주 밖 질의 포함) → ② 규칙 → 임시 파일 → 원자적 게시(기존 결과 안 덮음). 결과에 요청 모델·회차별 **응답 모델**(응답 본문 `model` — 본문 파싱 **전에** 읽어 거절·형식 실패 응답에도 실음, 없으면 요청 모델로 안 채우고 None)·추론 설정 기록 — 한 실측에서 응답 모델이 2종 이상이거나 모델명 없는 응답이 하나라도 있으면 `judged=false`(추가 검토 3). 임베딩 모델명은 한 번 정규화(strip)한 값 하나를 사전 검사·임베딩 요청·스냅샷 대조·결과에 공통으로 쓰고, 실측 임베딩은 응답 본문 `model` 이 그 값과 같아야(없거나 다르면 후보 검색 전 중단). `--dry` = 가짜 벡터 + 가짜 리랭커, 회차 지표만 남기고 **최종 판정 `judged=false`·`adopt=false` 고정**(결과·출력에 `dry=true`)
+- **다시 돌리기**: 결과 파일을 지우고 다시 돌리는 건 **하네스 결함을 고쳤을 때만**, 사유를 report·이 절에 기록 — LLM 결과가 마음에 안 들어서는 다시 돌리지 않음
+
 ## 버전
 
 `retrieval_version = f"{EMBEDDING_MODEL}@{manifest_sha256[:8]}"` → `generation_meta`, `generations.retrieval_version`.

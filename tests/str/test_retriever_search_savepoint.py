@@ -40,7 +40,7 @@ def _patch_select_failure(s: Session) -> tuple:  # type: ignore[type-arg]
     orig = s.execute
 
     def spy(stmt, *a, **kw):  # type: ignore[no-untyped-def]
-        if "FROM ai.reference_chunks WHERE typologies" in str(stmt):
+        if "FROM ai.reference_chunks WHERE embedding_model" in str(stmt):  # 검색 SELECT(검토 5 모델 조건)
             raise OperationalError("induced", {}, Exception("induced"))
         return orig(stmt, *a, **kw)
 

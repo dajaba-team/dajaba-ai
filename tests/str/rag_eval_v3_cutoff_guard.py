@@ -60,15 +60,25 @@ def criteria_problem(repo: Path) -> str | None:
     return None
 
 
-def read_inputs(repo: Path) -> tuple[dict[str, Any] | None, dict[str, str], str | None]:
-    """입력 셋을 한 번 읽어 기준 커밋 바이트와 대조 → (경로 → 파싱 값, 경로 → 바이트 sha256, 이유)."""
+def read_committed(
+    repo: Path, paths: tuple[str, ...]
+) -> tuple[dict[str, Any] | None, dict[str, str], str | None]:
+    """파일들을 한 번씩 바이트로 읽어 기준 커밋 안 같은 경로와 대조 → (경로 → 파싱 값, 경로 → sha256, 이유). 308-2 도 씀."""
     loaded: dict[str, Any] = {}
     digests: dict[str, str] = {}
-    for path in INPUTS:
+    for path in paths:
         now = (repo / path).read_bytes()
         if now != _show(repo, CRITERIA_COMMIT, path):
             return None, {}, f"입력이 기준 커밋과 다름({Path(path).name})"
         loaded[path], digests[path] = json.loads(now), sha256(now).hexdigest()
+    return loaded, digests, None
+
+
+def read_inputs(repo: Path) -> tuple[dict[str, Any] | None, dict[str, str], str | None]:
+    """컷오프 입력 셋 — 기준 커밋 바이트 대조 뒤 구조 검사."""
+    loaded, digests, reason = read_committed(repo, INPUTS)
+    if reason or loaded is None:
+        return None, {}, reason
     if reason := structure_problem(loaded[RESULT_307], loaded[QUERIES]):
         return None, {}, reason
     return loaded, digests, None
