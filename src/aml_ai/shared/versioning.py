@@ -6,8 +6,9 @@ import hashlib
 import json
 from pathlib import Path
 
+from aml_ai.shared import chunk_context_state
 from aml_ai.shared.config import Settings
-from aml_ai.str.domain.constants_rag_query import QUERY_KINDS, RERANK_PROMPT
+from aml_ai.str.domain.constants_rag_query import CHUNK_CONTEXT_VERSION, QUERY_KINDS, RERANK_PROMPT
 
 _served_model: tuple[str, str] | None = None
 
@@ -28,9 +29,12 @@ RETRIEVAL_VERSION_MAX = 128  # generations.retrieval_version String(128)
 MANIFEST_DIGEST_LEN = 8
 
 
-def _retrieval_tail(settings: Settings) -> str:
-    """켜진 꼬리만, 순서 고정 — `+rr:{리랭커}`(SCRUM-308-2) → `+fill:{검색어 종류}+kw:{색인}`(SCRUM-275)."""
-    tail = f"+rr:{RERANK_PROMPT}" if settings.rag_rerank_active else ""
+def _retrieval_tail(settings: Settings, *, assume_ctx: bool = False) -> str:
+    """켜진 꼬리만, 순서 고정 — `+ctx:v1`(SCRUM-308-3, 이 프로세스가 새 표를 쓸 때만) → `+rr:{리랭커}`(SCRUM-308-2)
+    → `+fill:{검색어 종류}+kw:{색인}`(SCRUM-275). `assume_ctx` = 기동 전 길이 검사(켬이면 붙는다고 봄)."""
+    ctx = settings.rag_chunk_context_active if assume_ctx else chunk_context_state.in_use(settings)
+    tail = f"+ctx:{CHUNK_CONTEXT_VERSION}" if ctx else ""
+    tail += f"+rr:{RERANK_PROMPT}" if settings.rag_rerank_active else ""
     if settings.rag_gap_fill_active:
         tail += f"+fill:{''.join(QUERY_KINDS)}+kw:{settings.elastic_index}"
     return tail
@@ -49,7 +53,12 @@ def retrieval_version_problem(settings: Settings) -> str | None:
     """기동 검사(추가 검토 1) — 켜진 꼬리까지 붙인 길이가 DB 칸(128)을 넘으면 이유. 초안 저장 실패를 요청 전에 막음."""
     if not settings.rag_enabled:
         return None
-    length = len(settings.embedding_model) + 1 + MANIFEST_DIGEST_LEN + len(_retrieval_tail(settings))
+    length = (
+        len(settings.embedding_model)
+        + 1
+        + MANIFEST_DIGEST_LEN
+        + len(_retrieval_tail(settings, assume_ctx=True))
+    )
     return (
         f"retrieval_version {length}자 > {RETRIEVAL_VERSION_MAX}" if length > RETRIEVAL_VERSION_MAX else None
     )
