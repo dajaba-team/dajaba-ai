@@ -1,0 +1,26 @@
+{
+  "_doc": "SCRUM-308 ① 유사도 컷오프 — 307 저장 cosine 으로만(외부 호출 0), 원문 0 (docs/str/10 308 절 ①).",
+  "finished_at": "2026-11-21T15:29:29+00:00",
+  "head": "87aef099a91be90440d79b65f0daff462aa73216",
+  "criteria_commit": "87aef099a91be90440d79b65f0daff462aa73216",
+  "criteria_section_sha256": "b40aeb7b6a4ad532afb8df1ab7cf7e2dae3321758f8bdbc3c448874f7775858e",
+  "result_307_sha256": "0d59fd8d4f0fcba83248cf0b460cffcbfbdf0da6e7433fcb114103c91997b6d5",
+  "answer_candidates_sha256": "517b6bed5e863126dfae631c0a1ba626fbfef106f5fbbd2b7db9ce841d028f73",
+  "queries_dev_sha256": "4e7f5ebd0befe82710eb9e6ff1a3793aed3aad37a9cf42247586e04468783091",
+  "verdict": {
+    "judged": true,
+    "candidate_t": 0.315951,
+    "applied_t": 0.31595049999999997,
+    "stored_eps": 5e-07,
+    "answer_cells": 66,
+    "answer_cells_lost": 0,
+    "draft_wrong_cells": 24,
+    "draft_wrong_cells_removed": 2,
+    "no_answer_cells": 66,
+    "no_answer_cells_removed": 0,
+    "no_answer_boundary_cells": 0,
+    "no_answer_min_cosine": 0.344247,
+    "min_similarity": 0.0,
+    "adopt": false
+  }
+}
