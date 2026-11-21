@@ -1,0 +1,3616 @@
+{
+  "_doc": "SCRUM-307 위치표 — chunk_id → doc_id·page·pos(쪽 안 청크 순번), corpus/pdf 재분할. 본문 0.",
+  "manifest_sha256": "36b5a2d5f3daef5d1384debbbe7959fb123e302e2458a2c00625cfe2acdde910",
+  "positions": {
+    "0110f9b51f5e689e7b5f95a005cee21183914443cad224de884e6a70438dec52": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 25,
+      "pos": 1
+    },
+    "012efd3c197839afaded03ce6795b9647f8c7df69a490eca1ac6e0fabd957c2a": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 11,
+      "pos": 1
+    },
+    "01302e5f075d8f02cf366fc301f55bf24bdc877734065c7a650ec953cc03f6c3": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 19,
+      "pos": 2
+    },
+    "013810eb8e70346b63d6eac584cdca5350d667bbbae0bfa91a9aee4c110e00fe": {
+      "doc_id": "fatf-pml-2018",
+      "page": 23,
+      "pos": 1
+    },
+    "01ade36d395edc5078e255251654ca541aaaef7f559378160441d3bf2eccd177": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 20,
+      "pos": 1
+    },
+    "01f2a0833d726a2fd457489c5ef9ddaf4d726354ac3c5f20bb6101fa70b930c7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 95,
+      "pos": 3
+    },
+    "02671112cf967555be1f79b157bf2f5c9296543287156036ac6a555917a6e567": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 5,
+      "pos": 1
+    },
+    "02b0062d4bccb5a0105f49656156036b09d79cb669904eb733d9425bf3b3184a": {
+      "doc_id": "apg-typologies-2025",
+      "page": 29,
+      "pos": 1
+    },
+    "02c6998e595786c51ad8561f313bc91d0031d929d9402c2e38953d703a799b9d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 34,
+      "pos": 2
+    },
+    "035ca6807e02817b3d3781eba2b1f2dc4855a73116e54411d9e05b4c885a2827": {
+      "doc_id": "fatf-pml-2018",
+      "page": 44,
+      "pos": 1
+    },
+    "051f072e3adac869e7902b9dde1a553f08be199e3c5c76b3d44866feb7fbac6b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 75,
+      "pos": 1
+    },
+    "054cc545f11d984b8713c4b38c2c1e938fa697e58face69c2c5e5c52b536b55e": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 45,
+      "pos": 1
+    },
+    "0665e2099af19b0b2aa642b6f15f6231f3f59e63ab40d9263f219059156107d0": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 22,
+      "pos": 2
+    },
+    "066609c9a34306cf1f22d67775cfdc0ea3ae5b2022ed86caab7f2d56cdfa1ab2": {
+      "doc_id": "apg-typologies-2025",
+      "page": 40,
+      "pos": 2
+    },
+    "06963d227a460243dfb0b3dc050c43d3c702291340d083493778cfd1040f34a6": {
+      "doc_id": "fatf-pml-2018",
+      "page": 35,
+      "pos": 1
+    },
+    "06c08131ca18c753524250e144eb430abedbb53262bc9381ecb02fb4b088d47d": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 28,
+      "pos": 2
+    },
+    "07f85fb298bba9117549c372fb252548057bb375df710e9f59309d3c88f16064": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 36,
+      "pos": 1
+    },
+    "08906a46fd87069398d6b967cd40b9323e1aa63f212f2345a2f03bcf25e7d2b9": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 56,
+      "pos": 1
+    },
+    "0b4be313c2c6ef5d4f781cee7b624b47d8293fcc4bb764b89b89a62ba01bbfbe": {
+      "doc_id": "apg-typologies-2025",
+      "page": 94,
+      "pos": 2
+    },
+    "0b76d7a3c03d84fa51cd74a4039ca72951091b4a81e8b9f961a817273d18c34b": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 26,
+      "pos": 2
+    },
+    "0ba90192ab9ac532af3f87825c3ad488da79551d4b15e91d05d0785694a0002e": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 35,
+      "pos": 2
+    },
+    "0be4522417587d0be5431d49a159e975fd0e3a95ab2533bba6e74f59eb0a9fd8": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 10,
+      "pos": 2
+    },
+    "0c76381202a612f7b48e975efc38b3fcbab6c883a43a73098dd6ecab660f8aa4": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 4,
+      "pos": 1
+    },
+    "0c901921e6e3487b3e936dac3460b27f2d0c99515f23cae637dd3258de1e6af3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 43,
+      "pos": 2
+    },
+    "0cf8188588350e76e6015e5f15789161d88784a1b84c2d7608306f69040dc298": {
+      "doc_id": "apg-typologies-2025",
+      "page": 30,
+      "pos": 1
+    },
+    "0d38775ae188c4e6c5fbb5d7eaea0d3f9066577a350cd3239b9bf47109a45cc5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 53,
+      "pos": 1
+    },
+    "0de46c67fb05db1ef52593320fbc158c62933255e86871b6b983cf23b478df25": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 29,
+      "pos": 1
+    },
+    "0e378e31ae7d4e52b77439f1154a19499ec8aaca437c696f3a09ede706ffb2d0": {
+      "doc_id": "fatf-pml-2018",
+      "page": 44,
+      "pos": 2
+    },
+    "0e494ce0628aa4510b373c084a2021f5446fd838c5c56170a0bfe11da30d336b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 86,
+      "pos": 2
+    },
+    "0e816328e61917185d725a59410e3d1f9b770d9c57367f09374bbdc34f6af542": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 15,
+      "pos": 2
+    },
+    "0ee903b3a64e20f321b7903bb60c37813f630b7c38496b22269785ec656f0392": {
+      "doc_id": "apg-typologies-2025",
+      "page": 102,
+      "pos": 1
+    },
+    "0f0ee9499975106f2a5da171317ffe85c7da4507f7621e65792d9c9c8076a813": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 21,
+      "pos": 1
+    },
+    "0f3b57ee3dce7508200e519631a8948ddd955c05bf9f139ead39ad19ff58d250": {
+      "doc_id": "apg-typologies-2025",
+      "page": 97,
+      "pos": 1
+    },
+    "101cda2c9d7c6e0add2a00e1e9e0cf4caf15c4220e52ffe2db35bf2c8d30fab2": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 8,
+      "pos": 1
+    },
+    "104a02189c91090a757081e638b72e54515a78ed7f2c35505b509c31a4de79ac": {
+      "doc_id": "apg-typologies-2025",
+      "page": 65,
+      "pos": 2
+    },
+    "1288e1e550d0a11f75691578e9caa25b12b2173f604b8b53adb4819b9e903da0": {
+      "doc_id": "apg-typologies-2025",
+      "page": 6,
+      "pos": 1
+    },
+    "129cb4f160b2c904b701afa1ca93312dac967bf036547ca4905ce134a40bd1aa": {
+      "doc_id": "fatf-pml-2018",
+      "page": 25,
+      "pos": 1
+    },
+    "12fd543c35752f48306d4fa85bce2af3db409e310a9bdb7a1c7aa1f468772ba7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 69,
+      "pos": 1
+    },
+    "132d0b12c936eaab887db48f26f1330bd6cb1bdcff1634684673215d63679d59": {
+      "doc_id": "apg-typologies-2025",
+      "page": 39,
+      "pos": 3
+    },
+    "1350d900c11147672b610695ea01b391dcd70df24f3219051b1abb8f03064984": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 19,
+      "pos": 2
+    },
+    "1359026c77371a4568d27663ae0792557d142478a2fb6d1785bb56c23b27cdf1": {
+      "doc_id": "fatf-pml-2018",
+      "page": 39,
+      "pos": 1
+    },
+    "13f14fbc2cce40172ed1de56a04968b4a403031ca89f077d358b16cd66ec647a": {
+      "doc_id": "apg-typologies-2025",
+      "page": 49,
+      "pos": 2
+    },
+    "140151864b49f78568ee55e3d863e29e9738d2f45aa0170e71589f76a7e82ca7": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 28,
+      "pos": 2
+    },
+    "1567548b93caa88c265b224f8e55cdbe6eef0ca4057e40c9b22bf995723261ec": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 43,
+      "pos": 3
+    },
+    "15818e4b091aeb231cebc7eb14e0390c7baa002456b025fe7ba06dcb803e7e57": {
+      "doc_id": "fatf-pml-2018",
+      "page": 26,
+      "pos": 2
+    },
+    "158f5fc0e0099835db132fb5bf889705d599a5eb2b57a78e557961bee0bd5bfe": {
+      "doc_id": "apg-typologies-2025",
+      "page": 30,
+      "pos": 3
+    },
+    "15f88c6bc7657766ec70f8f20e9236c2e3ee1aab01bf8e2ec52ba6dbaab46a40": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 32,
+      "pos": 1
+    },
+    "1605fd964facdd76445c51c02b33ce1d319980fc282b901719f2ab0fab5902d2": {
+      "doc_id": "apg-typologies-2025",
+      "page": 58,
+      "pos": 1
+    },
+    "1649cffdcac01cd80af23562518deb630c58b94893bb2c21cd2a5c4a7c726073": {
+      "doc_id": "apg-typologies-2025",
+      "page": 33,
+      "pos": 3
+    },
+    "1662ba93df426da60af4940e2c9771eabe4d3195e198493f7155b56bc5deeac6": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 15,
+      "pos": 1
+    },
+    "16a0324d9c392faec343ae84aa5423311bc85da83d9791746c9dcc23369b7ed8": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 59,
+      "pos": 2
+    },
+    "17839ec1e90e4e49bcef854a0a5a4ae6ffc2928ed23e78619283b4c5ef62b61f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 85,
+      "pos": 1
+    },
+    "179d462d7a20ee0fc8b111b999616a18e2acde8e0789406098d516ccc9976ebc": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 31,
+      "pos": 1
+    },
+    "19373401de6f16afe789f59ccfcad3976d117a749e71ad92d8236b3a99af0ab7": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 28,
+      "pos": 1
+    },
+    "19396834ba30ede628acab2079d46a9dab434208b3673f60e327915026516335": {
+      "doc_id": "apg-typologies-2025",
+      "page": 48,
+      "pos": 1
+    },
+    "199fa961ec3538f9d60bdd937d3d666df061b9127bdedd1e382390b2e684fc20": {
+      "doc_id": "fatf-pml-2018",
+      "page": 6,
+      "pos": 2
+    },
+    "19d827cf9e798013fb6f2c2c280020ff1ab975d4a7e996d18679508d4e5c1339": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 27,
+      "pos": 2
+    },
+    "1abbc22aabd70e4c88a52adb4340a4189861ac79c5fd8a08c5272be9de670101": {
+      "doc_id": "apg-typologies-2025",
+      "page": 99,
+      "pos": 2
+    },
+    "1abfa63640bd65598e59e176d48ef255da683971f9ff33ef30dcbca232a1e0be": {
+      "doc_id": "apg-typologies-2025",
+      "page": 50,
+      "pos": 2
+    },
+    "1ae0fe93d648fd87cd7bd4a009d9becacb6381dc6d7e4de510680f29e60ff91c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 73,
+      "pos": 1
+    },
+    "1b4e34086095a130930e9c78857e610218d5be652fe133d61fc99e35606f49f2": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 9,
+      "pos": 2
+    },
+    "1b9114dc2fc92fbc44d49084b315c5abed797b719fa5806921c629cfc50f16ac": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 21,
+      "pos": 2
+    },
+    "1bcd13b6bbb547b1079198e61d5c1758bf4eb7ece906130e449c69cb9c948909": {
+      "doc_id": "apg-typologies-2025",
+      "page": 10,
+      "pos": 3
+    },
+    "1d861df5867e10c580afb4cd125e741fbae0c95e055d968e6d19f808d2702861": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 13,
+      "pos": 1
+    },
+    "1df5e04ee22df55e23b1a20311f989a5b274087830d5fa4a133ddcca97aee97c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 34,
+      "pos": 1
+    },
+    "1f44b94c11767e6c43834dc8abcfe9aa2b6670f8d9338e9bb26cdb3818658129": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 4,
+      "pos": 2
+    },
+    "1fa1e73a1ae4e9f2e8e0d66f79706db3b71b0cb61736d1e4bf4b997bde18f455": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 29,
+      "pos": 2
+    },
+    "1fc50c18f596272b4eee40170759d9b6415284185b4c39fdde8ed3d5c36e823a": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 57,
+      "pos": 1
+    },
+    "1fd2375b59faf04773181ac331ac124c918b124e66886ff8efc5eb8edca5e2de": {
+      "doc_id": "apg-typologies-2025",
+      "page": 36,
+      "pos": 3
+    },
+    "1fd7690af347927e0495a63898c8fec86f67d4a9bfaba4f7f26dda9bc2d4c1ad": {
+      "doc_id": "apg-typologies-2025",
+      "page": 62,
+      "pos": 1
+    },
+    "2016143da9482e169685a9599f4b1a01f9d4effb52d3702dc70d4d0e66c6c174": {
+      "doc_id": "apg-typologies-2025",
+      "page": 39,
+      "pos": 2
+    },
+    "206d5b7d3ff2f59c0b7002b5baf1337060a40122880db0e99eb53adec63cf457": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 5,
+      "pos": 1
+    },
+    "206e74907d2feb350c17f9cfba2d2453db9ba2418c2daaccce9d2a76712ccfec": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 36,
+      "pos": 1
+    },
+    "208c82622da9e3a71100816566134690e0f7a9f1c326193c6fd89d4ab081c8cd": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 44,
+      "pos": 2
+    },
+    "20acf4547a880d9a0622ad8c247236e5d1481becd4e91f2ae51a1f5bd6842ddc": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 28,
+      "pos": 1
+    },
+    "21c615317a754ca33eec16f435f02fb56f930b8f80664e76b1732ee6c0e3e21e": {
+      "doc_id": "fatf-pml-2018",
+      "page": 33,
+      "pos": 1
+    },
+    "21c8fb590c4d651451e010d77c84e62b0127bb153f85f6f7d9915fb3220cfbab": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 12,
+      "pos": 1
+    },
+    "21e35ecd70a0a89d002da1abdad02e452e55423086d53775f1fa4e815f470c2c": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 17,
+      "pos": 1
+    },
+    "22a2ad13f3cbdba14e6f4ac35d06b2518577a05c9982a0d57f82216c396bf4b7": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 24,
+      "pos": 1
+    },
+    "22b0dd62e283e07f678425ed80f78762b0250aa566459e0f429789e90e574aab": {
+      "doc_id": "ffiec-redflags",
+      "page": 7,
+      "pos": 1
+    },
+    "23329a6d9054242eabe9715c0e5707d871e4e99ed7c77f401970b22184fab128": {
+      "doc_id": "fatf-pml-2018",
+      "page": 43,
+      "pos": 1
+    },
+    "236036c5eb1babf6b2b97f130497863acb466aad29574ef39bcc6d49aa669544": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 3,
+      "pos": 2
+    },
+    "236751e8dd584c495512870d3f1eac87ca8a5d5c890c03fe1578885ebd5fc9e9": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 18,
+      "pos": 2
+    },
+    "2367e218b653e1872b7f6bc9323a3926d62f051f6de3288423bef23eca8ae5a5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 8,
+      "pos": 1
+    },
+    "23a3821b49dceaa7782efb9e53b96ed6c53b7dfba4bb7a54b8836c10f85d2194": {
+      "doc_id": "apg-typologies-2025",
+      "page": 49,
+      "pos": 3
+    },
+    "23bbbb58cc826914a725156d70b9f2aa0027b2e6c402125a175d6d204b25abf2": {
+      "doc_id": "apg-typologies-2025",
+      "page": 68,
+      "pos": 2
+    },
+    "240ac92407a0101548e4259347dcfdf8d00830671225e6d042c638faa0dec8e7": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 54,
+      "pos": 2
+    },
+    "2420e26049ee9a5440b8853b2a918d40677a3678e5b170f124e5f60efd31f6c1": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 55,
+      "pos": 2
+    },
+    "242a28fa17b0e1e9be6328d9f37db5cde3212ea5ea4c4003ae3277397f3bcac0": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 60,
+      "pos": 1
+    },
+    "24739f8d92a021c6230d3c3b98396641553904f7ff8d56507b7ea39cc5b4d581": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 10,
+      "pos": 1
+    },
+    "24b2b947b4e8f20152f13bda17c8019c900cc612b11f57dcebca7d4878d92bf1": {
+      "doc_id": "apg-typologies-2025",
+      "page": 36,
+      "pos": 2
+    },
+    "24d53b526ab17fb2362e5e38ce3e8adf95f77f205fb79dbf488bf468f9fa06eb": {
+      "doc_id": "apg-typologies-2025",
+      "page": 35,
+      "pos": 1
+    },
+    "2502f1a90f9e6264ac005b6551735e2912b312a2d15962ee282c2000a12c00cc": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 1,
+      "pos": 1
+    },
+    "250ba5e20c5f95434df31842e8bb63ae12ce1405588cf637745bd8948e3a850b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 7,
+      "pos": 1
+    },
+    "252d4c8f147579d58e61c079fd0638ec8f2a527840f140596e65f80e0e04e148": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 29,
+      "pos": 1
+    },
+    "259fd04125f03c0452c64e493367f1611172542ebb5d57ecf52061a9c9a7dfac": {
+      "doc_id": "fatf-pml-2018",
+      "page": 31,
+      "pos": 1
+    },
+    "25bbb48f5b36bff23447a2ca037d2a03b0d71150af0f03726c29d378173a5607": {
+      "doc_id": "apg-typologies-2025",
+      "page": 40,
+      "pos": 1
+    },
+    "25d1ef7b7ebe24a3ffd746b0af0c04b207b00711d7f8658fc37fad561316e761": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 14,
+      "pos": 2
+    },
+    "25d1f54652ac3d9a8e467199210b21844fbf957d452f8d56a5dabb366e3a049c": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 6,
+      "pos": 1
+    },
+    "2608996c39792e72f61aeae198f4e22b705701e3d33896a1dd1725b49600e99a": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 6,
+      "pos": 1
+    },
+    "260f1529df3b29c9074abe30fb283472cd1235d9cb2bc1704487330699f8bd07": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 2,
+      "pos": 1
+    },
+    "2616b6062495764ebae6790ee44ad2bd68aa688ab6200e8d4d06fcc458082284": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 19,
+      "pos": 1
+    },
+    "268c21f4b1765ab7d05474e9405b0bf23e5503adc8552a88a5d0b2f42a8c113c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 80,
+      "pos": 1
+    },
+    "26daa9a242e88064707876fb99de847b410f4a87c9d52c75fa976dd6f32d6163": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 8,
+      "pos": 1
+    },
+    "27b4d07b1045607fe0bad096a853ba96d20a8a9bba34cdd40cb5be03cc1c1c0c": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 15,
+      "pos": 1
+    },
+    "27f4615bee96c0f798165243268a0b424695cc52b305cc0e0e7097a54d664214": {
+      "doc_id": "apg-typologies-2025",
+      "page": 13,
+      "pos": 1
+    },
+    "27f9f09ab3333dd4d76682b15dadfbc2b0832d579e33de8a5c500cf2200226b1": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 11,
+      "pos": 1
+    },
+    "283652295cceebf616021bd5fe411d68ceeddc49e78472e0fb3d941f1b0acfce": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 43,
+      "pos": 2
+    },
+    "283923e2f66f9a7cd555bea1e13b668a80caac2c13770f3255d73cacedbdb5c3": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 3,
+      "pos": 2
+    },
+    "29722f95ea6bdcdd12bc0c813fdf3b292db4b2e492c5df258b06bbaf7d3ce5cd": {
+      "doc_id": "apg-typologies-2025",
+      "page": 7,
+      "pos": 3
+    },
+    "29858868cbb4ed5eb19d5b0e3c84fa0157da464977b682869597fb297f5b43da": {
+      "doc_id": "apg-typologies-2025",
+      "page": 2,
+      "pos": 1
+    },
+    "299a523488b8cc4863a1b29614b1cd5f63f1ac9e9ad0701c61e64a712cbe700f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 84,
+      "pos": 2
+    },
+    "2a1e0c247297c701ce64696e070899ec793da398b4b35347a15ebbd4dcea3a80": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 52,
+      "pos": 1
+    },
+    "2a78bb73a50f5056c6ca5d78f61f66d3735b1e095e7b4c71a29f52b4a72353c1": {
+      "doc_id": "apg-typologies-2025",
+      "page": 45,
+      "pos": 1
+    },
+    "2ba4587a9554567d9dca3f4b28090fbdcfdac52055cea9d97d49a7285d65b672": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 3,
+      "pos": 1
+    },
+    "2cc15f5f9f84f70260dd37e7874db20043f1baf5c30e008b6d3001cd353f4328": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 20,
+      "pos": 1
+    },
+    "2cdda73b4885664a2d6f617b3e3a39210cdb3bf66a92e21a2bd062235a7be5ec": {
+      "doc_id": "apg-typologies-2025",
+      "page": 82,
+      "pos": 3
+    },
+    "2d2856cf174b811f87d9185b48f8116c576e6bfc79da300950d1a51f520dc2c1": {
+      "doc_id": "apg-typologies-2025",
+      "page": 1,
+      "pos": 1
+    },
+    "2d46e9894082cf1d745e61fc9a97e3d4181788c566d0160754cd066408d63d7a": {
+      "doc_id": "ffiec-redflags",
+      "page": 7,
+      "pos": 2
+    },
+    "2dba96aceff4271df1dbbebb84c439094ead9874dada718cc55d9ff93cd1ca12": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 6,
+      "pos": 3
+    },
+    "2dfda188ebf1c2685b86f4e99a4bcf05e38af8c058188aeee6d7974e94b42735": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 45,
+      "pos": 2
+    },
+    "2e67dde0ace68cc0f54c87ac75c1767d72cb006b510fd07bd673892cd8841a3a": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 34,
+      "pos": 2
+    },
+    "2eade7198ce51b2b16e28fd64cf5f3c580aff5dd80f07c33f127fc376a420bc4": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 25,
+      "pos": 2
+    },
+    "2f245c677479102965c1e22bac633d906f15769b7a1cafe294e9cbd741b1af31": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 20,
+      "pos": 1
+    },
+    "2fbc8b6663444d24857018f37e9f8f0010df08d910ca923c8884b7c2bcd1361b": {
+      "doc_id": "fatf-pml-2018",
+      "page": 40,
+      "pos": 1
+    },
+    "3082398e18a1008aacf4d158e47f1d370ab87b0d7e09a9bb8d3f1de211e1c620": {
+      "doc_id": "fatf-pml-2018",
+      "page": 51,
+      "pos": 2
+    },
+    "30ef0492088557d1cde73030725c074a3b2225b113835fd5478991eb7b9856d5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 17,
+      "pos": 1
+    },
+    "311035851fddcb76386f723d855c067ebf70e830d7c1be97bfa600b2dcc03896": {
+      "doc_id": "apg-typologies-2025",
+      "page": 12,
+      "pos": 1
+    },
+    "31c0a6f592b07c835e56fbea9963c1158177306c156d5d5b9dda4733b04012ea": {
+      "doc_id": "fatf-pml-2018",
+      "page": 11,
+      "pos": 1
+    },
+    "31f8dabc8f09e5dc3acb4f6c5ed4147bed2133a6044f6a6e22b30fd5c28a2aea": {
+      "doc_id": "fatf-pml-2018",
+      "page": 20,
+      "pos": 1
+    },
+    "32076d1c6f8968f63e0c25dbfc0bc59f6d74adc10b51062a298274b0df4ea4f8": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 12,
+      "pos": 3
+    },
+    "32272207d66c459e5d4ee34a4e9332e042534e6304c2775bef8c20bd7c8ac4b2": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 11,
+      "pos": 1
+    },
+    "3267f94588f7d7acd52bd015750ffbc30aeeac57cbdcc95d8aeb07daedc54b58": {
+      "doc_id": "fatf-pml-2018",
+      "page": 48,
+      "pos": 1
+    },
+    "327775902ce534daef0be564d0464a9d674eed1884768778f6ce0b19f2324c16": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 15,
+      "pos": 1
+    },
+    "3282429ac4196f9c4d7950c7a1da421b78d600c9b8aeb06cd347637f02072e7e": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 51,
+      "pos": 2
+    },
+    "3290fccd08ac314566b6a14f24ed4fd26fa3305a794c48891c678381d11d4494": {
+      "doc_id": "apg-typologies-2025",
+      "page": 73,
+      "pos": 3
+    },
+    "33055b4735113fbc0bafe2082ed31b07e7e6d57ab83997c95125b80216a0f67f": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 2,
+      "pos": 2
+    },
+    "33245b28215fb33b03b8faff12a32243d77bf45340988ce75a1463c872555a86": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 15,
+      "pos": 1
+    },
+    "3383b7278fb079c19f647347c5a2cab0fbcff28491e2566177919ceecb3908a6": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 53,
+      "pos": 1
+    },
+    "33ec8dd214b64833d0e0fb4586267c6f5774d2a29cd40202ac4cc61c5cb31f0c": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 30,
+      "pos": 1
+    },
+    "33fc894c70464b21f857b4d25a30cdfadd24b00d29b5e618f476975faae18e77": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 8,
+      "pos": 2
+    },
+    "34b25a5698950817bba51b184ef7b92ee907b1ca55a2ed1b4f3b7b373f4d98a1": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 3,
+      "pos": 3
+    },
+    "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 4,
+      "pos": 1
+    },
+    "35094e27d7061d86e56afbaf2ddec7692d9afb5faba836e52f5df24b7ddd9af7": {
+      "doc_id": "fatf-pml-2018",
+      "page": 45,
+      "pos": 2
+    },
+    "357d6e03eb87bd5d66be3ae1c96e475b9322a9664a3c93c22fc5f22f6b5be297": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 13,
+      "pos": 1
+    },
+    "35f80f33b998fbeec37b30c30eec42e734b84fb1b009bb9cf2b365e40cdc50cf": {
+      "doc_id": "apg-typologies-2025",
+      "page": 45,
+      "pos": 2
+    },
+    "36221d101a2643c081a801b2f618aa92d35782434eb6d9c9c8640527feaa4b6f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 72,
+      "pos": 2
+    },
+    "367744551408bf935e010d97338c28c36a5ef59a84736e06f6cd0f10d19eaa52": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 7,
+      "pos": 2
+    },
+    "37372b6f4e3b9bb811f0b868774900cf06f8a7696d155c6453c486e0732e06c3": {
+      "doc_id": "fatf-pml-2018",
+      "page": 21,
+      "pos": 1
+    },
+    "375a67839f81f772ccc035062325e9538c0da91e3ce5f0a8de2a79e3838def5f": {
+      "doc_id": "fatf-pml-2018",
+      "page": 18,
+      "pos": 2
+    },
+    "38581c3f7d90a2be012c8091f91cf4a4aa7620632e9998c59587e126282f549c": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 11,
+      "pos": 1
+    },
+    "38a537ffe75bfe6df503366ac421b78db8705271400bd1bb2d399efd64a4c341": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 23,
+      "pos": 2
+    },
+    "38e40751117a98330db51e92c20060b2098c8f56e007ec8f2ade0e6db9c2116b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 36,
+      "pos": 1
+    },
+    "39a8bb436cf3ef5b3a166dd6b13b7c26013a90b804a0de936dbf2aedd26b4e11": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 51,
+      "pos": 1
+    },
+    "39d480985ecad7f8f3a242d59132336458e8ec60e629d8f5263117730e012850": {
+      "doc_id": "apg-typologies-2025",
+      "page": 95,
+      "pos": 1
+    },
+    "39f842539daac46a559ad4ba22495243beec7ef275d18cb4fa9138ad64af89c8": {
+      "doc_id": "fatf-pml-2018",
+      "page": 30,
+      "pos": 2
+    },
+    "3a291563857aa0d7e3d93d5f3fd6c79c9b1230524fb21774a1bb041e801bcbce": {
+      "doc_id": "apg-typologies-2025",
+      "page": 41,
+      "pos": 2
+    },
+    "3a5716d80d3d21450848aab389e1370c26f8f615b6fcdb77609ddffe85ef4deb": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 31,
+      "pos": 1
+    },
+    "3ace822086e34998802d2d1121a134d85f77d8e281087411f2c8be648f7ed084": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 33,
+      "pos": 1
+    },
+    "3b222b1bc57192c2a06d24fee122021b01d5f3fbf0f6bee60283dad4aa2ad6ca": {
+      "doc_id": "apg-typologies-2025",
+      "page": 22,
+      "pos": 2
+    },
+    "3b8a9cfac6d14b4262c4ac372fdee6735dd5f097cec4dec02a262dd87b369848": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 1,
+      "pos": 2
+    },
+    "3bf219f3c117f0fb6f164b9f158eaa0921e3ee7644be30bc32b1b8384d53d9b1": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 7,
+      "pos": 1
+    },
+    "3c8af66a0f6ecb8a1c8475379b305c792bcc2bd06e8aad7ff00a1b90aa1e6769": {
+      "doc_id": "apg-typologies-2025",
+      "page": 47,
+      "pos": 2
+    },
+    "3da7112b7b75bcba28ad7d35231a45dcb6ae6d3add126d490bf29e6ed4d8aeb9": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 13,
+      "pos": 1
+    },
+    "3db5705616d3ac5128eda5b43aad02c9758f8a6b2c789769e5939ba4ceaf6b3d": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 23,
+      "pos": 1
+    },
+    "3e229bc86c979731dd868447eef9f6dc98a778e9891696888ccb0ae8e0456a71": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 5,
+      "pos": 3
+    },
+    "3e7566e4b684eef7c6277e47ad1efad1125dd7513cd2d973d4e82e4c17c3d853": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 26,
+      "pos": 1
+    },
+    "3e86c9ce7345c4ed8db403591c00fe2cbaf302f41d7bcb3c1a0206653819b1f7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 30,
+      "pos": 2
+    },
+    "3f013af20c04f9ac31f4a94961505b97ffb4b0e19473e63b2c4aa26d0dcecd46": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 58,
+      "pos": 1
+    },
+    "40d74196bef8d0605dbecc24add01201f22f6d771838a99ce09122b590e58a94": {
+      "doc_id": "apg-typologies-2025",
+      "page": 86,
+      "pos": 3
+    },
+    "41348bf7e3c1f2786c88463e260810e804dc58c55c422775092d1209eb608da5": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 21,
+      "pos": 1
+    },
+    "41e147c77b03e6cd7ea10bfc7bddabf2d69b49b7de9ba293d1135e3457efff2e": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 7,
+      "pos": 1
+    },
+    "426697880c88bf5b67c89cff10de7de668eea749c7dfe913a05c1980e818715b": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 5,
+      "pos": 2
+    },
+    "426f7eab49ca22c00f19bc707f9984e523548aaabbeb944223da641cb88b40cf": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 48,
+      "pos": 1
+    },
+    "433756425846c9cffdcf8b35a74c02e1da30a320b47cd9eb84c899f60ae3b1c6": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 7,
+      "pos": 3
+    },
+    "4362eeee4b2f00093aa77e185fc16b2910638e69bf8b298cf18040555448fe3c": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 15,
+      "pos": 2
+    },
+    "43f9ccdb1fbfaf0d95d62969a70bc1d8021f853ff9961b62c6ec9cd801b5a1f2": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 4,
+      "pos": 3
+    },
+    "44452d9e0c6404fb339dfac662d77ff8a4689952818423ca75115e704559d364": {
+      "doc_id": "apg-typologies-2025",
+      "page": 77,
+      "pos": 3
+    },
+    "44beb50e23f0e4a04590c98ada1c053a3fb4291abb5cef7e24b8063281e54038": {
+      "doc_id": "apg-typologies-2025",
+      "page": 47,
+      "pos": 3
+    },
+    "454ac1a9464cba4f3ff216aa81dd9c8fa3eb559ae838dd112f3fa0ff39891c07": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 61,
+      "pos": 2
+    },
+    "457f60034408fd974ec900ff67f74ac411b0a2d1313845d63fac5f5f0f79bb29": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 33,
+      "pos": 1
+    },
+    "45cc7e3530dbaee32a5056282139a28f26d7e2159e8d460e82dde3cd2e06e684": {
+      "doc_id": "fatf-pml-2018",
+      "page": 49,
+      "pos": 2
+    },
+    "4624d3f35f0dff00c7018a75aad97f2c481407b09e1ffb3dc09513838efef9b8": {
+      "doc_id": "apg-typologies-2025",
+      "page": 32,
+      "pos": 2
+    },
+    "4653c0115d50c02ec6f335aa8da3289ad9ccea95b441b5943f540ddb0bb4cc0b": {
+      "doc_id": "fatf-pml-2018",
+      "page": 28,
+      "pos": 2
+    },
+    "465718995d1a13788d55c8bb2de75c653bc891101bc45362d859da3cbc6103e0": {
+      "doc_id": "apg-typologies-2025",
+      "page": 97,
+      "pos": 3
+    },
+    "4666a8013bafe776d698e1bfd31c5d4e25af1d270601e3d80fde4cae3d3359bd": {
+      "doc_id": "apg-typologies-2025",
+      "page": 70,
+      "pos": 1
+    },
+    "4669e0c27c4ad0f85b61fec54a2b3815c41246126104748281828053bbb6e54d": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 20,
+      "pos": 1
+    },
+    "46b3ea7bdbed054323c06cdf4364323dc0d8554606e9a2453b87ce6b86af4c25": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 27,
+      "pos": 1
+    },
+    "46d339212b89f7af77059d9d88dd074f1d6b1ee21c62f582c562e9eaa3013384": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 17,
+      "pos": 1
+    },
+    "46d90611fdbd572608137400f96dacbed36e90cdf0ea688b2d25343bc48eaa05": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 30,
+      "pos": 1
+    },
+    "470ebd0d71d2fcd4276f2a96ac20634fd1782b485ea864c2ae45ad558c9e1017": {
+      "doc_id": "apg-typologies-2025",
+      "page": 52,
+      "pos": 2
+    },
+    "479bce6594057edd2371064b33773c79f5a2f93c3957724c455ccc6bf2e91dce": {
+      "doc_id": "apg-typologies-2025",
+      "page": 15,
+      "pos": 2
+    },
+    "47a18aa17f7ff3a030f90ec16f4a4564bed22ef6975781727687af247e24c3db": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 9,
+      "pos": 1
+    },
+    "47dbde4b64a6a8de9020d157a0c55759036e713aac022824904b120fe0595507": {
+      "doc_id": "fatf-pml-2018",
+      "page": 10,
+      "pos": 1
+    },
+    "48429682640635f4ee78bad1b5a218544962aa2fa471a35100ed601d36c2c523": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 33,
+      "pos": 2
+    },
+    "486cc4ae41188f42021b02fbf53c719cd12f0a441ef95c5bfce5bdc88833368b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 18,
+      "pos": 2
+    },
+    "48a9e96281ce2e473c32089aaa24c3cda9d2b15ff6bbb0f55165c1e71b3e358a": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 35,
+      "pos": 1
+    },
+    "49921fd217bb9316bd42d4543a8bea0e8cbee282bbdc4c8a40d8ebd2a3a63ea5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 69,
+      "pos": 3
+    },
+    "4a17a0d2b4665a16b5deb8aec86d8b404f5d09ce9ac7ae4c10fab7eb6165e7e0": {
+      "doc_id": "fatf-pml-2018",
+      "page": 32,
+      "pos": 1
+    },
+    "4a43a2dc4361b2c247c3dd778adcd51ab2dd3f9c06a5a1973ea47ee08e7833a3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 50,
+      "pos": 1
+    },
+    "4a7c5057ce53a609f7cde140aa3f16e000ab93dbc56456e4c196e8a836cdefa2": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 16,
+      "pos": 1
+    },
+    "4af480ec813a079bfadd81214bd761180fc17dedfb3ed2679493d6b299a26a3b": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 40,
+      "pos": 1
+    },
+    "4b349bf1e1010986f9131971eadb10c1227db16cf4db6e811bd035fa6928da77": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 50,
+      "pos": 1
+    },
+    "4b56c6e54806a809de1d2499cf379d6af471943d1d3d4adad5973e2025d3b246": {
+      "doc_id": "apg-typologies-2025",
+      "page": 77,
+      "pos": 1
+    },
+    "4bb259c9967e3478f6f5f09cec898de1882b0799f2a118c21bedbac622418059": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 34,
+      "pos": 1
+    },
+    "4bc596cb3935688a1a700a4e3ea806fb21618f8a66f10a2171f16cc9511ca144": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 28,
+      "pos": 1
+    },
+    "4c46aacdc50c14976873ab1b578ee5c6bba5974abb52533f71ab8bfc8c51f9b9": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 46,
+      "pos": 1
+    },
+    "4c62ec70ba3d923041c6e647906864806c24cd6cc656c6b1e7da40bccb7e9daf": {
+      "doc_id": "fatf-pml-2018",
+      "page": 17,
+      "pos": 2
+    },
+    "4cd152108b43eb2c5dec10c9586afbea006a612310503b1af2db106f7a9bf630": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 6,
+      "pos": 3
+    },
+    "4ce8ca41a41b971186db8e4dead38664fce7dc9ca6f03b2416392b37356a3f7d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 38,
+      "pos": 1
+    },
+    "4d095d5dff752d846c73e2059d2d7c8545565d8b928c8fa1f3bc3f28a3edf9b0": {
+      "doc_id": "fatf-pml-2018",
+      "page": 38,
+      "pos": 2
+    },
+    "4d1dc4abe892fe28e4d27c0919e97f6f75df428f48987131c90c57bed57ba2ea": {
+      "doc_id": "apg-typologies-2025",
+      "page": 90,
+      "pos": 2
+    },
+    "4db9cea028b56c83b9d0b3f36786f75801c59d8cc9946e54213c8e25739ce5cf": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 38,
+      "pos": 1
+    },
+    "4dd6eda0e56770e7fbc20a84047da5c58299b451399f1dc109d76c1c16d316e7": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 21,
+      "pos": 1
+    },
+    "4dedad4c49e5a91a1f392af17401c6cc51e01d3e91e1f21c13fa24042b603e53": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 5,
+      "pos": 1
+    },
+    "4df6819e3ab35b5daae0d003009db9d4ac7137816199301773feb6737992b4b5": {
+      "doc_id": "fatf-pml-2018",
+      "page": 46,
+      "pos": 2
+    },
+    "4e459e59b162e5146f01fb69681002936d1e2f326854e78b4375abd5c8ffae8c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 93,
+      "pos": 2
+    },
+    "4e85139a9824128b88368c52129e329d99377407df5639b90ea9d85c5bdb4c47": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 32,
+      "pos": 2
+    },
+    "502435b828ef6cb2ffb9aebad7ab181b73751937ecdfb8d98ca2c1313b015554": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 27,
+      "pos": 2
+    },
+    "503cf4699e5ee18fff83209b7e9bdc3be8d1f3002d0bdbf80120ba21e89a7a33": {
+      "doc_id": "apg-typologies-2025",
+      "page": 75,
+      "pos": 2
+    },
+    "504d580a17f08f185fde011bdeb011abbd1ae05ad98a9ba0e63c9cd51a17c9e5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 12,
+      "pos": 2
+    },
+    "50aaf6ebea85af7fdd1ead1cead6b2f09ab77af70cbdea2c580be9c726e98ca3": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 5,
+      "pos": 2
+    },
+    "50b6a0302e6a1010118ec79c57157fab0ece7b5e3cbd176770ce6648a456ef7c": {
+      "doc_id": "fatf-pml-2018",
+      "page": 11,
+      "pos": 2
+    },
+    "50e990372acac7ade2318bb5f89b00572ee816aab5d56c3d51347921da66314e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 37,
+      "pos": 1
+    },
+    "5191281e7f4a89f297bd908197c94ce15c4a0d1be9efc3f6ed7faacf398ab28f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 71,
+      "pos": 1
+    },
+    "51c111155c52623df92592deab5e5b5e28e8cfe386ed6b1ff46f8d3364d06582": {
+      "doc_id": "apg-typologies-2025",
+      "page": 56,
+      "pos": 1
+    },
+    "52377ac08ad7a56d3c2fa5c3e6c1b06c804dff3416d42512e1cb5479261f5eef": {
+      "doc_id": "apg-typologies-2025",
+      "page": 46,
+      "pos": 2
+    },
+    "5271b7500ced0dee4987ae9da5c9d07f5591231a9aa5211801691cb82272a813": {
+      "doc_id": "apg-typologies-2025",
+      "page": 51,
+      "pos": 3
+    },
+    "52928070999dd74b5fa778e4619b95c0b910b459bd5dc26b440ff5810cb91fe1": {
+      "doc_id": "apg-typologies-2025",
+      "page": 91,
+      "pos": 2
+    },
+    "5296c62718b82f2f276e5c47505e9a3d5e6ce25b27febf3dea5742fb418b0d3d": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 50,
+      "pos": 1
+    },
+    "52d7a1b5ac5758d5412ad622168025df214d0e8fcced16c5361c189d6474f469": {
+      "doc_id": "fatf-pml-2018",
+      "page": 12,
+      "pos": 2
+    },
+    "52e74ab1a3d7b34aca42fe38aded8402b2425b2f4d57f0e1b53523a0daf05a7d": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 16,
+      "pos": 1
+    },
+    "534e2c08cbd98139e0a6e3707e759f800f4f53dd8bfeda833c483c2a7ecff93d": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 2,
+      "pos": 1
+    },
+    "5482e2870dfaca69d9bd4eb01ea325824aed1fdcce00ad84fed48a45df25ceae": {
+      "doc_id": "apg-typologies-2025",
+      "page": 62,
+      "pos": 3
+    },
+    "54d5b726cd410531cff362fae0fa2d952b9296785faf826ae5f0189e3be096da": {
+      "doc_id": "apg-typologies-2025",
+      "page": 24,
+      "pos": 1
+    },
+    "54e0a2bf533d8ecdbaee01cf3b6b7ae4b5d7387686274ca180bfa765b0fa93ea": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 55,
+      "pos": 1
+    },
+    "5694df98347976fc24bf5e7b5a483d3cc1ae478c3c73dccd6362c39502d0534a": {
+      "doc_id": "apg-typologies-2025",
+      "page": 14,
+      "pos": 1
+    },
+    "570a8d3ec567640d10cf80cc040ed6e748be1ad56ed10465d8aedc8ea9cf3ffb": {
+      "doc_id": "fatf-pml-2018",
+      "page": 12,
+      "pos": 1
+    },
+    "573667c8e607ff9c91cbc3c3fe63f752839a682998b11d606f64f74e676a7c12": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 1,
+      "pos": 1
+    },
+    "576359b11182b54ae41526bacbcf1780c62724d61dbbe051765c5b6410900072": {
+      "doc_id": "apg-typologies-2025",
+      "page": 38,
+      "pos": 3
+    },
+    "57e579ee7b1fbce507f1cc2d509efcabb0bbd10c413d95b569c3befa39fd53f4": {
+      "doc_id": "apg-typologies-2025",
+      "page": 3,
+      "pos": 1
+    },
+    "58645d96162b0f2da337fc0efa810e573a35a5b5cbfb9097aa1c7d6bc9155084": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 1,
+      "pos": 1
+    },
+    "587234805f0f94dba817937428c7927d6a185946fbff23e2e7da6f7df68298f3": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 10,
+      "pos": 2
+    },
+    "58999d31ef4ae9032e655228d7bc59d8784357109ed21265f3df3cf1a132032f": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 12,
+      "pos": 2
+    },
+    "592b27f89287e1f82b9f1951fa3d08510377e572d378329c11261b550998ed8e": {
+      "doc_id": "fatf-pml-2018",
+      "page": 36,
+      "pos": 1
+    },
+    "594842e20faeb861d37919e9491e742b403d79afdbabbed968b17719ed44ba94": {
+      "doc_id": "fatf-pml-2018",
+      "page": 7,
+      "pos": 1
+    },
+    "596d89a50c83ca5fa920d889b27e9a898dd526e169bc5381d68fa6cb3636cdfe": {
+      "doc_id": "apg-typologies-2025",
+      "page": 35,
+      "pos": 2
+    },
+    "597737750d93c4425209dfee019fddc5da527383914d096cd81172e4e0bef883": {
+      "doc_id": "apg-typologies-2025",
+      "page": 10,
+      "pos": 2
+    },
+    "59f74106b8587e4edd8f6761334582238a6e9e5372747379feb17bada6b25332": {
+      "doc_id": "apg-typologies-2025",
+      "page": 25,
+      "pos": 1
+    },
+    "5a1a1605df3f15d5c0aeb15f3bc5bcfa46cf37807236343a67ec578e6fb04e34": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 21,
+      "pos": 2
+    },
+    "5ab5967f77e62edde1d054b7e51a5ab1962604bcc5ed778eaed453215d89534c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 82,
+      "pos": 2
+    },
+    "5ac5a0a7b2242d4d6156eb4a763f9d82fce9695651648cbd125b7bb9800d16f7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 91,
+      "pos": 1
+    },
+    "5be9725df12cb5494b77fbe305ea3c56745db0212523445f9d2706155d328ec5": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 16,
+      "pos": 2
+    },
+    "5c03f634cc8b1945d7ffbf50f1a2ca371a1dce40a2bb2b7d2d0c5b7c38f73a8c": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 31,
+      "pos": 1
+    },
+    "5c1a0c5de770a0fb7da3b58bba0d6e3d2ac221fa39caf9bd7d2b859201fa4070": {
+      "doc_id": "fatf-pml-2018",
+      "page": 46,
+      "pos": 1
+    },
+    "5c38ed494ccedc2ad68b0d94895a032f655adeda2fffb474c8fb6fd22a5f9339": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 14,
+      "pos": 1
+    },
+    "5c56f57731ca2ac8b9b80f03fd69101c4ab57af544228747f08e79ef14efef52": {
+      "doc_id": "apg-typologies-2025",
+      "page": 9,
+      "pos": 1
+    },
+    "5c6e3381cc06a5799070502cf60e47a28faec50495217a538fddd34bcbdad208": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 10,
+      "pos": 1
+    },
+    "5cac7764481f458266f171050de0e4b19e2995452fcf8197e9d513e6b2f83cf5": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 14,
+      "pos": 1
+    },
+    "5cfd41c68d93eb7f12bb677a0ebfa92f404af135ca56aa998789957d07cb8940": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 42,
+      "pos": 2
+    },
+    "5d4518af957e500e344fada8e43efef3decdd8a5e4adf9a0cf2f156d456867e5": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 3,
+      "pos": 2
+    },
+    "5d60dbc1c5d97c4172c538d4f0e552d486f4075e90f9872eac0eb8b092ab0c02": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 7,
+      "pos": 2
+    },
+    "5d943a174a3b1c1ecc7657d2cbb905546d73d7143ad7b4f3a8717be64a074a6b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 25,
+      "pos": 2
+    },
+    "5de868b09e29bef927a8d1d9ef295099019b07c394678159d8c67d1a2005265d": {
+      "doc_id": "fatf-pml-2018",
+      "page": 38,
+      "pos": 1
+    },
+    "5ed346edb2a4911dfde1fbfdb405940fdfe34eef42217a16c55376b2718c3860": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 6,
+      "pos": 1
+    },
+    "5f00e974cdc50ebd08ec36c0dd9e0bc259da1f66016911edf19a93155af00189": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 9,
+      "pos": 1
+    },
+    "5f2ee48dd8670c919e4ac717c07209a2fd543102f4ba727a53c57a60e146351a": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 43,
+      "pos": 1
+    },
+    "5f4b8c4a325b03a5c7f28f1b8380df197b43a44e371f6a216d1b482cd804a6d9": {
+      "doc_id": "fatf-pml-2018",
+      "page": 17,
+      "pos": 1
+    },
+    "5fa9b24f34d8d6791fe355a2773c955b0bf5579d8f64ead08774bbc0d5015ee0": {
+      "doc_id": "apg-typologies-2025",
+      "page": 89,
+      "pos": 1
+    },
+    "5fb094f43a8b15f107417acf1625f46df3282d3d95959ff44718209b9740faa7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 10,
+      "pos": 1
+    },
+    "5fe0bbb32dbd7c0fb0f3f90c48b0eaab49e96dd0533735dd232b8d35f04b51ec": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 15,
+      "pos": 1
+    },
+    "5fe342a52dedb4d2f73f5b6d572d82bcafca2da54e4215d44ba23e49c12702d4": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 25,
+      "pos": 1
+    },
+    "606ad76250422632a6b6e94fb2cb332b8c898a0e934e28634fffbbecd086f3b4": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 42,
+      "pos": 1
+    },
+    "60869f4bbc5e9d0596a7adb6665ea28a433721cc92af8446762afb67ab826816": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 10,
+      "pos": 2
+    },
+    "60d581b201e7aece2368f0761b8d56e97854286a11ae65a20263727e3d6d8043": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 54,
+      "pos": 1
+    },
+    "60f9333f7b96a530f176ff4cd4793d0e01a7506358ecd552c5a54d43fb5333b7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 90,
+      "pos": 3
+    },
+    "61a23bede43d4b5ac29fa534eac88bb62969cb575e5da31db50c994a3b70d7f3": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 26,
+      "pos": 1
+    },
+    "61c016f97088e8a21001dc599bd16a4ab5a828a19592baccb53e14698dada455": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 21,
+      "pos": 1
+    },
+    "632719bf853f51d40161a909cd0dff24b8a3c4370919d83fa4fc951b0acf430b": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 5,
+      "pos": 2
+    },
+    "632d65bc7ddf65d865b9b843cac34febdf922dd8c521141089a28affe63fd032": {
+      "doc_id": "apg-typologies-2025",
+      "page": 33,
+      "pos": 1
+    },
+    "637925884ee2ca26bba6f7533d8967a08297e6793e91110678d3a2f9434736a2": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 18,
+      "pos": 2
+    },
+    "6383b386e8d6da84cf43a8a9bf41dca9d86c0ce110614a870e02ef0c7c1c21f4": {
+      "doc_id": "apg-typologies-2025",
+      "page": 7,
+      "pos": 2
+    },
+    "63fcf30087566c1e312e181d905ed731f95b3d45685a05a64acd608902e177c7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 54,
+      "pos": 1
+    },
+    "6403c6763c235b0ad0c6be173f53386e079a7905f18385ae86004c38a4a18c4d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 63,
+      "pos": 1
+    },
+    "643dfafe18b8b5c67cb677bf00092601eeccc09bb331d7e34a859764e6b462ca": {
+      "doc_id": "apg-typologies-2025",
+      "page": 44,
+      "pos": 2
+    },
+    "64acca51699b36b4e7ce8c3a35731878071cb6088ec63b4a710c32794ff773f8": {
+      "doc_id": "fatf-pml-2018",
+      "page": 25,
+      "pos": 2
+    },
+    "64b7ad8d6486bfb9db36fc89b3ec5913514ada9a579e5e84d0a44eede216cdf3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 14,
+      "pos": 3
+    },
+    "659ee1c23336a96c3acc02f6afe6061a2d85b2a9ecc8cbc4e86fbc50a361c670": {
+      "doc_id": "apg-typologies-2025",
+      "page": 100,
+      "pos": 1
+    },
+    "65a5971e4d5a57e93d8c47ea7e78bd6eb4e4a885e3c73b48eb404e3ff6231241": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 10,
+      "pos": 1
+    },
+    "6617ceb54e706e7eecb78eca089c15dfd904d0566edc8759e21e681405c4a48e": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 2,
+      "pos": 1
+    },
+    "66b2706ea8fd60c35da19885be7021a386273cb33e474aa2a136c16fb58da63c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 79,
+      "pos": 1
+    },
+    "66d04f6035f37dd9016c5064a4b2969ca790d4d5f7340a5bc66adada2b35d965": {
+      "doc_id": "apg-typologies-2025",
+      "page": 51,
+      "pos": 2
+    },
+    "6708b47fa3e1b54ce9a137d08b548b979e5abd7caa14b0e836ae8de3ce7c5666": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 50,
+      "pos": 2
+    },
+    "670b3db190338f41007e45d99cfc9edf703ee88021538a624a0cdc1ae912ed52": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 32,
+      "pos": 1
+    },
+    "67444f68fddbda3f8ffc35356f9abf15f112d09a71918873a0596c514d06501c": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 2,
+      "pos": 3
+    },
+    "679ab673fb525ff03e96093d6e39a70a26bfbba5de7ee9c9fc161813733bbacc": {
+      "doc_id": "fatf-pml-2018",
+      "page": 14,
+      "pos": 1
+    },
+    "67d1d4c5bcd9f172ff68c169fa719cadf7de1b14a5279b9e8eafa7ba6b0a8201": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 4,
+      "pos": 1
+    },
+    "67dee67ed2b30df269fbe0d89330e7ff1a4434e3d2b9f5fc550896975b5bbcdd": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 8,
+      "pos": 1
+    },
+    "67e404f999088782ce5a0f8767a7a1be0c0e36a2c4da6b5f5a3eafc49ecd7925": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 1,
+      "pos": 1
+    },
+    "682b8c64dd86124481e11bab420372498c659e1eaa9fc0d980b5008a123a2f59": {
+      "doc_id": "apg-typologies-2025",
+      "page": 67,
+      "pos": 1
+    },
+    "690605408b0ce28cf9eb8301903b9722b7f3347b338d1e3fb7583e300ccb02a0": {
+      "doc_id": "fatf-pml-2018",
+      "page": 28,
+      "pos": 1
+    },
+    "6ab0177f9b9a24b3e9875559d5ac6c29964c178cc7504a8741527dcb5e827276": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 44,
+      "pos": 2
+    },
+    "6b287a14dba073bc423330e1b16c93ef479f20e2c29dfd35c51b8ae0dfac7099": {
+      "doc_id": "fatf-pml-2018",
+      "page": 3,
+      "pos": 1
+    },
+    "6b48dfa441e9a8f6e36a17bde7ce88f273d58f8477874a7b84417ce47e44c855": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 34,
+      "pos": 1
+    },
+    "6b9899fd3d289158dc7200340150e6e4e6a0cfdd2e7f31c9721ce1fdcccc56ea": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 6,
+      "pos": 1
+    },
+    "6c07bce7966bb21994738964e0658aa475260d589f492be59f6cf34ab765fbdb": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 7,
+      "pos": 1
+    },
+    "6c3538ad3085ce6222b819397350f3d9c93752a19429b57928ccb3372d0e29da": {
+      "doc_id": "apg-typologies-2025",
+      "page": 11,
+      "pos": 1
+    },
+    "6c68766f27e5b9b597e73efd65bf06e7302348f1bf6b508b0c6282ce67b1eb36": {
+      "doc_id": "apg-typologies-2025",
+      "page": 84,
+      "pos": 1
+    },
+    "6cf203a2bb0fd0d27afd176638318d449bf149dbb6cda36a1f560fd9e385754d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 18,
+      "pos": 1
+    },
+    "6d59386a4cc86d76881bcdf2620a4aa5ab9b5ddab97fba1d51c333c1efe65f6c": {
+      "doc_id": "fatf-pml-2018",
+      "page": 42,
+      "pos": 1
+    },
+    "6e099ba9f507b5903c23c6748895e1e1c944e3ebc1d071fe63bdec09230d4223": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 44,
+      "pos": 1
+    },
+    "6f035d080925a7e0e53b583d1fdeabf130480e8d7f5a81b00749d0545530a4fa": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 6,
+      "pos": 1
+    },
+    "6f847a266d21c2a2ae43e885c659ed693f49c9b4ac1e60867144f064ab9550b8": {
+      "doc_id": "apg-typologies-2025",
+      "page": 90,
+      "pos": 1
+    },
+    "700a93e11112722c5f884bfe0b5512c932c5f7dbecae530b7445501764e764ea": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 33,
+      "pos": 2
+    },
+    "70cc1f1544418dea12ba8a73936020a7e6793af8a4171ccfc1851508a7e184a5": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 3,
+      "pos": 1
+    },
+    "71087f3703b426f5422b0032aabfcaeb0659d019aa43a46d5f035fec96cc962f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 54,
+      "pos": 2
+    },
+    "71d258967f815b01918558ac3764f23ad3708d50d169790e835fe11f5c2224cb": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 9,
+      "pos": 2
+    },
+    "7237592097b605b9ed43ca99987bc0dc7a09568076400b946120107492bd531e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 66,
+      "pos": 1
+    },
+    "728bfd67d1cab6200437b7036dc778b896da79f28ea2cb12be768f398985cf07": {
+      "doc_id": "fatf-pml-2018",
+      "page": 13,
+      "pos": 1
+    },
+    "73571d95f46e9c37f59a7aa504c9352659d091c1f3138fb8bb886e73cef0bdcc": {
+      "doc_id": "fatf-pml-2018",
+      "page": 31,
+      "pos": 2
+    },
+    "736983a2156a6f4cf260dd7975eea714e61fbd3c3a83740a4c50f092ef125808": {
+      "doc_id": "ffiec-redflags",
+      "page": 4,
+      "pos": 2
+    },
+    "737ef20ca66342731e08aed97c5f95fb04d3610d8d2d1149b0fbdc9202a4f477": {
+      "doc_id": "apg-typologies-2025",
+      "page": 19,
+      "pos": 2
+    },
+    "73b3b739ca0d8ce8b472ea4a0966ebebabbf9fe02d8a64fcdadec9f635d3de0b": {
+      "doc_id": "fatf-pml-2018",
+      "page": 50,
+      "pos": 1
+    },
+    "743c1ac05ba2cd9a696b6c80fbb0c42d74ff03e8b752f0202883edb23df831ec": {
+      "doc_id": "apg-typologies-2025",
+      "page": 76,
+      "pos": 3
+    },
+    "744e240b1f3adbe368d8f05149f0c03a9393a7b8db0876425633a16c5705b65e": {
+      "doc_id": "fatf-pml-2018",
+      "page": 34,
+      "pos": 1
+    },
+    "746c9b9a477171d0bb6dbb9d990f412762be99fbd2dffc01c4c22655188a35a5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 40,
+      "pos": 3
+    },
+    "748bb56d6792c690cd93a3566562286bb01facf0dfdc5ff0adf771dc437b5d12": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 43,
+      "pos": 1
+    },
+    "75717018dcc7754d1a8273410a2b2661f7e03926afa6f46421f313d2b569c7f1": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 9,
+      "pos": 2
+    },
+    "76ad97210cce582ad3b50faee038601339422cbeb4602e2d0a75e8233b9ba061": {
+      "doc_id": "apg-typologies-2025",
+      "page": 85,
+      "pos": 3
+    },
+    "77170405b2d23887a26df3af4c2fbc7648aa3c886f1e098545e2cd5c0871e63e": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 40,
+      "pos": 1
+    },
+    "779b1858dce452d769d0f793993db379cdaaf9092d90fd155846b70b9d543af6": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 47,
+      "pos": 1
+    },
+    "77b5273727973598985e604962546f5892c230f2e3bf30ab4a9f6fe275078259": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 24,
+      "pos": 1
+    },
+    "77cdc2c9fbcbb5a5cdb69c80b3d266164bed2642e3d4d8989a03728cf0db9ef0": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 37,
+      "pos": 1
+    },
+    "78dfb98fbc5bc9904a5e48ca5743dbcc8b27e12dc3d1b13d0277cd43a9b057b3": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 33,
+      "pos": 1
+    },
+    "7a02e832c98254216b1298cfd2e2a6e0f4733256424665128c02db10688ce337": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 10,
+      "pos": 2
+    },
+    "7ba446c27bddc79614c0df97cc0f59eef515c79ff1cb0dcb8dfc1561a546e7b3": {
+      "doc_id": "fatf-pml-2018",
+      "page": 6,
+      "pos": 1
+    },
+    "7c28138e41c6682be45533530198858b1fc412a7a2b2ff621568b10448c4b4bd": {
+      "doc_id": "apg-typologies-2025",
+      "page": 4,
+      "pos": 1
+    },
+    "7cd56c7e47863a4e38922edfa69075e4f9ebc7ed9f76473041b4dfbef76a5bbc": {
+      "doc_id": "apg-typologies-2025",
+      "page": 48,
+      "pos": 2
+    },
+    "7d03a329018194ad5c626c9d19984e2590fd36f820ac2604d3184c95ff9dadad": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 22,
+      "pos": 1
+    },
+    "7d3ee6b8d10fe970e6f26020bffb08ca790b80eb34c774b9ad42c7f5d629077f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 18,
+      "pos": 3
+    },
+    "7d656d184fbe94ab7ec00930a9e740bc9b0238bab37b5fcfc50460379605e22a": {
+      "doc_id": "apg-typologies-2025",
+      "page": 55,
+      "pos": 3
+    },
+    "7d98dcc1fa0312457d5071ca0f94060907bf833106ed95a862f9838f09c40129": {
+      "doc_id": "ffiec-redflags",
+      "page": 2,
+      "pos": 2
+    },
+    "7dfc58b3ab8707e9fef2da8d36d2bc941e47a0e53a8443efcfd7cbf86504353d": {
+      "doc_id": "ffiec-redflags",
+      "page": 8,
+      "pos": 1
+    },
+    "7e5d8ea759e731c558067d9df0da55e48057562577ed309ebc7a5d2347313a10": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 53,
+      "pos": 2
+    },
+    "7e8d7470efd02276c79b691e8caef12cc14878704af30ba73dfe14b98d38b721": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 7,
+      "pos": 1
+    },
+    "7edd98632c1151b2268608da6d95805457141e5409e44c6463652bee883400c6": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 5,
+      "pos": 1
+    },
+    "803c7a26db72b06e6f7c25a87c8899d0e68f8b0956c5335bcea9ac0f50da0d58": {
+      "doc_id": "apg-typologies-2025",
+      "page": 83,
+      "pos": 1
+    },
+    "803f66938b1b8590714367aba9bb6bc601ee44ac3a1c69d46aa0066828709702": {
+      "doc_id": "apg-typologies-2025",
+      "page": 94,
+      "pos": 1
+    },
+    "80928b015ac4b6fdc10d0f2752d37bc7b83f6329bdb4187a3b49fe39dcb13b8e": {
+      "doc_id": "fatf-pml-2018",
+      "page": 16,
+      "pos": 1
+    },
+    "81cab557e8ddbad827ee516a369a5a8e0a8db8f02590ded0c8d80b8c147e3466": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 16,
+      "pos": 1
+    },
+    "81e2b7b18a13b820699df56878aaff371ad3dde652cc97375762b668e1caac7c": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 48,
+      "pos": 1
+    },
+    "81f15b813d269241acce821a6abc254c2bfcff8c1ca2e6837c1efc38ae93ba80": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 3,
+      "pos": 1
+    },
+    "82a148245c2cccaa4d64245204eceeef685b7dd23b82316f338997512fabd451": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 61,
+      "pos": 1
+    },
+    "82f4345d45e7bbddd9fd3ef0ae756d32c2fec332d7348fe9210a37e5ba43ac0e": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 46,
+      "pos": 2
+    },
+    "832ce13e186229baab3a282e73f43a3baee749c659096da561dad004d6e9ba4c": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 12,
+      "pos": 1
+    },
+    "833f4050b8a52f64e1b1bd663cc1fadc1f5ac57d00edd1b1ade8da5d1980ffc3": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 1,
+      "pos": 2
+    },
+    "835b41b5c01d2dce97fc39fe1a0de0e941620042f89b7c58d859f9cfb64771c3": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 19,
+      "pos": 2
+    },
+    "84331c7f8f8f4334571eefc140dc91c876bc101967f5c14365737ed7dfb7d66b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 20,
+      "pos": 2
+    },
+    "8467f811af3d52d75ec81150ba7cba972b5e0a4b89d2f3186cc43752a7af024e": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 33,
+      "pos": 1
+    },
+    "84ab710186e3937591c97e3f7e4f31c554fb920c27181536bb717fc3fcb3ee36": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 12,
+      "pos": 2
+    },
+    "84dd70d5eaf69a77a5901c3df6f1abadf144666c97243c0b1ddbec70233734a3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 76,
+      "pos": 2
+    },
+    "8507dd1283b237e5c263a85f93e7f5b96308f54aca3d44ab91f86fd0c949d879": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 31,
+      "pos": 2
+    },
+    "8529b70269342432ab7684fdcd29ef8fe5b45df4838dc6713230a17a45910383": {
+      "doc_id": "fatf-pml-2018",
+      "page": 5,
+      "pos": 1
+    },
+    "85b46e7f54976ba0fbb47e00ff6b554b3cb502fdbc11b4fec083553b70518a15": {
+      "doc_id": "apg-typologies-2025",
+      "page": 63,
+      "pos": 2
+    },
+    "86167eec6b5e9ef45fac6b67df8e4c0cb08fde468842bad065b55cbc6de50837": {
+      "doc_id": "apg-typologies-2025",
+      "page": 14,
+      "pos": 2
+    },
+    "86ae7b8d751c7a1ffded6c717195c3557c038f41971d9da0c00aaa1e4e95e464": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 18,
+      "pos": 1
+    },
+    "86aeb9c026679c85fe7e1a57c4cd7b0e32257c39faa2e5ec28d86e2ee4fad04f": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 62,
+      "pos": 1
+    },
+    "871c7a697787633607f8329a9f2afb4d3542c02bc2fc717aeb65544f38486b93": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 5,
+      "pos": 1
+    },
+    "87a7cd32189d2773fede37d33c19090cceae8396dcdbe94ec621e1e8abe078fd": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 40,
+      "pos": 1
+    },
+    "87b8963e07d07eda76c089660d440174930c8e642bed0c639e39fdd83fa8c67e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 51,
+      "pos": 1
+    },
+    "87cfbb3a5896ab0274a87e350a2a91f41355aa1c73598e13262501c5609d67f0": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 39,
+      "pos": 2
+    },
+    "886c006a939608266e8cc69ed937511677606ed71b4d3bff06c980185772b4ea": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 9,
+      "pos": 1
+    },
+    "8957f01555611b015bee181532a7366ce86190e52b3779c5b5ecde7cedbc6f92": {
+      "doc_id": "apg-typologies-2025",
+      "page": 46,
+      "pos": 1
+    },
+    "8a5ed7b39321e88288af614b5866f0b806d1c42cb66b7f7811772ca3166ff0ff": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 27,
+      "pos": 3
+    },
+    "8a67181b81ab0e3be098f27069c07e31378510b66ffef1c6f0e4350d880a8092": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 32,
+      "pos": 1
+    },
+    "8ae588dba7b3fde95debf46de94a05ba9b332fcca496181fedca55a333b4d461": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 45,
+      "pos": 1
+    },
+    "8ae6dc54de1595cb40433880675012cd186a076a316dc533f4d08a962d11d57b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 66,
+      "pos": 2
+    },
+    "8afd37b22e959be8448368489ebcf52a9a60f393bf09a99684c14f9bbefdeccf": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 4,
+      "pos": 1
+    },
+    "8b47a6d268b570ed776f0e06ff2ff3251e786fd72cf0ddae06175e2356e47ab5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 56,
+      "pos": 2
+    },
+    "8b937de32c8becd7d9b6a4bf5244bd1dc7613f5c5f5ed4dfa0e09d54055508d1": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 7,
+      "pos": 2
+    },
+    "8bbe40c2ffff5b99a0489c0772925fa3e34431138d95cd58e1a6f1b864bbb7c4": {
+      "doc_id": "fatf-pml-2018",
+      "page": 47,
+      "pos": 2
+    },
+    "8be9e90ab686df9c96f3501c8a1f76d8b21732bf6578aefffebf8ec538e869cb": {
+      "doc_id": "apg-typologies-2025",
+      "page": 47,
+      "pos": 1
+    },
+    "8c0487e9a8b6ae06160c0c0f797a457dc219e60c1bb2830d0f8383057d88fea2": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 5,
+      "pos": 1
+    },
+    "8c16ef2af5a95a6d26e1078da9d8201ff3c644fc5d7b55d9885ad7c825de73a0": {
+      "doc_id": "apg-typologies-2025",
+      "page": 88,
+      "pos": 2
+    },
+    "8c831f05b55d44b2015ab9b2086b31a017a314da190b5c45f9d274b02c0c8f33": {
+      "doc_id": "fatf-pml-2018",
+      "page": 5,
+      "pos": 2
+    },
+    "8cc8355f653c5c1ca961e682b2e049d006577a0122c9f384d9c6ec8d558a111c": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 27,
+      "pos": 1
+    },
+    "8d75e66c79830098319f0d263155464857ae432702b6bf987a5d8961834f5ec1": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 28,
+      "pos": 3
+    },
+    "8dd898f0a3febb171424677a9d5d5ba79ee29d8ca856d6d2d6ca7df774af24fc": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 24,
+      "pos": 1
+    },
+    "8df0b1898b8f98a60d0a0eaa4fe2b71ffcd50e038db851299b36b646eb7eff7f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 97,
+      "pos": 2
+    },
+    "8df7ee53f514110974434c45d031ffb2799bcdece413007ba1965c5342bc132d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 67,
+      "pos": 2
+    },
+    "8e24af1ad98e99fae5d2e1408420a50a11c98f910183d9c8047930c59e7b21df": {
+      "doc_id": "ffiec-redflags",
+      "page": 1,
+      "pos": 1
+    },
+    "8e487b69dc0baff6f0c0dcd6c0411ff1081f2d146b85d0deb157129385c2e5a7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 46,
+      "pos": 3
+    },
+    "8e5844fd50da27fa2b9dfd27ba32ff7d0385c9e7a6de1d9a13c959cd5b3fef11": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 1,
+      "pos": 1
+    },
+    "8e75e5fedceac76defba0122de8869bc2c3ec5d8a8ab2970060aa45f8c4db857": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 63,
+      "pos": 1
+    },
+    "8f42e6ec835240a195fd9fc171159bc9c9ce5144c2e2c38d223251b4e09f7d4f": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 9,
+      "pos": 3
+    },
+    "8f5b2475d6217b6a5bff711dc7ac3057c6f1804de1403031005f6b0004440e76": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 24,
+      "pos": 1
+    },
+    "8ff3d52e9ec5423828564f183daf5af164b285ae6042e59fbfb0cd08d71afc50": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 41,
+      "pos": 1
+    },
+    "904a6efd691f132ffc982be9eeb1288caec69603e2211458d208437834755a0b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 93,
+      "pos": 1
+    },
+    "906908130441714c33f2f3ac328a4202f6101adcdd903c7d8b8105d936c474b4": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 13,
+      "pos": 1
+    },
+    "90afdf7af261740a11d38f23e60fe044ceb259eabdd142e75811d690f137585a": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 31,
+      "pos": 1
+    },
+    "90b5b94054d662654cbb7f763ef71d301593317ae1726ae38000a9024817aa1b": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 35,
+      "pos": 1
+    },
+    "90d35024e332f06f47e6fa1e273c847210586fa733690e33ae373c423ff09ff0": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 21,
+      "pos": 2
+    },
+    "91d043fd8d01fc83579589d13e4c13156e78d84a3f6b330df45ae7c6d62c75e0": {
+      "doc_id": "apg-typologies-2025",
+      "page": 61,
+      "pos": 1
+    },
+    "928b40b5b055b819b9fbb5c573ef78573438c887cf3db4009ed345957041e247": {
+      "doc_id": "apg-typologies-2025",
+      "page": 39,
+      "pos": 1
+    },
+    "92c834a8dac4cdd734bd8e688722d1e5882139b4e1fa05ad4c082a5bb1259371": {
+      "doc_id": "apg-typologies-2025",
+      "page": 73,
+      "pos": 2
+    },
+    "942518971f2ce699f4b71ce0fcb74d06b3c838df1747d337e3070cdfb3c791f6": {
+      "doc_id": "apg-typologies-2025",
+      "page": 81,
+      "pos": 3
+    },
+    "94eea21147f525fc50ce3c62a251744e62e5b653428c6b51bc14218183dc4716": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 30,
+      "pos": 1
+    },
+    "95817b5018507eb42c8cc3977598df5e7e7eadd02ac900ac512dce7432d13068": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 1,
+      "pos": 2
+    },
+    "965ee8ac1281b3f8b11e4ab106e3d8898fbc2f1b627a25ffa8729c9226947fed": {
+      "doc_id": "fatf-pml-2018",
+      "page": 47,
+      "pos": 1
+    },
+    "96be48cdd2911feb64da5a52c127930cca14de3bf89aa1886f05b83e0f03fc1e": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 56,
+      "pos": 3
+    },
+    "9761a3b1efd701833f1e550e051b6727f70585a3eef3bd355a19b8e91ffa2a7f": {
+      "doc_id": "ffiec-redflags",
+      "page": 6,
+      "pos": 1
+    },
+    "9828ec9f13a538cb6f38d3b6e2a65086cf60b0c16baf8821e0b5d16ae83a0cd2": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 22,
+      "pos": 1
+    },
+    "984ea39aa73e18db1787643eeb1a0334da0df60a5c5e556943c3d93d4b0eea60": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 7,
+      "pos": 1
+    },
+    "985a34d4828693732fc4386ec26979f04bcf410a2ebe7e026adf7203b362c890": {
+      "doc_id": "fatf-pml-2018",
+      "page": 32,
+      "pos": 2
+    },
+    "985a48293f0236a115094ab14c89f82907c9e8d7ad999d8e81cc490b27aabce6": {
+      "doc_id": "apg-typologies-2025",
+      "page": 27,
+      "pos": 1
+    },
+    "986cc0423575ca52d24368de49619a2ddb47c704373239dcc5a8c7d8327244d0": {
+      "doc_id": "apg-typologies-2025",
+      "page": 85,
+      "pos": 2
+    },
+    "988b750753ac81e77ef4190c31777b7dba19cf4aef16726da0f15024103157bc": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 5,
+      "pos": 1
+    },
+    "9966da4d58158dbbd9f42c5f6f95f962038de1f95513e6a6626d1255b031a8c9": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 64,
+      "pos": 1
+    },
+    "99cd1c0130f0147b525f4819914a596be501a53fb0f124004c6138b3b130a6ea": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 4,
+      "pos": 3
+    },
+    "9a19dc031c9b27d1476ec49ec5c6e3fffdd81f29924e9513efde3dab86aec78a": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 12,
+      "pos": 1
+    },
+    "9a5eaf956c0903aa559ce806a41f0f3d17950048f06a5f3fd6e36fbcf283737e": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 25,
+      "pos": 1
+    },
+    "9aada743d360b6677e5cf04d51a07540825724d1a4ce959e9fcb20d4abee4511": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 14,
+      "pos": 1
+    },
+    "9ab23b9fed9927009a5a63a3df62d0a7619526116a15701f5ee4a76e8702a395": {
+      "doc_id": "apg-typologies-2025",
+      "page": 87,
+      "pos": 2
+    },
+    "9b24d3c22c4ce4b4e626b5210128f940fa5ec9ecf8b1df97effb9410f2980816": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 42,
+      "pos": 1
+    },
+    "9bc995533fdd7a5111cf4f306dfb880e6b9ea7463a9101a569a87c4fc4e7b012": {
+      "doc_id": "apg-typologies-2025",
+      "page": 65,
+      "pos": 1
+    },
+    "9bf839be4b508cbea608408c0cd30123fd8c287234dad16f017e1de8d7e7c4f9": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 10,
+      "pos": 1
+    },
+    "9d67363946c821b5b0be6a89663c61f0828fd316960f1e691e1442cf842bfaf4": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 6,
+      "pos": 1
+    },
+    "9df5fa03e9a43f7aa3c821a7a7f3ccaac6a71e504675233b12e4f5ec31b0c9c8": {
+      "doc_id": "ffiec-redflags",
+      "page": 2,
+      "pos": 1
+    },
+    "9dfeb917d3ab1fafdc483ced70db1f3b5ef5fe5df5f8a5152f5f3fbefa1c4344": {
+      "doc_id": "apg-typologies-2025",
+      "page": 37,
+      "pos": 3
+    },
+    "9e07f81d39282cb22f56d67154c5ae23994b973289c6ecc4f66650769bae92ed": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 56,
+      "pos": 2
+    },
+    "9e6c9eea78b1649c7999844cb10b795ed1b1f6b5e0caa7475b6c0f88bf41e1a3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 52,
+      "pos": 1
+    },
+    "9e965a61bfa14c02696f303feecbde39351ea535035b57bd47cc98616574eaeb": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 39,
+      "pos": 1
+    },
+    "9ee841f2480eb2576c78812e3402eb21e196406c36a57dca71e36bb60a9be6ea": {
+      "doc_id": "apg-typologies-2025",
+      "page": 58,
+      "pos": 2
+    },
+    "9ef56270bd1c1d7653313339533f9ab8c85edd935cc82606af47029851d97183": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 16,
+      "pos": 1
+    },
+    "a09e828d9d9eb10d18f6c8de220b60f0be9ff6ef9a42246b419f82dc133bf078": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 27,
+      "pos": 1
+    },
+    "a0bb0011953c30acf526fa590b76726fe7f3d79173ef4a8ab0196df84e14557e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 24,
+      "pos": 2
+    },
+    "a10b646651e7d2544802a437c86da04526d9b04fed66229f5fc63672746a1ba2": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 3,
+      "pos": 1
+    },
+    "a1e350599d9ae1564b85671c64d71b67afd62f3bde8a7f6c1c5f2e12ac22e307": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 13,
+      "pos": 2
+    },
+    "a21325c913f3ac4014c318ab704d1a7ea048ab16c5aa2fc5bb488fa8d0ab4992": {
+      "doc_id": "fatf-pml-2018",
+      "page": 15,
+      "pos": 1
+    },
+    "a22a323c9c3800770c6d8c96aacb0a7d835cadea4137bab768341cfb95a9074b": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 38,
+      "pos": 1
+    },
+    "a257c235ef78487b69d90d42521037af1989030b2db4c5dc5e6884244e563401": {
+      "doc_id": "fatf-pml-2018",
+      "page": 9,
+      "pos": 2
+    },
+    "a2ab2e9ec68814020693912af8af88827344598225c7fd0230aba2716f355b2d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 60,
+      "pos": 1
+    },
+    "a2f60eb5a32d16b804b8c11f2468377aef6371c485b145e16e6dc6a0c5138e83": {
+      "doc_id": "fatf-pml-2018",
+      "page": 20,
+      "pos": 2
+    },
+    "a36909754e3b80bac987667c0b285a0f48059ee0c01166ea52873e8ef8655e32": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 41,
+      "pos": 2
+    },
+    "a36d0ffcf011e4a3ccc1b22b2ba759f34d087395929fea6b8d043ed5bdea366e": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 4,
+      "pos": 1
+    },
+    "a41f012b3743c4da47cf69f70bcac820e3d549b779cb8378624872d006319cab": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 11,
+      "pos": 2
+    },
+    "a4eb7e83a51551054d0a2f9954a23f6b1b6a3358cc86a4843128031fde913b73": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 44,
+      "pos": 1
+    },
+    "a52e46822f331f89d1f924400f90d0581d4aec33686d6aec3faa87728a8b2640": {
+      "doc_id": "fatf-pml-2018",
+      "page": 35,
+      "pos": 2
+    },
+    "a5ae66621933167a00c312321f82b0cd2097a706d06556baf0a42a323b97153e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 98,
+      "pos": 1
+    },
+    "a5ca9dc6cc3ccda40a7ed7210dfe5e0b7f6ba293c663ea67fc15b819d364883e": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 43,
+      "pos": 2
+    },
+    "a5ed18447136108fde54f98ecd002db15cf9491c2010f8f5b0a871db1986d1ab": {
+      "doc_id": "apg-typologies-2025",
+      "page": 92,
+      "pos": 2
+    },
+    "a5f5bb29834bde053e8ab6f7ed6ce17c2ae16354a91cf764b55d3acc687a25bc": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 19,
+      "pos": 1
+    },
+    "a68c4e6cc0c3c6a4d6a36cbcbd2171a4e55f798252473679c30e6de0a68f31a3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 11,
+      "pos": 2
+    },
+    "a6b4f703cd4da5ba5109a276828077443444b87eafdafadcde75c9010ca024dd": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 6,
+      "pos": 2
+    },
+    "a6b73e229f8b66d61087c4dd3618f11696af9fab40302f5790ece6dd3cf558f6": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 57,
+      "pos": 2
+    },
+    "a775181c0adf3399406d191d8bf0209077dd6e452dd7ca88db1860d6f68b0a29": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 1,
+      "pos": 1
+    },
+    "a8131374cb4617232c58f916dc47b69e29404fe2a131e54a4e37e222b41ecf28": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 2,
+      "pos": 1
+    },
+    "a817df037f7371673131278e02132f562a1d1fc2713f39cf8f862cd7ed8f7790": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 32,
+      "pos": 1
+    },
+    "a8ab669dcf0e0882b102a6fc6f0090a761c918e899f361d2711694170bda64bb": {
+      "doc_id": "apg-typologies-2025",
+      "page": 84,
+      "pos": 3
+    },
+    "a8ae5ea0ae86f5551a9b56854deeeb172a5feb09dafec12f944d39f2e38ce690": {
+      "doc_id": "apg-typologies-2025",
+      "page": 53,
+      "pos": 3
+    },
+    "a8d4961cff6358df67a6095b7cad54f0a5ae70fd022b50d53368e933e0d487be": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 17,
+      "pos": 2
+    },
+    "a8e2e7b020dcf339646fcd1f285531ca077e210f195d4c192e64f5d13f335eb8": {
+      "doc_id": "fatf-pml-2018",
+      "page": 29,
+      "pos": 1
+    },
+    "a8eef46a6c3143b2d5caab2a2ba85bc05b20439f74639aa6e8e701f7399e992f": {
+      "doc_id": "fatf-pml-2018",
+      "page": 29,
+      "pos": 2
+    },
+    "a98960cf9e108c681b5d85f9fd51dcedfc728da3efce0942ed8c0cfa776eaaf5": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 1,
+      "pos": 1
+    },
+    "a9939b5e8ffa89a191cca3011344227d1846ba447512c4724fd70cc2e7b45444": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 2,
+      "pos": 1
+    },
+    "aa25f4582ec718683b04e294176f027aeb9edcbfb0a08275638f87d11fbe5c92": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 4,
+      "pos": 2
+    },
+    "aa3872e1cc32f7b5cd8df8b2cbb1ef02cc2aac4e16905bee6ebcac782b6ea882": {
+      "doc_id": "apg-typologies-2025",
+      "page": 31,
+      "pos": 2
+    },
+    "aa83a6ebfb3a7dc17cdff9cb3fb369d36cb5897a2001e3f93499fd933eaf055d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 55,
+      "pos": 1
+    },
+    "aa95736ca113a040994987209b3b7a43bee1b3e629ddae5435b7c4a3cecc9857": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 3,
+      "pos": 1
+    },
+    "aa9fe2b72b3d24fb29a5dfb5f829003c12adeb1ed0536b115fe0ac1f237077fa": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 30,
+      "pos": 2
+    },
+    "ab0ad533138b8fd42f627ab0995e6f8b1af17bec3e29285b4e376f2bdcda2457": {
+      "doc_id": "apg-typologies-2025",
+      "page": 62,
+      "pos": 2
+    },
+    "ab2f94c4fac70be122b1d7a2e308f1e8e2a298312c0efe486a410c16488d588b": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 18,
+      "pos": 1
+    },
+    "ab527ce4ecbf5b37da681a893d626c31a299f342390a848c505c4ac434899d36": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 3,
+      "pos": 1
+    },
+    "ab758d68ffcbff1829612428edbc97979c050c4ece36677b0e43a0a027aaaf6c": {
+      "doc_id": "fatf-pml-2018",
+      "page": 15,
+      "pos": 2
+    },
+    "ab95f8b102a827e32843bf85d2d6a48c91326d2b2cb1bc3bd101b720c6da8b5d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 41,
+      "pos": 3
+    },
+    "ababa34af7d8b7fc6ff808216b6b1088bea7a038c08709f44134e648a1efb175": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 19,
+      "pos": 1
+    },
+    "abe0a4a4fda1b365b526168b60dd70fcf8a6b0ad39e6c92e156e1a4cb987b817": {
+      "doc_id": "fatf-pml-2018",
+      "page": 40,
+      "pos": 2
+    },
+    "acc577ff8fa2ba960e2a55c4579bad1508f06c6167afd2435f7d38f503b46781": {
+      "doc_id": "apg-typologies-2025",
+      "page": 68,
+      "pos": 1
+    },
+    "acef6206ef60105fb0411ebd7273ef9ccc2026d659e0978710211bb7b525d5d3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 6,
+      "pos": 2
+    },
+    "ad84051d1bbf205d79170f165f9e496c9e0c6c018f9a073f90b6ef317a79880e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 31,
+      "pos": 3
+    },
+    "ada1b6705be5e4be8c505191550073128da06b2478888e176e6836a2f5ff0e83": {
+      "doc_id": "ffiec-redflags",
+      "page": 3,
+      "pos": 1
+    },
+    "ae58ffcc81f4ec35cdf91b9492c259689775b656f81baf309863b37c74a3fda8": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 26,
+      "pos": 1
+    },
+    "ae857bd2a517315e4f41251943c9ba01397e7b37bea7b3a5a45dfc9569b16ec2": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 19,
+      "pos": 1
+    },
+    "aee677509b6b7ce4bfe647b9238b56bf493cb5a3ba6c3785ab066ab94ee6c857": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 18,
+      "pos": 3
+    },
+    "aef572fb389b13e3085eb3cede1e4db456c876a5768e7bdfb6d3cc7819bccad6": {
+      "doc_id": "apg-typologies-2025",
+      "page": 20,
+      "pos": 1
+    },
+    "af44f88f54c8dde888b99ad4b07b6de23415cf3c7a25fc0158e841cd23693bf2": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 42,
+      "pos": 2
+    },
+    "af74fc5933ca956b114d9c57ccee19f65406b2bb4bd5d20177867cdab10ae7e2": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 59,
+      "pos": 1
+    },
+    "afcd7ff41fa80c357cdd4b8a1cf2233064b302c8768edc03338a3f70ac4a9256": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 11,
+      "pos": 2
+    },
+    "afebed2a5d06f41a7d88e155ee8de2a5119725b44edd5cb97b321ec320d13412": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 5,
+      "pos": 1
+    },
+    "b250098337910f0c5649395516ce17bebb86022b9a44b5ab088410ea6dc733a2": {
+      "doc_id": "fatf-pml-2018",
+      "page": 22,
+      "pos": 1
+    },
+    "b281d1ff28f0f46c65f4c3222052030fa25447302ec80089d0a6f10476924034": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 43,
+      "pos": 1
+    },
+    "b2a35d89a6b3cb5ac2c2f0b57b1c6b1d8aa7b119ab4ca793e4b1559a7f9f5a6b": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 3,
+      "pos": 2
+    },
+    "b32e5c6923e367d9bab71012d84478dbd5f7ff73cb0193a22e510e2d4ad05460": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 26,
+      "pos": 1
+    },
+    "b355799b0eff9664d4e15eb1c91e028ea390bd3da59b11deca4f122bd3da40ef": {
+      "doc_id": "apg-typologies-2025",
+      "page": 59,
+      "pos": 2
+    },
+    "b381efbba785b462ad54b84dac25a202119c59cebe7d2cd94bb4165445d6827f": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 1,
+      "pos": 2
+    },
+    "b40a3db7c82d933defbf21d561d5b0e05afe6b0c431ea6fe9e216fac75339b51": {
+      "doc_id": "apg-typologies-2025",
+      "page": 5,
+      "pos": 2
+    },
+    "b4c65e578d1988f840e8c795ce61b7356186f8bf3ae24abd02b47dfd6893033b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 81,
+      "pos": 1
+    },
+    "b51855569c4a8a4bbe26847f96698141c0f93017d4503d0fdc3da4a730f8bae4": {
+      "doc_id": "apg-typologies-2025",
+      "page": 94,
+      "pos": 3
+    },
+    "b529ef7b9d61dbe1666d172048ea74586b03e2e18972ff8db771708e273a152b": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 65,
+      "pos": 1
+    },
+    "b566bdc16951f8eb6ab3c02556142b8bc0bb670cab18f9c1e87622a938d15049": {
+      "doc_id": "fatf-pml-2018",
+      "page": 24,
+      "pos": 1
+    },
+    "b59ecb63c5ae89ea9b1c5cb7a66c80b831c8861f4d3edc7113b1da5b9f18a492": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 14,
+      "pos": 2
+    },
+    "b5a3644689977bb1a19ceb70f9ee4b62eba6afe96d00f98ffbf04b811828a1d8": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 36,
+      "pos": 1
+    },
+    "b5b00adb4975f6ecc6fdb093ec87c0dc0f5367aec0d2fb0a2a572b1716ce0846": {
+      "doc_id": "apg-typologies-2025",
+      "page": 74,
+      "pos": 2
+    },
+    "b5fd9901abca91666235c81d289e5c5f0675d79acd6abff0d0231b3f9d05c8f4": {
+      "doc_id": "apg-typologies-2025",
+      "page": 96,
+      "pos": 3
+    },
+    "b66df0083ba8546e8268b074a31a38aef193c6dbf2022745a09182f7c2a8bcd4": {
+      "doc_id": "apg-typologies-2025",
+      "page": 13,
+      "pos": 3
+    },
+    "b68798873620b70e393619032bd701042895d6759e1db77931bc6a93f2fa382d": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 31,
+      "pos": 2
+    },
+    "b6a03edbdf09a939a7400f2619a903e2dde2e4c6a3dffeabc497455f78f73d6f": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 23,
+      "pos": 1
+    },
+    "b6a955e16a44d809fcb5d59b2d29e63e886f4932301fe227c1a7c0d7ea0a18bd": {
+      "doc_id": "apg-typologies-2025",
+      "page": 57,
+      "pos": 1
+    },
+    "b7b4b295e24c01c40c96e40101a61d139dac9613d46a6a9ee61dc2e4bfe48ae5": {
+      "doc_id": "fatf-pml-2018",
+      "page": 5,
+      "pos": 4
+    },
+    "b833433c64ed410c3e29de4dde7e257748eb2934c2115022b38d465d04d2ee30": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 39,
+      "pos": 1
+    },
+    "b83570fe1c26725a95376d55479c2d6beddddee5ededa71f7898aa0a4225c1c9": {
+      "doc_id": "apg-typologies-2025",
+      "page": 33,
+      "pos": 2
+    },
+    "b850ef0f1f1c660308e7b4c74422ffb2413375cd87fb59009ad0be384333ef69": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 8,
+      "pos": 1
+    },
+    "b87f66efcd6df3a6264070dd210c4a3dbc4b029db21536e1bff0576f48fc65f3": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 23,
+      "pos": 1
+    },
+    "b8c1b9c3f4f2a6a130ff25f45ae0152ada7f0b76d9c9de4e31d8e557167319e8": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 5,
+      "pos": 2
+    },
+    "b8f81deb087ae0a0c2b0010a7ad69e2a8b03f00a1fa58b8d431f3710349adb80": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 30,
+      "pos": 1
+    },
+    "b958a7aaa97636193dfcabdb8e2f977ca377a6d5cbd3fb3a8ed3a1f565c4c91c": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 22,
+      "pos": 1
+    },
+    "b99d40439ed5928cdcd7465d96d2d9fc42f9526faffafb59888b11e5b4d1aeae": {
+      "doc_id": "fatf-pml-2018",
+      "page": 16,
+      "pos": 2
+    },
+    "ba3bdec34a8ad4ff4cb5d6d235b486b6d3c348cc334adf4b0ad5ab248075b536": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 4,
+      "pos": 2
+    },
+    "ba7dd22e99ecdaf93b3ff5503af8fa594c7518428a4826124f416301aa5d5045": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 44,
+      "pos": 1
+    },
+    "ba81c983a05cc365f731accb2f4da1af348f35c6f8c0aa78bc16ddcb1c860702": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 18,
+      "pos": 2
+    },
+    "bac7748ee33e3dcdacb30972d097090df0c37d3fd227445b5ece20a6c103070e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 9,
+      "pos": 2
+    },
+    "bb2407e5865c8836a48a9e3045696a9b09abbe8ebf493df47c3ba8f8032d9cea": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 60,
+      "pos": 2
+    },
+    "bb5f537fa1f742faee89d1c1dd44c53d1e854d4f1de9eb7409cb2516f820cf38": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 10,
+      "pos": 1
+    },
+    "bb86a32b04b36b24351c9710f89288da32a2986844ba6b03d923274954364957": {
+      "doc_id": "apg-typologies-2025",
+      "page": 80,
+      "pos": 3
+    },
+    "bb8cc3ea06a1ccd4b8a312e081cc7db7478494d30002d4272f6883d0192aee61": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 24,
+      "pos": 2
+    },
+    "bc167c0dead55b49e80221e23b3a83bdc1ecb4ff0754796c37ca574e621aaa56": {
+      "doc_id": "apg-typologies-2025",
+      "page": 32,
+      "pos": 1
+    },
+    "bc247c2daa4ab6821a137bb9c6ad022b3aee1dce3ec975cd36188783a760026d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 21,
+      "pos": 3
+    },
+    "bc55a4a2bf63d8a341ea65c72bf68e7c0dea7d371f735f0052ff70332a189143": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 49,
+      "pos": 1
+    },
+    "bc588ab17bddb48e8efd1c0c2947ccbba6464f2e9a370df17188110df9bf881c": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 20,
+      "pos": 2
+    },
+    "bc5f6fe91f632829c2ba1f095381ddaad17a7b049262028bbcc29204cce198c7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 20,
+      "pos": 3
+    },
+    "bd693423d08fcadff9f0de2cf9cdcbd26202b359e0378e65d5269ba03e20d39d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 31,
+      "pos": 1
+    },
+    "bd6ed0238e8fc4120310143af582cd8b9978d4ffb1ba27fa00c6e7c18383b18c": {
+      "doc_id": "fatf-pml-2018",
+      "page": 34,
+      "pos": 2
+    },
+    "bd806c5acead956d039d6c47d5b95ee13b4901b360b9a2c0d88b902416bbf22e": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 17,
+      "pos": 2
+    },
+    "bde6044f2ebb40fbfa5278a26aa8288a7100f5b9086f2bfd6723d387fc328c32": {
+      "doc_id": "apg-typologies-2025",
+      "page": 50,
+      "pos": 3
+    },
+    "bdef2824b5fc579c604d5a1bb41f72b2d804d154b105ffb387f638c36147409b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 16,
+      "pos": 2
+    },
+    "be1dc7a1ecf9ceff9be3951bbb0590b60990caf7611f8425ee6c4f1364b55bbd": {
+      "doc_id": "apg-typologies-2025",
+      "page": 23,
+      "pos": 1
+    },
+    "be788cafa18882927a95235a52b5ba8ce5bcc0150e5c882d4afec54a7f36bf4d": {
+      "doc_id": "fatf-pml-2018",
+      "page": 36,
+      "pos": 2
+    },
+    "be8726d64f64a119694db0222956c04f2f902d2fc47885c52841f8409831ba46": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 28,
+      "pos": 1
+    },
+    "bf25038fb6f7d31a40a1ec6c69beb648dc3e9f0bb8861dc031fabb9582644ebb": {
+      "doc_id": "fatf-pml-2018",
+      "page": 27,
+      "pos": 1
+    },
+    "bf7335aaee034e3ddc6a76f146db94f3cd43989eeae75743cb8b5492b0c7a219": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 14,
+      "pos": 1
+    },
+    "bfbab26d2fee1b3efd3ca7a9d68da55da1777f5dfea1f8e5d5dffaf229cfe6ed": {
+      "doc_id": "apg-typologies-2025",
+      "page": 96,
+      "pos": 2
+    },
+    "c03f1d57522c5fd4ab67f4e1d7585fc7865881b87706d261682aa439b9c175e0": {
+      "doc_id": "apg-typologies-2025",
+      "page": 27,
+      "pos": 2
+    },
+    "c07e4b3bbf414e44ef34f237e05a7e6ad2d572920462c9295136cf76868d43d0": {
+      "doc_id": "apg-typologies-2025",
+      "page": 71,
+      "pos": 2
+    },
+    "c088276141ad2178c0e56a45db15a9a5a6612b3ebecce3e23a64caa09f148ded": {
+      "doc_id": "apg-typologies-2025",
+      "page": 89,
+      "pos": 2
+    },
+    "c08a4de3a0ad7951366c03f3a1565f901714bd6f84cc459d5f084eb6d7032e18": {
+      "doc_id": "fatf-pml-2018",
+      "page": 9,
+      "pos": 1
+    },
+    "c0ad73a67114f7eb6b005d4d2171246f03ad758cdf6d770e6010eca70de0134e": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 46,
+      "pos": 2
+    },
+    "c0d9856d1e6aae448f1e5eca5d1d99e337e81b60d57c7f36cea65b6a392b5961": {
+      "doc_id": "apg-typologies-2025",
+      "page": 70,
+      "pos": 2
+    },
+    "c11e91c560f2279c41c316dff08b893a7f7b94ab0a8f9a580d480c362db2360c": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 23,
+      "pos": 2
+    },
+    "c15dde8991f5cbf652db7d2d5843924134f9c1c2e77b136f61255c8f5050bf20": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 34,
+      "pos": 1
+    },
+    "c1640a7c6b3b7b5a4ad96d3da973d46821132c9bf3d735515970187314a5cc76": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 4,
+      "pos": 2
+    },
+    "c1ef04afb45a877938dc4d88094b76a3d4167ea7c1f2264935d1ccf342f43d8c": {
+      "doc_id": "ffiec-redflags",
+      "page": 3,
+      "pos": 2
+    },
+    "c29a0e6517d2004fc6bb957aa1811fc711533adfa5214cab35eab70defda9872": {
+      "doc_id": "apg-typologies-2025",
+      "page": 60,
+      "pos": 2
+    },
+    "c360198861a00e7536ea72c3af19320f1869b3899f8153c638e88cb6f9da1714": {
+      "doc_id": "ffiec-redflags",
+      "page": 5,
+      "pos": 1
+    },
+    "c385dbf1d6c055b704267acafc19a6cab9e8703af7e4daacfeff262926799d3a": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 4,
+      "pos": 1
+    },
+    "c3ed4db497912ec7860afe6595bfd31da30a03ff9a3d3adeb4004a189ebfe9aa": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 11,
+      "pos": 1
+    },
+    "c538996199d589a63eaacf813f8794145786b7e76026f20d80da687a44713181": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 9,
+      "pos": 1
+    },
+    "c544a0df0fe26715ef8247e5617dde140749ff017b9397a0064e191b04447a49": {
+      "doc_id": "apg-typologies-2025",
+      "page": 79,
+      "pos": 2
+    },
+    "c55fa5faa208384f87d94d478ddf09d01136d8205c40b8c1a014f5a3183830d3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 80,
+      "pos": 2
+    },
+    "c5b92c0d81b3bca7713ca169467424fb7dec728c709d60f247b6dc5479875afa": {
+      "doc_id": "apg-typologies-2025",
+      "page": 37,
+      "pos": 2
+    },
+    "c6436231f902c88ffbfc4ec8087e09778c9d546ed0245d75006ccd64db47600f": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 26,
+      "pos": 2
+    },
+    "c6924610cb2cc62a46dc3deb21f6ed07eae9ac5b8df95a4ef2340440439dc796": {
+      "doc_id": "apg-typologies-2025",
+      "page": 34,
+      "pos": 3
+    },
+    "c6adfe5969cd47b4b69e3ccd72f9eb7637bafbd502ac8fa3213acc5f0ea949ce": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 12,
+      "pos": 1
+    },
+    "c6ed0a9e8a8434da76f241d3285523a2b84a07207bdd16f3f51fc9eb91bf86a7": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 9,
+      "pos": 2
+    },
+    "c846324eee5e4d038c70b730bb8ad16d8a6c4308498697e8d860bc440bfa62d5": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 13,
+      "pos": 1
+    },
+    "c895604dec4ef6a8827dae84ff23b99fcd69afc75afb849e7676f4f362c46369": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 3,
+      "pos": 3
+    },
+    "c92a611fba7253eaa2fc01bd0bbd38186c6965a6b5cabaa24f745d2b8e4dfde5": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 12,
+      "pos": 1
+    },
+    "c9467735139bdc6f5780c155a769decd3ef1912245941f3d8ae10f928ff5e5cd": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 2,
+      "pos": 1
+    },
+    "ca5b9bc8a3ccdb284998cc5bad152e50e081d0c794a2a4bfb3c5961b5a830ae1": {
+      "doc_id": "apg-typologies-2025",
+      "page": 43,
+      "pos": 3
+    },
+    "cacbbc0596ccb6481225ec3029cd86c6abcb3717d94059081ca10413800269ac": {
+      "doc_id": "apg-typologies-2025",
+      "page": 72,
+      "pos": 1
+    },
+    "cafb9219ca3f767eeac61ee316291b85f9b74ba74aa06a7493fb14095180e76c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 101,
+      "pos": 1
+    },
+    "cb0eae39a6c73db5590f6a8ada7b08ffa8aec4ccc4f380e674348b2eaa4467bb": {
+      "doc_id": "fincen-funnel-2014",
+      "page": 2,
+      "pos": 2
+    },
+    "cbc8ad8d75f5924df11aee35197b6177d52cb928fec5b84a618976cfdcb170ee": {
+      "doc_id": "fatf-pml-2018",
+      "page": 43,
+      "pos": 2
+    },
+    "cc77f0864cb67c7ea00a665219021240f89b0a4b1576b6a3d091e041c71bc0a0": {
+      "doc_id": "fatf-pml-2018",
+      "page": 26,
+      "pos": 1
+    },
+    "ccbba3d4db17e99508509832fa4d6d0f8345366dc8706e0a64fc9a1d0be53e26": {
+      "doc_id": "apg-typologies-2025",
+      "page": 77,
+      "pos": 2
+    },
+    "cdd3fb70cc199d1e913dddcf357c9d6036c949e04d8456be9e4fe3c76ca60305": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 34,
+      "pos": 2
+    },
+    "ce2ed39233caabde11918f825985751bc03781108310c2d0208259615e3bbf9a": {
+      "doc_id": "apg-typologies-2025",
+      "page": 99,
+      "pos": 1
+    },
+    "ce697378e469d2eed1a1bf5e1684745f271e7b849b8b3a8206291b4b8142d225": {
+      "doc_id": "fatf-pml-2018",
+      "page": 21,
+      "pos": 2
+    },
+    "cf0c627f3b08ee56fecc2d6b8134a0b13d5c2f3c69e1f37b41752a059eacf670": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 2,
+      "pos": 2
+    },
+    "cfcf9e0ccaf24577c8198b0455556d7b5c143fe41d8e76440a6511c808497ffb": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 3,
+      "pos": 1
+    },
+    "d05d376f4d139951ff286a04d46cefda3f6a78786a3888263bee6699cb1f88a3": {
+      "doc_id": "fatf-pml-2018",
+      "page": 5,
+      "pos": 3
+    },
+    "d0804d84611252042a1390c6c068a4d2a57077e0230de69435db6b67f086cb5b": {
+      "doc_id": "fatf-pml-2018",
+      "page": 37,
+      "pos": 2
+    },
+    "d0d4b5ac06ace095955a26d24a833f06b542fa219e163da9d7097f970b61cf3f": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 7,
+      "pos": 2
+    },
+    "d14fac8e416eaf56c99a6eafec733b48e6edeb7d9816ad73b1a9243912b2e869": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 6,
+      "pos": 2
+    },
+    "d1dc69d38c7f9aa8164b8f2614acbf12065b87c35ba55a002c62cfdc9a557463": {
+      "doc_id": "apg-typologies-2025",
+      "page": 86,
+      "pos": 1
+    },
+    "d1f3565e1d5a69bf30e3f5096dfca238077dc5e13af3f4ca4f85bb500169fd51": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 25,
+      "pos": 1
+    },
+    "d1f3eefa57ba801712b16c277d121ae3c3c3ea4a31de6e03b3892d6ddbb0b437": {
+      "doc_id": "fatf-pml-2018",
+      "page": 37,
+      "pos": 1
+    },
+    "d2146001a6b29a3a8cb117eb4a6f2855201b32e89d5bf0e722a0e8e355017375": {
+      "doc_id": "apg-typologies-2025",
+      "page": 26,
+      "pos": 1
+    },
+    "d28a54f90117c74d4c2b924d90c6f0837be6750149f0e9a12b6fe89a8698841b": {
+      "doc_id": "fatf-pml-2018",
+      "page": 42,
+      "pos": 2
+    },
+    "d2b8a36454d13b9484a08bb2e821e21b03bcc32d37ca2901e3b4b84513a98ae9": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 41,
+      "pos": 1
+    },
+    "d2d3bf29ef7804c513f73663b9ccd64d68c64b78245fc09883b7bebb2a669ee3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 67,
+      "pos": 3
+    },
+    "d2e64f74265b9007e53e07c6871fe1908497fe68acb1046e7d5841fd1d691056": {
+      "doc_id": "apg-typologies-2025",
+      "page": 88,
+      "pos": 1
+    },
+    "d33e911cf32967af2a373dc757ce2dfb9a51d11b22201043f701981818baa426": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 6,
+      "pos": 2
+    },
+    "d34edd56282f9949b66ac8017162d59e15d9cab2fbc4307de0b5b88adf6d7198": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 29,
+      "pos": 1
+    },
+    "d39e52363e0836a6b7c9a5071023f22e2d9ebf57b01e859fba9f26a0fdf08c46": {
+      "doc_id": "apg-typologies-2025",
+      "page": 28,
+      "pos": 1
+    },
+    "d3b5119ed08ce473bc82258c44cd1f17db2ef7839dd59ddbdd731d20e15cf042": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 2,
+      "pos": 1
+    },
+    "d3d99a3662e65f2acc5c44d0b79f044131f89866221b255bc8f26a048f929779": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 37,
+      "pos": 1
+    },
+    "d420d064244915b6bb769d0cb047d6218149784cf48f6866da13abaa5c45379b": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 42,
+      "pos": 1
+    },
+    "d46a3525cdc1466821961f4142033cc5f34c83456dc7f4e8e46283bd1512117a": {
+      "doc_id": "apg-typologies-2025",
+      "page": 21,
+      "pos": 2
+    },
+    "d4ad880d4f30556da28b290be1088d517c973c9ddceafcc2363f96c03f470391": {
+      "doc_id": "apg-typologies-2025",
+      "page": 54,
+      "pos": 3
+    },
+    "d4b70256abdb12af37f502da7ea530dcd58985dee9dbf002e011a830e7e4ca27": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 41,
+      "pos": 2
+    },
+    "d52b4af2f9cf5bac8ed3e55c533c6682366884b06b3f7f6ab6f0ae6b9c967795": {
+      "doc_id": "apg-typologies-2025",
+      "page": 55,
+      "pos": 2
+    },
+    "d565216439db3ebcb1b046cee168e81110f6fd633c31a76c2fe217e5e6537fa3": {
+      "doc_id": "apg-typologies-2025",
+      "page": 9,
+      "pos": 3
+    },
+    "d597f695b8745d5986567cfd15a79d1743779f5d0fb39d86f88a39151ed12be0": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 24,
+      "pos": 2
+    },
+    "d5cbfe6557ffe044afeaa1eb2a1f40d5c6386942a5fb80ce5b4e0859db830749": {
+      "doc_id": "apg-typologies-2025",
+      "page": 53,
+      "pos": 2
+    },
+    "d621d4a93bb1184320ef11b4b26380cdeb208363b60cdfa32ff78a583cb810b5": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 9,
+      "pos": 1
+    },
+    "d6a32596e99e83ee337471270fdfad6f02aa477525db87cb89921ae58363e686": {
+      "doc_id": "apg-typologies-2025",
+      "page": 13,
+      "pos": 2
+    },
+    "d6df2bbe2111d6f42284bf22bf5950d4ee64ecbe782df298be649dd586efb316": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 29,
+      "pos": 1
+    },
+    "d70bb4049ae4beebf11d9f50c0914963a340261764b6e88b90ec5833bbd8ead4": {
+      "doc_id": "apg-typologies-2025",
+      "page": 101,
+      "pos": 2
+    },
+    "d7927f94787d5f43ac4f04c43d7e2946de63bffabaebd91c5656ad5e3419ab01": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 11,
+      "pos": 3
+    },
+    "d7c70a39205cfca6b915d3e3c09695f91126348c2143a669eb86a7b935ac44bd": {
+      "doc_id": "fatf-pml-2018",
+      "page": 13,
+      "pos": 2
+    },
+    "d7e6bb4236b0fd9d8d1d48054855d02ab04b636e3524f547771e3366b6634ba7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 96,
+      "pos": 1
+    },
+    "d888d64b38f48cd14898c4fbbbc6656340cb14facdfe86c19d502fb464d258d0": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 7,
+      "pos": 1
+    },
+    "d939974ee0c5bc04aff54f5f25d45dab4949a1d57d5b456e0cec1f929b059947": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 14,
+      "pos": 2
+    },
+    "d9565451d1cce706a5f7dc801681a48a8dee0b0722b51c1ebff87aec5d4d3e75": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 8,
+      "pos": 1
+    },
+    "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234": {
+      "doc_id": "ffiec-redflags",
+      "page": 6,
+      "pos": 2
+    },
+    "d9d5d6f685f6215128fcfc6d1941c0fc01e78689c25a287023e5d37d4b7000ca": {
+      "doc_id": "apg-typologies-2025",
+      "page": 26,
+      "pos": 2
+    },
+    "d9ebec64b5e67171568c262a8232ceede8453051721042ae1556e84009f7fb44": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 38,
+      "pos": 1
+    },
+    "d9ee41dd2ac6a8efabb6f0b8950c4e67c673066ec4d6435b53631ca6366ce9ba": {
+      "doc_id": "fatf-pml-2018",
+      "page": 33,
+      "pos": 2
+    },
+    "da1dd4572f7173978308e286a9ae586758b99d31c73e8c5f5e6a3981188649ed": {
+      "doc_id": "fatf-pml-2018",
+      "page": 19,
+      "pos": 1
+    },
+    "da6320419128a67d47ece60ec519a5aa6171b155a6ed610fad72da3dec93b0d4": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 5,
+      "pos": 2
+    },
+    "daa76eb692982b9128d9b3a88248eb95416d3754945b7b5254878f4a27a05b4f": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 8,
+      "pos": 2
+    },
+    "dae269efed5ff8e8353465424601d5936092f241000823862b0f947ef02b695c": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 52,
+      "pos": 1
+    },
+    "db0bfee5bf52fd6b43ffda9521b079c86a95b68821eeab523beb3275255f1e33": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 37,
+      "pos": 2
+    },
+    "db2a91f9edcac71a26e910ea5881cb3acf1202aa3dc0e469766d8985653707aa": {
+      "doc_id": "apg-typologies-2025",
+      "page": 26,
+      "pos": 3
+    },
+    "dc177e17ea7b30e6b08afb342271d9ea52a5a829cc6c83545a1c3b4412ba5709": {
+      "doc_id": "apg-typologies-2025",
+      "page": 66,
+      "pos": 3
+    },
+    "dc1d2ad8d365dc36cc7df3188b8a436af3d6de653b02e3e9b9b658cfee42ec41": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 6,
+      "pos": 2
+    },
+    "dc71bb11e33b7d7c2d17c2423e4099d9eb88ebd2cf0c98593bba244ddf9b184c": {
+      "doc_id": "fatf-pml-2018",
+      "page": 27,
+      "pos": 2
+    },
+    "dc80027cb4ea503ca094f4807d29094bbedbbb37ecbe307025c5003ad91fc6da": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 2,
+      "pos": 1
+    },
+    "dcc282d8d503bf6ee2d1bd7ce8eab57288de5385385c77658ddec7bc3386a4d7": {
+      "doc_id": "apg-typologies-2025",
+      "page": 43,
+      "pos": 1
+    },
+    "dce24f63ab5845ad1dc3bbe380668e144e8cdad359b75b4fc0bcdbbbc7f59b6a": {
+      "doc_id": "apg-typologies-2025",
+      "page": 15,
+      "pos": 1
+    },
+    "dd8094379688c5b89b67cc151370ce5146a0deb9dd64f85d6d398903382d1ea3": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 17,
+      "pos": 1
+    },
+    "dd92626fcc286b7eadb3010067fc4899d9387a4af3f6715a3e4123020658a5da": {
+      "doc_id": "apg-typologies-2025",
+      "page": 24,
+      "pos": 3
+    },
+    "dd9d81c2032b5d9b2074fb543ddcb2ceabf93ff292009858cea2ea4825d606f5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 92,
+      "pos": 1
+    },
+    "ddf9b7eb09b54e52df117f070479e53610e61448f4ee422ff34956529d82f672": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 39,
+      "pos": 1
+    },
+    "de14236c1a86eb2f460776b386d6d33bb1fcf9643dc5b1e35308aa6d3d041f99": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 66,
+      "pos": 1
+    },
+    "deae6d7a96accf2221b87de4a12a3746c5c659081961cc5eda183e4896646e36": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 17,
+      "pos": 1
+    },
+    "df5efee3964482e3b92c77cb6e4a5dcf2703c117a083bac691b09cc1adbe4e0f": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 23,
+      "pos": 1
+    },
+    "df7869a73c4e02f82adf022f015ed02b967f254f5385e7b1f0bed8704eeaaf93": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 6,
+      "pos": 1
+    },
+    "dfb4dc422a5fceb12fd646c4b55b25ae535b5f326d50f18edb723a8079c6cfdb": {
+      "doc_id": "apg-typologies-2025",
+      "page": 75,
+      "pos": 3
+    },
+    "dfb962c2e3093d9245151e6a7c31f1a10cfe1702fd75fd2bef9d36f1b167a655": {
+      "doc_id": "apg-typologies-2025",
+      "page": 69,
+      "pos": 2
+    },
+    "dfcebebe4f8d1b747a93d7f6bd8f7bc9b550a58111291951b6b5c12acc179f91": {
+      "doc_id": "fatf-pml-2018",
+      "page": 53,
+      "pos": 1
+    },
+    "e0ac4b2f93cb61d494432e5306e2740d6893a330ccf483546285f72e013c7503": {
+      "doc_id": "apg-typologies-2025",
+      "page": 12,
+      "pos": 3
+    },
+    "e1ff93511ae24ab6b8e96352b18beca2e61bac65e5fdf18ba1492d3cf8814389": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 32,
+      "pos": 2
+    },
+    "e211442e1486869d7dc4b1fc9c0c3b928917fc31049d188f6f62be9e2e7a6946": {
+      "doc_id": "apg-typologies-2025",
+      "page": 48,
+      "pos": 3
+    },
+    "e23af4eab8d5e422afee262794edcaf6ee8b1e5689e36d593e88e5723d2f3d2f": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 3,
+      "pos": 2
+    },
+    "e2527ae3f469daeddab2d8c8bc6578037ad759761701d36b79959a8ede50d3ad": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 47,
+      "pos": 1
+    },
+    "e27eeb52d3da173d7a3c72c8aa597c63e6be471e6b799041b6ad47ab55b80ab6": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 18,
+      "pos": 1
+    },
+    "e29d24ae70dcaced1a3af838e59f2c04f2139328446bb0ed6454fced1cedc70c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 42,
+      "pos": 3
+    },
+    "e2c2667c89f4df4f369321994db1ce188e8b82e3d415c0b5a9237bd2b2dbe65e": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 49,
+      "pos": 1
+    },
+    "e3b2ef7b7cdd07163a5fff567b87e9d0c26a9dfc0cd62963b13495d82376ea19": {
+      "doc_id": "ffiec-redflags",
+      "page": 4,
+      "pos": 1
+    },
+    "e3c0fba5ef4d1c02dae39182280e6d58235ad734f14fa36177da131cda223886": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 4,
+      "pos": 1
+    },
+    "e3e2e37839016849f116316339d6cb62738a521a25f3b9bbc9dfc3dbc4c11be6": {
+      "doc_id": "fatf-pml-2018",
+      "page": 39,
+      "pos": 2
+    },
+    "e445b821ee88724feaa45bc2a76fb732b21b929641b6f429875395b059c67f8b": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 46,
+      "pos": 1
+    },
+    "e4b06460e4582bdbab9bde719d4dcd85a899580ab76d93f02b7947e0b71625e7": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 12,
+      "pos": 2
+    },
+    "e5b66767fe7cd00890484762ea4756c3ba5cee07ce75cd802ff6344967fba370": {
+      "doc_id": "apg-typologies-2025",
+      "page": 41,
+      "pos": 1
+    },
+    "e5ca0e214968af141c1ae66c49affa0bfdfdc1a82fb048a7564ef602b9251028": {
+      "doc_id": "apg-typologies-2025",
+      "page": 22,
+      "pos": 1
+    },
+    "e5fb7d848e15b42b376e7fa8d86d3f74a32696ed04dc430a2614123430d3c71b": {
+      "doc_id": "apg-typologies-2025",
+      "page": 5,
+      "pos": 1
+    },
+    "e62fdd16cf0845dc9aa3fddef30a4c0af28fb8acdb187180a3b9b34f3838248d": {
+      "doc_id": "ffiec-redflags",
+      "page": 5,
+      "pos": 2
+    },
+    "e656d95e2a6675dd9e9a7b0a30be0f7c45451416d51d1bdfe85418687629c470": {
+      "doc_id": "fatf-pml-2018",
+      "page": 8,
+      "pos": 1
+    },
+    "e702816cefc142a5a6b590f1631bfa7fbb9a95483fbd8da86a86576a72d1719f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 38,
+      "pos": 2
+    },
+    "e73e90b8b825c19e24b8c646f9231f8c2d7a2ab8423cd43a5edc0addc019c2ee": {
+      "doc_id": "fatf-pml-2018",
+      "page": 41,
+      "pos": 2
+    },
+    "e7e096f7a6598887ee01d0602c0dc405f95d3dff478f4b03473f9a8a9e12e9b6": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 27,
+      "pos": 1
+    },
+    "e8010ca92fbd284f1a7b8bf91a07b18525ca58776c492352228714581fc22182": {
+      "doc_id": "fatf-pml-2018",
+      "page": 30,
+      "pos": 1
+    },
+    "e8f2857c05426d9fcda10ae248ca9d0ae19c532857ccab2d3e5f4d38c0fe85ad": {
+      "doc_id": "apg-typologies-2025",
+      "page": 83,
+      "pos": 3
+    },
+    "ea08ec607edcf2219a52d06a7b3fa179cec80ee40a813d4ab7e42a2f28177826": {
+      "doc_id": "fatf-pml-2018",
+      "page": 48,
+      "pos": 2
+    },
+    "ea994f8c91555accad167f27752a811ddd8ba096de7fe8a1d5f79725d153221e": {
+      "doc_id": "fatf-pml-2018",
+      "page": 45,
+      "pos": 1
+    },
+    "eb348a153aad4aff4fff6539aedf9f10a4494cf3fbf543c6b0883a8690b8f0f8": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 18,
+      "pos": 1
+    },
+    "eb7a9c890ae9096f8a3129e6d2cc5871d760746f45bae450b748d66ea9e8f767": {
+      "doc_id": "apg-typologies-2025",
+      "page": 42,
+      "pos": 2
+    },
+    "ebaa973ed2c16ab1e2b5d7c2439d28d04f5d5b09dfd2f163796e0431ba3c9a16": {
+      "doc_id": "apg-typologies-2025",
+      "page": 32,
+      "pos": 3
+    },
+    "ebce5949fab377607c81d0b93d300bc43a03d6f82dc17d03c85be58c2d0b802c": {
+      "doc_id": "apg-typologies-2025",
+      "page": 21,
+      "pos": 1
+    },
+    "ebf3febda20ee1098e83244d25083e42b2c520afc673e54bfaeefda3cd6a5dce": {
+      "doc_id": "fatf-pml-2018",
+      "page": 8,
+      "pos": 2
+    },
+    "ec4424f6eb99c3a3e3367e7225e240eed12b79191f7d15785ca144b200a7b3a1": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 8,
+      "pos": 1
+    },
+    "ecca91617659851c401d925eaae37039e2c618653d40d1811aee7323095e4e17": {
+      "doc_id": "apg-typologies-2025",
+      "page": 87,
+      "pos": 1
+    },
+    "ecd8d998470ca912972bc261207d654b17e6d40f9ab19687551d37fc1118cb22": {
+      "doc_id": "apg-typologies-2025",
+      "page": 52,
+      "pos": 3
+    },
+    "edd82f5bf9490e1c401352bb82ade5e519686a3a0479c0ee878fcb5b474069e5": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 58,
+      "pos": 2
+    },
+    "ee9c19caba49bc9c229cb677dd7127618a636dd3ffa569bf355026c9b8f35f85": {
+      "doc_id": "apg-typologies-2025",
+      "page": 8,
+      "pos": 2
+    },
+    "ef2e7d1bbbe7f6b6ae0369f56f16bb4caf9ac633a407ddebf16e8d2e602da83d": {
+      "doc_id": "apg-typologies-2025",
+      "page": 74,
+      "pos": 1
+    },
+    "ef9ef68c4521b6b5f6fc6f956676502604e48dc3bc29a9cbe5b2d61942d1d4e2": {
+      "doc_id": "apg-typologies-2025",
+      "page": 59,
+      "pos": 1
+    },
+    "efa3cc808f46a024701ae04d8794038af62ac85878f68a40444ee090e37c76d4": {
+      "doc_id": "fatf-pml-2018",
+      "page": 1,
+      "pos": 1
+    },
+    "f04f5d783c11ad363aadef2285ee04bf35584ad68c98069b0735e84230939392": {
+      "doc_id": "apg-typologies-2025",
+      "page": 29,
+      "pos": 2
+    },
+    "f14deb95f0b9db72bf45696ed61632f3d621e72f5a8193018ff028069dfb46cd": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 30,
+      "pos": 2
+    },
+    "f17780f35949a1900b1d88c60808ef24f50c3a03819c3c181a25db15698db150": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 3,
+      "pos": 3
+    },
+    "f188947ac50ee64227617a499dd30e2943b3e156451db85f07070f6cbe84a9d4": {
+      "doc_id": "apg-typologies-2025",
+      "page": 76,
+      "pos": 1
+    },
+    "f21ebcf42f6bdc73565ad4c973a779d06adb293b34f0eaa02f14835648a42a3e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 78,
+      "pos": 1
+    },
+    "f27aab2fa336d9ccd1ce2dc2d3c9bc3dcfea2b6eb589015f76d227493984fdd8": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 51,
+      "pos": 1
+    },
+    "f2afc450ca2a21d3cb52bfd367fcf713dfa061d373aa2487aed9f7c6ecd68b1e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 44,
+      "pos": 1
+    },
+    "f2f4bc0a9108a7454a071fd75bd86349b7042202c6debe33162fb0e2b4077fa9": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 14,
+      "pos": 1
+    },
+    "f4853ef1a4b5450f1caba405547795dabcb185857d570232755db80c9307c20a": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 40,
+      "pos": 2
+    },
+    "f4a14a356385339504e7ad9b4959ca09da8d4035b59f9b127ea82335c2f8ab08": {
+      "doc_id": "apg-typologies-2025",
+      "page": 11,
+      "pos": 3
+    },
+    "f5b561b10ab09890ba2d8b232b9d98f50d3c49c211f8290c6460e56a15049b88": {
+      "doc_id": "apg-typologies-2025",
+      "page": 95,
+      "pos": 2
+    },
+    "f5c878cf27ecd974735c6370ddc0ed8a449258c8c601efac5a87975c919a3287": {
+      "doc_id": "fincen-money-mule-2020",
+      "page": 3,
+      "pos": 3
+    },
+    "f5e1edd1a698dc98a9957bb5cc57b71dcf0b019ca4ca245a91e9523fb3d307b5": {
+      "doc_id": "apg-typologies-2025",
+      "page": 64,
+      "pos": 1
+    },
+    "f5ed1ff6983d857e52d5ed4f6e363dccecb6109496daba2d65b8720bba73754f": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 1,
+      "pos": 1
+    },
+    "f5f555d2966dbda57ec0e67a9814b29d4b377bdcd5945cf4a7a60af625332d85": {
+      "doc_id": "ffiec-redflags",
+      "page": 1,
+      "pos": 2
+    },
+    "f603647f6ff127ac7dbe4326e3417ce52b9fb57901bf6e38d4f3acd17521803f": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 28,
+      "pos": 2
+    },
+    "f63099192d03cafcf6597bebb9243cdb52876c8546dbb40ffab3c9871172980e": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 13,
+      "pos": 2
+    },
+    "f6416a8bd83bb2971aef2e225784afe1c90d0ab2827dd740a5c3c59b04d39dc1": {
+      "doc_id": "apg-typologies-2025",
+      "page": 81,
+      "pos": 2
+    },
+    "f7464c4dce69aa6e2cd9450b56dc57f0b2bd074082988532f44c26192646d328": {
+      "doc_id": "apg-typologies-2025",
+      "page": 83,
+      "pos": 2
+    },
+    "f7d35b12f7c6015c7bedb98544cdce45531ab211cf22bac679dbb822d36f5d20": {
+      "doc_id": "fintrac-underground-banking-2023",
+      "page": 8,
+      "pos": 1
+    },
+    "f8252977effcc8b47c6d5bf8fddf4b733d3f3b760a5129308f1896cf3731bdba": {
+      "doc_id": "fatf-pml-2018",
+      "page": 18,
+      "pos": 1
+    },
+    "f892abdf4124cf7e4ba8825d3baf97bf30dbd3f868f5a1e1ff636b9029b0fd5e": {
+      "doc_id": "apg-typologies-2025",
+      "page": 82,
+      "pos": 1
+    },
+    "f9070b8f383fd65ec3047106e44c04a9fc3402402ca8f657cc5fb41b1632c020": {
+      "doc_id": "apg-typologies-2025",
+      "page": 61,
+      "pos": 2
+    },
+    "fa27e0b7c781dfcb49a19f14d92e9b46a7d9fb614855801bd0008c9d55f76f65": {
+      "doc_id": "fatf-pml-2018",
+      "page": 41,
+      "pos": 1
+    },
+    "fa32e1b8b409723ccb6c3d589f3a938558e84dd937d54cfa47db1d31b3bf231a": {
+      "doc_id": "apg-typologies-2025",
+      "page": 49,
+      "pos": 1
+    },
+    "fa342f81686d94f3efd65c4e3ed1f4542406b92d9d7206c80d3605200dc33d2f": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 7,
+      "pos": 1
+    },
+    "fa380d70fabdd7e1fab87e0deba60ad17daa4040f0f8609f087c7c293134c131": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 29,
+      "pos": 2
+    },
+    "fa7731dc4d1e1be2fa18c4e78923748845e7b8935e27b73ce9cd06fb66830cef": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 52,
+      "pos": 2
+    },
+    "fbfb4c1b0de8cd90698b9044bb9b176f0c70ca4dc63050df630e3cd0f5323164": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 11,
+      "pos": 2
+    },
+    "fc9ecf79f6249b0b1c80abe9234fdfaec7d492439aed78e9b8ccc6e6e7b68442": {
+      "doc_id": "fincen-cmln-2025",
+      "page": 3,
+      "pos": 1
+    },
+    "fd3bfcbd88c5a71d30a939622c9b9a33d5f6df1d87c7d0d91143f9e94f73bad4": {
+      "doc_id": "fatf-pml-2018",
+      "page": 51,
+      "pos": 1
+    },
+    "fd5b4655474f7704354fb24532a6684b1b813f144e390914c3d4dc08c7f6f39f": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 37,
+      "pos": 1
+    },
+    "fd6d9b14f8bacd26816a5d61502dfcfc9e81a26cac104e62f2fcd881e95e2cd1": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 3,
+      "pos": 2
+    },
+    "fde973910c6de0f40a8456d0dbfb2bd06d39caf79f2f3b673102960e2244ad52": {
+      "doc_id": "apg-typologies-2025",
+      "page": 16,
+      "pos": 1
+    },
+    "fe01750d64375f9d2b2424274171bf45a3467a1b21ab59b84a717465c19d8b8a": {
+      "doc_id": "fincen-msb-ko-2007",
+      "page": 41,
+      "pos": 1
+    },
+    "fe45d1f4ce9c9be3013789ce80bcb496ec2927ac012c3b888bcb2290faf081c8": {
+      "doc_id": "fatf-tbml-2020",
+      "page": 35,
+      "pos": 1
+    },
+    "fe61d46dc2cc6bb1bf058390851a46e0bcbff48a6f5e4898a1356181f758238b": {
+      "doc_id": "fatf-pml-2018",
+      "page": 24,
+      "pos": 2
+    },
+    "fe630a90085b779a5ad6dd51cbcf5287c1e684a383d677e19f4aae1595c1b7ed": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 31,
+      "pos": 2
+    },
+    "feb735b6d5dc17366fe758bed19ebef2bf1f361d16ddd17187821320f1e2058e": {
+      "doc_id": "fincen-sar-narrative-2003",
+      "page": 20,
+      "pos": 2
+    },
+    "ff447fe61ce4729d45b6ece3eac9307b31d1b1a873d1c301001be573e677d81f": {
+      "doc_id": "apg-typologies-2025",
+      "page": 19,
+      "pos": 1
+    },
+    "ff65bb8d909e96310c8d3f71a5e55ae7e9d6348f30ed4f3ae9466fecd3b71ccc": {
+      "doc_id": "apg-typologies-2025",
+      "page": 42,
+      "pos": 1
+    },
+    "ff84d17b24754dbcf975ed9c2522b03c7ac0edc9afb3da8b3a4027d90c69c750": {
+      "doc_id": "fatf-tbml-2006",
+      "page": 22,
+      "pos": 1
+    },
+    "ffb2e8488ba19ac5b00376b68663310481a0a264912eab5c39693f3f5905c637": {
+      "doc_id": "fatf-pml-2018",
+      "page": 49,
+      "pos": 1
+    }
+  }
+}

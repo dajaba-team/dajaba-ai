@@ -1,0 +1,2179 @@
+{
+ "_doc": "SCRUM-307 1회차 실행(11/21) top10 의 정답 순위만 — 추가 검토 1 H1 회귀용(평균 산식). chunk_id·본문 0.",
+ "conditions": {
+  "off_a_kw0": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     6
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     6,
+     7
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     6,
+     8
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     4,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     5,
+     7
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     4,
+     7
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     3
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     3
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     5
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     4
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     7
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     4
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     9
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ],
+  "off_a_kw1": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     10
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     8
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     8
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     10
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     9
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     8
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     10
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     7
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     7
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": []
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     10
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": []
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     10
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ],
+  "off_ac_kw0": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     3,
+     5,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     4,
+     5,
+     9
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     3,
+     5,
+     9
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     2,
+     4,
+     5,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     4,
+     5,
+     9
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     2,
+     4,
+     6,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     9
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     9
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     9
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     7
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     8
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     8
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ],
+  "off_ac_kw1": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     4,
+     8
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     5,
+     8
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     3,
+     5,
+     8
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     5,
+     8
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     3,
+     7
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     2
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     3
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     2
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     10
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": []
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     10
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": []
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     10
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ],
+  "off_abc_kw0": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     3,
+     5,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     6,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     3,
+     4,
+     7,
+     9
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     4,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     6,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     2,
+     4,
+     8,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     5
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     5
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": []
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     4
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     5
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     4
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     5
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     4
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ],
+  "off_abc_kw1": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     3,
+     4,
+     6,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     4,
+     7,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     4,
+     5,
+     7,
+     9
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     4,
+     5,
+     8
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     4,
+     7,
+     8
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     3,
+     5,
+     7,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     2
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     7
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     2
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     2
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     4
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     5
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     4
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     2,
+     5
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     4
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ],
+  "on_a_kw0": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     10
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     5,
+     6,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     10
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     10
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     3
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     6
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     4
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     6,
+     7,
+     8,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     7,
+     8,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     9
+    ]
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ],
+  "on_ac_kw0": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     4,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     5,
+     6,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     5,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     3
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ],
+  "on_abc_kw0": [
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_IN",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "FAN_OUT",
+    "answer_ranks": [
+     1,
+     2,
+     3,
+     5,
+     6
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "CYCLE",
+    "answer_ranks": [
+     1,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     4
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     5
+    ]
+   },
+   {
+    "typology": "SCATTER_GATHER",
+    "answer_ranks": [
+     1,
+     4
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "GATHER_SCATTER",
+    "answer_ranks": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": "FX_RELAY",
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   },
+   {
+    "typology": null,
+    "answer_ranks": []
+   }
+  ]
+ }
+}
