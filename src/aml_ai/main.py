@@ -21,11 +21,20 @@ from aml_ai.shared.infrastructure.tracing import shutdown_tracer
 from aml_ai.shared.logging import RequestIdMiddleware, setup_logging
 from aml_ai.shared.versioning import health_versions, retrieval_version_problem, scoring_mode
 from aml_ai.str.api.router import router as str_router
+from aml_ai.str.infrastructure.chunk_context_check import verify_on_startup
 from aml_ai.str.infrastructure.judge import judge_model_decision
 from aml_ai.str.infrastructure.prompt_index import check_frozen_prompts, index_prompt_files
 from aml_ai.str.infrastructure.retriever_rerank import rerank_response_model_problem, rerank_timeout_problem
 
 log = logging.getLogger(__name__)
+
+
+def _open_session():  # noqa: ANN202 — 기동 검사용 짧은 세션(엔진은 지연 생성)
+    from sqlalchemy.orm import Session
+
+    from aml_ai.shared.db import get_engine
+
+    return Session(get_engine())
 
 
 @asynccontextmanager
@@ -40,6 +49,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     problem = retrieval_version_problem(settings) or rerank_timeout_problem(settings)
     if problem := problem or rerank_response_model_problem(settings):
         raise RuntimeError(problem)
+    verify_on_startup(settings, _open_session)  # SCRUM-308-3 — 켬+v4 만, 새 표 ≠ 지금 표면 기동 실패
     _, reason = judge_model_decision(settings)
     if reason is not None:
         log.warning(

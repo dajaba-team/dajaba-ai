@@ -9,6 +9,7 @@ from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
 
+from aml_ai.shared import chunk_context_state
 from aml_ai.shared.config import Settings
 from aml_ai.shared.db import end_read
 from aml_ai.shared.errors import AiError, FencedOut, InvalidRequest, RetrievalUnavailable
@@ -21,6 +22,7 @@ from aml_ai.str.application.draft_rewrite import NarrativeRewriter, try_rewrite
 from aml_ai.str.domain import fact_keys as fact_keys_domain
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain import masking
+from aml_ai.str.domain.constants_rag_query import REFERENCE_CTX_TABLE, REFERENCE_TABLE
 from aml_ai.str.domain.request_hash import request_hash
 from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.generation_repository import ClaimReuse, GenerationRepository
@@ -192,4 +194,5 @@ def _retriever(session: Session, settings: Settings, llm: LlmClient) -> Retrieve
         release=lambda: end_read(session),
         fill_session=lambda: Session(bind=session.get_bind(), expire_on_commit=False),
         reranker=safe_reranker(settings, llm) if settings.rag_rerank_active else None,  # SCRUM-308-2 — v4 만
+        table=REFERENCE_CTX_TABLE if chunk_context_state.in_use(settings) else REFERENCE_TABLE,  # SCRUM-308-3
     )

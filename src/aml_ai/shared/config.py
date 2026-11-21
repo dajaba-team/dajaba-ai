@@ -76,6 +76,8 @@ class Settings(BaseSettings):
     rag_rerank_timeout_s: float = Field(default=8.0, gt=0, alias="RAG_RERANK_TIMEOUT_S")
     # 운영이 순서를 받아들이는 실제 응답 모델 ID(판정 결과 `response_models` 한 값) — 켜고 비면 기동 실패
     rag_rerank_response_model: str = Field(default="", alias="RAG_RERANK_RESPONSE_MODEL")
+    # SCRUM-308-3 — 청크 맥락 새 표(`ai.reference_chunks_ctx`)로 검색, v4 만 · 기동 검사 통과해야 실제로 씀
+    rag_chunk_context_enabled: bool = Field(default=False, alias="RAG_CHUNK_CONTEXT_ENABLED")
     elastic_url: str = Field(default="http://elasticsearch:9200", alias="ELASTIC_URL")
     elastic_username: str = Field(default="elastic", alias="ELASTIC_USERNAME")
     elastic_password: str = Field(default="", alias="ELASTIC_PASSWORD", repr=False)
@@ -152,6 +154,11 @@ class Settings(BaseSettings):
             user, host = rest.split("@", 1)
             return f"{scheme}//{user}:{self.app_ai_password}@{host}"
         return self.database_url
+
+    @property
+    def rag_chunk_context_active(self) -> bool:
+        """SCRUM-308-3 — RAG 켬 + 스위치 켬 + v4(검토 2 — RAG 전체 끔이면 대조 안 함). 실제 사용은 기동 검사 결과까지(`chunk_context_state.in_use`)."""
+        return self.rag_enabled and self.rag_chunk_context_enabled and self.narrative_prompt == "narrative_v4"
 
     @property
     def rag_gap_fill_active(self) -> bool:

@@ -91,7 +91,8 @@ def test_cosine_failure_keeps_session_usable(
     facts = facts_typology(mixed, Typology.CYCLE)
     before = _retriever(cycle_session, gap_fill=False).retrieve(facts)
     monkeypatch.setattr(
-        "aml_ai.str.infrastructure.retriever.text", lambda sql: text(sql.replace("ANY(:ids)", "ANY(:nope)"))
+        "aml_ai.str.infrastructure.retriever_sql.text",
+        lambda sql: text(sql.replace("ANY(:ids)", "ANY(:nope)")),
     )
     assert _retriever(cycle_session, gap_fill=True).retrieve(facts) == before
     assert cycle_session.execute(text("SELECT 1")).scalar() == 1

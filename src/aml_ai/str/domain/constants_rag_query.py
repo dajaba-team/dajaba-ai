@@ -51,3 +51,9 @@ RERANK_MIN_CANDIDATES = 2  # 후보가 이보다 적으면 줄 세울 게 없어
 RAG_RERANK_TIMEOUT_MAX_S = (
     8.0  # 운영 상한(기동 검사) — 308 기준 ② 판정 한도와 같음. 8 이하는 허용(짧으면 폴백만 늘어남)
 )
+
+# SCRUM-308-3 청크 맥락 — 머리말 형식 버전(`retrieval_version` 꼬리 `+ctx:v1`) · 검색 표(str/10 "청크 맥락")
+CHUNK_CONTEXT_VERSION = "v1"
+REFERENCE_TABLE = "ai.reference_chunks"
+REFERENCE_CTX_TABLE = "ai.reference_chunks_ctx"
+REFERENCE_TABLES = (REFERENCE_TABLE, REFERENCE_CTX_TABLE)
