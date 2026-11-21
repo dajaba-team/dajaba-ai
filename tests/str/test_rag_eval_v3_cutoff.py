@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
+from pathlib import Path
 
 import pytest
 
@@ -100,10 +102,15 @@ def test_no_answer_cell_not_judged() -> None:
 def test_repo_cutoff_result_matches_recomputation() -> None:
     if not cut.CUTOFF_FILE.exists():
         pytest.skip("result_308_cutoff.json 없음 — 다시 돌리기 전")
+    """git 기록 없이(CI 는 얕은 체크아웃 — 기준 커밋 객체가 없음) — 결과 파일에 남은 입력 sha256 (판정 때 기준 커밋과
+    바이트가 같았던 값)과 지금 입력 바이트를 대조한 뒤 다시 계산. 기준 커밋 검사는 판정 실행(`main`)에서."""
     doc = json.loads(cut.CUTOFF_FILE.read_text(encoding="utf-8"))
-    loaded, digests, reason = guard.read_inputs(cut.REPO)
-    assert reason is None and loaded is not None
+    loaded = {}
+    for path in guard.INPUTS:
+        raw = (cut.REPO / path).read_bytes()
+        assert doc[f"{Path(path).stem}_sha256"] == sha256(raw).hexdigest(), path
+        loaded[path] = json.loads(raw)
+    assert guard.structure_problem(loaded[guard.RESULT_307], loaded[guard.QUERIES]) is None
     assert doc["verdict"] == cut.cutoff_verdict(loaded[guard.RESULT_307], loaded[guard.CANDIDATES])
     assert doc["criteria_commit"] == guard.CRITERIA_COMMIT
-    assert doc["result_307_sha256"] == digests[guard.RESULT_307]
     assert forbidden_keys(doc) == []
