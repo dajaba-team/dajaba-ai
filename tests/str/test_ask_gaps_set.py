@@ -17,6 +17,7 @@ from tools import ask_premise_judge as judge
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.infrastructure.llm_client import LlmResult
 from aml_ai.shared.schemas.str import Facts
+from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT
 from tests.conftest import FIXTURES, load_json
 
 ITEMS = load_json(judge.GAPS_SET)["items"]
@@ -135,7 +136,17 @@ def test_record_out_of_scope_plan_skips_answer(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(record, "RECORDED", tmp_path)
     monkeypatch.setattr(record_answer, "RECORDED", tmp_path)
     monkeypatch.setattr(record_answer, "HttpLlmClient", _Fake)
-    row = record_answer._record_one(get_settings(), _item("C2"), new_plan=True)
+    row = record_answer._record_one(get_settings(), _item("N1"), new_plan=True)
     assert (row.status, row.mark, row.tokens_in) == ("OUT_OF_SCOPE", judge.OTHER, 7)
     assert len(list(tmp_path.glob("ask_plan_v1/*.json"))) == 1
-    assert not list(tmp_path.glob("ask_answer_v1/*.json"))
+    assert not list(tmp_path.glob(f"{ASK_ANSWER_PROMPT}/*.json"))
+
+
+def test_record_follow_up_skips_all_calls(tmp_path, monkeypatch) -> None:
+    """--set — 이어지는 질문(C2)은 서비스처럼 계획 전에 끝남(호출 0 · 녹화 0, SCRUM-359)."""
+    monkeypatch.setattr(record, "RECORDED", tmp_path)
+    monkeypatch.setattr(record_answer, "RECORDED", tmp_path)
+    monkeypatch.setattr(record_answer, "HttpLlmClient", lambda _s: pytest.fail("LLM 호출"))
+    row = record_answer._record_one(get_settings(), _item("C2"), new_plan=True)
+    assert (row.status, row.mark, row.tokens_in) == ("OUT_OF_SCOPE", judge.OTHER, 0)
+    assert not list(tmp_path.glob("*/*.json"))

@@ -69,7 +69,10 @@ def test_free_text_cites_are_not_reflected_in_draft_value() -> None:
 
 
 def test_check_order_amount_date_count_account_evidence() -> None:
-    text = "2022-09-02T00:14:00 부터 입금 3건, 42750.50 USD 가 대상 계좌 10_****BD30 으로 들어왔어요."
+    # 금액은 종류 표시가 있어야 함(06 질문 답변 8번, SCRUM-359 추가 검토 3) — `입금 합계`
+    text = (
+        "2022-09-02T00:14:00 부터 입금 3건, 입금 합계 42750.50 USD 가 대상 계좌 10_****BD30 으로 들어왔어요."
+    )
     checks = run(FAN_IN, text, ["inbound.count", "inbound.amount.USD", "period"], PIECE_KEYS)
     assert _names(checks) == [
         "AMOUNT_MATCH",

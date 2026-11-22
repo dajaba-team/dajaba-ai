@@ -60,6 +60,7 @@
 | `period` | 제외 후 대상 거래 `ts`의 min / max(**indirect 포함** — 경로 전체가 일어난 기간). ISO 8601 초 단위. 룰 창이 아니라 **실제 거래 범위** |
 | `counterparties` | 상대 `account_key` distinct 수(internal 제외). `transaction_ids` = inbound ∪ outbound |
 | `counterparty_banks` | `counterparties` 집합 기준(internal 제외) `{same_bank_accounts, other_bank_accounts}` — 상대 `account_key` 의 `{bank_id}` 부분이 대상 계좌와 같으면 자행(same), 아니면 타행(other). 두 합 = `counterparties.count`. `account_key` 앞자리 0 통일은 적재에서 처리(5-1) (SCRUM-47 · 안건 6-2) |
+| `counterparties_by_direction` | **질문 답변 전용 — 질문 답변만 요청 때 계산해 붙임(`facts_direction.with_direction`, `ask_service._load_facts`). 초안·요약 `build_facts` 는 안 채움(늘 `null`) · 직렬화에서 빠짐(`exclude`) → 초안·요약 응답·저장 facts 는 이전 버전과 같은 모양(롤백 안전, 추가 검토 1 H3)** · LLM 마스킹본·초안 `fact_keys` 에도 없음 (SCRUM-358·359). `{inbound: {count, same_bank_accounts, other_bank_accounts}, outbound: {…}}` — inbound = 입금 거래의 보낸 쪽 `account_key` distinct, outbound = 출금 거래의 받는 쪽 distinct, 자행·타행은 `counterparty_banks` 와 같은 `{bank_id}` 비교. 한 계좌가 양쪽이면 양쪽에 셈(그래서 inbound.count + outbound.count ≥ `counterparties.count`). 질문 답변 검사에서만 쓰임(06 "질문 답변" 10번) — 초안·요약 검사(공용 COUNT_MATCH)는 방향을 안 봄 |
 | `payment_formats` | distinct, 원본 문자열 그대로(ACH, Wire, Cash, …), 정렬 |
 | `payment_format_counts` | `[{format, count}]` — inbound ∪ outbound(self-transfer 제외) 원본 문자열별 건수. **건수 내림차순 → 이름순**(동률 안정화). 기존 `payment_formats`(distinct 목록) 는 v1 호환으로 남김 (SCRUM-47) |
 | `amount_range` | 통화별 `[{currency, min, max}]` — inbound ∪ outbound 중 **매핑된 통화만**(미등록 통화 제외), 통화 간 비교·합산 없음. min·max 는 Decimal **소수 2~6자리 문자열**(`by_currency.total` 과 같은 규칙). 통화 코드 정렬. **거래마다 그 방향 금액 기준** — 입금은 `amount_received`·`currency_received`, 출금은 `amount_paid`·`currency_paid`(`inbound`·`outbound` 와 같음) (SCRUM-47 · 안건 6-2) |
@@ -159,6 +160,7 @@ LLM은 섹션마다 `cites`에 **fact 키**를 쓴다(05). 코드 `attach_eviden
 
 - 존재하는 키 목록을 프롬프트 `FACT_KEYS`에 그대로 넣는다. 목록 밖 키는 `NarrativeOut` 검증에서 걸러 재생성(05).
 - `null`인 fact(예: `customer`가 없음)의 키는 목록에 **넣지 않는다** — 인용할 게 없다.
+- `counterparties_by_direction` 의 키는 이 표(초안 `fact_keys`)에 **넣지 않는다** — 초안·평가자 LLM 입력의 키 목록이 바뀌지 않게. 질문 답변만 따로 인용한다(아래 "질문 답변 묶음", SCRUM-358·359).
 - 섹션의 cites가 전부 "없음" 키(subject·customer)뿐이면 `evidence_ids = []`. CONCLUSION(v1)·OPINION(v2) 은 보통 `[]`.
 
 ## 마스킹 (`masking.py`) — 생성·평가자 공용
@@ -174,6 +176,7 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 | `*.transaction_ids` | **제거** — LLM은 거래 ID를 보지 않는다 (inbound·outbound·by_currency·counterparties·indirect·paths·**`unmapped_currencies`** 모든 집계, NFR-DRF-03) |
 | `indirect` | **통째로 제거** — 인용 키가 없는 사실을 LLM이 문장에 쓰면 검증이 대조할 곳이 없다 |
 | `paths` | `VERIFIED`면 `{kind, count, max_hops, max_accounts}`만 남기고 ID·`status` 제거. `UNVERIFIED`·`null`이면 **통째로 제거** — LLM은 확인된 경로만 본다 |
+| `counterparties_by_direction` | **통째로 제거** — 초안·요약·평가자 LLM 입력과 그 녹화를 그대로 두려고(SCRUM-358 ★A 3). 칸이 직렬화에서 빠지고(위) 초안·요약 build_facts 는 칸을 안 채우므로 `mask_for_llm`·few-shot 은 develop 그대로(따로 빼는 코드 없음). 질문 답변 `counterparties` 묶음만 원본에서 따로 싣는다(건수만, 거래 ID 없음) |
 | 그 밖 | 그대로 |
 
 마스킹은 **검증에 영향이 없다** — 코드 검증은 원본 facts와 narrative를 대조하고, narrative에는 계좌가 뒤 4자리로만 나오므로 `ACCOUNT_ID_MATCH`는 마스킹 표현(`****BD30`)과 원본 끝 4자리를 같은 것으로 본다(06).
@@ -194,6 +197,27 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 - 숫자만인 토큰(`20220902`·금액)과 영문자만인 토큰(`ACH`·`FAN_IN`)은 맨 계좌로 보지 않는다 — 날짜·금액·코드값 질문이 깨지지 않게.
 - 못 가리는 모양(알고 남김, 09): 하이픈·공백으로 끊어 쓴 계좌(`8000-EBD-30`) — 끊긴 조각이 8자 미만이라 맨 계좌 규칙에 안 걸림.
 
+### 이어지는 질문 (`ask_question.is_follow_up`, SCRUM-359 · 추가 검토 1 M3)
+
+질문마다 따로 처리하므로(앞 질문 칸 없음 — 설계 문서 13절 "대화형은 1차 제외") 앞 답을 가리키는 짧은 질문은 계획 호출 **전에** 코드가 범위 밖(`OUT_OF_SCOPE`·`OUTSIDE_CASE`)으로 끝낸다. LLM 호출 0. NFKC 뒤, 앞뒤 공백을 뺀 질문이 **20자 이하**(`ASK_FOLLOW_UP_MAX_CHARS`)일 때만:
+
+1. **앞 답 집합을 가리키는 머리 낱말**로 시작 — `ASK_FOLLOW_UP_SET_HEADS` = `그 중`·`그중`·`그 다음`·`그다음`·`거기서` → **늘** 범위 밖(주제 낱말 상관없이 — "그중 3건만 합치면?" 은 어느 세 건인지 알 수 없음)
+2. **접속어**로 시작 — `ASK_FOLLOW_UP_JOIN_HEADS` = `그럼`·`그러면` → 그 말을 뗀 나머지가 1번 머리 낱말로 시작하면 범위 밖, 아니면 **주제 낱말이 하나도 없을 때만** 범위 밖(추가 검토 2). 주제 낱말 `ASK_TOPIC_WORDS` = 질문 방향 낱말 · `건수`·`몇 건`·`몇건`·`거래`·`금액`·`돈`·`상대`·`계좌`·`결제`·`방식`·`기간`·`날짜`·`업종`·`위험`·`고객`·`경로`·`모델`·`룰`·`점수`·`통화`·`관측`·`경보`·`유형`·`이 케이스`, 그리고 **숫자+건**(`3건`). `건` 단독은 주제로 보지 않음
+**다른 케이스 번호**(추가 검토 4 H6): 질문에 `CASE-YYYY-NNNNNN` 이 있고 요청 `case_no` 와 다르면 길이·머리 낱말과 상관없이 같은 방식으로 계획 전에 범위 밖(`OUTSIDE_CASE`, LLM 0). 답 본문에 그런 번호가 있으면 06 "질문 답변" 2번에서 UNVERIFIED.
+
+3. `이거`·`그거` 는 머리 낱말이 아님 — "이 케이스"를 뜻할 수 있음(18개 O3 "이거 자금세탁 맞지?" 는 계획이 `JUDGMENT` 로 가름)
+
+| 질문 | 결과 |
+|---|---|
+| 그 중에 제일 큰 건? (359 C2) | 막음 — 범위 밖 |
+| 그중 3건만 합치면? | 막음 — 앞 답 집합(추가 검토 1) |
+| 그럼 출금은? (359 C1) | 그대로 계획으로 — `출금` 이 주제 낱말 |
+| 그럼 거래는 총 몇 건이야? | 그대로 계획으로 — `거래`·`몇 건`(추가 검토 1) |
+| 그럼 그중 3건만 합치면? | 막음 — 접속어를 뗀 나머지가 그중류(추가 검토 2) |
+| 그럼 이 케이스의 탐지 유형은? | 그대로 계획으로 — `이 케이스`·`유형`(추가 검토 2) |
+| CASE-2022-000058의 입금 합계는? (요청 case_no 000057) | 막음 — 질문에 이 요청이 아닌 케이스 번호(추가 검토 4 H6, `ask_question.blocked_before_plan`) |
+| 이거 자금세탁 맞지? 보고해야 해? (18개 O3) | 그대로 계획으로 — `이거` 는 머리 낱말 아님 |
+
 ## 질문 답변 묶음 (`ask_bundles.py`, SCRUM-290 — 설계 문서 6.2)
 
 계획 LLM 이 고른 묶음(1~3개) → **마스킹 facts 조각 + 인용 키 목록**. 순수 함수 `extract(facts, rule_id, bundles, labels) -> AskPiece` (`labels` 는 `infrastructure/display_labels.load_display_labels()` 결과를 서비스가 넘김 — domain 은 파일을 안 읽음). 묶음 이름 목록은 `domain/constants.ASK_BUNDLES`(8개, 이 순서). 키 이름은 위 "fact 키" 표 그대로 — 조각에 들어간 칸 중 **이 케이스 `fact_keys(facts)` 에 실제로 있는 키만** 인용 키가 된다.
@@ -202,7 +226,7 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 |---|---|---|
 | `subject` | `subject`(account_key 마스킹) · `customer` · `prior_alert_count` · `reporting_institution` | `subject` · `subject.account_key` · `subject.entity_name` · `subject.entity_type` · `customer.<칸>` · `prior_alert_count` |
 | `flows` | `period` · `inbound` · `outbound` · `internal` · `amount_range` · `direction` · `unmapped_currencies` | `period` · `inbound.count` · `inbound.amount.<통화>` · `outbound.count` · `outbound.amount.<통화>` · `internal.count` · `amount_range.<통화>.min/max` · `direction` · `unmapped_currencies.<이름>` |
-| `counterparties` | `counterparties` · `counterparty_banks` | `counterparties.count` · `counterparty_banks.same_bank_accounts` · `counterparty_banks.other_bank_accounts` |
+| `counterparties` | `counterparties` · `counterparty_banks` · `counterparties_by_direction`(원본에서, 값이 있을 때만 — SCRUM-358·359) | `counterparties.count` · `counterparty_banks.same_bank_accounts` · `counterparty_banks.other_bank_accounts` · **질문 답변 전용** `counterparties_by_direction.{inbound\|outbound}.{count\|same_bank_accounts\|other_bank_accounts}` → 그 방향 `transaction_ids` |
 | `formats` | `payment_formats` · `payment_format_counts` · `direction` | `payment_formats` · `payment_format_counts.<방식>` · `direction` |
 | `paths` | `paths` — `VERIFIED` 면 kind·count·max_hops·max_accounts(마스킹과 같음), 아니면 **빈 조각** | `paths.count` · `paths.max_hops` · `paths.max_accounts` · `paths.kind` |
 | `observations` | `observations` — name·value·unit·window_start·window_end·basis (**baseline 뺌**) | `observations.<이름>` |
@@ -214,6 +238,14 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 - `observations`·`score_reasons` 를 나눈 이유: 이유 질문의 "모델 설명"(05 `ask_answer_v1` "모델이 주목한 점:")은 `score_reasons` 에서만 나오게 하고, 관측 사실 질문은 기준값 없이 값만 본다. `score_reasons` 는 설계 문서 6.2 의 "키 없음"이 아니라 `model_signals` 키(근거 거래 없음)와 `observations.<이름>` 을 인용한다 — 키가 없으면 이유 답이 cites 를 못 채워 502 가 된다.
 - 코드값 한글 표기: 조각에 나온 코드(업종·위험 등급·목적·결제 방식·유형·엔티티 유형·관측 이름·관측 단위)의 표기만 `labels` 로 함께 준다(`contracts/display_labels_v1.json`, 05 narrative_v4 "표기 사전"과 같은 파일). **통화는 표기를 주지 않고 ISO 코드 그대로** — 금액 검사가 통화 코드 짝으로 가장 안정적으로 읽는다(summary_v1 규칙 2 와 같음 — 요약은 summary_v2 부터 금액 칸만 `62,992,819.38 유로(EUR)` 완성 문자열, 05 summary_v2. 질문 답변은 그대로).
 - 묶음 이름이 목록 밖이면 함수가 `ValueError` — 서비스까지 오기 전에 `AskPlanOut` 스키마가 먼저 막는다(`LLM_INVALID_OUTPUT`).
+- **질문 답변 인용 키** = `fact_keys(facts)` + 위 `counterparties_by_direction.*` 키(`ask_fact_keys`, 칸이 `null` 이면 없음). `EVIDENCE_IN_SCOPE`·근거 거래(`evidence_ids`)는 이 목록 기준(06). 초안 `fact_keys` 는 그대로.
+
+### 계획 보강 (`ask_bundles.with_flows`, SCRUM-358 ④)
+
+질문(LLM 복사본 — NFKC·계좌 가린 것)에 방향 낱말이 있으면 코드가 계획 묶음 뒤에 `flows` 를 붙인다 — 방향 질문에 `inbound`·`outbound`·`direction` 이 조각에 들어오게.
+- 방향 낱말 `ASK_DIRECTION_WORDS`(`constants_ask`) = 검사 방향 낱말(`DIRECTION_IN/OUT/INTERNAL_WORDS`, 그대로) + `들어온`·`들어오`·`나간`·`나가`·`보내`·`받았`·`유입`·`유출`·`송금`. 검사 쪽 목록은 넓히지 않는다(넓히면 초안 TX_COUNT 판정이 바뀜)
+- 이미 `flows` 가 있거나 범위 밖이면 그대로. **계획이 3개를 골랐으면 붙이지 않는다** — `generation_meta.bundles` 는 계약·백엔드 검사(`requireAskResponse`)가 1~3개라 4개가 되면 502
+- 붙인 `flows` 는 계획 프롬프트의 "묶음 1~3개"에 안 셈(계획 출력 뒤 코드) — `generation_meta.bundles` 에는 넣고(실제 꺼낸 묶음), 저장 행 `plan.bundles` 는 계획이 고른 그대로
 
 ## 표시용 파생은 facts 가 아니다 (SCRUM-228, 2026-11-17)
 

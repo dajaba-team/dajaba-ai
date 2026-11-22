@@ -1,7 +1,8 @@
-"""ask_answer_v1 녹화 재생 — 평가 세트 범위 안 12개 + 오류 주입 2 (SCRUM-290 2/2, 정본 docs/str/08).
+"""ask_answer_v2 녹화 재생 — 평가 세트 범위 안 12개 + 오류 주입 2 (SCRUM-290 2/2 · 358·359 v2, 정본 docs/str/08).
 
-계획·답 둘 다 녹화 재생, facts 는 평가 세트의 픽스처 주입(서비스 수준). 목표(08, 결과 보기 전 고정):
-사실 8/8 `ANSWERED` · 범위 안 12개 중 `UNVERIFIED` 1개 이하.
+계획(ask_plan_v1)·답(ask_answer_v2) 둘 다 녹화 재생, facts 는 평가 세트의 픽스처 주입(서비스 수준 — 질문 답변 전용
+복사본이 있으면 그것). 목표(08 12.2, 결과 보기 전 고정 — v2 에서도 그대로): 사실 8/8 `ANSWERED` · 범위 안 12개 중
+`UNVERIFIED` 1개 이하. v1 녹화(`recorded/ask_answer_v1/`)는 기록으로 남김(지우지도 고치지도 않음).
 """
 
 from __future__ import annotations

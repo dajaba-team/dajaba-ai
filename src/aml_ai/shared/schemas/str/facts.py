@@ -16,6 +16,7 @@ from aml_ai.shared.schemas.common import (
     Typology,
     TypologySource,
 )
+from aml_ai.shared.schemas.str.facts_direction import CounterpartiesByDirection
 from aml_ai.shared.schemas.str.facts_enums import Direction, EntityType, PathKind, PathStatus
 
 MODEL_SIGNALS_MAX = 3
@@ -173,6 +174,9 @@ class Facts(StrictModel):
     counterparty_banks: CounterpartyBanks = Field(
         default_factory=lambda: CounterpartyBanks(same_bank_accounts=0, other_bank_accounts=0)
     )
+    # SCRUM-358·359 질문 답변 전용 — 질문 답변만 그때 계산해 붙임(build_facts 는 안 채움). 직렬화에서 빠짐(exclude) →
+    # 초안·요약 응답·저장 facts 는 이전 버전과 같은 모양(롤백 안전, 추가 검토 1 H3)
+    counterparties_by_direction: CounterpartiesByDirection | None = Field(default=None, exclude=True)
     payment_formats: list[str]
     payment_format_counts: list[PaymentFormatCount] = Field(default_factory=list)
     amount_range: list[AmountRange] = Field(default_factory=list)

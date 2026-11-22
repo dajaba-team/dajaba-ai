@@ -28,6 +28,7 @@ _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "rewrite_v1": NarrativeOutV2,  # SCRUM-147 — 섹션 7개 재사용 (초안 안 고쳐 쓰기 전용)
     "ask_plan_v1": AskPlanOut,  # SCRUM-290 — 질문 답변 계획
     "ask_answer_v1": AskAnswerOut,  # SCRUM-290 — 질문 답변 답
+    "ask_answer_v2": AskAnswerOut,  # SCRUM-358·359 — 답 규칙 9·10 만 다름, 스키마 같음
     "rerank_v1": RerankOut,  # SCRUM-308-2 — 참고 사례 후보 재정렬(표지 순서만)
 }
 

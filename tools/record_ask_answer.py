@@ -31,8 +31,8 @@ from aml_ai.shared.schemas.str import AskRequest, Facts
 from aml_ai.shared.schemas.str.ask_llm import AskPlanKind
 from aml_ai.shared.versioning import file_sha256
 from aml_ai.str.application.ask_answer import in_scope_response
-from aml_ai.str.domain.ask_bundles import extract
-from aml_ai.str.domain.ask_question import mask_question
+from aml_ai.str.domain.ask_bundles import extract, with_flows
+from aml_ai.str.domain.ask_question import blocked_before_plan, mask_question
 from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT, ASK_PLAN_PROMPT
 from aml_ai.str.infrastructure.ask_llm import AskLlm
 from aml_ai.str.infrastructure.display_labels import load_display_labels
@@ -105,11 +105,18 @@ def _request(item: dict) -> AskRequest:
     return AskRequest.model_validate({**body, "question": item["question"]})
 
 
+def _fixture_facts(item: dict) -> Facts:
+    """질문 답변 전용 복사본(`facts_ask_<case>.json`)이 있으면 그것 — 평가 로더(`facts_for`)와 같음(SCRUM-358·359)."""
+    copy = FIXTURES / f"facts_ask_{item['facts_case']}.json"
+    path = copy if copy.exists() else FIXTURES / f"facts_{item['facts_case']}.json"
+    return Facts.model_validate_json(path.read_text(encoding="utf-8"))
+
+
 def _record_one(settings: Settings, item: dict, *, new_plan: bool = False) -> Row:
-    facts = Facts.model_validate_json(
-        (FIXTURES / f"facts_{item['facts_case']}.json").read_text(encoding="utf-8")
-    )
+    facts = _fixture_facts(item)
     req, question = _request(item), mask_question(item["question"])
+    if blocked_before_plan(item["question"], req.case_no):  # 서비스와 같음(04) — 호출 0
+        return Row(item["id"], "OUT_OF_SCOPE", mark=judge.OTHER)
     real = Capture(HttpLlmClient(settings))
     llm = AskLlm(real, settings)
     start = time.monotonic()
@@ -124,7 +131,8 @@ def _record_one(settings: Settings, item: dict, *, new_plan: bool = False) -> Ro
             return Row(
                 item["id"], "OUT_OF_SCOPE", "", _ms(start), plan.tokens_in, plan.tokens_out, judge.OTHER
             )
-        piece = extract(facts, req.alert.rule_id, [b.value for b in plan.out.bundles], load_display_labels())
+        bundles = with_flows([b.value for b in plan.out.bundles], question)  # 서비스와 같음(04 "계획 보강")
+        piece = extract(facts, req.alert.rule_id, bundles, load_display_labels())
         ans = llm.answer(question, piece, deadline=deadline)
     except AiError as exc:
         return Row(item["id"], f"ERROR {exc.code}", latency_ms=_ms(start))
