@@ -40,12 +40,12 @@ def _skip_end_read(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_ok_returns_200_with_matches(req: SummaryRequest) -> None:
-    """정상 — LLM 응답 1회 + code_checks 전부 match + prompt_version=summary_v1."""
+    """정상 — LLM 응답 1회 + code_checks 전부 match + prompt_version=summary_v2(SCRUM-340)."""
     stub = StubLlm(responses=[ok_text()])
     out = build_service(stub).summarize(req)
     assert 1 <= len(out.summary_lines) <= 6
     assert all(c.match for c in out.code_checks)
-    assert out.generation_meta.prompt_version == "summary_v1"
+    assert out.generation_meta.prompt_version == "summary_v2"
     assert out.case_no == req.case_no
     assert out.generation_id.startswith("g-")
     assert len(stub.calls) == 1
@@ -125,7 +125,7 @@ def test_code_failure_twice_returns_200_with_match_false(req: SummaryRequest) ->
     out = build_service(stub, clock=lambda: 0.0).summarize(req)
     assert len(stub.calls) == 2
     assert any(not c.match for c in out.code_checks)
-    assert out.generation_meta.prompt_version == "summary_v1"
+    assert out.generation_meta.prompt_version == "summary_v2"
 
 
 def test_budget_exceeded_raises_unavailable(req: SummaryRequest) -> None:

@@ -122,9 +122,11 @@
 2  transaction_reader.load_transactions·load_subject   초안과 같음, 없는 ID → 400
 3  facts = domain.facts.build_facts(req.to_facts_input(), txs, subject)   순수 — FactsInput 공통 DTO 거침(초안도 같음, SCRUM-129)
    facts_masked = masking.mask_for_llm(facts)                             초안과 같은 masking
-4  examples = fewshot_store.pick_examples(facts.typology, prompt_name="summary_v1")
+   facts_llm = summary_amounts.with_display_amounts(facts_masked, labels)  (SCRUM-340, summary_v2) 순수 — 금액 칸만 `62,992,819.38 유로(EUR)` 완성 문자열로.
+                                                                           원본 facts·검사·저장 그대로. labels = 초안과 같은 표기 사전
+4  examples = fewshot_store.pick_examples(facts.typology, prompt_name=SUMMARY_PROMPT)   지금 summary_v2 (few-shot FACTS 도 같은 표기)
 5  shared.db.end_read(session)                                             (SCRUM-122) LLM 호출 바로 앞
-6  gen = summary_generator.generate(facts_masked, fact_keys(facts), examples, deadline=deadline)
+6  gen = summary_generator.generate(facts_llm, fact_keys(facts), examples, deadline=deadline)
       LLM 1회(35초) + SummaryOut 스키마 검증 (summary_lines 1~6, model_focus optional string)
       스키마 실패 → 남은 예산 ≥ REGEN_MIN_REMAINING_S 면 1회 재생성, 아니면 LlmInvalidOutput (502)
 7  code_checks = run_code_checks(facts, [SummarySection(section=None, text="\n".join(summary_lines), evidence_ids=req.evidence_transaction_ids)], req.evidence_transaction_ids)

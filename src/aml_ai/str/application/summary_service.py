@@ -24,16 +24,11 @@ from aml_ai.shared.schemas.str import (
 )
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.shared.versioning import generation_meta
-from aml_ai.str.domain import fact_keys as fact_keys_domain
 from aml_ai.str.domain import facts as facts_domain
-from aml_ai.str.domain import masking
 from aml_ai.str.domain.models import SummaryGenerationResult
+from aml_ai.str.domain.summary_amounts import uses_display_amounts
 from aml_ai.str.domain.verification import run_summary_code_checks
-from aml_ai.str.infrastructure.summary_generator import (
-    SummaryGenerator,
-    load_summary_fewshot,
-    merge_generations,
-)
+from aml_ai.str.infrastructure.summary_generator import SummaryGenerator, merge_generations
 from aml_ai.str.infrastructure.summary_repository import SummaryRepository
 from aml_ai.str.infrastructure.transaction_reader import TransactionReader
 
@@ -118,15 +113,19 @@ class SummaryService:
         facts: Facts,
         deadline: float,
     ) -> SummaryResponse:
-        facts_masked = masking.mask_for_llm(facts)
-        fact_keys = list(fact_keys_domain.fact_keys(facts).keys())
-        examples = load_summary_fewshot(facts.typology)
-        gen = self.generator.generate(facts_masked, fact_keys, examples, deadline=deadline)
-        checks = run_summary_code_checks(facts, gen.summary_lines, req.evidence_transaction_ids)
+        # SCRUM-340 — 버전별 입력(v2 만 LLM 복사본 금액 칸을 표기 문자열로). 검사는 원본 facts 로
+        inp = self.generator.prepare(facts)
+        for code in inp.missing_labels:
+            log.warning("summary_currency_label_missing", extra={"currency": code})
+        # v2 금액 허용 문자열 대조(검토 1~3) — LLM 입력과 같은 표기 사전
+        strict = self.generator.labels if uses_display_amounts(self.generator.prompt_version) else None
+        gen = self.generator.generate(inp.facts_llm, inp.fact_keys, inp.examples, deadline=deadline)
+        ids = req.evidence_transaction_ids
+        checks = run_summary_code_checks(facts, gen.summary_lines, ids, display_labels=strict)
         # 코드 실패 → 남은 예산 OK 면 1회 재생성 (★A 3)
         if any(not c.match for c in checks) and self._can_regenerate(deadline):
-            gen2 = self.generator.generate(facts_masked, fact_keys, examples, deadline=deadline)
-            checks2 = run_summary_code_checks(facts, gen2.summary_lines, req.evidence_transaction_ids)
+            gen2 = self.generator.generate(inp.facts_llm, inp.fact_keys, inp.examples, deadline=deadline)
+            checks2 = run_summary_code_checks(facts, gen2.summary_lines, ids, display_labels=strict)
             gen = merge_generations(gen, gen2)
             checks = checks2
         return self._build_response(req, generation_id, facts, gen, checks)

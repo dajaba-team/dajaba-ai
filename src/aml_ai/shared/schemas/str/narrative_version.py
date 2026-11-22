@@ -24,6 +24,7 @@ _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "judge_v3": JudgeOutV2,  # SCRUM-127 — 06 표 4칸 루브릭, 스키마는 v2 와 같음
     "judge_v4": JudgeOutV2,  # SCRUM-268 — 판정 근거 블록, 스키마는 v3 와 같음
     "summary_v1": SummaryOut,  # SCRUM-129 — HttpLlmClient 가 Structured Output 스키마로 씀
+    "summary_v2": SummaryOut,  # SCRUM-340 — 금액 표기만 다름, 스키마 같음
     "rewrite_v1": NarrativeOutV2,  # SCRUM-147 — 섹션 7개 재사용 (초안 안 고쳐 쓰기 전용)
     "ask_plan_v1": AskPlanOut,  # SCRUM-290 — 질문 답변 계획
     "ask_answer_v1": AskAnswerOut,  # SCRUM-290 — 질문 답변 답

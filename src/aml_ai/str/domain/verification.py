@@ -21,7 +21,9 @@ from aml_ai.shared.schemas.str import (
     SectionV1,
     SectionV2,
 )
+from aml_ai.str.domain.display_labels_check import Labels
 from aml_ai.str.domain.fact_keys import FactKeys, fact_keys
+from aml_ai.str.domain.summary_amount_check import summary_amount_checks
 from aml_ai.str.domain.verification_account import account_id_match
 from aml_ai.str.domain.verification_amount import amount_match
 from aml_ai.str.domain.verification_count import count_match
@@ -112,7 +114,11 @@ def opinion_present(narrative: list[NarrativeSectionBase]) -> list[CodeCheck]:
 
 
 def run_summary_code_checks(
-    facts: Facts, summary_lines: list[str], transaction_ids: list[int]
+    facts: Facts,
+    summary_lines: list[str],
+    transaction_ids: list[int],
+    *,
+    display_labels: Labels | None = None,
 ) -> list[CodeCheck]:
     """요약 응답 `summary_lines[≤6]` 을 한 덩어리 본문으로 4종만 검사 (SCRUM-129 ★A 2).
 
@@ -132,7 +138,11 @@ def run_summary_code_checks(
     checks += date_match(facts, [pseudo])
     checks += count_match(facts, [pseudo])
     checks += account_id_match(facts, [pseudo])
-    return [c.model_copy(update={"section": None}) for c in checks]
+    out = [c.model_copy(update={"section": None}) for c in checks]
+    # SCRUM-340 — summary_v2 만(표기 사전을 넘길 때): 허용 문자열 대조를 AMOUNT_MATCH 줄로 더함(공용 검사 그대로)
+    return (
+        out if display_labels is None else out + summary_amount_checks(facts, summary_lines, display_labels)
+    )
 
 
 __all__ = [

@@ -148,6 +148,8 @@ else:                      status = LLM_FAILED,         passed = False
 
 `/v1/cases/summary` 응답 `summary_lines[≤6]` 을 **한 덩어리 본문**으로 코드 검사 4종만 돌린다 — `AMOUNT_MATCH`·`DATE_MATCH`·`COUNT_MATCH`·`ACCOUNT_ID_MATCH`. `run_code_checks(facts, [SummarySection(section=None, text="\n".join(summary_lines), evidence_ids=req.evidence_transaction_ids)], req.evidence_transaction_ids)`. `EVIDENCE_IN_SCOPE`·`OPINION_PRESENT` 는 안 돌림 — 요약 줄에 `cites` 가 없고(규약 §6.1 응답 모양 — `cites` 칸 없음), facts 가 `evidence_transaction_ids` 로만 계산되므로 숫자 범위 밖 거래 생성 불가(IF-CASE-02 "허용 거래 대조"는 이걸로 충족). OPINION 섹션은 초안 v2 전용.
 
+**요약 v2 금액 표기 (SCRUM-340 추가 검토 1~3)** — 프롬프트가 `summary_v2`(금액 칸을 `62,992,819.38 유로(EUR)` 로 미리 표기해 넣는 버전)일 때만, 위 4종 뒤에 **`AMOUNT_MATCH` 이름 줄을 더** 붙인다(`str/domain/summary_amount_check.py` — 공용 `verification_amount*` 는 그대로). 모델이 쓴 금액을 해석하지 않는 **허용 문자열 대조**: 줄마다 완성 표기(입금·출금 합계, `amount_range` min·max)를 글자 그대로 찾고(match), 한 줄 둘 이상·앞에 부호/범위 기호면 `MISMATCH`, 찾은 것을 지운 나머지에 숫자 + 통화 표현이 남으면 `MISMATCH`. 날짜·식별자에 붙은 숫자는 금액 모양 아님. 방향·종류를 줄 나눠 바꿔 쓴 문장은 못 잡음(알려진 한계 — 08). 규칙 전문 05 summary_v2 "검사".
+
 **평가자(LLM 검사)는 안 돌림** — 요약은 보조 정보라 40초 예산 안에서 코드 검사만. 품질은 코드 검사 + 재생성 1회로.
 
 **실패 처리 (★A 3)**: 코드 검사 실패 → 남은 예산 ≥ `REGEN_MIN_REMAINING_S` 면 재생성 1회. 두 번 다 실패면 **200 + `code_checks.match=false` 담아 반환**. 백엔드가 "검증 통과분만 저장"(`case_summaries.payload`, 지윤·채영) — 틀린 요약은 화면에 안 띄움. `generations` 행은 `kind=SUMMARY·status=SUCCEEDED`(응답은 돌려줬으므로).
