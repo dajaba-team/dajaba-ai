@@ -212,7 +212,7 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 - 조각은 마스킹본(`mask_for_llm`)에서 꺼낸다 — 거래 ID 없음, 계좌 뒤 4자리. 같은 칸이 두 묶음에 걸리면(`direction`·`period`·`observations`) 한 번만 넣는다. `observations`·`score_reasons` 를 함께 고르면 관측 항목은 두 칸 집합의 합(window·basis·baseline 모두).
 - **넣지 않는 것**: `excluded_self_transfer_count`(인용 키가 없고 COUNT 검사 집합에도 없어 쓰면 MISMATCH) · `indirect`(마스킹이 이미 뺌) · 경보 `rule_facts` 숫자와 `window_start/end`(facts 밖 숫자·날짜라 검사에서 거짓 UNVERIFIED) · 기여값(SHAP 숫자 — 어느 묶음에도 없음, 규약 3절).
 - `observations`·`score_reasons` 를 나눈 이유: 이유 질문의 "모델 설명"(05 `ask_answer_v1` "모델이 주목한 점:")은 `score_reasons` 에서만 나오게 하고, 관측 사실 질문은 기준값 없이 값만 본다. `score_reasons` 는 설계 문서 6.2 의 "키 없음"이 아니라 `model_signals` 키(근거 거래 없음)와 `observations.<이름>` 을 인용한다 — 키가 없으면 이유 답이 cites 를 못 채워 502 가 된다.
-- 코드값 한글 표기: 조각에 나온 코드(업종·위험 등급·목적·결제 방식·유형·엔티티 유형·관측 이름·관측 단위)의 표기만 `labels` 로 함께 준다(`contracts/display_labels_v1.json`, 05 narrative_v4 "표기 사전"과 같은 파일). **통화는 표기를 주지 않고 ISO 코드 그대로** — 금액 검사가 통화 코드 짝으로 가장 안정적으로 읽는다(summary_v1 규칙 2 와 같음).
+- 코드값 한글 표기: 조각에 나온 코드(업종·위험 등급·목적·결제 방식·유형·엔티티 유형·관측 이름·관측 단위)의 표기만 `labels` 로 함께 준다(`contracts/display_labels_v1.json`, 05 narrative_v4 "표기 사전"과 같은 파일). **통화는 표기를 주지 않고 ISO 코드 그대로** — 금액 검사가 통화 코드 짝으로 가장 안정적으로 읽는다(summary_v1 규칙 2 와 같음 — 요약은 summary_v2 부터 금액 칸만 `62,992,819.38 유로(EUR)` 완성 문자열, 05 summary_v2. 질문 답변은 그대로).
 - 묶음 이름이 목록 밖이면 함수가 `ValueError` — 서비스까지 오기 전에 `AskPlanOut` 스키마가 먼저 막는다(`LLM_INVALID_OUTPUT`).
 
 ## 표시용 파생은 facts 가 아니다 (SCRUM-228, 2026-11-17)

@@ -85,7 +85,7 @@ def ok_text() -> str:
         {
             "summary_lines": [
                 "2022-09-02 보고 대상 계좌로 ACH 입금 3건이 들어옴.",
-                "같은 날 합계 42750.50 USD 입금이 발생함.",
+                "같은 날 입금 합계는 42,750.50 미국 달러(USD)임.",  # summary_v2 모양(SCRUM-340)
             ],
             "model_focus": "모델은 account_in_counterparties_24h 신호를 가장 크게 봄",
         },

@@ -38,7 +38,7 @@ JUDGE_PROMPT = "judge_v3"  # SCRUM-127 — 2026-11-09 활성. judge_v2 는 녹�
 JUDGE_PROMPT_V4 = "judge_v4"  # SCRUM-268 — v4 초안 verify 전용(판정 근거 블록)
 # SCRUM-268 스위치 — v4 초안 verify 평가자. JUDGE_PROMPT 면 꺼짐. 11/18 기준 1·2 충족으로 켬(09 "SCRUM-268 실측 결과")
 JUDGE_PROMPT_NARRATIVE_V4 = JUDGE_PROMPT_V4
-SUMMARY_PROMPT = "summary_v1"
+SUMMARY_PROMPT = "summary_v2"  # SCRUM-340 — 금액 표기만 초안과 같게. summary_v1 은 파일·few-shot·녹화 보존
 LLM_TEMPERATURE = 0.0
 NARRATIVE_MAX_TOKENS = 2000
 JUDGE_MAX_TOKENS = 4000

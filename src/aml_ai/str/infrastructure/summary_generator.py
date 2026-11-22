@@ -1,4 +1,6 @@
-"""summary_v1 생성기 — 프롬프트 조립 → LLM → SummaryOut 검증. 재생성 1회 (SCRUM-129).
+"""요약 생성기(`SUMMARY_PROMPT`, 지금 summary_v2) — 프롬프트 조립 → LLM → SummaryOut 검증. 재생성 1회 (SCRUM-129).
+
+SCRUM-340 — 입력은 버전별(`summary_prompt_input`): v2 만 본·few-shot FACTS 금액 칸을 표기 문자열로.
 
 스키마 실패면 남은 예산 안에서 1회 재생성. 두 번 다 실패면 `LlmInvalidOutput`. 코드 검사 실패는
 호출 측(`summary_service`)이 다시 호출해 재생성한다 — 이 모듈은 "스키마" 재생성만 관리.
@@ -6,11 +8,9 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import time
 from collections.abc import Callable
-from pathlib import Path
 from typing import Any
 
 from pydantic import ValidationError
@@ -18,58 +18,21 @@ from pydantic import ValidationError
 from aml_ai.shared.config import Settings
 from aml_ai.shared.errors import LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.infrastructure.llm_client import LlmClient
-from aml_ai.shared.schemas.common import Typology
 from aml_ai.shared.schemas.str import Facts, SummaryOut
 from aml_ai.str.domain.constants import SCHEMA_RETRY, SUMMARY_MAX_TOKENS, SUMMARY_PROMPT
+from aml_ai.str.domain.display_labels_check import Labels
 from aml_ai.str.domain.models import SummaryExample, SummaryGenerationResult
 from aml_ai.str.infrastructure.narrative_generator import load_prompt
+from aml_ai.str.infrastructure.summary_prompt_input import (  # noqa: F401 — 기존 import 자리(서비스·테스트) 유지
+    FEWSHOT_ROOT,
+    SummaryInput,
+    labels_for,
+    load_summary_fewshot,
+    prepare_summary_input,
+    render_summary_user,
+)
 
 log = logging.getLogger(__name__)
-FEWSHOT_ROOT = Path(__file__).resolve().parent.parent / "fewshot"
-SUMMARY_FEWSHOT_COUNT = 2  # fewshot/summary_v1/001·002 (같은 유형 1 + 다른 유형 1)
-
-
-def render_summary_user(
-    template: str,
-    *,
-    facts_masked: dict[str, Any],
-    fact_keys: list[str],
-    examples: list[SummaryExample],
-) -> str:
-    """draft 와 같은 자리 치환 — few-shot 은 요약 모양."""
-    shots = "\n\n".join(
-        f"FACTS:\n{json.dumps(e.facts.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
-        f"SUMMARY:\n{json.dumps({'summary_lines': e.summary_lines, 'model_focus': e.model_focus}, ensure_ascii=False)}"
-        for e in examples
-    )
-    return (
-        template.replace("{{facts_json}}", json.dumps(facts_masked, ensure_ascii=False, indent=2))
-        .replace("{{fact_keys}}", "\n".join(fact_keys) or "(없음)")
-        .replace("{{few_shot}}", shots)
-    )
-
-
-def load_summary_fewshot(typology: Typology | None, *, directory: Path | None = None) -> list[SummaryExample]:
-    """fewshot/summary_v1/*.json — 같은 유형 1 + 다른 유형 1 (총 2)."""
-    directory = directory or (FEWSHOT_ROOT / SUMMARY_PROMPT)
-    all_examples: list[SummaryExample] = sorted(
-        (_load_example(p) for p in directory.glob("*.json")), key=lambda e: e.example_id
-    )
-    same = [e for e in all_examples if e.typology == typology][:1]
-    other = [e for e in all_examples if e.typology != typology][:1]
-    picked = (same + other)[:SUMMARY_FEWSHOT_COUNT]
-    return picked
-
-
-def _load_example(path: Path) -> SummaryExample:
-    d = json.loads(path.read_text(encoding="utf-8"))
-    return SummaryExample(
-        example_id=int(d["example_id"]),
-        typology=d["typology"],
-        facts=Facts.model_validate(d["facts"]),
-        summary_lines=list(d["summary_lines"]),
-        model_focus=d.get("model_focus"),
-    )
 
 
 class SummaryGenerator:
@@ -81,12 +44,20 @@ class SummaryGenerator:
         settings: Settings,
         *,
         clock: Callable[[], float] = time.monotonic,
+        labels: Labels | None = None,
+        prompt: str | None = None,
     ) -> None:
         self._llm = llm
         self._s = settings
         self._clock = clock
-        self.prompt_version = SUMMARY_PROMPT
-        self._system, self._user_tpl = load_prompt(SUMMARY_PROMPT)
+        self.prompt_version = prompt or SUMMARY_PROMPT  # 기본 = 상수(되돌림은 상수 한 줄, 검토 1 M4)
+        # 표기 사전은 버전을 정한 뒤 v2 일 때만(초안 v4 와 같은 사전, 검토 2 M6)
+        self.labels = labels if labels is not None else labels_for(self.prompt_version)
+        self._system, self._user_tpl = load_prompt(self.prompt_version)
+
+    def prepare(self, facts: Facts) -> SummaryInput:
+        """버전에 맞는 LLM 입력 — 서비스·녹화 도구 공용(`prepare_summary_input`)."""
+        return prepare_summary_input(self.prompt_version, facts, self.labels)
 
     def generate(
         self,
@@ -96,9 +67,7 @@ class SummaryGenerator:
         *,
         deadline: float,
     ) -> SummaryGenerationResult:
-        user = render_summary_user(
-            self._user_tpl, facts_masked=facts_masked, fact_keys=fact_keys, examples=examples
-        )
+        user = self._user(facts_masked, fact_keys, examples)
         self._preflight(deadline)
         totals = [0, 0, 0]  # tokens_in·tokens_out·latency_ms
         schema_errors = 0
@@ -108,7 +77,7 @@ class SummaryGenerator:
                 user=user,
                 model=self._s.llm_model_generate,
                 max_tokens=SUMMARY_MAX_TOKENS,
-                tag=SUMMARY_PROMPT,
+                tag=self.prompt_version,
                 timeout_s=self._s.summary_llm_timeout_s,  # 요약 전용 1회 제한(초안·검증은 llm_timeout_s)
             )
             totals = [totals[0] + res.tokens_in, totals[1] + res.tokens_out, totals[2] + res.latency_ms]
@@ -123,19 +92,31 @@ class SummaryGenerator:
                     break
                 self._preflight(deadline)
                 continue
-            return self._ok(parsed, res.model, totals, examples)
+            return self._ok(parsed, res.model, totals, examples, self.prompt_version)
         # 예외 메시지에 LLM 응답 본문(ValidationError.input_value)이 들어가면 유출. 고정 문구만.
-        raise LlmInvalidOutput("summary_v1 schema invalid")
+        raise LlmInvalidOutput(f"{self.prompt_version} schema invalid")
+
+    def _user(
+        self, facts_masked: dict[str, Any], fact_keys: list[str], examples: list[SummaryExample]
+    ) -> str:
+        return render_summary_user(
+            self._user_tpl,
+            facts_masked=facts_masked,
+            fact_keys=fact_keys,
+            examples=examples,
+            labels=self.labels,
+            prompt=self.prompt_version,
+        )
 
     @staticmethod
     def _ok(
-        parsed: SummaryOut, model: str, totals: list[int], examples: list[SummaryExample]
+        parsed: SummaryOut, model: str, totals: list[int], examples: list[SummaryExample], prompt: str
     ) -> SummaryGenerationResult:
         return SummaryGenerationResult(
             summary_lines=list(parsed.summary_lines),
             model_focus=parsed.model_focus,
             llm_model=model,
-            prompt_version=SUMMARY_PROMPT,
+            prompt_version=prompt,
             tokens_in=totals[0],
             tokens_out=totals[1],
             latency_ms=totals[2],

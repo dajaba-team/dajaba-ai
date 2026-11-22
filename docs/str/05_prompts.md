@@ -398,7 +398,30 @@ facts(마스킹) → ① 표기 사전 검사 → ② derived 플래그 → ③ 
 
 `judge_v1.md` 는 **judge_v2(11/5) 로 대체**. 녹화 커밋이 없어 `FROZEN_PROMPTS` 에도 없었고 본문도 그대로 둠(기록·회귀 참고).
 
-## summary_v1 (SCRUM-129, 2026-11-06 활성 — 전문은 `str/prompts/summary_v1.md`)
+## summary_v2 (SCRUM-340, 2026-11-23 활성 — 전문은 `str/prompts/summary_v2.md`)
+
+summary_v1 과 같은 일·같은 출력 스키마(`SummaryOut`)·같은 코드 검사 4종·같은 재생성 규칙(아래 v1 절). 바뀐 것은 **금액 표기 하나** — 요약 금액을 초안 본문(narrative_v4)과 같은 `62,992,819.38 유로(EUR)` 모양으로(#주간테스트 11/21 피드백 ⑤, SCRUM-279 F3).
+
+- **입력(LLM 복사본만)**: `summary_service` 가 `mask_for_llm(facts)` 뒤 금액 칸 — `inbound`·`outbound` 의 `by_currency[].total`, `amount_range[].min`·`max` — 을 **완성 문자열** `{정수부 쉼표}.{소수 facts 그대로} {표기 이름}({코드})` 로 바꿔 넣음(`str/domain/summary_amounts.py`, 순수). 정수부 쉼표는 초안과 같은 `display_format.money`, 표기 이름은 초안과 같은 표기 사전 `contracts/display_labels_v1.json` `currency`(EUR → `유로`). 소수 자리·반올림·환산·합산은 그대로 없음. few-shot FACTS 도 같은 함수로 바꿔 넣음
+  - 금액 칸 목록 = facts 에서 `_money` 로 만드는 칸(스키마 `FactAmount`) 전부 — 위 셋 말고 **없음**(11/22 확인: `CurrencyTotal.total`·`AmountRange.min`·`max` 만. 관측값은 `float`·`obs_value`, 미등록 통화는 이름·건수만)
+  - 원본 `Facts`·저장 `facts`·코드 검사 입력·응답은 **그대로**(쉼표 없는 문자열) — 바뀌는 것은 LLM 에 보내는 글뿐. 초안 경로 `mask_for_llm` 도 그대로
+  - 표기 사전에 없는 통화 코드면 그 금액만 `{쉼표 금액} {코드}`(요약을 막지 않음, 로그 `summary_currency_label_missing` 에 코드만) — 지금 facts 통화 16개는 사전에 다 있음
+  - 병기는 **금액마다** `유로(EUR)`(★A 2 — 초안 v4 의 "섹션 첫 등장만 병기" 와 달리 모델이 첫 등장을 세지 않게, 요약은 줄이 적어 반복이 짧음)
+- **프롬프트 규칙 2(바뀜)**: "금액은 FACTS 의 금액 문자열(`62,992,819.38 유로(EUR)` 모양)을 **숫자·쉼표·통화 이름·괄호 코드까지 글자 그대로** 옮겨 씁니다. 쉼표를 빼거나 통화 표기를 바꾸지 않습니다. 환산·반올림·합산하지 않습니다. **통화가 여러 개면 통화마다 따로 줄**에 쓰고, **통화가 같아도 금액이 둘이면(입금 합계·출금 합계, 최소·최대 등) 줄을 나눕니다 — 한 줄에 금액은 하나. 결제 방식별 건수도 한 줄에 한 방식만 씁니다(여러 방식을 한 줄에 나열하지 않음)**." (★L 뒤 — 결제 방식 4개 나열 줄에서 공용 COUNT 검사기가 건수를 한 방식에 몰아 짝지어 MISMATCH, v2 두 건 모두·v1 0건이라 v2 영향으로 보고 프롬프트로 막음. 공용 검사기 그대로) (추가 검토 1 M5 · 검토 2 에서 최소·최대도) — 요약 줄 6개 한도 안에서 금액이 많으면 모델이 범위 줄을 빼야 할 수 있음 — 나머지 규칙·model_focus·순서·출력 형식은 v1 그대로
+- **한 줄 80자**: 표기가 금액마다 +5~12자(`이스라엘 셰켈(ILS)`) 늘어 금액 둘을 한 줄에 쓰면(같은 통화 입출금 포함) 넘을 수 있음 → 위 "한 줄에 금액 하나" 규칙, few-shot 002 도 입금·출금 두 줄. 넘으면 v1 과 같이 스키마 실패 → 재생성 1회
+- **few-shot**: `fewshot/summary_v2/001_fan_in.json`·`002_pass_through.json` — v1 두 개와 같은 FACTS, 요약 줄의 금액만 새 표기(`85,400.00 유로(EUR)`) — 내용이 바뀌어 `example_id` 3·4(위 few-shot 규칙). v1 폴더 그대로. 녹화 도구 `tools/record_summary.py` 도 같은 표기 함수로 user 를 만듦(녹화 키 = 서비스 키)
+- **검사**: 공용 4종 그대로(06 AMOUNT_MATCH — 쉼표를 지운 값으로 비교, 공용 검사기 안 바꿈) + **v2 전용 허용 문자열 대조**(추가 검토 1~3, `str/domain/summary_amount_check.py`, `run_summary_code_checks(..., display_labels=사전)` — 표기 버전일 때만 서비스가 LLM 입력과 같은 사전을 넘김). 같은 이름 `AMOUNT_MATCH` 줄로 더해짐(응답 check 이름 목록 그대로). 모델이 쓴 금액을 해석하지 않고 줄마다(검토 3):
+  1. 허용 문자열(입금·출금 합계, `amount_range` min·max 의 **완성 표기** `62,992,819.38 유로(EUR)` — LLM 입력과 같은 `display_amount`)이 글자 그대로 나온 곳을 찾음 → match
+  2. 한 줄에 둘 이상이면 전부 MISMATCH(한 줄에 금액 하나) · 바로 앞(공백 넘어)이 부호·범위 기호(`-`·`−`·`+`·`~`·`～`·`–`)면 MISMATCH
+  3. 찾은 것을 지운 나머지에 **금액 모양**(숫자 + 통화 표현 — 영문 대문자 3자·통화 이름·`(코드)`)이 남으면 MISMATCH — 틀린 금액·미등록 코드(`NZD`)·틀린 괄호 코드·공백 낀 괄호·완성 표기가 아닌 금액(`42,750.50 USD`·`42750.50 EUR`) 모두 여기로
+  4. 금액 모양이 아닌 것(예외 둘): 날짜에 이어진 숫자(`2022-09-02(ACH)`) · 영문·`#`·`*`·`_` 에 붙은 식별자 숫자. 건수(`3건`)·관측값 소수(`0.85`)는 통화 표현이 없어 원래 금액 모양이 아님
+  - **알려진 한계**(검토 2, 기록만): 방향(입금↔출금)·종류(합계↔최소↔최대)를 줄을 나눠 바꿔 쓴 문장은 통과 · 통화가 금액 앞에 오는 모양(`USD 42,750.50`)은 공용 검사만 — 문장 뜻은 코드가 안 읽음(공용 검사기·초안 검증과 같은 한계). 검토 1 에 넣었던 "금액 앞 방향 단어" 대조는 정상 문장을 실패로 잡아 뺌. 한 줄 안에서 맞바꾸는 경우는 2 로 막힘. 발표 뒤 후보: 금액 문장을 초안 v4 처럼 코드가 조립
+  - 실패면 v1 과 같이 재생성 1회. 통화 표현 없는 숫자(건수·비율)·통화가 앞에 오는 금액은 이 대조 밖(공용 검사 몫)
+- **전환**: 상수 `SUMMARY_PROMPT = "summary_v2"`(`str/domain/constants.py`) — 되돌림은 상수 한 줄(v1 파일·few-shot·녹화 보존). 입력 변환·v2 대조·표기 사전 읽기는 **버전별**(`summary_amounts.DISPLAY_AMOUNT_PROMPTS`, `str/infrastructure/summary_prompt_input.py` — 서비스·녹화 도구 공용) — v1 로 되돌리면 develop 과 같은 입력·검사(보존 녹화 키 그대로, 추가 검토 1 M4), 표기 사전도 안 읽음(사전이 없어도 v1 은 돎, 검토 2 M6). `prompt_version = "summary_v2"`, 녹화 `tests/str/recorded/summary_v2/`(★L 때 새로), 출력 스키마 표 `narrative_version.py` 에 `summary_v2` 추가
+- **동결**: `FROZEN_PROMPTS["summary_v2"]` sha256 — 녹화 `recorded/summary_v2/bbf254d1f1a698da.json`(fixture fan_in, 11/22) 과 같은 커밋
+- **안 바꿈(목록만)**: 건수·경로 수 등 다른 숫자 — 초안은 1,000 이상에 쉼표(`{count:,}`), 요약은 facts 정수 그대로(검사는 둘 다 읽음). 관측값은 초안도 쉼표 없음
+
+## summary_v1 (SCRUM-129, 2026-11-06 ~ 11-23 활성 — SCRUM-340 으로 summary_v2 로 바뀜, 파일·few-shot·녹화 보존 — 전문은 `str/prompts/summary_v1.md`)
 
 케이스 상세 AI 요약. 초안 system 규칙(관측만·숫자 정확·단정 금지) 그대로 쓰되 섹션 대신 **요약 줄 1~6개 + model_focus 한 줄**. few-shot 2개 (`fewshot/summary_v1/001_*.json`·`002_*.json`). REFERENCES 없음(RAG 안 씀).
 

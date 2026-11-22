@@ -1,4 +1,4 @@
-"""요약 녹화 (SCRUM-129) — summary_v1 프롬프트 + fewshot 2개 → recorded/summary_v1/<key>.json.
+"""요약 녹화 (SCRUM-129) — `SUMMARY_PROMPT`(지금 summary_v2) 프롬프트 + fewshot 2개 → recorded/<SUMMARY_PROMPT>/<key>.json.
 
 `tools/record.py` 가 `--summary` 모드에서 부른다. 관문(파일 200 줄) 때문에 분리.
 """
@@ -14,11 +14,13 @@ from pydantic import ValidationError
 from aml_ai.shared.config import Settings
 from aml_ai.shared.infrastructure.llm_client import HttpLlmClient, recording_key
 from aml_ai.shared.schemas.str import Facts, SummaryOut
-from aml_ai.str.domain import masking
 from aml_ai.str.domain.constants import SUMMARY_MAX_TOKENS, SUMMARY_PROMPT
-from aml_ai.str.domain.fact_keys import fact_keys
 from aml_ai.str.infrastructure.narrative_generator import load_prompt
-from aml_ai.str.infrastructure.summary_generator import load_summary_fewshot, render_summary_user
+from aml_ai.str.infrastructure.summary_prompt_input import (
+    labels_for,
+    prepare_summary_input,
+    render_summary_user,
+)
 
 
 def record_summary(
@@ -45,14 +47,12 @@ def record_summary(
     return 0
 
 
-def _build_summary_prompt(facts: Facts) -> tuple[str, str]:
-    """summary_service._generate_and_check 와 같은 user — 녹화·재생 키 일치."""
-    system, user_tpl = load_prompt(SUMMARY_PROMPT)
-    examples = load_summary_fewshot(facts.typology)
-    keys = list(fact_keys(facts).keys())
-    user = render_summary_user(
-        user_tpl, facts_masked=masking.mask_for_llm(facts), fact_keys=keys, examples=examples
-    )
+def _build_summary_prompt(facts: Facts, prompt: str = SUMMARY_PROMPT) -> tuple[str, str]:
+    """summary_service 와 같은 user — 같은 버전별 입력 함수(`prepare_summary_input`)라 녹화·재생 키 일치."""
+    system, user_tpl = load_prompt(prompt)
+    labels = labels_for(prompt)  # v2 일 때만 사전(검토 2 M6)
+    inp = prepare_summary_input(prompt, facts, labels)
+    user = render_summary_user(user_tpl, facts_masked=inp.facts_llm, fact_keys=inp.fact_keys, examples=inp.examples, labels=labels, prompt=prompt)  # fmt: skip
     return system, user
 
 

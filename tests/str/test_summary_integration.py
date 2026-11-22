@@ -2,7 +2,7 @@
 
 흐름 — HTTP → SummaryService → ops 읽기 → facts → end_read(SCRUM-122) → RecordedLlmClient
 → run_summary_code_checks → generations 저장(kind=SUMMARY) → 응답.
-`AI_LLM_MOCK=true` · `RAG_ENABLED=false`. 녹화 파일(`recorded/summary_v1/<key>.json`) 필요.
+`AI_LLM_MOCK=true` · `RAG_ENABLED=false`. 녹화 파일(`recorded/summary_v2/<key>.json`, SCRUM-340 — summary_v1 녹화는 보존) 필요.
 """
 
 from __future__ import annotations
@@ -61,7 +61,7 @@ def test_summary_success_through_recorded_llm(
     out = SummaryResponse.model_validate(res.json())
     assert 1 <= len(out.summary_lines) <= 6
     assert all(c.match for c in out.code_checks)
-    assert out.generation_meta.prompt_version == "summary_v1"
+    assert out.generation_meta.prompt_version == "summary_v2"
     row = db_session.execute(
         text(
             "SELECT kind, status, case_no, draft_id FROM ai.generations WHERE case_no=:c AND kind='SUMMARY'"
@@ -84,3 +84,20 @@ def test_summary_evidence_not_subset_rejected(
     res = integration_client.post("/v1/cases/summary", json=body, headers={"X-Internal-Key": INTERNAL_KEY})
     assert res.status_code == 400, res.text
     assert res.json()["code"] == "INVALID_REQUEST"
+
+
+def test_summary_v1_rollback_replays_preserved_recording(
+    integration_client: TestClient,
+    summary_request_sample: dict,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """SCRUM-340 추가 검토 1 M4 — 상수만 summary_v1 로 되돌리면 보존된 v1 녹화를 그대로 재생해 200."""
+    from aml_ai.str.infrastructure import summary_generator
+
+    monkeypatch.setattr(summary_generator, "SUMMARY_PROMPT", "summary_v1")
+    get_settings.cache_clear()
+    body = _fan_in_body(summary_request_sample, case_no="CASE-V1-ROLLBACK")
+    res = integration_client.post("/v1/cases/summary", json=body, headers={"X-Internal-Key": INTERNAL_KEY})
+    assert res.status_code == 200, res.text
+    out = SummaryResponse.model_validate(res.json())
+    assert out.generation_meta.prompt_version == "summary_v1" and all(c.match for c in out.code_checks)
