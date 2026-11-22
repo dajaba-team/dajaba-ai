@@ -1,0 +1,6 @@
+# Provide the internal rc3 checkpoint as a read-only mount.
+AI_SCORING_MOCK=false
+AML_ML_MODEL_PATH=/models/r04_original.ubj
+# Set both values from the verified data coverage of the demo database.
+AI_SCORING_HISTORY_START=
+AI_SCORING_HISTORY_END=
