@@ -704,9 +704,42 @@ facts 출처 — `fan_out`(유입 0 · 유출 3 · 상대 3 — R01_FAN_OUT 실�
 
     AI_LLM_MOCK=false uv run --frozen --extra dev python -m tools.record_ask_answer --set gaps
 
-### 결과 — 기준선 (지금 코드)
+### 결과 — 기준선 (358·359 고치기 전 코드, 2026-11-22 — `ask_plan_v1`·`ask_answer_v1` 그대로)
 
-진희 터미널 실행 뒤 표를 붙인다.
+진희 터미널 실제 LLM 32회(계획 16 + 답 16, 녹화 겸 — 계획이 범위 밖으로 끝난 문항 0) → `recorded/ask_plan_v1`·`ask_answer_v1` 에 새 파일 16개씩(기존 파일 변화 0). 모델 gpt-6.1-sol · `ask_answer_v1` 해시 = 동결. 상태·검사·판정은 실행 출력과 녹화 재생(`test_ask_gaps_baseline`)이 16개 모두 같다. 지연·토큰은 실행 출력 그대로.
+
+| id | 상태 | 검사 통과/전체 | 실패 검사 | 계획 묶음 | 판정 | 통과 | 계획+답 ms | in(계획+답 합) | out(계획+답 합) |
+|---|---|---|---|---|---|---|---|---|---|
+| N1 | NO_DATA | 0/0 | - | formats | 못 답함 | O | 7990 | 1974 | 70 |
+| N2 | ANSWERED | 2/2 | - | formats | 맞음 | O | 6381 | 1972 | 82 |
+| T1 | NO_DATA | 0/0 | - | flows | 못 답함 | O | 4706 | 2156 | 52 |
+| T2 | NO_DATA | 0/0 | - | flows | 못 답함 | O | 4487 | 2154 | 52 |
+| T3 | NO_DATA | 0/0 | - | flows | 못 답함 | O | 4510 | 2087 | 52 |
+| V1 | ANSWERED | 2/2 | - | counterparties | **틀림** | - | 6512 | 1985 | 78 |
+| V2 | NO_DATA | 0/0 | - | flows | 못 답함 | O | 4731 | 2100 | 67 |
+| V3 | NO_DATA | 0/0 | - | formats | 못 답함 | O | 5019 | 2003 | 67 |
+| X1 | NO_DATA | 0/0 | - | counterparties | 못 답함 | O | 5698 | 1985 | 104 |
+| X2 | NO_DATA | 0/0 | - | flows,counterparties | 못 답함 | O | 5914 | 2131 | 81 |
+| C1 | ANSWERED | 2/2 | - | flows | 맞음 | O | 5103 | 2069 | 69 |
+| C2 | ANSWERED | 2/2 | - | flows | **틀림** | - | 5095 | 2096 | 86 |
+| O1 | ANSWERED | 5/5 | - | flows | 맞음 | O | 5224 | 2098 | 122 |
+| O2 | ANSWERED | 3/3 | - | flows,counterparties | 맞음 | O | 5856 | 2133 | 84 |
+| O3 | ANSWERED | 2/2 | - | flows | 맞음 | O | 5177 | 2071 | 65 |
+| O4 | ANSWERED | 2/2 | - | flows | 맞음 | O | 5054 | 2075 | 65 |
+
+| 항목 | 목표 | 기준선 |
+|---|---|---|
+| 16개 틀림 | 0/16 | **2/16** (V1·C2) |
+| 보류 | ≤2/16 | 0/16 |
+| ANSWER 맞음 | 5/5 | 5/5 |
+| 통과(참고) | — | 14/16 |
+| 가장 느린 계획+답 | 20초 안 | 7,990ms (N1) |
+| 질문당 계획+답 합 tokens in / out(평균) | 표로 | 2,068 / 74 |
+
+- 틀림 V1: "입금 상대 중 타행" 에 방향 없는 `counterparty_banks.other_bank_accounts`(전체 4) 를 입금 상대 값처럼 씀 — 검사 통과(자행·타행 수의 방향을 안 봄). 358 틀림 4개와 같은 모양
+- 틀림 C2: 앞 질문이 없는 "그 중에 제일 큰 건?" 에 금액으로 답함(`amount_range` 최대 — 값은 facts 에 있어 통과)
+- 막혀야 할 곳(기간 일부 T1~T3 · 방향 없는 금액·결제 방식 V2·V3 · 없는 세부 X1·X2 · 해외 송금 N1)은 모두 NO_DATA — 지금 프롬프트가 답을 안 함
+- 없는 세부 X1·X2 는 NO_DATA 였지만, 금액 검사는 `amount_range` 최소~최대 사이면 match 라 범위 안 지어낸 금액은 검사로 못 막음(지금 녹화 답 전부: 범위로만 통과한 금액 0 — 18·358·359 재생)
 
 
 ## 녹화 (`recorded/`)
