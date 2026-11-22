@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"이 케이스에 들어온 거래는 없어요. 입금 상대는 계좌 0개로 보여요.\",\"cites\":[\"inbound.count\",\"counterparties_by_direction.inbound.count\"]}", "model": "gpt-6.1-sol"}

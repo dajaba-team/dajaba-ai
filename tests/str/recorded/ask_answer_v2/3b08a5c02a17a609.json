@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"들어온 돈의 통화별 합계는 9800.25 EUR, 42750.50 USD로 보여요. 통화 코드가 매핑되지 않은 거래 1건은 합계 금액이 없어 확인하기 어려워요.\",\"cites\":[\"direction\",\"inbound.amount.EUR\",\"inbound.amount.USD\",\"unmapped_currencies.Peso Uruguay\"]}", "model": "gpt-6.1-sol"}

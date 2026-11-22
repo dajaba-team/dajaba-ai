@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"입금은 3건이고, 입금 상대는 계좌 3개로 보여요.\",\"cites\":[\"inbound.count\",\"counterparties_by_direction.inbound.count\"]}", "model": "gpt-6.1-sol"}

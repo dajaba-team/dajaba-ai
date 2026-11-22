@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"고객 업종은 소매업이고, 위험 등급은 낮음으로 보여요.\",\"cites\":[\"customer.industry\",\"customer.risk_level\"]}", "model": "gpt-6.1-sol"}

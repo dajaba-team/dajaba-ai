@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"자금이 지나간 경로는 3개이고, 최대 2단계로 보여요.\",\"cites\":[\"paths.count\",\"paths.max_hops\"]}", "model": "gpt-6.1-sol"}
