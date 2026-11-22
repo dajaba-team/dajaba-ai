@@ -40,6 +40,28 @@ def _retrieval_tail(settings: Settings, *, assume_ctx: bool = False) -> str:
     return tail
 
 
+def base_retrieval_version(settings: Settings, *, strict: bool = False) -> str | None:
+    """꼬리 없는 `{embedding_model}@{manifest_sha256[:8]}` — 참고 사례 검색(SCRUM-309, 꼬리 기능을 안 씀).
+    manifest 없으면 None, `strict` 면 OSError(기동 검사·응답 — 모델명만으로는 안 보냄)."""
+    manifest = settings.corpus_dir / "manifest.json"
+    if not strict and not manifest.exists():
+        return None
+    return f"{settings.embedding_model.strip()}@{hashlib.sha256(manifest.read_bytes()).hexdigest()[:MANIFEST_DIGEST_LEN]}"
+
+
+def reference_search_problem(settings: Settings) -> str | None:
+    """기동 검사(SCRUM-309 추가 검토 1) — 참고 사례 검색을 켰으면 임베딩 모델과 읽을 수 있는 manifest 가 있어야."""
+    if not (settings.rag_enabled and settings.rag_reference_search_enabled):
+        return None
+    if not settings.embedding_model.strip():
+        return "RAG_REFERENCE_SEARCH_ENABLED — EMBEDDING_MODEL 빈 값"
+    try:
+        base_retrieval_version(settings, strict=True)
+    except OSError:
+        return "RAG_REFERENCE_SEARCH_ENABLED — corpus manifest 를 읽을 수 없음"
+    return None
+
+
 def retrieval_version(settings: Settings) -> str | None:
     """{embedding_model}@{manifest_sha256[:8]} + 켜진 꼬리 — RAG 꺼져 있으면 None (str/10 "버전")."""
     manifest = settings.corpus_dir / "manifest.json"

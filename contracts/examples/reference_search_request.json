@@ -1,0 +1,6 @@
+{
+  "typologies": ["CYCLE"],
+  "query": "해외 계좌를 거쳐 대출 명목으로 돌아오는 흐름",
+  "top_k": 5,
+  "source_types": ["PUBLIC"]
+}

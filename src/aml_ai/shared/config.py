@@ -78,6 +78,12 @@ class Settings(BaseSettings):
     rag_rerank_response_model: str = Field(default="", alias="RAG_RERANK_RESPONSE_MODEL")
     # SCRUM-308-3 — 청크 맥락 새 표(`ai.reference_chunks_ctx`)로 검색, v4 만 · 기동 검사 통과해야 실제로 씀
     rag_chunk_context_enabled: bool = Field(default=False, alias="RAG_CHUNK_CONTEXT_ENABLED")
+    # SCRUM-309 — 참고 사례 검색(str/10) · 기본 끔, 꺼지면 400 · 예산은 설계 5.1(실측 전)
+    rag_reference_search_enabled: bool = Field(default=False, alias="RAG_REFERENCE_SEARCH_ENABLED")
+    reference_search_budget_s: float = Field(default=5.0, gt=0, alias="REFERENCE_SEARCH_BUDGET_S")
+    reference_search_embed_timeout_s: float = Field(
+        default=3.0, gt=0, alias="REFERENCE_SEARCH_EMBED_TIMEOUT_S"
+    )
     elastic_url: str = Field(default="http://elasticsearch:9200", alias="ELASTIC_URL")
     elastic_username: str = Field(default="elastic", alias="ELASTIC_USERNAME")
     elastic_password: str = Field(default="", alias="ELASTIC_PASSWORD", repr=False)

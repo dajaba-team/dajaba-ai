@@ -1,0 +1,30 @@
+{
+  "produced_at": "2026-11-24T02:10:00Z",
+  "status": "FOUND",
+  "results": [
+    {
+      "doc_id": "fintrac-underground-banking-2023",
+      "doc_title": "Updated indicators: Laundering the proceeds of crime through underground banking schemes (FINTRAC-2023-OA002)",
+      "publisher": "FINTRAC",
+      "year": 2023,
+      "page": 4,
+      "score": 0.52,
+      "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
+      "typologies": ["CYCLE", "GATHER_SCATTER"],
+      "source_type": "PUBLIC"
+    },
+    {
+      "doc_id": "ffiec-redflags",
+      "doc_title": "BSA/AML Manual Appendix F: Money Laundering and Terrorist Financing Red Flags",
+      "publisher": "FFIEC",
+      "year": null,
+      "page": 6,
+      "score": 0.41,
+      "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
+      "typologies": ["CYCLE"],
+      "source_type": "PUBLIC"
+    }
+  ],
+  "retrieval_version": "text-embedding-3-small@36b5a2d5",
+  "search_meta": { "degraded": false, "candidates": 12, "latency_ms": 420 }
+}

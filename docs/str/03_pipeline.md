@@ -191,6 +191,18 @@
 - 라우터 `str/api/router.py` `POST /cases/ask`(main 이 `/v1` 붙임)는 **동기 `def`** — 이벤트 루프가 도는 스레드에서 `complete_json(total_timeout_s=)` 을 부르면 500(SCRUM-322 알고 남김). 응답 조립(상태 3종)은 `application/ask_answer.py`, 검사·근거는 `domain/ask_checks.py`(순수).
 - 시간(SCRUM-290 2/2 ★A): 답 선체크를 지나려면 facts 읽기 + 계획 ≤ `ASK_BUDGET_S − ASK_LLM_TIMEOUT_S`(10초). 지나면 답 끝 ≤ deadline, 그 뒤 검사·저장(ms 단위)만 — 최악 응답 ≈ 20초 + 수십 ms(백엔드 30초 안). 계획+답 합계 실측(08 "결과 — 답")이 20초를 넘어도 이 PR 에서 숫자를 바꾸지 않고 기록만(09).
 
+## `POST /v1/references/search` (SCRUM-309)
+
+조회 전용 — 선점·펜싱·`ai.generations` 행 없음. LLM 0, 임베딩 0~1회. 정본 노션 설계 문서 A(5.1·9절), 검색 방법 `str/10` "참고 사례 검색".
+
+1. 스위치 — `RAG_REFERENCE_SEARCH_ENABLED` 와 `RAG_ENABLED` 가 둘 다 켜져 있어야. 아니면 400 `INVALID_REQUEST`(DB·임베딩 0). 입력 검사보다 먼저
+2. 입력 — 스키마(`ReferenceSearchRequest`)가 유형 1~3·목록 안·중복 · `query` 길이·공백만 · `top_k` · `source_types` 를 봄 → 400. `X-Budget-Ms` 가 있으면 양의 정수여야(아니면 400)
+3. 마감 — 요청이 들어온 시각(미들웨어 `ReceivedAtMiddleware`, 단조) + min(`REFERENCE_SEARCH_BUDGET_S`, `X-Budget-Ms`). 서비스 진입 때 이미 지났으면 502(임베딩·DB 0)
+4. 질의 — 가리기(검색용 먼저: 하이픈 변형 정규화 → 은행 번호 + 나뉜 계좌 → 16진 나뉜 계좌 → 구분자 낀 숫자 8개 이상, 그다음 `mask_question` — 추가 검토 3) → 유형 영문 패턴 + 가린 검색어 한 줄(`str/domain/reference_search`). 가린 뒤 빈 값이면 유형만
+5. 임베딩 — 유형만이면 프로세스 캐시 먼저(적중이면 외부 호출 0). 아니면 남은 예산이 0 이하일 때 502 `LLM_UNAVAILABLE`(호출 전), 전송·본문 전체 한도 = min(`REFERENCE_SEARCH_EMBED_TIMEOUT_S`, 남은 예산)(`reference_embedding.embed_within` 에 절대 마감으로 — 넘으면 취소, 루프 쪽도 클라이언트 만들기 전·전송 직전 확인해 전송 0). 실패 → 502 `LLM_UNAVAILABLE`, 429 본문 `error.code` 가 정확히 `insufficient_quota` 면 502 `LLM_BUDGET_EXCEEDED`. **DB 연결은 임베딩 뒤에 처음 씀**(외부 호출 중 연결 안 듦)
+6. 검색 — DB 전(캐시 적중 포함) 남은 시간 확인(0 이하 502) · `ai.reference_chunks` 유형 OR 필터 · 같은 모델 · 후보 30 · 연결을 얻은 뒤 남은 시간(0 이하 502 — 검색 SQL 0) · `statement_timeout` = 그 ms(설정 왕복 뒤 다시 확인 — 지났으면 검색 SQL 0, 502) → 유사도 하한·중복 제거 · 한 문서 최대 3건 · 상위 `top_k`. SQL 오류·시간 초과 → 503 `DB_UNAVAILABLE` · 응답 조립·검증 뒤 성공 반환 직전 남은 시간 다시 확인(0 이하 502) · `retrieval_version` 은 기동 때 읽은 값
+7. 응답 — `FOUND`/`EMPTY` · 응답 시작(`http.response.start`) 직전에 검색 입구 래퍼가 마감 확인 — 만료면 200 대신 502 `LLM_UNAVAILABLE`(추가 검토 3) · 로그 한 줄 `reference_search_done`(유형·검색어 길이·결과 수·후보 수·지연·캐시 적중 — 검색어·청크 본문 0)
+
 ## 시간 예산 — 실측 전 가정값, W2 수요일 측정 뒤 조정
 
 | 단계 | 예산 | 상수 (`domain/constants.py` / `.env`) |
@@ -229,6 +241,8 @@
 | LLM 응답 스키마 위반(재생성 뒤에도) | 502 | `LLM_INVALID_OUTPUT` | 0 |
 | LLM 연결 실패·타임아웃·예산 초과 | 502 | `LLM_UNAVAILABLE` | **1** |
 | 일 토큰 한도 | 502 | `LLM_BUDGET_EXCEEDED` | 0 |
+| AI DB 장애(점수 · 참고 사례 검색 — SCRUM-309) | 503 | `DB_UNAVAILABLE` | **1** |
+| 참고 사례 검색 임베딩 실패·시간 초과·남은 예산 부족(SCRUM-309, 설계 13-3 — 새 코드 없음) | 502 | `LLM_UNAVAILABLE` | **1** |
 | 그 밖 — v4 표기 사전에 없는 코드값·조립 섹션 1,200자 초과 포함(SCRUM-228, v2 로 자동 전환 안 함) | 500 | `INTERNAL` | 0 (백엔드 `WebClientAiClient.RETRYABLE_AI_CODES` 에 없음 — 11/17 `592bf35` 확인) |
 
 재시도는 **백엔드 `AiClient` 한 곳, 1회**. AI 서버 안에는 LLM 연결 재시도가 없다(현재 `shared/infrastructure/llm_client.py`의 1회 연결 재시도는 **삭제** — 백엔드 1회와 겹쳐 실질 4회가 되기 때문). 스키마 실패 1회 재생성은 재시도가 아니라 생성 절차의 일부이고, 예산 안에서만.

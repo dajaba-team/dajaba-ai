@@ -19,6 +19,9 @@
 | `ask_response_no_data.json` | `str.AskResponse` (NO_DATA, SCRUM-288) |
 | `ask_response_unverified.json` | `str.AskResponse` (UNVERIFIED, SCRUM-288) |
 | `ask_response_out_of_scope.json` | `str.AskResponse` (OUT_OF_SCOPE, SCRUM-288) |
+| `reference_search_request.json` | `str.ReferenceSearchRequest` (SCRUM-309) |
+| `reference_search_response_found.json` | `str.ReferenceSearchResponse` (FOUND, SCRUM-309) |
+| `reference_search_response_empty.json` | `str.ReferenceSearchResponse` (EMPTY, SCRUM-309) |
 | `error.json` | `errors.ErrorBody` |
 
 규약 v0.2 (10/27·10/28) 반영 — SCRUM-12. 바꿀 때는 여기와 schemas 를 같은 PR 에서.
