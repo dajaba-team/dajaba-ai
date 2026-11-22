@@ -12,13 +12,16 @@ from typing import Annotated
 from pydantic import Field, StringConstraints, field_validator, model_validator
 
 from aml_ai.shared.schemas.common import StrictModel, SystemTimestamp, Typology
-from aml_ai.shared.schemas.str.narrative import NARRATIVE_TEXT_MAX, SectionV1, SectionV2
+from aml_ai.shared.schemas.str.narrative import SectionV1, SectionV2
 
 DRAFT_ID_MAX = 64  # ai.generations.draft_id String(64)
 REPORT_NO_PATTERN = (
     r"^STR-[0-9]{4}-[0-9]{6}$"  # ASCII 숫자만(전각 숫자로 같은 번호가 따로 잠기지 않게, 추가 검토 1)
 )
 STR_INDEX_TYPOLOGIES_MAX = 3
+STR_INDEX_TEXT_MAX = (
+    5000  # SCRUM-361 — 백엔드 단락 상한과 같음. AI 가 ≤1200 청크로 나눔(초안 NARRATIVE_TEXT_MAX 1200 과 따로)
+)
 _V1 = frozenset(s.value for s in SectionV1)
 _V2 = frozenset(s.value for s in SectionV2)
 
@@ -38,7 +41,7 @@ class StrIndexSkipReason(StrEnum):
 class StrIndexSection(StrictModel):
     section: str
     text: Annotated[
-        str, StringConstraints(strip_whitespace=False, min_length=1, max_length=NARRATIVE_TEXT_MAX)
+        str, StringConstraints(strip_whitespace=False, min_length=1, max_length=STR_INDEX_TEXT_MAX)
     ]
 
     @field_validator("section")

@@ -139,10 +139,10 @@
 | 요청 `draft_id` | 승인된 초안의 id(`DRF-…`, 1~64자, 필수) — 그 초안 facts 로 케이스 계좌를 대조(추가 검토 2). 백엔드 트리거가 실음 | `StrIndexRequest.draft_id` |
 | 요청 `approved_at` | `SystemTimestamp`(Z) | — |
 | 요청 `typologies` | 경보 `Typology` 값 0~3개, 중복 400(유형 없는 경보도 받음) | `StrIndexRequest.typologies` |
-| 요청 `sections[]` | `{section, text}` 1개 이상. 섹션은 7항목(`SectionV2`) 또는 옛 6섹션(`SectionV1`) **한 세트만**(섞이면 400) · 같은 섹션 두 번 400 · `text` 1~1200(`NARRATIVE_TEXT_MAX`) | `StrIndexSection` |
+| 요청 `sections[]` | `{section, text}` 1개 이상. 섹션은 7항목(`SectionV2`) 또는 옛 6섹션(`SectionV1`) **한 세트만**(섞이면 400) · 같은 섹션 두 번 400 · `text` 1~**5000**(`STR_INDEX_TEXT_MAX`, SCRUM-361 — 백엔드 단락 상한과 같음, AI 가 안에서 ≤1200 청크로 나눔) | `StrIndexSection` |
 | 응답 `status` 2종 | `INDEXED`(행 있음 — 이번에 넣었거나 같은 요청으로 이미 넣음) · `SKIPPED` | `StrIndexStatus` |
 | 응답 `skip_reason` | `INDEXED` 면 `null`, `SKIPPED` 면 `RAW_ACCOUNT`(계좌 원문) · `TOO_SHORT`(공백 뺀 글 합 100자 미만) · `DISABLED`(스위치 끔) · `NO_FACTS`(`draft_id` 의 초안 facts 가 AI 에 없음 — 목업 모드 초안 등) | `StrIndexSkipReason` |
-| 응답 `chunk_count` | `INDEXED` 면 행 수(1 이상), `SKIPPED` 면 0 | — |
+| 응답 `chunk_count` | `INDEXED` 면 청크 행 수(1 이상), `SKIPPED` 면 0. SCRUM-361 부터 섹션이 여러 청크로 나뉨 — 상한 = 공백만이 아닌 단락마다 `⌊글자 수(코드 포인트, 원문 그대로) ÷ 600⌋ + 1` 의 합(백엔드 응답 확인 #174 와 같은 식, `str/10` "청크 나누기") | — |
 | 응답 `report_no` · `produced_at` · `retrieval_version` | 요청 문서번호 그대로 · Z · 검색(309)과 같은 `{EMBEDDING_MODEL}@{manifest 8자}` — `DISABLED` 면 `null`(꺼져 있으면 모델·manifest 를 안 봄). 켜면 기동 때 모델·manifest 확인(`str_index_problem`, 없으면 기동 실패) | — |
 
 상태별 칸 규칙(`INDEXED` ↔ `skip_reason=null`·`chunk_count ≥ 1`·`retrieval_version` 있음 · `SKIPPED` ↔ 이유 있음·`chunk_count=0`)은 응답 스키마가 본다. 새 에러 코드 없음: 400 `INVALID_REQUEST`(모양·섹션 섞임·같은 번호 다른 본문, 재시도 0) · 502 `LLM_UNAVAILABLE`(임베딩 실패 — 전부 되돌림, 재시도 1) · 503 `DB_UNAVAILABLE`(재시도 1). 예시 `str_index_request.json`(`draft_id` 포함) + `_response_indexed.json` · `_response_skipped.json`. 같은 번호 재요청 비교 해시에 `draft_id` 포함.

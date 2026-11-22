@@ -39,8 +39,9 @@ _INSERT_DOC = text(
     "chunk_count, approved_at) VALUES (:r, :d, :set, CAST(:tys AS text[]), :hash, :version, :n, :approved_at)"
 )
 _INSERT_CHUNK = text(
-    "INSERT INTO ai.str_reference_chunks (chunk_id, report_no, section, typologies, text, embedding, embedding_model) "
-    "VALUES (:chunk_id, :r, :section, CAST(:tys AS text[]), :text, CAST(:embedding AS vector), :model)"
+    "INSERT INTO ai.str_reference_chunks (chunk_id, report_no, section, chunk_seq, typologies, text, embedding, "
+    "embedding_model) VALUES (:chunk_id, :r, :section, :seq, CAST(:tys AS text[]), :text, CAST(:embedding AS vector), "
+    ":model)"
 )
 
 
@@ -55,6 +56,7 @@ class Stored:
 class NewChunk:
     chunk_id: str
     section: str
+    seq: int  # 섹션 안 순번(1부터, 0009 — SCRUM-361)
     text: str
     embedding: list[float]
 
@@ -142,7 +144,7 @@ class StrIndexRepository:
                                       "tys": doc.typologies, "hash": doc.request_hash, "version": doc.retrieval_version,
                                       "n": len(doc.chunks), "approved_at": doc.approved_at})  # fmt: skip
         self._s.execute(_INSERT_CHUNK, [
-            {"chunk_id": c.chunk_id, "r": doc.report_no, "section": c.section, "tys": doc.typologies, "text": c.text,
+            {"chunk_id": c.chunk_id, "r": doc.report_no, "section": c.section, "seq": c.seq, "tys": doc.typologies, "text": c.text,
              "embedding": str(c.embedding), "model": doc.model}
             for c in doc.chunks
         ])  # fmt: skip
