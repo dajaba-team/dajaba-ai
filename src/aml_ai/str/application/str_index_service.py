@@ -21,7 +21,7 @@ from aml_ai.shared.schemas.str import StrIndexRequest, StrIndexResponse, StrInde
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain.constants_rag_query import STR_INDEX_MIN_CHARS
 from aml_ai.str.domain.raw_account import case_fragment_hit, exact_candidates, explicit_key
-from aml_ai.str.domain.str_index import chunk_id, chunks, content_chars, request_hash
+from aml_ai.str.domain.str_index import chunk_id, chunks, content_chars, request_hash, section_texts
 from aml_ai.str.infrastructure import str_index_runtime as runtime
 from aml_ai.str.infrastructure.str_index_repository import NewChunk, NewDoc, Stored, StrIndexRepository
 
@@ -55,18 +55,17 @@ class StrIndexService:
         if found is not None:
             self.repo.release()
             return self._same_or_400(req, digest, found, started)
-        texts = [t for _, t in chunks(req)]
-        reason = self._skip_reason(req, texts)
+        reason = self._skip_reason(req, section_texts(req))  # 계좌 원문·짧음은 나누기 전(SCRUM-361)
         self.repo.release()  # 읽기 끝 — 임베딩(외부 호출) 중 연결 안 듦
         if reason is not None:
             return self._skipped(req, reason, started)
-        vectors = self._embed(texts)
-        pieces = chunks(req)
+        pieces = chunks(req)  # 섹션마다 ≤1200 청크(SCRUM-361)
+        vectors = self._embed([t for _, _, t in pieces])
         stored = self.repo.insert(NewDoc(
             report_no=req.report_no, draft_id=req.draft_id, section_set=req.section_set,
             typologies=[t.value for t in req.typologies], request_hash=digest, retrieval_version=self.retrieval_version,
             approved_at=req.approved_at, model=self.embedder.model,
-            chunks=[NewChunk(chunk_id(req.report_no, s), s, t, v) for (s, t), v in zip(pieces, vectors, strict=True)],
+            chunks=[NewChunk(chunk_id(req.report_no, s, n), s, n, t, v) for (s, n, t), v in zip(pieces, vectors, strict=True)],
         ))  # fmt: skip
         return self._same_or_400(req, digest, stored, started)
 

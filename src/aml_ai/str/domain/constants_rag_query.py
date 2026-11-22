@@ -67,4 +67,7 @@ REFERENCE_QUERY_VERSION = "v1"  # 질의 문장 규칙 — 캐시 키에 들어�
 # SCRUM-310 승인 STR 색인 (str/10 "승인 STR 색인") — 공개 자료 표와 따로 · 짧음 기준(공백 뺀 섹션 글 합)
 STR_INDEX_TABLE = "ai.str_reference_chunks"
 STR_INDEX_MIN_CHARS = 100
+STR_INDEX_CHUNK_MAX = (
+    1200  # SCRUM-361 — 청크 ≤ 1200자(코드 포인트). 요청 단락 상한은 스키마 STR_INDEX_TEXT_MAX(5000)
+)
 STR_INDEX_EMBEDDING_DIM = 1536  # 0008 `vector(1536)` 고정 — 켜면 EMBEDDING_DIM 이 같아야(기동 검사)

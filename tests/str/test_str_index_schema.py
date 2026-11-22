@@ -28,7 +28,9 @@ def test_both_section_sets_accepted(names: list[str]) -> None:
         {"sections": _sections(["METHOD", "METHOD"])},  # 같은 섹션 두 번
         {"sections": _sections(["NOT_A_SECTION"])},
         {"sections": []},
-        {"sections": [{"section": "METHOD", "text": "가" * 1201}]},
+        {
+            "sections": [{"section": "METHOD", "text": "가" * 5001}]
+        },  # SCRUM-361 — 상한 5000(STR_INDEX_TEXT_MAX)
         {"sections": [{"section": "METHOD", "text": ""}]},
         {"report_no": "STR-26-12"},
         {"report_no": "DRF-2026-000012"},

@@ -22,7 +22,7 @@ def test_indexes_example_once() -> None:
     assert (
         ins.section_set == "V2"
         and ins.draft_id == "DRF-000312"
-        and ins.chunks[0].chunk_id == "STR-2026-000012:SUBJECT"
+        and ins.chunks[0].chunk_id == "STR-2026-000012:SUBJECT:1"  # SCRUM-361 — 섹션 안 순번
     )
 
 
