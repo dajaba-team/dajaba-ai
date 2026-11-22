@@ -71,6 +71,13 @@ from aml_ai.shared.schemas.str.reference_search import (
     ReferenceSearchStatus,
     ReferenceSourceType,
 )
+from aml_ai.shared.schemas.str.str_index import (
+    StrIndexRequest,
+    StrIndexResponse,
+    StrIndexSection,
+    StrIndexSkipReason,
+    StrIndexStatus,
+)
 from aml_ai.shared.schemas.str.summary import (
     SUMMARY_LINE_MAX,
     SUMMARY_LINES_MAX,
@@ -102,6 +109,11 @@ __all__ = [
     "ReferenceSearchResponse",
     "ReferenceSearchStatus",
     "ReferenceSourceType",
+    "StrIndexRequest",
+    "StrIndexResponse",
+    "StrIndexSection",
+    "StrIndexSkipReason",
+    "StrIndexStatus",
     # ask
     "ASK_ANSWER_MAX",
     "ASK_BUNDLES_MAX",

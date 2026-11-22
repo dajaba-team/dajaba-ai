@@ -80,6 +80,7 @@ class Settings(BaseSettings):
     rag_chunk_context_enabled: bool = Field(default=False, alias="RAG_CHUNK_CONTEXT_ENABLED")
     # SCRUM-309 — 참고 사례 검색(str/10) · 기본 끔, 꺼지면 400 · 예산은 설계 5.1(실측 전)
     rag_reference_search_enabled: bool = Field(default=False, alias="RAG_REFERENCE_SEARCH_ENABLED")
+    str_index_enabled: bool = Field(default=False, alias="STR_INDEX_ENABLED")  # SCRUM-310 승인 STR 색인
     reference_search_budget_s: float = Field(default=5.0, gt=0, alias="REFERENCE_SEARCH_BUDGET_S")
     reference_search_embed_timeout_s: float = Field(
         default=3.0, gt=0, alias="REFERENCE_SEARCH_EMBED_TIMEOUT_S"

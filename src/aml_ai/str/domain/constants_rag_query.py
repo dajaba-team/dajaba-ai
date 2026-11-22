@@ -63,3 +63,8 @@ REFERENCE_SEARCH_CANDIDATES = 30
 REFERENCE_PER_DOC_MAX = 3
 REFERENCE_CACHE_MAX = 25  # 유형 1~3개 조합 수(5C1 + 5C2 + 5C3)
 REFERENCE_QUERY_VERSION = "v1"  # 질의 문장 규칙 — 캐시 키에 들어감
+
+# SCRUM-310 승인 STR 색인 (str/10 "승인 STR 색인") — 공개 자료 표와 따로 · 짧음 기준(공백 뺀 섹션 글 합)
+STR_INDEX_TABLE = "ai.str_reference_chunks"
+STR_INDEX_MIN_CHARS = 100
+STR_INDEX_EMBEDDING_DIM = 1536  # 0008 `vector(1536)` 고정 — 켜면 EMBEDDING_DIM 이 같아야(기동 검사)
