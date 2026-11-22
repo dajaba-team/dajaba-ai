@@ -1,0 +1,8 @@
+{
+  "produced_at": "2026-11-24T01:00:03Z",
+  "report_no": "STR-2026-000012",
+  "status": "INDEXED",
+  "skip_reason": null,
+  "chunk_count": 4,
+  "retrieval_version": "text-embedding-3-small@36b5a2d5"
+}

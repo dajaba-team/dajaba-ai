@@ -113,7 +113,7 @@
 
 ### 참고 사례 검색 `POST /v1/references/search` (설계 문서 5.1 제안, SCRUM-309)
 
-정본은 노션 「참고 사례 검색 · 승인 STR 색인 설계 문서 (RAG 2차)」 A 부분(5.1 · 9절 · 13절). B(승인 STR 색인, SCRUM-310)는 이번에 안 함. 처리 순서는 `str/03`, 검색 방법은 `str/10` "참고 사례 검색". 조회 전용 — `ai.generations` 행 0. 헤더는 다른 입구와 같음(`X-Internal-Key` · `X-Request-Id` · `X-Budget-Ms`).
+정본은 노션 「참고 사례 검색 · 승인 STR 색인 설계 문서 (RAG 2차)」 A 부분(5.1 · 9절 · 13절). B(승인 STR 색인)는 아래 "승인 STR 색인"(SCRUM-310 — 색인만, 이 검색에는 안 붙음). 처리 순서는 `str/03`, 검색 방법은 `str/10` "참고 사례 검색". 조회 전용 — `ai.generations` 행 0. 헤더는 다른 입구와 같음(`X-Internal-Key` · `X-Request-Id` · `X-Budget-Ms`).
 
 | 필드 | 메모 | 코드 자리 |
 |---|---|---|
@@ -128,6 +128,24 @@
 | 응답 `produced_at` | `SystemTimestamp`(Z) | — |
 
 상태별 칸 규칙(`FOUND` ↔ 1건 이상 · `EMPTY` ↔ 0건 · 결과 수 ≤ `top_k` · `score` 내림차순 · 결과 태그 ∩ 요청 유형 ≠ ∅)은 응답 스키마가 본다 — 백엔드 `requireReferenceSearchResponse` 도 같은 규칙. 새 에러 코드 없음: 400 `INVALID_REQUEST`(입력 · 스위치 끔) · 502 `LLM_UNAVAILABLE`(임베딩 실패·시간 초과·남은 예산 부족, 재시도 1) · 502 `LLM_BUDGET_EXCEEDED`(일 한도, 재시도 0) · 503 `DB_UNAVAILABLE`(재시도 1). 예시는 `reference_search_request.json` + `_response_found.json` · `_response_empty.json`. 설계 예시와 다르게 간 곳: `publisher` 는 manifest 값(`APG` 가 아니라 `Asia/Pacific Group on Money Laundering` 등).
+
+### 승인 STR 색인 `POST /v1/references/str` (설계 문서 5.2 제안, SCRUM-310)
+
+정본은 노션 설계 문서 B(5.2 · 9절 · 13절). 색인 방법은 `str/10` "승인 STR 색인", 처리 순서 `str/03`. 백엔드는 승인 커밋 뒤 트랜잭션 밖에서 부르고(`StrReferenceIndexTrigger`, 채영 님 이슈), 실패·`SKIPPED` 여도 승인은 그대로. 헤더는 다른 입구와 같음. `ai.generations` 행 0.
+
+| 필드 | 메모 | 코드 자리 |
+|---|---|---|
+| 요청 `report_no` | `^STR-[0-9]{4}-[0-9]{6}$`(ASCII 숫자만 — 전각 숫자 400). 키 하나 — 같은 번호는 한 번만 색인 | `StrIndexRequest.report_no` |
+| 요청 `draft_id` | 승인된 초안의 id(`DRF-…`, 1~64자, 필수) — 그 초안 facts 로 케이스 계좌를 대조(추가 검토 2). 백엔드 트리거가 실음 | `StrIndexRequest.draft_id` |
+| 요청 `approved_at` | `SystemTimestamp`(Z) | — |
+| 요청 `typologies` | 경보 `Typology` 값 0~3개, 중복 400(유형 없는 경보도 받음) | `StrIndexRequest.typologies` |
+| 요청 `sections[]` | `{section, text}` 1개 이상. 섹션은 7항목(`SectionV2`) 또는 옛 6섹션(`SectionV1`) **한 세트만**(섞이면 400) · 같은 섹션 두 번 400 · `text` 1~1200(`NARRATIVE_TEXT_MAX`) | `StrIndexSection` |
+| 응답 `status` 2종 | `INDEXED`(행 있음 — 이번에 넣었거나 같은 요청으로 이미 넣음) · `SKIPPED` | `StrIndexStatus` |
+| 응답 `skip_reason` | `INDEXED` 면 `null`, `SKIPPED` 면 `RAW_ACCOUNT`(계좌 원문) · `TOO_SHORT`(공백 뺀 글 합 100자 미만) · `DISABLED`(스위치 끔) · `NO_FACTS`(`draft_id` 의 초안 facts 가 AI 에 없음 — 목업 모드 초안 등) | `StrIndexSkipReason` |
+| 응답 `chunk_count` | `INDEXED` 면 행 수(1 이상), `SKIPPED` 면 0 | — |
+| 응답 `report_no` · `produced_at` · `retrieval_version` | 요청 문서번호 그대로 · Z · 검색(309)과 같은 `{EMBEDDING_MODEL}@{manifest 8자}` — `DISABLED` 면 `null`(꺼져 있으면 모델·manifest 를 안 봄). 켜면 기동 때 모델·manifest 확인(`str_index_problem`, 없으면 기동 실패) | — |
+
+상태별 칸 규칙(`INDEXED` ↔ `skip_reason=null`·`chunk_count ≥ 1`·`retrieval_version` 있음 · `SKIPPED` ↔ 이유 있음·`chunk_count=0`)은 응답 스키마가 본다. 새 에러 코드 없음: 400 `INVALID_REQUEST`(모양·섹션 섞임·같은 번호 다른 본문, 재시도 0) · 502 `LLM_UNAVAILABLE`(임베딩 실패 — 전부 되돌림, 재시도 1) · 503 `DB_UNAVAILABLE`(재시도 1). 예시 `str_index_request.json`(`draft_id` 포함) + `_response_indexed.json` · `_response_skipped.json`. 같은 번호 재요청 비교 해시에 `draft_id` 포함.
 
 ### 에러 `schemas/errors.py` (규약 6.3)
 

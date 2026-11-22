@@ -22,6 +22,9 @@
 | `reference_search_request.json` | `str.ReferenceSearchRequest` (SCRUM-309) |
 | `reference_search_response_found.json` | `str.ReferenceSearchResponse` (FOUND, SCRUM-309) |
 | `reference_search_response_empty.json` | `str.ReferenceSearchResponse` (EMPTY, SCRUM-309) |
+| `str_index_request.json` | `str.StrIndexRequest` (SCRUM-310) |
+| `str_index_response_indexed.json` | `str.StrIndexResponse` (INDEXED, SCRUM-310) |
+| `str_index_response_skipped.json` | `str.StrIndexResponse` (SKIPPED·RAW_ACCOUNT, SCRUM-310) |
 | `error.json` | `errors.ErrorBody` |
 
 규약 v0.2 (10/27·10/28) 반영 — SCRUM-12. 바꿀 때는 여기와 schemas 를 같은 PR 에서.

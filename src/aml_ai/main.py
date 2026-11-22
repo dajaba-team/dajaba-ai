@@ -25,10 +25,12 @@ from aml_ai.shared.versioning import (
     reference_search_problem,
     retrieval_version_problem,
     scoring_mode,
+    str_index_problem,
 )
 from aml_ai.str.api.router import REFERENCE_SEARCH_PATH
 from aml_ai.str.api.router import router as str_router
 from aml_ai.str.infrastructure import reference_search_runtime as reference_runtime
+from aml_ai.str.infrastructure import str_index_runtime
 from aml_ai.str.infrastructure.chunk_context_check import verify_on_startup
 from aml_ai.str.infrastructure.judge import judge_model_decision
 from aml_ai.str.infrastructure.prompt_index import check_frozen_prompts, index_prompt_files
@@ -56,11 +58,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # SCRUM-308-2 — 꼬리 붙인 버전 > 128자 · 켠 리랭커 한도 > 8초 · 허용 응답 모델 빈 값이면 요청 받기 전에 기동 실패
     problem = retrieval_version_problem(settings) or rerank_timeout_problem(settings)
     problem = problem or rerank_response_model_problem(settings) or reference_search_problem(settings)
+    problem = problem or str_index_problem(settings)  # SCRUM-310
     if problem:
         raise RuntimeError(problem)
     verify_on_startup(settings, _open_session)  # SCRUM-308-3 — 켬+v4 만, 새 표 ≠ 지금 표면 기동 실패
     if settings.rag_enabled and settings.rag_reference_search_enabled:
         reference_runtime.start(settings)  # SCRUM-309 — manifest 버전 고정 · 검색 임베딩 루프
+    if settings.rag_enabled and settings.str_index_enabled:
+        str_index_runtime.start(settings)  # SCRUM-310 — 응답·새 행 버전 고정(검토 2)
     _, reason = judge_model_decision(settings)
     if reason is not None:
         log.warning(
@@ -75,6 +80,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         index_prompt_files(settings)
     yield
     reference_runtime.stop()
+    str_index_runtime.stop()
     shutdown_tracer()
 
 

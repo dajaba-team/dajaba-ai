@@ -14,6 +14,8 @@ from aml_ai.shared.schemas.str import (
     DraftResponse,
     ReferenceSearchRequest,
     ReferenceSearchResponse,
+    StrIndexRequest,
+    StrIndexResponse,
     SummaryRequest,
     SummaryResponse,
     VerifyRequest,
@@ -39,6 +41,9 @@ CASES = [
     ("reference_search_request.json", ReferenceSearchRequest),  # SCRUM-309
     ("reference_search_response_found.json", ReferenceSearchResponse),
     ("reference_search_response_empty.json", ReferenceSearchResponse),
+    ("str_index_request.json", StrIndexRequest),  # SCRUM-310
+    ("str_index_response_indexed.json", StrIndexResponse),
+    ("str_index_response_skipped.json", StrIndexResponse),
     ("error.json", ErrorBody),
 ]
 

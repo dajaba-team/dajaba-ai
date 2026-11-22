@@ -1,0 +1,12 @@
+{
+  "report_no": "STR-2026-000012",
+  "draft_id": "DRF-000312",
+  "approved_at": "2026-11-24T01:00:00Z",
+  "typologies": ["FAN_IN"],
+  "sections": [
+    {"section": "SUBJECT", "text": "보고 대상자는 Sole Proprietorship #50438(개인사업자)이며, 대상 계좌는 10_****BD30임."},
+    {"section": "DATE", "text": "의심거래 기간은 2022년 9월 2일 00:14부터 2022년 9월 2일 22:51까지임."},
+    {"section": "METHOD", "text": "서로 다른 3개 계좌에서 ACH 입금 3건이 들어왔으며, 입금 합계는 42,750.50 미국 달러(USD)임."},
+    {"section": "GROUNDS", "text": "하루 안에 여러 계좌에서 같은 계좌로 자금이 모이는 FAN_IN 유형 지표가 관측됨."}
+  ]
+}

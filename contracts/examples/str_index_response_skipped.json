@@ -1,0 +1,8 @@
+{
+  "produced_at": "2026-11-24T01:00:01Z",
+  "report_no": "STR-2026-000013",
+  "status": "SKIPPED",
+  "skip_reason": "RAW_ACCOUNT",
+  "chunk_count": 0,
+  "retrieval_version": "text-embedding-3-small@36b5a2d5"
+}

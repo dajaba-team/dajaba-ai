@@ -8,7 +8,12 @@ from pathlib import Path
 
 from aml_ai.shared import chunk_context_state
 from aml_ai.shared.config import Settings
-from aml_ai.str.domain.constants_rag_query import CHUNK_CONTEXT_VERSION, QUERY_KINDS, RERANK_PROMPT
+from aml_ai.str.domain.constants_rag_query import (
+    CHUNK_CONTEXT_VERSION,
+    QUERY_KINDS,
+    RERANK_PROMPT,
+    STR_INDEX_EMBEDDING_DIM,
+)
 
 _served_model: tuple[str, str] | None = None
 
@@ -59,6 +64,21 @@ def reference_search_problem(settings: Settings) -> str | None:
         base_retrieval_version(settings, strict=True)
     except OSError:
         return "RAG_REFERENCE_SEARCH_ENABLED — corpus manifest 를 읽을 수 없음"
+    return None
+
+
+def str_index_problem(settings: Settings) -> str | None:
+    """기동 검사(SCRUM-310) — 승인 STR 색인을 켰으면 임베딩 모델과 읽을 수 있는 manifest(응답 버전)가 있어야."""
+    if not (settings.rag_enabled and settings.str_index_enabled):
+        return None
+    if not settings.embedding_model.strip():
+        return "STR_INDEX_ENABLED — EMBEDDING_MODEL 빈 값"
+    if settings.embedding_dim != STR_INDEX_EMBEDDING_DIM:  # 표는 vector(1536) 고정(추가 검토 1)
+        return f"STR_INDEX_ENABLED — EMBEDDING_DIM {settings.embedding_dim} ≠ {STR_INDEX_EMBEDDING_DIM}"
+    try:
+        base_retrieval_version(settings, strict=True)
+    except OSError:
+        return "STR_INDEX_ENABLED — corpus manifest 를 읽을 수 없음"
     return None
 
 

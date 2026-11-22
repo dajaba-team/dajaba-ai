@@ -205,6 +205,18 @@
 6. 검색 — DB 전(캐시 적중 포함) 남은 시간 확인(0 이하 502) · `ai.reference_chunks` 유형 OR 필터 · 같은 모델 · 후보 30 · 연결을 얻은 뒤 남은 시간(0 이하 502 — 검색 SQL 0) · `statement_timeout` = 그 ms(설정 왕복 뒤 다시 확인 — 지났으면 검색 SQL 0, 502) → 유사도 하한·중복 제거 · 한 문서 최대 3건 · 상위 `top_k`. SQL 오류·시간 초과 → 503 `DB_UNAVAILABLE` · 응답 조립·검증 뒤 성공 반환 직전 남은 시간 다시 확인(0 이하 502) · `retrieval_version` 은 기동 때 읽은 값
 7. 응답 — `FOUND`/`EMPTY` · 응답 시작(`http.response.start`) 직전에 검색 입구 래퍼가 마감 확인 — 만료면 200 대신 502 `LLM_UNAVAILABLE`(추가 검토 3) · 로그 한 줄 `reference_search_done`(유형·검색어 길이·결과 수·후보 수·지연·캐시 적중 — 검색어·청크 본문 0)
 
+## `POST /v1/references/str` (SCRUM-310)
+
+승인 STR 색인 — 선점·펜싱·`ai.generations` 행 없음. LLM 0, 임베딩 0~1회. 정본 노션 설계 문서 B(5.2·9절), 방법 `str/10` "승인 STR 색인".
+
+1. 입력 — 스키마(`StrIndexRequest`)가 문서번호 모양·유형·섹션 한 세트·중복·글 길이를 봄 → 어긋나면 400 `INVALID_REQUEST`(DB·임베딩 0)
+2. 스위치 — `STR_INDEX_ENABLED` 와 `RAG_ENABLED` 둘 다 켜져야. 아니면 200 `SKIPPED`·`DISABLED`(DB·임베딩 0)
+3. 같은 번호 확인(읽기만, 계좌 검사보다 먼저 — 추가 검토 3) — 부모 행이 있고 `request_hash` 같으면 기존 행 그대로 `INDEXED`(임베딩 0) · 다르면 400
+4. 명시적 계좌 키(순수) → `SKIPPED`·`RAW_ACCOUNT` · 짧음 — 공백 뺀 합 < 100 이면 `SKIPPED`·`TOO_SHORT` · 초안 facts(`draft_id`, `ai.generations`) — 없으면 `SKIPPED`·`NO_FACTS` · 케이스 계좌(대상 + 거래 ID 로 읽은 `ops.transactions` 보낸·받은 계좌 — 거래가 빠지면 503) 6자 조각·은행 번호 + 앞 4자 · `ops.accounts` 정확 일치(쿼리 한 번) → `RAW_ACCOUNT`(임베딩 0). 조회 실패 503 · 읽기 끝에 연결 반납
+5. 임베딩 — 공통 `HttpEmbeddingClient` 로 섹션 n개를 한 번에(모델·수·차원 검사). 실패 → 502 `LLM_UNAVAILABLE`, 행 0. **DB 연결은 이 동안 안 듦**
+6. 저장 — 한 트랜잭션: `READ COMMITTED`(첫 문장) → `pg_advisory_xact_lock(문서번호)` → 같은 번호 다시 확인(동시 요청: 같으면 기존 응답, 다르면 400) → 부모 행(문서번호 PK — PK 충돌이면 이미 있던 부모) + 섹션마다 한 행 → 커밋. SQL 오류 → 503 `DB_UNAVAILABLE`, 행 0
+7. 응답 — `INDEXED`·`chunk_count` · 로그 한 줄(문서번호·섹션 세트·섹션 수·청크 수·상태·지연 — 본문 0)
+
 ## 시간 예산 — 실측 전 가정값, W2 수요일 측정 뒤 조정
 
 | 단계 | 예산 | 상수 (`domain/constants.py` / `.env`) |
@@ -243,8 +255,10 @@
 | LLM 응답 스키마 위반(재생성 뒤에도) | 502 | `LLM_INVALID_OUTPUT` | 0 |
 | LLM 연결 실패·타임아웃·예산 초과 | 502 | `LLM_UNAVAILABLE` | **1** |
 | 일 토큰 한도 | 502 | `LLM_BUDGET_EXCEEDED` | 0 |
-| AI DB 장애(점수 · 참고 사례 검색 — SCRUM-309) | 503 | `DB_UNAVAILABLE` | **1** |
+| AI DB 장애(점수 · 참고 사례 검색 — SCRUM-309 · 승인 STR 색인 — SCRUM-310) | 503 | `DB_UNAVAILABLE` | **1** |
 | 참고 사례 검색 임베딩 실패·시간 초과·남은 예산 부족(SCRUM-309, 설계 13-3 — 새 코드 없음) | 502 | `LLM_UNAVAILABLE` | **1** |
+| 승인 STR 색인 임베딩 실패(SCRUM-310 — 전부 되돌림, 행 0) | 502 | `LLM_UNAVAILABLE` | **1** |
+| 승인 STR 색인 같은 문서번호 다른 본문 · 섹션 세트 섞임(SCRUM-310) | 400 | `INVALID_REQUEST` | 0 |
 | 그 밖 — v4 표기 사전에 없는 코드값·조립 섹션 1,200자 초과 포함(SCRUM-228, v2 로 자동 전환 안 함) | 500 | `INTERNAL` | 0 (백엔드 `WebClientAiClient.RETRYABLE_AI_CODES` 에 없음 — 11/17 `592bf35` 확인) |
 
 재시도는 **백엔드 `AiClient` 한 곳, 1회**. AI 서버 안에는 LLM 연결 재시도가 없다(현재 `shared/infrastructure/llm_client.py`의 1회 연결 재시도는 **삭제** — 백엔드 1회와 겹쳐 실질 4회가 되기 때문). 스키마 실패 1회 재생성은 재시도가 아니라 생성 절차의 일부이고, 예산 안에서만.

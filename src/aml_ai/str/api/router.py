@@ -16,6 +16,8 @@ from aml_ai.shared.schemas.str import (
     DraftResponse,
     ReferenceSearchRequest,
     ReferenceSearchResponse,
+    StrIndexRequest,
+    StrIndexResponse,
     SummaryRequest,
     SummaryResponse,
     VerifyRequest,
@@ -24,6 +26,7 @@ from aml_ai.shared.schemas.str import (
 from aml_ai.str.application.ask_service import AskService
 from aml_ai.str.application.draft_service import DraftService
 from aml_ai.str.application.reference_search_service import ReferenceSearchService, search_deadline
+from aml_ai.str.application.str_index_service import StrIndexService
 from aml_ai.str.application.summary_service import SummaryService
 from aml_ai.str.application.verify_service import VerifyService
 
@@ -119,3 +122,21 @@ def search_references(
     if received_at is not None:
         setattr(request.state, RESPONSE_DEADLINE, search_deadline(settings, budget_ms, received_at))
     return svc.search(req, budget_ms, received_at)
+
+
+def _str_index_service(
+    session: Session = Depends(get_session), settings: Settings = Depends(get_settings)
+) -> StrIndexService:
+    return StrIndexService.build(session, settings)
+
+
+@router.post(
+    "/references/str",
+    response_model=StrIndexResponse,
+    summary="승인 STR 색인 (설계 문서 5.2, SCRUM-310)",
+)
+def index_approved_str(
+    req: StrIndexRequest, svc: StrIndexService = Depends(_str_index_service)
+) -> StrIndexResponse:
+    """동기 def — 임베딩(외부 호출)을 이벤트 루프 스레드에서 부르지 않는다. 꺼져 있으면 200 SKIPPED·DISABLED(str/03)."""
+    return svc.index(req)
