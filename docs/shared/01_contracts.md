@@ -111,6 +111,24 @@
 
 상태별 칸 규칙은 스키마(`model_validator`)가 본다 — 백엔드 `requireAskResponse` 도 같은 규칙. 새 에러 코드 없음. 예시는 `ask_request.json` + 상태별 응답 4개.
 
+### 참고 사례 검색 `POST /v1/references/search` (설계 문서 5.1 제안, SCRUM-309)
+
+정본은 노션 「참고 사례 검색 · 승인 STR 색인 설계 문서 (RAG 2차)」 A 부분(5.1 · 9절 · 13절). B(승인 STR 색인, SCRUM-310)는 이번에 안 함. 처리 순서는 `str/03`, 검색 방법은 `str/10` "참고 사례 검색". 조회 전용 — `ai.generations` 행 0. 헤더는 다른 입구와 같음(`X-Internal-Key` · `X-Request-Id` · `X-Budget-Ms`).
+
+| 필드 | 메모 | 코드 자리 |
+|---|---|---|
+| 요청 `typologies` 1~3 | `FAN_IN`·`FAN_OUT`·`CYCLE`·`SCATTER_GATHER`·`GATHER_SCATTER`(경보 `Typology` 중 이 다섯만 — `FX_RELAY` 등은 400). 중복 400 | `ReferenceSearchRequest.typologies` |
+| 요청 `query` | `null` 또는 1~200 — NFC 뒤 UTF-16 코드 단위(`utf16_len_nfc`, 질문 답변과 같음). 앞뒤 공백을 자르지 않고 원문 그대로 세고, 공백만이면 400. **백엔드는 앞뒤 공백을 지운 뒤 빈 문자열이면 `null`** 로 보냄(설계 6.1) | `ReferenceSearchRequest.query` · `REFERENCE_QUERY_MAX` |
+| 요청 `top_k` | 1~10, 기본 5 | `REFERENCE_TOP_K_MAX` |
+| 요청 `source_types` | 기본 `["PUBLIC"]`. `APPROVED_STR`(B 가 켜졌을 때만 — 이번엔 늘 400) · 빈 목록 · 중복 400 | `ReferenceSourceType` |
+| 응답 `status` 2종 | `FOUND`(결과 1~`top_k`, `score` 내림차순) · `EMPTY`(`results=[]`). 둘 다 200 | `ReferenceSearchStatus` |
+| 응답 `results[]` | `doc_id`·`doc_title`·`page`·`score`(cosine)·`chunk_id` 는 초안 `references[]` 와 같은 이름·뜻. 더해서 `publisher`·`year`(manifest 값 — 적재 때 DB 칸에 들어간 값, 없으면 `null`: `ffiec-redflags` year) · `typologies`(그 청크 태그 전부 — 요청 유형과 하나 이상 겹침) · `source_type`(`PUBLIC`). **본문 칸 없음** | `ReferenceResult` |
+| 응답 `retrieval_version` | 꼬리 없는 `{EMBEDDING_MODEL}@{manifest_sha256[:8]}` — 초안 경로의 `+ctx`·`+rr`·`+fill` 꼬리는 붙이지 않음(이 입구는 셋 다 안 씀) | `base_retrieval_version` |
+| 응답 `search_meta` | `degraded`(ES 키워드 실패로 벡터만 — 이번엔 키워드를 안 써서 늘 false) · `candidates`(정리 전 벡터 후보 수) · `latency_ms` | `ReferenceSearchMeta` |
+| 응답 `produced_at` | `SystemTimestamp`(Z) | — |
+
+상태별 칸 규칙(`FOUND` ↔ 1건 이상 · `EMPTY` ↔ 0건 · 결과 수 ≤ `top_k` · `score` 내림차순 · 결과 태그 ∩ 요청 유형 ≠ ∅)은 응답 스키마가 본다 — 백엔드 `requireReferenceSearchResponse` 도 같은 규칙. 새 에러 코드 없음: 400 `INVALID_REQUEST`(입력 · 스위치 끔) · 502 `LLM_UNAVAILABLE`(임베딩 실패·시간 초과·남은 예산 부족, 재시도 1) · 502 `LLM_BUDGET_EXCEEDED`(일 한도, 재시도 0) · 503 `DB_UNAVAILABLE`(재시도 1). 예시는 `reference_search_request.json` + `_response_found.json` · `_response_empty.json`. 설계 예시와 다르게 간 곳: `publisher` 는 manifest 값(`APG` 가 아니라 `Asia/Pacific Group on Money Laundering` 등).
+
 ### 에러 `schemas/errors.py` (규약 6.3)
 
 추가 `409 GENERATION_IN_PROGRESS`(`GenerationInProgress`), `503 DB_UNAVAILABLE`(`DbUnavailable`, 점수 요청 중 AI 서버 DB 조회 실패 — 백엔드 재시도 1회, 10/29). 삭제 `TRANSACTION_NOT_FOUND`(→ 400 메시지에 없는 ID), `EVIDENCE_OUT_OF_SCOPE`(→ 검증 결과), `LLM_TIMEOUT`(→ `LLM_UNAVAILABLE`). 나머지 그대로.

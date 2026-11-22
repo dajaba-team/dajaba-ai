@@ -63,6 +63,14 @@ from aml_ai.shared.schemas.str.narrative import (
     section_set_version,
 )
 from aml_ai.shared.schemas.str.narrative_version import llm_output_model
+from aml_ai.shared.schemas.str.reference_search import (
+    ReferenceResult,
+    ReferenceSearchMeta,
+    ReferenceSearchRequest,
+    ReferenceSearchResponse,
+    ReferenceSearchStatus,
+    ReferenceSourceType,
+)
 from aml_ai.shared.schemas.str.summary import (
     SUMMARY_LINE_MAX,
     SUMMARY_LINES_MAX,
@@ -88,6 +96,12 @@ from aml_ai.shared.schemas.str.verify import (
 )
 
 __all__ = [
+    "ReferenceResult",
+    "ReferenceSearchMeta",
+    "ReferenceSearchRequest",
+    "ReferenceSearchResponse",
+    "ReferenceSearchStatus",
+    "ReferenceSourceType",
     # ask
     "ASK_ANSWER_MAX",
     "ASK_BUNDLES_MAX",

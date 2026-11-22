@@ -988,6 +988,28 @@ facts → (a) build_query 임베딩 1회 → PG(필터 켬, 지금 SQL) 후보 R
   - 다시 돌리기: 하네스 결함을 고쳤을 때만, 사유를 report·이 절에 기록
 - **켤 때 갖출 것**(판정 통과 뒤, 위 기준 절 목록 중 청크 맥락에 해당하는 것): 스위치 env · 기동 검사(위) · 초안 80초 예산 안 실측 · `Reference.score` cosine · `retrieval_version` 꼬리 · 오류 주입 13·14 통과 · 외부 호출 중 DB 연결 안 듦(새 표는 질의 임베딩 뒤 조회라 지금과 같음) · 로그에 본문 0 · v4 에만. 리랭커 fail-open 항목은 해당 없음
 
+## 참고 사례 검색 (SCRUM-309, 2026-11-22 — 조사역이 유형으로 더 찾아보기, 기본 끔)
+
+정본 노션 「참고 사례 검색 · 승인 STR 색인 설계 문서 (RAG 2차)」 A. 계약 `shared/01` "참고 사례 검색", 처리 순서 `str/03`. 초안 경로(`Retriever`)는 **고치지 않음** — 초안에 붙는 참고 사례 3건·`retrieval_version`·기본값 그대로. 308 판정을 따름: `MIN_SIMILARITY` 0.0 · 리랭커·청크 맥락 안 씀 · 지금 표 `ai.reference_chunks`.
+
+```
+요청(유형 1~3 · 검색어 0~1 · top_k) → 스위치·입력 검사 → mask_question(검색어)
+  → 질의 한 줄 = 유형 영문 패턴(정해진 순서) + 가린 검색어 → 임베딩 1회(유형만이면 캐시)
+  → PG: 같은 모델 · 유형 OR 필터 · 후보 30 → chunk_id 중복 제거 → 한 문서 최대 3 → 앞 top_k
+```
+
+- **질의**: 고른 유형의 `TYPOLOGY_PATTERN_EN` 을 `FAN_IN`·`FAN_OUT`·`CYCLE`·`SCATTER_GATHER`·`GATHER_SCATTER` 순서로 공백으로 이어 붙이고, 검색어가 있으면 가린 뒤 뒤에 붙임(`str/domain/reference_search.py`, 순수). 유형마다 따로 임베딩하지 않음(호출 1~3배)
+- **가리기**: 질문 답변과 같은 `mask_question`(NFKC 뒤 은행 번호 붙은 계좌 키 → `10_****BD30`, 맨 계좌 → `****BD30`) 뒤에 **검색용으로 한 번 더**(추가 검토 1 — 질문 답변 쪽은 그대로): 숫자 사이에 `-`·공백(탭·줄바꿈 포함)·`.` 만 낀 숫자열을 이어 세어 숫자 8개 이상이면 뒤 4자리만(`****6789`). 구분자는 연속 허용(`1234 - 5678`), 한 자리 사이 묶음은 최대 3글자 — 그보다 멀리 떨어진 숫자는 따로 셈(추가 검토 2). 쉼표 낀 금액(`15,000,000`)은 그대로, 쉼표 없는 8자리 이상 숫자는 금액·날짜(`2022-09-07` → `****0907`)여도 가림(검색 의미 손실이 작아 실패 쪽으로 닫음). 외부 임베딩 API 로 가는 문장에 계좌 원문 0. 가린 뒤 남는 글자(공백 빼고)가 없으면 유형 질의만. 추가 검토 3 — 검색용 가리기를 **`mask_question` 보다 먼저** 이 순서로: ① NFKC 뒤 하이픈 변형(`‐ ‑ ‒ – — ―`·`−`·`﹘ ﹣ －`)을 `-` 로 ② 은행 번호 + 나뉜 계좌를 한 덩어리로(`10_123456-78` → `10_****5678`, 구분자 뒤 조각은 숫자가 있어야 이어 붙임) ③ 16진 글자(`0-9A-F`) 묶음이 구분자(최대 3글자)로 이어지고 구분자 뺀 길이 8 이상·숫자 4개 이상이면 `****끝4`(`8000-EBD-30` → `****BD30`, 숫자 4개 미만인 `ADD-BEEF` 같은 단어는 그대로) ④ 위 숫자열 규칙 → `mask_question`. **한계**(알고 남김): 조각 사이 구분자가 4글자 이상이면 따로 셈 · 16진 아닌 영문이 섞여 구분자로 나뉜 계좌(`8000-XYZ-30`)는 조각마다 따로 봄(붙어 있으면 `mask_question` 이 가림) · `CAFE 2023` 처럼 16진 단어와 숫자가 붙으면 계좌가 아니어도 가림(실패 쪽으로 닫음)
+- **캐시**: 검색어 없음(또는 가린 뒤 빈 값)만 프로세스 안 캐시 — 키 = (정렬한 유형, 임베딩 모델, 질의 버전 `REFERENCE_QUERY_VERSION = "v1"`), 최대 `REFERENCE_CACHE_MAX = 25`(유형 1~3개 조합 수). 기동 때 미리 계산 안 함(기동에 외부 호출이 생김). 적중이면 외부 호출 0
+- **검색 SQL**: `retriever_sql` 에 OR 필터 변형(`typologies && CAST(:tys AS text[])`) — 나머지는 초안 SQL 과 같은 모양(`embedding_model = 질의 모델` · HNSW `relaxed_order` · 바깥 정렬 `거리, chunk_id`). 후보 `REFERENCE_SEARCH_CANDIDATES = 30`(`top_k` 최대 10 × 한 문서 3건). 고를 칸은 `doc_id`·`doc_title`·`publisher`·`year`·`page`·`typologies`·`chunk_id`·cosine — **본문은 안 읽음**
+- **정리**: `score < MIN_SIMILARITY`(0.0) 제외(0.0 은 포함 — 추가 검토 1) → `chunk_id` 중복 제거 → 한 문서 최대 `REFERENCE_PER_DOC_MAX = 3` → 앞 `top_k`(점수 내림차순 · 동점 `chunk_id`). 모자라면 있는 만큼(다른 유형으로 안 채움). 0건이면 `EMPTY`
+- **ES 키워드**: 이번엔 안 씀 — `search_meta.degraded` 는 늘 false(켜는 건 범위 밖, 붙이면 실패 시 `degraded: true`)
+- **예산**: `REFERENCE_SEARCH_BUDGET_S=5` · 임베딩 `REFERENCE_SEARCH_EMBED_TIMEOUT_S=3` · `X-Budget-Ms` 가 더 짧으면 그 값. ★L 실측(11/22): 첫 호출 약 2.2초, 그 뒤 0.2~0.6초(7회 모두 200 · 예산 5초 안). 추가 검토 1: 임베딩은 **전송·본문 읽기 전체를 한 마감**(min(3초, 남은 시간))으로 — 검색 전용 `str/infrastructure/reference_embedding.embed_within`(LLM 전체 마감 SCRUM-322 와 같은 비동기 + 취소, 응답 검사는 공통 클라이언트와 같음 · 공통 클라이언트·초안 경로는 그대로) · DB 진입 전(캐시 적중 포함)·응답 직전에 남은 시간 확인 — 0 이하면 502 `LLM_UNAVAILABLE` · SQL 은 `statement_timeout` = 남은 ms, 넘으면 503 `DB_UNAVAILABLE`. 추가 검토 2: 마감은 **요청이 들어온 시각부터**(순수 ASGI 미들웨어 `ReceivedAtMiddleware` 가 단조 시계로 기록 — 의존성·작업 스레드 대기도 셈, `latency_ms` 도 같은 기준) · 서비스 진입 때 이미 만료면 임베딩·DB 전 502 · 응답 조립·검증 뒤 성공 반환 직전 다시 확인(넘으면 502, 로그 `reference_search_failed`) · `retrieval_version` 은 기동 때 읽은 값 재사용(요청마다 manifest 안 읽음) · 임베딩은 앱 수명 루프 하나(`reference_search_runtime`, lifespan 시작·종료)에서 돌리고 요청 스레드는 남은 시간만 기다렸다 취소(DNS 지연에도 바로 502) · 저장소는 **연결을 얻은 뒤** 남은 시간을 셈 — 0 이하면 검색 SQL 없이 502. **한계**: 연결 풀 대기 자체는 요청마다 한도를 못 줌(엔진 공통 `pool_timeout`) — 대신 대기 뒤 만료면 검색을 시작하지 않고, 예산을 넘긴 응답은 200 으로 안 나감. 추가 검토 3: **응답 경계에서 한 번 더** — 검색 입구에만 걸린 순수 ASGI 래퍼(`shared/received_at.ResponseDeadlineGuard`, 경로 `/v1/references/search` 만)가 라우터가 적어 둔 절대 마감을 들고 있다가 `http.response.start` 를 보내기 직전에 만료면 200 을 규약 502 `LLM_UNAVAILABLE` 본문으로 바꿈(성공 로그·응답 검증 대기 포함, 다른 경로는 안 걸림) · 임베딩은 **절대 마감**(min(지금+3초, 요청 마감))을 받아 루프 쪽에서 클라이언트 만들기 전·전송 직전에 확인(지났으면 전송 0), 호출자 대기는 제출 뒤 다시 계산 · 저장소는 `statement_timeout` 설정 왕복 뒤 마감을 다시 확인(지났으면 검색 SQL 없이 502)
+- **DB 연결**: 임베딩(외부 호출) 뒤에 처음 씀 — 외부 호출 중 연결 안 듦(SCRUM-122 원칙)
+- **기록**: `ai.generations` 0 · 로그 `reference_search_done`(유형·검색어 길이·결과 수·후보 수·지연·캐시 적중) — 검색어·청크 본문 0(NFR-COM-04). 검색 전용 임베딩 경로는 Langfuse 래퍼를 거치지 않음(기록 자체 0 — 검토 1 뒤)
+- **스위치**: `RAG_REFERENCE_SEARCH_ENABLED`(false) — 끄거나 `RAG_ENABLED=false` 면 400(설계 13-4, 404 아님). 켜면 기동 때 `EMBEDDING_MODEL` 과 읽을 수 있는 manifest 가 있어야(`reference_search_problem`, 없으면 기동 실패 — 응답 `retrieval_version` 은 늘 `모델@해시`, 모델명만 보내지 않음 · 추가 검토 1). 11/24 저녁까지 실제 한 바퀴가 안 돌면 끈 채로 머지(설계 11절)
+- **하지 않음**: 승인 STR(`APPROVED_STR`, SCRUM-310) · LLM 으로 고르기·요약 · 본문 발췌 · 유형 없이 검색어만 · 리랭커(LLM 재정렬) — 2차 고도화 후보(아래 "2차로 넘기는 것" 9번)
+
 ## 버전
 
 `retrieval_version = f"{EMBEDDING_MODEL}@{manifest_sha256[:8]}"` → `generation_meta`, `generations.retrieval_version`.
@@ -1019,6 +1041,7 @@ W3 초안 생성·검증이 먼저 서 있어야 한다. 순서를 바꾸지 않
 6. **사례 검색 화면** — 사람 평가(참고 사례가 도움 되는지) 기준을 넘은 뒤. 규약 변경 요청 먼저.
 7. **청크 자동 태깅(LLM)** — 자료를 여러 권 넣게 될 때. 사람 일치율 기준 뒤.
 8. **승인 STR 재사용** — 재사용 승인·철회 흐름과 자체 임베딩이 준비된 뒤(맨 뒤).
+9. **사례 검색 경로 리랭커** — 후보 30·자유 검색어라 초안 경로(308-2 미채택)와 조건이 다름. 할 때는 조사역 검색어로 새 질의 세트 + 결과 전 기준 커밋, 308-2 리랭커 코드(스위치·fail-open·응답 모델 검사) 재사용, 자유 검색어를 LLM 에 넣는 입력 방어 새로 설계, 예산 5초 안인지 실측. 설계 문서 1절 "LLM 0" 과 규약 5.5 를 바꾸는 팀 결정 필요(SCRUM-309 에서 남김).
 
 - 목표는 청크 수가 아니라 유형별 커버리지(유형마다 출처 2곳 이상, 관련 청크 N개 — N 은 팀이 정함).
 - SCATTER_GATHER·GATHER_SCATTER 는 규제기관 용어가 아니라 합성 데이터(IBM·AMLSim) 이름이라, 공개 자료에서는 funnel account·pass-through·경유 계좌 같은 말로 찾는다 — 태그 기준에 용어 대응표가 필요.

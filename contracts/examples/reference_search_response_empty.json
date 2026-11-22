@@ -1,0 +1,7 @@
+{
+  "produced_at": "2026-11-24T02:11:00Z",
+  "status": "EMPTY",
+  "results": [],
+  "retrieval_version": "text-embedding-3-small@36b5a2d5",
+  "search_meta": { "degraded": false, "candidates": 0, "latency_ms": 35 }
+}

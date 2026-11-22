@@ -98,6 +98,9 @@ docker exec -it -e PGOPTIONS='-c default_transaction_read_only=on' aml-db psql -
 | `RAG_GAP_FILL_ENABLED` | `false` | **SCRUM-275 빈칸만 채우기 스위치 — 코드 기본 `false`**(판정 통과 전까지). 켜고 `NARRATIVE_PROMPT=narrative_v4` 일 때만, 지금 경로(필터 켬)가 1~`RAG_TOP_K`-1 건이면 남는 칸을 필터 끈 합치기(벡터 + ES 키워드)로 채움. 끄려면 `.env` 에서 `false` + 앱 재시작(재배포 없음). `str/10` "빈칸만 채우기" |
 | `RAG_RERANK_ENABLED` | `false` | **SCRUM-308-2 리랭커 스위치 — 코드 기본 `false`**(판정 통과 전까지). 켜고 `NARRATIVE_PROMPT=narrative_v4` 일 때만, 초안 경로 후보 10건을 LLM(`rerank_v1`)이 다시 줄 세워 앞 3건. 실패(시간 초과·공급자·형식)는 원래 순서. 끄려면 `.env` 에서 `false` + 앱 재시작. 켜면 `retrieval_version` 꼬리 `+rr:rerank_v1`. `str/10` "리랭커" |
 | `RAG_RERANK_MODEL` | `""` | 리랭커 모델 이름 — 비면 `LLM_MODEL_JUDGE` 를 씀(값은 노션 「다자바 환경변수」). 코드에 모델 이름 0 |
+| `RAG_REFERENCE_SEARCH_ENABLED` | `false` | 참고 사례 검색 `POST /v1/references/search`(SCRUM-309). 꺼져 있거나 `RAG_ENABLED=false` 면 400 `INVALID_REQUEST` — DB·임베딩 호출 0 |
+| `REFERENCE_SEARCH_BUDGET_S` | `5.0` | 참고 사례 검색 AI 전체 예산(설계 5.1, 실측 전). `X-Budget-Ms` 가 더 짧으면 그 값 |
+| `REFERENCE_SEARCH_EMBED_TIMEOUT_S` | `3.0` | 참고 사례 검색 임베딩 호출 한도 — 남은 예산이 더 짧으면 그 값 |
 | `RAG_CHUNK_CONTEXT_ENABLED` | `false` | 청크 맥락 새 표 `ai.reference_chunks_ctx` 로 검색(v4 에서만, 검색 표만 바뀜). 켜면 기동 때 새 표 = 지금 표 대조 — 다르면 기동 실패, DB 접속 실패면 지금 표로(경고 1줄). 판정 통과해야 켬(SCRUM-308-3, str/10 "청크 맥락") |
 | `RAG_RERANK_RESPONSE_MODEL` | `""` | 운영 리랭커가 순서를 받아들이는 **실제 응답 모델 ID**(strip) — 응답 본문 `model` 이 이것과 다르거나 없으면 원래 순서. ② 통과 결과의 `response_models` 한 값을 넣음. **리랭커를 켰는데 비면 기동 실패**(SCRUM-308-2 검토 5) |
 | `RAG_RERANK_TIMEOUT_S` | `8.0` | 리랭커 LLM 호출 1회 한도(초). 넘으면 원래 순서로 계속(fail-open). `DRAFT_BUDGET_S` 안. **리랭커를 켜면 0 초과·8 이하여야 기동**(SCRUM-308-2 — 판정 한도와 같음) |

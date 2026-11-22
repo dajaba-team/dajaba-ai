@@ -57,3 +57,9 @@ CHUNK_CONTEXT_VERSION = "v1"
 REFERENCE_TABLE = "ai.reference_chunks"
 REFERENCE_CTX_TABLE = "ai.reference_chunks_ctx"
 REFERENCE_TABLES = (REFERENCE_TABLE, REFERENCE_CTX_TABLE)
+
+# SCRUM-309 참고 사례 검색 (str/10 "참고 사례 검색") — 후보 = top_k 최대 10 × 한 문서 3건
+REFERENCE_SEARCH_CANDIDATES = 30
+REFERENCE_PER_DOC_MAX = 3
+REFERENCE_CACHE_MAX = 25  # 유형 1~3개 조합 수(5C1 + 5C2 + 5C3)
+REFERENCE_QUERY_VERSION = "v1"  # 질의 문장 규칙 — 캐시 키에 들어감
