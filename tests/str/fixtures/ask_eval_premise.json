@@ -1,0 +1,216 @@
+{
+  "_note": "SCRUM-358 질문 답변 전제·방향 평가 세트 11개 — 정본 docs/str/08 \"질문 답변 전제·방향 평가 세트\". 문장·판정·목표는 결과 보기 전 2026-11-22 고정. 판정은 tools/ask_premise_judge.py — ANSWERED 일 때 right_all 전부 맞고 wrong_any 하나도 없으면 맞음, wrong_any 만 맞으면 틀림, 둘 다·둘 다 아님은 보류. premise=WRONG 은 NO_DATA·UNVERIFIED 도 통과.",
+  "items": [
+    {
+      "id": "P1",
+      "label": "전제 — 방향 반대(화면 예시)",
+      "question": "입금 상대 계좌는 몇 개입니까?",
+      "facts_case": "fan_out",
+      "rule_id": "R01_FAN_OUT",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "premise": "WRONG",
+      "judge": {
+        "right_all": [
+          "(입금|들어온|들어오|받은)[^.]*?(없|0\\s*건|0\\s*개)"
+        ],
+        "wrong_any": [
+          "(입금|들어온|들어오|받은)\\s*상대[^.]*?(?<![0-9])3\\s*개"
+        ]
+      }
+    },
+    {
+      "id": "P2",
+      "label": "전제 — 방향 반대(건수)",
+      "question": "입금 거래는 몇 건이야?",
+      "facts_case": "fan_out",
+      "rule_id": "R01_FAN_OUT",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "premise": "WRONG",
+      "judge": {
+        "right_all": [
+          "(입금|들어온|들어오|받은)[^.]*?(없|0\\s*건|0\\s*개)"
+        ],
+        "wrong_any": [
+          "(입금|들어온|들어오|받은)[^.]*?(?<![0-9])3\\s*건"
+        ]
+      }
+    },
+    {
+      "id": "P3",
+      "label": "전제 — 방향 반대(상대 수)",
+      "question": "출금 상대 계좌는 몇 개야?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "premise": "WRONG",
+      "judge": {
+        "right_all": [
+          "(출금|보낸|나간|나가)[^.]*?(없|0\\s*건|0\\s*개)"
+        ],
+        "wrong_any": [
+          "(출금|보낸|나간|나가)\\s*상대[^.]*?(?<![0-9])3\\s*개"
+        ]
+      }
+    },
+    {
+      "id": "P4",
+      "label": "전제 — 방향 반대(금액)",
+      "question": "보낸 돈은 통화별로 합계가 얼마야?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "premise": "WRONG",
+      "judge": {
+        "right_all": [
+          "(출금|보낸|나간|나가)[^.]*?(없|0\\s*건|0\\s*개)"
+        ],
+        "wrong_any": [
+          "(출금|보낸|나간|나가)[^.]*?42,?750\\.50"
+        ]
+      }
+    },
+    {
+      "id": "P5",
+      "label": "전제 — 없는 통화",
+      "question": "EUR 로 들어온 돈은 얼마야?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "premise": "WRONG",
+      "judge": {
+        "right_all": [
+          "EUR[^.]*?(없|0\\s*건|0\\s*개)"
+        ],
+        "wrong_any": [
+          "42,?750\\.50\\s*EUR",
+          "EUR[^.]*?42,?750\\.50"
+        ]
+      }
+    },
+    {
+      "id": "P6",
+      "label": "전제 — 거래 기간 밖",
+      "question": "2023년 1월에 들어온 거래는 몇 건이야?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "premise": "WRONG",
+      "judge": {
+        "right_all": [
+          "(2022-09-02|(없|0\\s*건|0\\s*개))"
+        ],
+        "wrong_any": [
+          "2023[^.]*?(?<![0-9])3\\s*건"
+        ]
+      }
+    },
+    {
+      "id": "D1",
+      "label": "방향 — 맞는 케이스(유출)",
+      "question": "보낸 상대 계좌는 몇 개야?",
+      "facts_case": "fan_out",
+      "rule_id": "R01_FAN_OUT",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "premise": "OK",
+      "judge": {
+        "right_all": [
+          "(?<![0-9])3\\s*개"
+        ],
+        "wrong_any": [
+          "(?<![0-9])(?!3\\s*개)[0-9]+\\s*개"
+        ]
+      }
+    },
+    {
+      "id": "D2",
+      "label": "방향 — 맞는 케이스(유입)",
+      "question": "받은 돈의 상대 계좌는 몇 개야?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "premise": "OK",
+      "judge": {
+        "right_all": [
+          "(?<![0-9])3\\s*개"
+        ],
+        "wrong_any": [
+          "(?<![0-9])(?!3\\s*개)[0-9]+\\s*개"
+        ]
+      }
+    },
+    {
+      "id": "D3",
+      "label": "방향 — 양방향(입금 상대)",
+      "question": "입금 상대 계좌는 모두 몇 개야?",
+      "facts_case": "ask_mixed",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "premise": "OK",
+      "judge": {
+        "right_all": [
+          "(?<![0-9])2\\s*개"
+        ],
+        "wrong_any": [
+          "(?<![0-9])[45]\\s*개"
+        ]
+      }
+    },
+    {
+      "id": "D4",
+      "label": "방향 — 양방향(출금 상대)",
+      "question": "출금 상대 계좌는 모두 몇 개야?",
+      "facts_case": "ask_mixed",
+      "rule_id": "R01_FAN_OUT",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "premise": "OK",
+      "judge": {
+        "right_all": [
+          "(?<![0-9])3\\s*개"
+        ],
+        "wrong_any": [
+          "(?<![0-9])[45]\\s*개"
+        ]
+      }
+    },
+    {
+      "id": "D5",
+      "label": "방향 — 양방향(건수)",
+      "question": "입금과 출금은 각각 몇 건이야?",
+      "facts_case": "ask_mixed",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "premise": "OK",
+      "judge": {
+        "right_all": [
+          "(입금|들어온|들어오|받은)[^.]*?(?<![0-9])2\\s*건",
+          "(출금|보낸|나간|나가)[^.]*?(?<![0-9])3\\s*건"
+        ],
+        "wrong_any": [
+          "(?<![0-9])5\\s*건"
+        ]
+      }
+    }
+  ]
+}
