@@ -44,6 +44,7 @@ from aml_ai.shared.schemas.str.facts import (
     SubjectFacts,
     UnmappedCurrencyAgg,
 )
+from aml_ai.shared.schemas.str.facts_direction import CounterpartiesByDirection, DirectionCounterparties
 from aml_ai.shared.schemas.str.facts_input import FactsInput
 from aml_ai.shared.schemas.str.narrative import (
     NARRATIVE_TEXT_MAX,
@@ -133,7 +134,9 @@ __all__ = [
     # facts
     "MODEL_SIGNALS_MAX",
     "AmountRange",
+    "CounterpartiesByDirection",
     "CounterpartyBanks",
+    "DirectionCounterparties",
     "CurrencyTotal",
     "CustomerFacts",
     "Direction",

@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"금액 기준으로는 입금이 27250.50 USD, 출금이 24500.25 USD로 입금이 더 많은 것으로 보여요. 건수 기준으로는 입금 2건, 출금 3건으로 입금이 더 적은 것으로 보여요.\",\"cites\":[\"inbound.amount.USD\",\"outbound.amount.USD\",\"inbound.count\",\"outbound.count\"]}", "model": "gpt-6.1-sol"}

@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"모델이 주목한 점: 관측된 비율이 1.0으로 기준값 0.4보다 높은 점으로 보여요.\",\"cites\":[\"observations.inflow_outflow_ratio_2h\",\"model_signals\"]}", "model": "gpt-6.1-sol"}

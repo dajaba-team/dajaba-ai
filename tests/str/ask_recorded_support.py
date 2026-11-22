@@ -1,6 +1,6 @@
 """질문 답변 녹화 재생 공용 — 평가 세트·픽스처 facts·오류 주입 래퍼 (SCRUM-290 2/2, 08).
 
-래퍼는 진짜 녹화(`recorded/ask_answer_v1/`)를 읽은 뒤 답만 바꾼다 — `recorded/` 에는 실제 LLM 출력만 둔다.
+래퍼는 진짜 녹화(`recorded/<ASK_ANSWER_PROMPT>/`, 지금 ask_answer_v2)를 읽은 뒤 답만 바꾼다 — `recorded/` 에는 실제 LLM 출력만 둔다.
 """
 
 from __future__ import annotations
@@ -27,7 +27,13 @@ def item(item_id: str) -> dict:
 
 
 def facts_for(it: dict) -> Facts:
-    return Facts.model_validate(load_json(FIXTURES / f"facts_{it['facts_case']}.json"))
+    """질문 답변 전용 복사본(`facts_ask_<case>.json`, 새 칸 있음 — SCRUM-358·359)이 있으면 그것, 없으면 기준 픽스처."""
+    return Facts.model_validate(load_json(fixture_path(it["facts_case"])))
+
+
+def fixture_path(case: str):
+    copy = FIXTURES / f"facts_ask_{case}.json"
+    return copy if copy.exists() else FIXTURES / f"facts_{case}.json"
 
 
 def recorded() -> RecordedLlmClient:

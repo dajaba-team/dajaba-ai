@@ -1,0 +1,333 @@
+{
+  "_note": "SCRUM-359 질문 답변 사각지대 측정 세트 16개 — 정본 docs/str/08 \"질문 답변 사각지대 측정 세트\". 문장·판정·목표는 결과 보기 전 2026-11-22 고정. 판정은 tools/ask_premise_judge.py — ANSWERED 일 때 right_all 전부 맞고 wrong_any 하나도 없으면 맞음, wrong_any 만 맞으면 틀림, 둘 다·둘 다 아님은 보류. expect=ANSWER 는 맞음만 통과, expect=BLOCK 은 맞음·못 답함(NO_DATA·UNVERIFIED)·범위 밖 통과.",
+  "items": [
+    {
+      "id": "N1",
+      "type": 1,
+      "label": "숫자 없는 주장 — 값 없음",
+      "question": "해외 송금도 있었어?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "subject",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "(자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)"
+        ],
+        "wrong_any": [
+          "(해외|국외)\\s*(송금|거래)(은|이|도|는)?\\s*(없었|없어요|없습니다|있었|있어요|있습니다)"
+        ]
+      }
+    },
+    {
+      "id": "N2",
+      "type": 1,
+      "label": "숫자 없는 주장 — 값 있음",
+      "question": "현금 거래도 있었어?",
+      "facts_case": "fan_out",
+      "rule_id": "R01_FAN_OUT",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "formats",
+      "expect": "ANSWER",
+      "judge": {
+        "right_all": [
+          "(현금[^.]*?없|ACH)"
+        ],
+        "wrong_any": [
+          "현금[^.]*?(있었|있어요|있습니다)"
+        ]
+      }
+    },
+    {
+      "id": "T1",
+      "type": 2,
+      "label": "기간 일부 — 하루 건수",
+      "question": "9월 3일에 들어온 거래는 몇 건이야?",
+      "facts_case": "multi_currency",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "(자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)"
+        ],
+        "wrong_any": [
+          "(?<![0-9])[0-9]+\\s*건"
+        ]
+      }
+    },
+    {
+      "id": "T2",
+      "type": 2,
+      "label": "기간 일부 — 하루 금액",
+      "question": "9월 4일 하루 동안 들어온 돈은 얼마야?",
+      "facts_case": "multi_currency",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "(자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)"
+        ],
+        "wrong_any": [
+          "42,?750\\.50",
+          "9,?800\\.25"
+        ]
+      }
+    },
+    {
+      "id": "T3",
+      "type": 2,
+      "label": "기간 일부 — 오전",
+      "question": "9월 2일 오전에 들어온 건 몇 건이야?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "(자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)"
+        ],
+        "wrong_any": [
+          "(?<![0-9])3\\s*건"
+        ]
+      }
+    },
+    {
+      "id": "V1",
+      "type": 3,
+      "label": "방향 없는 값 — 타행 상대",
+      "question": "입금 상대 중 타행 계좌는 몇 개야?",
+      "facts_case": "ask_mixed",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "((자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)|(?<![0-9])2\\s*개)"
+        ],
+        "wrong_any": [
+          "(?<![0-9])4\\s*개"
+        ]
+      }
+    },
+    {
+      "id": "V2",
+      "type": 3,
+      "label": "방향 없는 값 — 금액 범위",
+      "question": "가장 큰 출금액은 얼마야?",
+      "facts_case": "ask_mixed",
+      "rule_id": "R01_FAN_OUT",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "((자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)|9,?000\\.00)"
+        ],
+        "wrong_any": [
+          "15,?000\\.00"
+        ]
+      }
+    },
+    {
+      "id": "V3",
+      "type": 3,
+      "label": "방향 없는 값 — 결제 방식",
+      "question": "출금은 Wire 로 몇 건 보냈어?",
+      "facts_case": "ask_mixed_formats",
+      "rule_id": "R01_FAN_OUT",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "formats",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "((자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)|(Wire|전신환)[^.]*?(없|0\\s*건|0\\s*개))"
+        ],
+        "wrong_any": [
+          "(Wire|전신환)[^.]*?(?<![0-9])2\\s*건"
+        ]
+      }
+    },
+    {
+      "id": "X1",
+      "type": 4,
+      "label": "없는 세부 — 상대 순위",
+      "question": "가장 많이 입금한 상대 계좌는 어디야?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "(자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)"
+        ],
+        "wrong_any": [
+          "[0-9]+_[*A-Za-z0-9]{4,}",
+          "\\*{2,}[A-Za-z0-9]{2,}"
+        ]
+      }
+    },
+    {
+      "id": "X2",
+      "type": 4,
+      "label": "없는 세부 — 상대별 금액",
+      "question": "상대 계좌마다 보낸 금액을 알려 줘",
+      "facts_case": "fan_out",
+      "rule_id": "R01_FAN_OUT",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "counterparties",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "(자료에 없|자료에는 없|나와 있지 않|확인할 수 없|알 수 없|정보가 없|포함되어 있지 않|포함돼 있지 않|구분되어 있지 않|구분돼 있지 않|구분이 없|나뉘어 있지 않|나눠져 있지 않|따로 없)"
+        ],
+        "wrong_any": [
+          "(?<![0-9])1[2-6],?[0-9]{3}\\.[0-9]{2}"
+        ]
+      }
+    },
+    {
+      "id": "C1",
+      "type": 5,
+      "label": "이어지는 질문 — 값으로 답할 수 있음",
+      "question": "그럼 출금은?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "(출금|보낸|나간|나가)[^.]*?(없|0\\s*건|0\\s*개)"
+        ],
+        "wrong_any": [
+          "(출금|보낸|나간|나가)[^.]*?(?<![0-9])[1-9][0-9]*\\s*(건|개)",
+          "(출금|보낸|나간|나가)[^.]*?42,?750\\.50"
+        ]
+      }
+    },
+    {
+      "id": "C2",
+      "type": 5,
+      "label": "이어지는 질문 — 지시어",
+      "question": "그 중에 제일 큰 건?",
+      "facts_case": "ask_mixed",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "BLOCK",
+      "judge": {
+        "right_all": [
+          "(무엇|어떤|어느|다시|구체적)[^.]*?(말씀|알려|질문|물어)"
+        ],
+        "wrong_any": [
+          "15,?000\\.00",
+          "27,?250\\.50",
+          "24,?500\\.25",
+          "9,?000\\.00"
+        ]
+      }
+    },
+    {
+      "id": "O1",
+      "type": 6,
+      "label": "그 밖 — 비교",
+      "question": "입금이 출금보다 많아?",
+      "facts_case": "ask_mixed",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "ANSWER",
+      "judge": {
+        "right_all": [
+          "(27,?250\\.50[^.]*?24,?500\\.25|24,?500\\.25[^.]*?27,?250\\.50|(?<![0-9])2\\s*건[^.]*?(?<![0-9])3\\s*건|(?<![0-9])3\\s*건[^.]*?(?<![0-9])2\\s*건)"
+        ],
+        "wrong_any": [
+          "(?<![0-9])5\\s*건",
+          "51,?750\\.75"
+        ]
+      }
+    },
+    {
+      "id": "O2",
+      "type": 6,
+      "label": "그 밖 — 두 가지 한 번에",
+      "question": "입금 건수랑 상대 계좌 수 둘 다 알려 줘",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "ANSWER",
+      "judge": {
+        "right_all": [
+          "(입금|들어온|들어오|받은)[^.]*?(?<![0-9])3\\s*건",
+          "(?<![0-9])3\\s*개"
+        ],
+        "wrong_any": [
+          "(?<![0-9])(?!3\\s*(건|개))[0-9]+\\s*(건|개)"
+        ]
+      }
+    },
+    {
+      "id": "O3",
+      "type": 6,
+      "label": "그 밖 — 영어",
+      "question": "How many incoming transactions are there?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "ANSWER",
+      "judge": {
+        "right_all": [
+          "(?<![0-9])3\\s*건"
+        ],
+        "wrong_any": [
+          "(?<![0-9])(?!3\\s*건)[0-9]+\\s*건"
+        ]
+      }
+    },
+    {
+      "id": "O4",
+      "type": 6,
+      "label": "그 밖 — 오타",
+      "question": "입굼 거래 몇 건이야?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected_kind": "FACT",
+      "expected_reason": null,
+      "expected_bundle": "flows",
+      "expect": "ANSWER",
+      "judge": {
+        "right_all": [
+          "(?<![0-9])3\\s*건"
+        ],
+        "wrong_any": [
+          "(?<![0-9])(?!3\\s*건)[0-9]+\\s*건"
+        ]
+      }
+    }
+  ]
+}

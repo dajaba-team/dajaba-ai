@@ -76,6 +76,18 @@
     "same_bank_accounts": 0,
     "other_bank_accounts": 3
   },
+  "counterparties_by_direction": {
+    "inbound": {
+      "count": 3,
+      "same_bank_accounts": 0,
+      "other_bank_accounts": 3
+    },
+    "outbound": {
+      "count": 0,
+      "same_bank_accounts": 0,
+      "other_bank_accounts": 0
+    }
+  },
   "payment_formats": [
     "ACH"
   ],

@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"이 케이스에 보낸 거래는 없어요. 받은 거래의 통화별 합계는 42750.50 USD로 보여요.\",\"cites\":[\"outbound.count\",\"inbound.amount.USD\"]}", "model": "gpt-6.1-sol"}

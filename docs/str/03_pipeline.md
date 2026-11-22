@@ -153,8 +153,11 @@
 1  deadline = clock() + ASK_BUDGET_S  (20초 — ASK_LLM_TIMEOUT_S 이상, 설정 불변식)
 2  transaction_reader.load_transactions·load_subject   요약과 같음, 없는 ID·보고 대상 거래 없음 → 400
 3  facts = domain.facts.build_facts(req.to_facts_input(), txs, subject)   요약과 같은 함수
+   facts = domain.facts_direction.with_direction(facts, txs)               (04, SCRUM-358·359) 질문 답변만 방향 칸 — 저장 facts 엔 안 남음(exclude)
 4  shared.db.end_read(session)                                             (SCRUM-122) LLM 호출 앞
 5  question_llm = domain.ask_question.mask_question(req.question)          (04 "질문 속 계좌") — LLM 에 가는 질문만. 저장은 원문
+5b domain.ask_question.blocked_before_plan(req.question, req.case_no) → 이어지는 질문·다른 케이스 번호면 OUT_OF_SCOPE·OUTSIDE_CASE 로 7 과 같은 응답 조립(SCRUM-359, 04 "이어지는 질문")
+      계획·답 호출 0 — plan_prompt_version 은 그대로 싣고 llm_model="none"(ASK_NO_LLM_MODEL — 백엔드는 문자열만 봄)·tokens·latency 0. 저장 행 "plan" = {kind: OUT_OF_SCOPE, out_of_scope_reason: OUTSIDE_CASE, bundles: [], source: "code"}
 6  plan = ask_llm.plan(question_llm, deadline=deadline)                    ask_plan_v1, facts 값 안 줌
       선체크: 남은 < ASK_LLM_TIMEOUT_S → LlmUnavailable(502). LLM 1회 — 재시도·재생성 없음
       호출 전체 제한 total = min(ASK_LLM_TIMEOUT_S, deadline − clock()) 를 complete_json(total_timeout_s=) 로 넘김(SCRUM-290 추가 검토 1):
@@ -166,12 +169,14 @@
       AskPlanOut 스키마 위반(목록 밖·0개·4개·중복 묶음, kind 와 사유·묶음 짝 어긋남) → LlmInvalidOutput(502)
 7  plan.kind == OUT_OF_SCOPE → 응답 조립(kind=null·out_of_scope_reason·answer=null·cites=[]·evidence_ids=[]·code_checks=[]·
       prompt_version=null·bundles=[]·토큰·지연 = 계획 호출분) → 10 으로. LLM 1회로 끝
-8  piece = domain.ask_bundles.extract(facts, rule_id, plan.bundles)   (04 "질문 답변 묶음") — 마스킹 조각 + 인용 키 목록
-   ans = ask_llm.answer(question_llm, piece, deadline=deadline)       ask_answer_v1 (05) — 계획과 같은 선체크(남은 < ASK_LLM_TIMEOUT_S → 502)·
+8  bundles = domain.ask_bundles.with_flows(plan.bundles, question_llm)   (SCRUM-358, 04 "계획 보강") — 방향 낱말이 있으면 flows 를 붙임.
+      붙인 flows 는 LLM 묶음 1~3개에 안 셈. 계획이 이미 3개를 골랐으면 붙이지 않음(generation_meta.bundles ≤3 — 계약·백엔드 그대로)
+   piece = domain.ask_bundles.extract(facts, rule_id, bundles)        (04 "질문 답변 묶음") — 마스킹 조각 + 인용 키 목록
+   ans = ask_llm.answer(question_llm, piece, deadline=deadline)       ask_answer_v2 (05) — 계획과 같은 선체크(남은 < ASK_LLM_TIMEOUT_S → 502)·
       호출 전체 제한 min(ASK_LLM_TIMEOUT_S, 남은)·마감 뒤 도착 거부, 1회·재시도 없음
       answerable=true + cites 빈 · answer 400자 초과·빈 문자열 → LlmInvalidOutput(502)
 9  answerable=false → NO_DATA (answer·cites 무시, code_checks=[])
-   answerable=true → code_checks = domain.ask_checks.run(facts, answer, cites, piece.keys)  (06 "질문 답변에 도는 코드 검사")
+   answerable=true → code_checks = domain.ask_checks.run(facts, answer, cites, piece.keys)  (06 "질문 답변에 도는 코드 검사" — 상대 수·자행·타행은 10번 방향·근거 키, 금액은 8번 정확 값)
       하나라도 match=false → UNVERIFIED (answer=null·cites=[]·evidence_ids=[]) / 전부 match → ANSWERED
       evidence_ids = cites 의 fact 키 → 거래 ID 합집합(attach_evidence 와 같은 방식, 거래 없는 키는 기여 0)
 10 generations 신규 행 (kind=ASK·draft_id=null·case_no·status=SUCCEEDED·request(질문 원문)·facts(원본)·
@@ -187,6 +192,7 @@
 ```
 
 - 평가자(LLM 검사) 없음 — 요약과 같은 수준. 답 문장은 코드 검사만.
+- `generation_meta.bundles` = **실제 꺼낸 묶음**(코드가 붙인 `flows` 포함, ≤3). 계획이 고른 묶음은 저장 행 `plan.bundles` 에 그대로(SCRUM-358·359).
 - `generations.kind=ASK`·`draft_id=null` — Alembic 변경 없음(`kind` 는 `String(16)`, CHECK 없음, 부분 UNIQUE 는 `kind='DRAFT'` 만 — `shared/03`).
 - 저장은 `SummaryRepository.save(..., kind="ASK")` — 기본값 `SUMMARY` 라 요약 호출은 그대로.
 - 로그에는 케이스 번호·상태·질문/답 길이·시간만. 질문·답 본문·프롬프트 전문 금지(NFR-COM-04).

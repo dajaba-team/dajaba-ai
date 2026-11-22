@@ -103,6 +103,9 @@ def test_answer_invalid_when_answerable(kw: dict) -> None:
 def test_output_models_registered_for_structured_output() -> None:
     assert llm_output_model("ask_plan_v1") is AskPlanOut
     assert llm_output_model("ask_answer_v1") is AskAnswerOut
+    assert (
+        llm_output_model("ask_answer_v2") is AskAnswerOut
+    )  # HttpLlmClient 가 tag 로 Structured Output 스키마를 찾음
     schema = json_schema_for(AskPlanOut, name="ask_plan_v1")["schema"]
     assert set(schema["required"]) == {"kind", "out_of_scope_reason", "bundles"}
     json_schema_for(AskAnswerOut, name="ask_answer_v1")

@@ -1,6 +1,6 @@
 """질문 답변 응답 조립 — 범위 밖·NO_DATA·UNVERIFIED·ANSWERED (docs/str/03 7·9 단계, SCRUM-290).
 
-토큰·지연은 계획+답 두 호출 합, 범위 밖은 계획분만(shared/01). 답 본문은 ANSWERED 일 때만 응답에 나간다.
+토큰·지연은 계획+답 두 호출 합, 범위 밖은 계획분만(shared/01) — 코드가 끝낸 이어지는 질문은 0(SCRUM-359). 답 본문은 ANSWERED 일 때만 응답에 나간다.
 """
 
 from __future__ import annotations
@@ -12,13 +12,23 @@ from aml_ai.shared.schemas.str import (
     AskResponse,
     AskStatus,
     Facts,
+    OutOfScopeReason,
 )
+from aml_ai.shared.schemas.str.ask_llm import AskPlanKind, AskPlanOut
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain import ask_checks
 from aml_ai.str.domain.ask_bundles import AskPiece
 from aml_ai.str.domain.ask_public import public_checks
-from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT, ASK_PLAN_PROMPT
+from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT, ASK_NO_LLM_MODEL, ASK_PLAN_PROMPT
 from aml_ai.str.infrastructure.ask_llm import AnswerResult, PlanResult
+
+
+def follow_up_plan() -> PlanResult:
+    """이어지는 질문(04, SCRUM-359) — 계획 LLM 없이 범위 밖·OUTSIDE_CASE. 호출 0 이라 토큰·지연 0."""
+    out = AskPlanOut(
+        kind=AskPlanKind.OUT_OF_SCOPE, out_of_scope_reason=OutOfScopeReason.OUTSIDE_CASE, bundles=[]
+    )
+    return PlanResult(out=out, llm_model=ASK_NO_LLM_MODEL, tokens_in=0, tokens_out=0, latency_ms=0)
 
 
 def out_of_scope_response(
@@ -61,7 +71,11 @@ def in_scope_response(
 ) -> AskResponse:
     """answerable=false → NO_DATA · 검사 하나라도 실패 → UNVERIFIED · 전부 통과 → ANSWERED (06)."""
     out = ans.out
-    checks = ask_checks.run(facts, out.answer, out.cites, piece.keys) if out.answerable else []
+    checks = (
+        ask_checks.run(facts, out.answer, out.cites, piece.keys, req.question, req.case_no)
+        if out.answerable
+        else []
+    )
     if not out.answerable:
         status = AskStatus.NO_DATA
     elif all(c.match for c in checks):
@@ -78,7 +92,9 @@ def in_scope_response(
         out_of_scope_reason=None,
         answer=out.answer if answered else None,
         cites=list(out.cites) if answered else [],
-        evidence_ids=ask_checks.cited_evidence_ids(facts, out.cites) if answered else [],
+        evidence_ids=ask_checks.cited_evidence_ids(facts, out.cites, out.answer or "", req.question)
+        if answered
+        else [],
         code_checks=public_checks(checks),  # 06 7번 — 응답엔 허용 모양만, 원문은 저장 행 llm_answer
         generation_meta=_meta(plan, ans, piece, server_version),
     )

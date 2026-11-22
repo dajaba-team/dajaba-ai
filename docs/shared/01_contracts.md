@@ -67,7 +67,7 @@
 | 요청 `prior_alert_count: int` | `prior_alerts[]` 대신 **건수만** |
 | 요청 `draft_id` | 백엔드가 **호출 전 시퀀스로 발급**. 재전송은 같은 id, 재생성은 새 id. AI 중복 방지 키(`str/03`) |
 | 응답 `generation_id: str` | 추가. 백엔드 `str_drafts`에 저장(채영 V008). 검증 요청이 이걸 가리킨다 |
-| 응답 `facts` | **구조 전면 교체** — 대상 계좌 관점 `inbound/outbound/internal` 통화별 집계 + `indirect`(대상 계좌 미참여 거래) + `paths`(경로형 경보, 10/28) + `observations[]` + `model_signals[]`. 정본 `str/04` |
+| 응답 `facts` | **구조 전면 교체** — 대상 계좌 관점 `inbound/outbound/internal` 통화별 집계 + `indirect`(대상 계좌 미참여 거래) + `paths`(경로형 경보, 10/28) + `observations[]` + `model_signals[]`. 정본 `str/04`. SCRUM-358·359 의 `counterparties_by_direction` 은 질문 답변 안에서만 쓰고 **응답·저장 facts 에는 안 나감**(직렬화 제외 — 이전 버전과 같은 모양, 롤백 안전) |
 | 응답 `narrative[].cites: list[str]` | 추가 — LLM이 쓴 **fact 키**. `evidence_ids`는 코드가 cites에서 합친 것 |
 | 응답 `verification` | 항상 `null` (안건 17) — 타입은 `None` 고정 |
 | 응답 `generation_meta.references[].chunk_id: str \| None` | **추가 (SCRUM-125, 11/11)** — 청크 내용 해시 `sha256(doc_id + "\n" + page + "\n" + text_norm)`. 다시 적재해도 같은 값(평가 단위). 선택 칸·기본 `None` 이라 옛 저장 응답과 하위 호환 — 백엔드 `AiDtos` 는 `references` 안 읽음 |
@@ -106,7 +106,7 @@
 | 응답 `kind` · `out_of_scope_reason` | `kind` = `FACT`·`WHY`, `OUT_OF_SCOPE` 면 `null`. `out_of_scope_reason` = `EDIT_REQUEST`·`OUTSIDE_CASE`·`JUDGMENT`, `OUT_OF_SCOPE` 일 때만 값 | `AskKind`·`OutOfScopeReason` |
 | 응답 `answer` · `cites` · `evidence_ids` | `ANSWERED` 만 `answer`(≤400 NFC·UTF-16, 공백만 X)·`cites` ≥1. `cites`·`bundles` 원소는 빈 문자열·공백만 거부, 같은 값 두 번 거부. `evidence_ids` 는 `ANSWERED` 라도 비어도 됨(**설계와 다름** — `typology` 같은 키는 거래가 안 달림). 다른 상태는 `null`·`[]`·`[]` | `AskResponse` · `ASK_ANSWER_MAX` |
 | 응답 `code_checks` | 기존 `CodeCheck` 그대로 — **`reason` 칸 있음**(설계 예시엔 없음, match=false 면 필수). 상태와 짝: `ANSWERED` 면 전부 match=true(빈 목록 허용) · `UNVERIFIED` 면 match=false ≥1 · `NO_DATA`·`OUT_OF_SCOPE` 면 `[]` | `CodeCheck` |
-| 응답 `generation_meta` | 새 `AskGenerationMeta` — `llm_model`·`prompt_version`·`plan_prompt_version`·`bundles`·`server_version`·`tokens_in`·`tokens_out`·`latency_ms`. 초안·요약의 `few_shot_ids`·`references` 없음. 토큰·지연은 **계획+답 두 호출 합계**. `prompt_version` 은 답 프롬프트 — `OUT_OF_SCOPE`(답 호출 안 함)만 `null`. `bundles` 는 `OUT_OF_SCOPE` 면 `[]`, 아니면 1~3개(`list[str]`, 값은 `AskBundle` 8개(`shared/schemas/str/ask_llm.py`, LLM 출력 쪽) — 규약 칸은 `list[str]` 그대로) | `AskGenerationMeta` · `ASK_BUNDLES_MAX` |
+| 응답 `generation_meta` | 새 `AskGenerationMeta` — `llm_model`·`prompt_version`·`plan_prompt_version`·`bundles`·`server_version`·`tokens_in`·`tokens_out`·`latency_ms`. 초안·요약의 `few_shot_ids`·`references` 없음. 토큰·지연은 **계획+답 두 호출 합계**. `prompt_version` 은 답 프롬프트 — `OUT_OF_SCOPE`(답 호출 안 함)만 `null`. `bundles` 는 `OUT_OF_SCOPE` 면 `[]`, 아니면 1~3개(`list[str]`, 값은 `AskBundle` 8개(`shared/schemas/str/ask_llm.py`, LLM 출력 쪽) — 규약 칸은 `list[str]` 그대로). **SCRUM-358 부터 실제 꺼낸 묶음**(코드가 붙인 `flows` 포함 — 그래도 1~3개, 04 "계획 보강") · 이어지는 질문 차단(SCRUM-359)은 `OUT_OF_SCOPE`·`OUTSIDE_CASE`·`[]`·`llm_model="none"`·토큰·지연 0 | `AskGenerationMeta` · `ASK_BUNDLES_MAX` |
 | 응답 `produced_at` · `case_no` · `generation_id` | 요약과 같음(`SystemTimestamp`, `g-<hex8>`) | `AskResponse` |
 
 상태별 칸 규칙은 스키마(`model_validator`)가 본다 — 백엔드 `requireAskResponse` 도 같은 규칙. 새 에러 코드 없음. 예시는 `ask_request.json` + 상태별 응답 4개.

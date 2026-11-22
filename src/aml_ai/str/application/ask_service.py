@@ -21,11 +21,12 @@ from aml_ai.shared.infrastructure.llm_client import make_llm_client
 from aml_ai.shared.schemas.str import AskRequest, AskResponse, Facts
 from aml_ai.shared.schemas.str.ask_llm import AskPlanKind
 from aml_ai.shared.text import utf16_len_nfc
-from aml_ai.str.application.ask_answer import in_scope_response, out_of_scope_response
+from aml_ai.str.application.ask_answer import follow_up_plan, in_scope_response, out_of_scope_response
 from aml_ai.str.domain import facts as facts_domain
-from aml_ai.str.domain.ask_bundles import extract
-from aml_ai.str.domain.ask_question import mask_question
+from aml_ai.str.domain.ask_bundles import extract, with_flows
+from aml_ai.str.domain.ask_question import blocked_before_plan, mask_question
 from aml_ai.str.domain.display_labels_check import Labels
+from aml_ai.str.domain.facts_direction import with_direction
 from aml_ai.str.infrastructure.ask_llm import AnswerResult, AskLlm, PlanResult
 from aml_ai.str.infrastructure.display_labels import load_display_labels
 from aml_ai.str.infrastructure.summary_repository import SummaryRepository
@@ -67,13 +68,16 @@ class AskService:
             facts = self._load_facts(req)
             end_read(self.session)  # SCRUM-122 — LLM 호출 전 연결 반납
             question = mask_question(req.question)  # 04 — LLM 에 가는 질문만, 저장은 원문
-            plan = self.llm.plan(question, deadline=deadline)
+            follow_up = blocked_before_plan(
+                req.question, req.case_no
+            )  # 04 이어지는 질문·다른 케이스 — 호출 0
+            plan = follow_up_plan() if follow_up else self.llm.plan(question, deadline=deadline)
             ans: AnswerResult | None = None
             if plan.out.kind is AskPlanKind.OUT_OF_SCOPE:
                 response = out_of_scope_response(req, generation_id, plan, self.settings.server_version)
             else:
                 response, ans = self._answer(req, generation_id, facts, plan, question, deadline)
-            self._save_success(req, generation_id, facts, response, plan, ans, deadline)
+            self._save_success(req, generation_id, facts, response, plan, ans, deadline, by_code=follow_up)
         except Exception as exc:
             code = exc.code if isinstance(exc, AiError) else "INTERNAL"
             message = exc.message if isinstance(exc, AiError) else "internal error"
@@ -93,7 +97,7 @@ class AskService:
         if not facts_domain.has_reportable(txs):
             raise InvalidRequest("no reportable transactions")
         subject = self.reader.load_subject(inp.alert, txs)
-        return facts_domain.build_facts(inp, txs, subject)
+        return with_direction(facts_domain.build_facts(inp, txs, subject), txs)  # 04 — 질문 답변만 방향 칸
 
     def _answer(
         self,
@@ -105,7 +109,8 @@ class AskService:
         deadline: float,
     ) -> tuple[AskResponse, AnswerResult]:
         """묶음 조각 → 답 LLM(1회) → 코드 검사·근거 (03 8·9)."""
-        piece = extract(facts, req.alert.rule_id, [b.value for b in plan.out.bundles], self.labels)
+        bundles = with_flows([b.value for b in plan.out.bundles], question)  # 04 "계획 보강" — meta ≤3
+        piece = extract(facts, req.alert.rule_id, bundles, self.labels)
         ans = self.llm.answer(question, piece, deadline=deadline)
         sv = self.settings.server_version
         return in_scope_response(req, generation_id, facts, plan, piece, ans, sv), ans
@@ -119,6 +124,8 @@ class AskService:
         plan: PlanResult,
         ans: AnswerResult | None,
         deadline: float,
+        *,
+        by_code: bool = False,
     ) -> None:
         """response = API 응답 + plan + llm_answer(답 호출 때만 — UNVERIFIED 본문은 여기에만, 06).
 
@@ -129,6 +136,8 @@ class AskService:
             raise LlmUnavailable("ask deadline passed before save")
         payload = response.model_dump(mode="json")
         payload["plan"] = plan.out.model_dump(mode="json")
+        if by_code:
+            payload["plan"]["source"] = "code"  # 계획 LLM 안 돎(저장 행만, 응답 모양 그대로)
         if ans is not None:
             payload["llm_answer"] = ans.out.model_dump(mode="json")
         self.repo.save(
