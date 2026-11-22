@@ -628,9 +628,36 @@ facts 출처 — `fan_out`(유입 0 · 유출 3 · 상대 3 — R01_FAN_OUT 실�
 
     AI_LLM_MOCK=false uv run --frozen --extra dev python -m tools.record_ask_answer --premise
 
-### 결과 — 기준선 (지금 develop 코드)
+### 결과 — 기준선 (지금 develop 코드, 2026-11-22 — `ask_plan_v1`·`ask_answer_v1` 그대로)
 
-진희 터미널 실행 뒤 표를 붙인다.
+진희 터미널 실제 LLM 22회(계획 11 + 답 11, 녹화 겸) → `recorded/ask_plan_v1`·`ask_answer_v1` 에 새 파일 11개씩(기존 파일 변화 0). 모델 gpt-6.1-sol(292 와 같음) · `ask_answer_v1` 해시 = 동결. 상태·검사·판정은 실행 출력과 녹화 재생(`test_ask_premise_baseline`)이 11개 모두 같다. 지연·토큰은 실행 출력 그대로.
+
+| id | 상태 | 검사 통과/전체 | 실패 검사 | 계획 묶음 | 판정 | 통과 | 계획+답 ms | in(계획+답 합) | out(계획+답 합) |
+|---|---|---|---|---|---|---|---|---|---|
+| P1 | ANSWERED | 2/2 | - | counterparties | **틀림** | - | 7104 | 1981 | 70 |
+| P2 | ANSWERED | 2/2 | - | flows | 맞음 | O | 6400 | 2075 | 65 |
+| P3 | ANSWERED | 2/2 | - | counterparties | **틀림** | - | 6003 | 1979 | 70 |
+| P4 | ANSWERED | 2/2 | - | flows | 맞음 | O | 5946 | 2085 | 76 |
+| P5 | NO_DATA | 0/0 | - | flows | 못 답함 | O | 5221 | 2075 | 52 |
+| P6 | NO_DATA | 0/0 | - | flows | 못 답함 | O | 4900 | 2089 | 52 |
+| D1 | ANSWERED | 2/2 | - | counterparties | 맞음 | O | 6114 | 1979 | 70 |
+| D2 | ANSWERED | 2/2 | - | counterparties | 맞음 | O | 6547 | 1983 | 72 |
+| D3 | ANSWERED | 2/2 | - | counterparties | **틀림** | - | 5969 | 1981 | 70 |
+| D4 | ANSWERED | 2/2 | - | counterparties | **틀림** | - | 7270 | 1981 | 70 |
+| D5 | ANSWERED | 3/3 | - | flows | 맞음 | O | 5960 | 2104 | 75 |
+
+| 항목 | 목표 | 기준선 |
+|---|---|---|
+| 새 11개 틀림 | 0/11 | **4/11** (P1·P3·D3·D4) |
+| 전제 틀림 보류 | 0/6 | 0/6 |
+| 전제 틀림 통과(참고) | — | 4/6 |
+| 방향 질문 맞음 | 5/5 | **3/5** |
+| 가장 느린 계획+답 | 20초 안 | 7,270ms (D4) |
+| 질문당 계획+답 합 tokens in / out(평균) | 표로 | 2,028 / 67 |
+
+- 틀림 4개는 모두 `counterparties` 묶음만 고른 **방향 붙은 상대 수** 질문 — 검사 줄은 전부 match(COUNT_MATCH 가 상대 수의 방향을 안 봄). 원인 셋(자료·계획·검사)이 겹친 SCRUM-346 발견과 같은 모양
+- 건수·금액(P2·P4·D5)은 `flows` 를 골라 방향을 보고 바로잡음 · 없는 통화·기간 밖(P5·P6)은 NO_DATA
+- 기존 18개 기준선은 위 "결과 — 다시 재기"(292, 같은 코드)
 
 
 ## 녹화 (`recorded/`)
