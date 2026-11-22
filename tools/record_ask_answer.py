@@ -10,6 +10,10 @@ facts 는 평가 세트의 픽스처(서비스 수준 주입). 실제 계획 묶
 비교), 판정(`tools/ask_premise_judge.py`) 칸과 목표 줄을 더 찍는다. 판정 낱말만 — 답 본문은 여기서도 안 찍는다.
 
     AI_LLM_MOCK=false uv run --frozen --extra dev python -m tools.record_ask_answer --premise
+
+`--set gaps` (SCRUM-359) — 사각지대 측정 세트 16개, `--premise` 와 같은 방식(`--premise` = `--set premise`).
+
+    AI_LLM_MOCK=false uv run --frozen --extra dev python -m tools.record_ask_answer --set gaps
 """
 
 from __future__ import annotations
@@ -24,6 +28,7 @@ from aml_ai.shared.config import Settings, get_settings
 from aml_ai.shared.errors import AiError
 from aml_ai.shared.infrastructure.llm_client import HttpLlmClient, LlmResult, RecordedLlmClient, recording_key
 from aml_ai.shared.schemas.str import AskRequest, Facts
+from aml_ai.shared.schemas.str.ask_llm import AskPlanKind
 from aml_ai.shared.versioning import file_sha256
 from aml_ai.str.application.ask_answer import in_scope_response
 from aml_ai.str.domain.ask_bundles import extract
@@ -60,34 +65,38 @@ class Row:
     latency_ms: int = 0
     tokens_in: int = 0
     tokens_out: int = 0
-    mark: str = ""  # --premise 판정
+    mark: str = ""  # --premise·--set 판정
 
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="질문 답변 답 녹화 (docs/str/08)")
     p.add_argument("--only", help="쉼표로 id 만 (예 F1,W3)")
-    p.add_argument("--premise", action="store_true", help="전제·방향 평가 세트 11개(SCRUM-358)")
+    p.add_argument(
+        "--premise", action="store_true", help="전제·방향 평가 세트 11개(SCRUM-358) = --set premise"
+    )
+    p.add_argument("--set", choices=sorted(judge.SETS), help="판정 세트(premise 11 · gaps 16)")
     args = p.parse_args(argv)
     settings = get_settings()
     if settings.ai_llm_mock:
         print("ERROR: AI_LLM_MOCK=true — 실제 호출을 위해 false 로 설정", file=sys.stderr)
         return 2
+    name = "premise" if args.premise else args.set
+    source, targets = judge.SETS[name] if name else (EVAL_SET, None)
     items = [
         i
-        for i in json.loads((judge.PREMISE_SET if args.premise else EVAL_SET).read_text(encoding="utf-8"))[
-            "items"
-        ]
+        for i in json.loads(source.read_text(encoding="utf-8"))["items"]
         if i["expected_kind"] != "OUT_OF_SCOPE"
     ]
     if args.only:
         items = [i for i in items if i["id"] in set(args.only.split(","))]
-    rows = [_record_one(settings, item, new_plan=args.premise) for item in items]
+    rows = [_record_one(settings, item, new_plan=targets is not None) for item in items]
     _print_table(rows)
-    if args.premise:
-        marks = [judge.Row(i, r.mark, r.latency_ms) for i, r in zip(items, rows, strict=True)]
-        print(" · ".join(judge.target_lines(marks)))
+    if targets is not None:
+        marks = [judge.Row(i, r.mark, r.latency_ms, r.status) for i, r in zip(items, rows, strict=True)]
+        print(" · ".join(targets(marks)))
     print(f'FROZEN_PROMPTS["{ASK_ANSWER_PROMPT}"] = "{file_sha256(PROMPTS_DIR / f"{ASK_ANSWER_PROMPT}.md")}"')
-    return 0 if all(r.status in {"ANSWERED", "NO_DATA", "UNVERIFIED"} for r in rows) else 3
+    done = {"ANSWERED", "NO_DATA", "UNVERIFIED"} | ({"OUT_OF_SCOPE"} if targets is not None else set())
+    return 0 if all(r.status in done for r in rows) else 3
 
 
 def _request(item: dict) -> AskRequest:
@@ -111,6 +120,10 @@ def _record_one(settings: Settings, item: dict, *, new_plan: bool = False) -> Ro
             saved_plan = AskLlm(RecordedLlmClient(RECORDED), settings).plan(question, deadline=float("inf"))
             if _plan_sig(plan.out) != _plan_sig(saved_plan.out):
                 return Row(item["id"], "계획 다름", latency_ms=_ms(start))
+        if plan.out.kind is AskPlanKind.OUT_OF_SCOPE:  # 서비스처럼 답 호출 없음(SCRUM-359)
+            return Row(
+                item["id"], "OUT_OF_SCOPE", "", _ms(start), plan.tokens_in, plan.tokens_out, judge.OTHER
+            )
         piece = extract(facts, req.alert.rule_id, [b.value for b in plan.out.bundles], load_display_labels())
         ans = llm.answer(question, piece, deadline=deadline)
     except AiError as exc:

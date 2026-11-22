@@ -1,6 +1,7 @@
-"""질문 답변 전제·방향 평가 판정 (SCRUM-358, docs/str/08 "질문 답변 전제·방향 평가 세트"). 순수 함수.
+"""질문 답변 평가 판정 — 전제·방향(SCRUM-358) · 사각지대(SCRUM-359), docs/str/08 두 절. 순수 함수.
 
-판정 규칙·목표는 결과 보기 전 고정 — 문항별 정규식은 `tests/str/fixtures/ask_eval_premise.json` 의 `judge`.
+판정 규칙·목표는 결과 보기 전 고정 — 문항별 정규식은 세트 파일(`ask_eval_premise.json`·`ask_eval_gaps.json`)의 `judge`.
+358 문항은 `premise`, 359 문항은 `expect`(ANSWER·BLOCK)로 통과를 가른다 — 358 규칙은 359 때문에 바뀌지 않는다.
 답 문장은 여기서만 읽고 돌려주지 않는다(출력은 판정 낱말만).
 """
 
@@ -12,6 +13,8 @@ from dataclasses import dataclass
 from tools.record import FIXTURES
 
 PREMISE_SET = FIXTURES / "ask_eval_premise.json"
+GAPS_SET = FIXTURES / "ask_eval_gaps.json"
+GAPS_HOLD_MAX = 2  # 08 — 359 보류 상한
 LATENCY_MAX_MS = 20_000  # 08 — 가장 느린 계획+답
 
 RIGHT = "맞음"
@@ -36,8 +39,15 @@ def verdict(item: dict, status: str, answer: str | None) -> str:
     return HOLD
 
 
-def passed(item: dict, mark: str) -> bool:
-    """전제 틀림(WRONG)은 바로잡은 답·못 답함이 통과, 방향 질문(OK)은 맞는 값 답만 통과."""
+def passed(item: dict, mark: str, status: str = "") -> bool:
+    """358: 전제 틀림(WRONG)은 바로잡은 답·못 답함이 통과, 방향 질문(OK)은 맞는 값 답만 통과.
+
+    359: ANSWER 는 맞음만, BLOCK 은 맞음·못 답함·범위 밖(`status` OUT_OF_SCOPE)이 통과 — 틀린 값을 내보내지 않음.
+    """
+    if "expect" in item:
+        if item["expect"] == "ANSWER":
+            return mark == RIGHT
+        return mark in {RIGHT, NOT_ANSWERED} or status == "OUT_OF_SCOPE"
     if item["premise"] == "WRONG":
         return mark in {RIGHT, NOT_ANSWERED}
     return mark == RIGHT
@@ -48,6 +58,7 @@ class Row:
     item: dict
     mark: str
     latency_ms: int
+    status: str = ""
 
 
 def target_lines(rows: list[Row]) -> list[str]:
@@ -62,3 +73,19 @@ def target_lines(rows: list[Row]) -> list[str]:
         f"방향 질문 맞음 {sum(r.mark == RIGHT for r in direction)}/{len(direction)} (목표 {len(direction)})",
         f"가장 느린 계획+답 {worst}ms (목표 {LATENCY_MAX_MS}ms 안)",
     ]
+
+
+def target_lines_gaps(rows: list[Row]) -> list[str]:
+    """08 359 목표 (A) 엄격 — 결과 보기 전 고정."""
+    answer = [r for r in rows if r.item["expect"] == "ANSWER"]
+    worst = max((r.latency_ms for r in rows), default=0)
+    return [
+        f"틀림 {sum(r.mark == WRONG for r in rows)}/{len(rows)} (목표 0)",
+        f"보류 {sum(r.mark == HOLD for r in rows)}/{len(rows)} (목표 {GAPS_HOLD_MAX} 이하)",
+        f"ANSWER 맞음 {sum(r.mark == RIGHT for r in answer)}/{len(answer)} (목표 {len(answer)})",
+        f"통과 {sum(passed(r.item, r.mark, r.status) for r in rows)}/{len(rows)} (참고)",
+        f"가장 느린 계획+답 {worst}ms (목표 {LATENCY_MAX_MS}ms 안)",
+    ]
+
+
+SETS = {"premise": (PREMISE_SET, target_lines), "gaps": (GAPS_SET, target_lines_gaps)}
