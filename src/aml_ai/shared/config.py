@@ -98,6 +98,8 @@ class Settings(BaseSettings):
 
     ai_scoring_history_start: str = Field(default="", alias="AI_SCORING_HISTORY_START")
     ai_scoring_history_end: str = Field(default="", alias="AI_SCORING_HISTORY_END")
+    ai_dl_snapshot_manifest: str = Field(default="", alias="AI_DL_SNAPSHOT_MANIFEST")
+    ai_dl_snapshot_sha256: str = Field(default="", alias="AI_DL_SNAPSHOT_SHA256")
 
     # 기동
     index_prompts_on_startup: bool = Field(default=True, alias="INDEX_PROMPTS_ON_STARTUP")
