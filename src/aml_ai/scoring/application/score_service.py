@@ -81,6 +81,7 @@ class ScoreService:
                     raise ModelUnavailable(
                         "scoring model is not registered for serving", package_version=version.package_version
                     )
+                adapter.ensure_model_ready()
                 rows, coverage = read_transactions(session, req.alerts, history_bounds=history_bounds)
                 scores = self._score_batch(adapter, req.alerts, rows, coverage)
                 save_predictions(

@@ -2,15 +2,30 @@
 
 from datetime import datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
 from aml_ai.scoring.application.score_service import ScoreService
 from aml_ai.scoring.infrastructure.aml_ml_adapter import AmlMlAdapter
 from aml_ai.scoring.infrastructure.transaction_reader import HistoryCoverage
+from aml_ai.shared.errors import ModelUnavailable
 from aml_ai.shared.schemas.alerts import Alert
 from aml_ai.shared.schemas.scores import FailureCode
 from tests.conftest import EXAMPLES, load_json
+
+
+@pytest.mark.parametrize("wrong_hash", [False, True])
+def test_bad_rc3_checkpoint_is_request_unavailable(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, wrong_hash: bool
+) -> None:
+    monkeypatch.delenv("AML_ML_MODEL_PATH", raising=False)
+    if wrong_hash:
+        checkpoint = tmp_path / "checkpoint.ubj"
+        checkpoint.write_bytes(b"synthetic incorrect checkpoint")
+        monkeypatch.setenv("AML_ML_MODEL_PATH", str(checkpoint))
+    with pytest.raises(ModelUnavailable, match="scoring checkpoint could not be loaded"):
+        AmlMlAdapter.load().ensure_model_ready()
 
 
 def test_rc3_respects_per_alert_outcomes(synthetic_rc3_booster: None) -> None:

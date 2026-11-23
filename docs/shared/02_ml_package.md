@@ -76,7 +76,7 @@ def features(
 
 ## 설치·버전
 
-- AI 서버는 공개 저장소의 태그된 버전만 설치한다. rc1 최초 연결 이후 `aml-ml @ git+https://github.com/dajaba-team/dajaba-ml.git@v0.1.0rc2`로 전환한다. 잠금 커밋은 `783007f18a07d22169da92333495a8aab04fa76f`다.
+- 시연 채점은 `aml-ml @ git+https://github.com/dajaba-team/dajaba-ml.git@v0.1.0rc3`를 잠금 커밋 `af663dace6e77138478000d0aac0345e6168b868`에 고정한다. rc2(`783007f18a07d22169da92333495a8aab04fa76f`)는 복구용으로 보존한다.
 - rc2는 R01~R06을 지원한다. 패키지 목록에 없는 룰은 `RULE_NOT_SUPPORTED`, 지원하는 룰의 근거 입력 오류는 `REQUIRED_INPUT_MISSING`으로 구분한다.
 - 최초 연결 PR #85에서 `python:3.12-slim`의 VCS 의존성 설치에 필요한 Git을 추가했다. 패키지 전환 시 `pyproject.toml`과 `uv.lock`을 함께 갱신하고, Docker 이미지에서 실제 설치 버전과 import를 확인한다.
 - **점수 모드 `/v1/health` `scoring_mode`** (SCRUM-130, 11/12) — 점수가 고정 점수인지 실제 모델인지 밖에서 보이게. 판단은 `shared/versioning.scoring_mode(settings)`:
@@ -87,12 +87,26 @@ def features(
   | `false` + 현재 프로세스에서 모델 점수 산출과 저장 성공 | `model` |
   | `false` + 그 밖 | `unavailable` |
 
-  **기동 직후에는 mock이 꺼져도 `unavailable`**이다. 패키지 설치만으로 `model`을 노출하지 않는다. 전환 이미지에서 실제 `/v1/scores` rc2 점수와 `/v1/health`의 `model` 및 모델·피처 버전을 함께 확인한다. STR을 포함한 기동 판정은 유지한다.
+  **기동 직후에는 mock이 꺼져도 `unavailable`**이다. `/v1/health`의 일반 `status=ok`는 채점 성공과 별개다. rc3 경보의 실제 점수 및 저장 성공 후 `scoring_mode=model`과 모델·피처 버전을 확인한다.
   시연 전에는 서버 재시작 → 정상 경보의 `/v1/scores` 채점·저장 성공 → `/v1/health`의 `scoring_mode=model` 확인 순서로 점검한다.
-- 모델 파일은 패키지 안에 두며 import 시 로드된다. 채점 어댑터의 호출 시점에만 `aml_ml`을 import한다. 공용 기동 경로의 모듈 상단에서 import하지 않으며, 로드 실패는 기존 채점 503 계약으로 격리한다.
+- rc3 패키지에는 모델 파일이 없다. 각 실채점 요청에서 serving 등록 확인 뒤 rc3 로더가 `AML_ML_MODEL_PATH`의 체크포인트를 확인한다. 누락·해시 불일치·로드 실패는 요청 전체 `503 MODEL_UNAVAILABLE`이며 이후 `scoring_mode=unavailable`로 표시된다. 서버 기동 시 모델을 읽지 않는다.
 - `0005_scoring_tables`가 rc1 모델·피처 버전과 패키지의 `threshold`를 등록한다. 부분 유일 인덱스로 serving 행을 한 개만 허용한다. 로드한 모델과 serving 행이 일치하지 않으면 `MODEL_UNAVAILABLE`을 반환한다. `alert_features` 저장은 선택 사항이며, STR에서 저장 행을 읽는지 진희 님 확인 전에는 쓰지 않는다.
 - rc1과 rc2는 같은 모델·피처 버전을 쓰므로 `0006_serving_package_version`에서 기존 모델 행에 `serving_package_version=0.1.0rc2`를 기록한다. `0005_scoring_tables`, 모델 PK, 기존 예측의 FK, serving 플래그를 보존한다. 실채점은 설치 패키지 버전까지 serving 행과 일치해야 하며 누락 또는 불일치 시 `MODEL_UNAVAILABLE`(503)을 반환한다. 0005로 롤백하면 이 컬럼만 제거된다.
 - 같은 모델 행을 유지하는 근거는 모델 가중치 파일과 공통 룰 R01·R02·R04의 피처 계산이 동일하다는 점이다. 공개 rc1·rc2에 같은 v3 입력 25건(R01 10건·R02 5건·R04 10건)을 넣어 31개 피처 값과 점수가 모두 정확히 일치함을 확인했다.
+
+### rc3 로컬·시연 전용 설정
+
+1. 승인된 내부 체크포인트 사본의 위치, 접근 권한과 해시는 내부 인계 문서에서 확인한다. 로컬 Python은 `AML_ML_MODEL_PATH=<호스트_체크포인트_절대경로>`, `AI_SCORING_MOCK=false`로 설정한다. 두 환경 모두 `AI_SCORING_HISTORY_START`와 `AI_SCORING_HISTORY_END`를 적재 및 검증이 끝난 원본 시각(시간대 없는 ISO 8601)으로 설정한다. [설정 예시](../../tools/demo/serving.settings.example)
+2. Compose에서 AI 서비스 이름은 `ai`다. 프로젝트 루트의 서비스 환경 파일에 이력 범위를 설정하고, 셸에 `RC3_MODEL_HOST_PATH`로 승인된 호스트 사본의 절대경로를 넘긴다. [시연 override](../../tools/demo/compose.rc3.example.yaml)가 그 파일을 `/models/r04_original.ubj`에 읽기 전용으로 연결한다.
+
+   ```sh
+   docker compose -f compose.yaml -f tools/demo/compose.rc3.example.yaml config --quiet
+   docker compose -f compose.yaml -f tools/demo/compose.rc3.example.yaml up -d --build ai
+   docker compose -f compose.yaml -f tools/demo/compose.rc3.example.yaml exec ai \
+     python -c 'import aml_ml as m; print(m.__version__, m.MODEL_VERSION); m.load_candidate()'
+   ```
+
+3. 요청을 보내기 전에 **시연 전용 DB**의 Alembic 기동을 완료하고, 해당 DB의 소유자 연결로 `psql -X -v ON_ERROR_STOP=1 -f tools/demo/switch_rc3.sql`을 실행한다. serving 행의 패키지 `0.1.0rc3`, 모델 `xgb-hi-medium-r04-event-c2-31-v1`, 피처 `hi-medium-evidence31-96h-r04-event-v1`, threshold `0.5`를 확인한다. 요청이 없는 상태에서 전환한다. 정상 경보 한 건의 채점·저장과 health 점수 모드를 확인한 뒤 사용한다. 복구 시 요청을 멈추고 `tools/demo/restore_rc2.sql`로 serving 행을 복원한 다음 rc2 이미지와 기존 환경값으로 재기동한다. 기존 모델 행과 예측은 보존한다.
 
 ## AI 서버 쪽 (`src/aml_ai/scoring/`, 준영이 만들되 얇게 — str/ 과 같은 4계층)
 
@@ -116,7 +130,26 @@ infrastructure/transaction_reader.py  STR과 분리된 채점용 ops 조회, 통
 - rc1은 R01·R02·R04 중 `COMPLETE` 이력과 정확히 96시간의 경보 창을 갖춘 유효 입력만 채점한다. R03·R05·R06은 미지원이다.
 - 9/7 로컬 `0.1.0rc2.dev0` 오프라인 검증은 사건형 R04 409건을 포함해 1,545건 모두 성공했다. HIGH 0.70은 27건, 0.72는 26건이고 둘 다 여섯 룰에서 최소 1건이다. 공개 rc2 전환의 서버 검증에는 기존 여섯 룰 42건 표본을 사용한다. 실제 9/7 요청과 케이스 생성은 별도다.
 - 공개 rc2 서버의 여섯 룰 표본 42건은 로컬 `0.1.0rc2.dev0`으로 저장한 `v3_42_scores.csv`와 점수가 모두 일치했다.
-- 시연 경계값은 **LOW→MEDIUM 0.15 · MEDIUM→HIGH 0.70**으로 확정했다. rc2 전환일에 백엔드 CasePolicy 환경변수로 함께 적용한다.
+- 백엔드 `CasePolicy`는 **LOW→MEDIUM 0.15 · MEDIUM→HIGH 0.70**에서 경계값을 상위 등급에 포함한다. 미채점은 등급 분모에서 구분한다. 모델 행 및 패키지의 threshold `0.5`는 추천값이다.
+- 보존된 공개 rc2와 최종 rc3 점수를 동일한 9/7 입력 1,545경보에서 비교했다. 네 입력 해시, 경보 ID·번호·룰과 근거 거래 연결 13,730건을 대조했고 두 버전 모두 채점 성공 1,545건, 미채점 0건이었다. 보존 점수 CSV에는 응답의 근거 ID 배열이 없어 근거 동일성은 공통 입력으로 검증했다.
+
+  | 룰 | rc2 LOW / MEDIUM / HIGH / 미채점 | rc3 LOW / MEDIUM / HIGH / 미채점 |
+  |---|---:|---:|
+  | R01 | 140 / 3 / 6 / 0 | 140 / 3 / 6 / 0 |
+  | R02 | 903 / 3 / 1 / 0 | 904 / 1 / 2 / 0 |
+  | R03 | 8 / 43 / 11 / 0 | 8 / 39 / 15 / 0 |
+  | R04 | 376 / 28 / 5 / 0 | 365 / 22 / 22 / 0 |
+  | R05 | 4 / 1 / 2 / 0 | 4 / 1 / 2 / 0 |
+  | R06 | 7 / 2 / 2 / 0 | 7 / 2 / 2 / 0 |
+  | 합계 | 1438 / 80 / 27 / 0 | 1428 / 68 / 49 / 0 |
+
+  모델 전환으로 24건이 HIGH에 진입하고 2건이 이탈했다. R04의 HIGH는 5→22건이다.
+
+  | DL 결합 순위 참고용 선정 | R01 | R02 | R03 | R04 | R05 | R06 | 합계 |
+  |---|---:|---:|---:|---:|---:|---:|---:|
+  | 룰별 결합 1위 우선, 최대 30건 | 5 | 1 | 8 | 11 | 2 | 3 | 30 |
+
+  위 참고 선정의 적용 방식은 백엔드팀이 정한다.
 - 격리 환경에서 500건 동기 요청의 DB 조회·채점·저장·응답을 모두 재고 백엔드 90초 한도에 대비한다. DL은 오프라인 전용이다.
 
 상세 검증 항목: [연동 제안서](DAJABA_AI_ML_INTEGRATION_PROPOSAL.md).

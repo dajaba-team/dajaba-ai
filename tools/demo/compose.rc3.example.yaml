@@ -1,0 +1,12 @@
+services:
+  ai:
+    environment:
+      AI_SCORING_MOCK: "false"
+      AML_ML_MODEL_PATH: /models/r04_original.ubj
+    volumes:
+      - type: bind
+        source: ${RC3_MODEL_HOST_PATH:?Set the approved rc3 checkpoint host path}
+        target: /models/r04_original.ubj
+        read_only: true
+        bind:
+          create_host_path: false
