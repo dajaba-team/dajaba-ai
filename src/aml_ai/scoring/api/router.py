@@ -24,9 +24,10 @@ def score(req: ScoreRequest, svc: ScoreService = Depends(_service)) -> ScoreResp
     return svc.score(req)
 
 
-@router.get("/dl-rankings/{scan_date}", response_model=ReviewRanking, summary="ML+DL investigation ranking")
+@router.get("/dl-rankings/{scan_date}", response_model=ReviewRanking, summary="ML+DL 조사 순위 (스냅샷)")
 def dl_rankings(
     scan_date: date, response: Response, settings: Settings = Depends(get_settings)
 ) -> ReviewRanking:
+    """인증된 내부 호출에 스캔 전체의 ML 순위와 결합 순위를 제공한다."""
     response.headers["Cache-Control"] = "no-store"
     return load_review_ranking(scan_date, settings.ai_dl_snapshot_manifest, settings.ai_dl_snapshot_sha256)

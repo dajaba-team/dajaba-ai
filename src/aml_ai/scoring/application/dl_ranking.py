@@ -1,4 +1,4 @@
-"""Compute investigation ranks over a pinned scan using separate ML and DL scores."""
+"""고정된 스캔의 ML·DL 점수로 조사 순위를 계산한다."""
 
 from __future__ import annotations
 
@@ -7,12 +7,14 @@ import hashlib
 import hmac
 import io
 import json
+from collections import OrderedDict
 from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from itertools import groupby
 from math import isfinite
 from pathlib import Path
+from threading import Lock
 
 from pydantic import BaseModel
 
@@ -20,6 +22,7 @@ from aml_ai.shared.errors import AiError
 
 _MAX_BYTES = 8 * 1024 * 1024
 _MAX_ALERTS = 20_000
+_MAX_CACHE_ENTRIES = 4
 _EPOCH = datetime(2022, 9, 1)
 _ONE_MINUTE = timedelta(minutes=1)
 _ML_MODEL = "xgb-hi-medium-r04-event-c2-31-v1"
@@ -69,6 +72,23 @@ class ReviewRanking(BaseModel):
     ml_only_alerts: int
     unscored_alerts: int
     alerts: list[RankedAlert]
+
+
+class SnapshotInvalid(ValueError):
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(reason)
+
+
+@dataclass(frozen=True)
+class CachedRanking:
+    hashes: dict[str, str]
+    ranking: ReviewRanking
+
+
+CacheKey = tuple[Path, str, date]
+_cache: OrderedDict[CacheKey, CachedRanking] = OrderedDict()
+_cache_lock = Lock()
 
 
 @dataclass(frozen=True)
@@ -134,7 +154,7 @@ def _scan(files: dict[str, bytes], scan_date: date) -> tuple[dict[str, ScanAlert
             or len(set(evidence)) != len(evidence)
             or any(uid <= 0 for uid in evidence)
         ):
-            raise ValueError("invalid alert identity or evidence")
+            raise SnapshotInvalid("ID_MISMATCH")
         source_ids.add(source_id)
         alerts[aid] = ScanAlert(source_id, row["rule_id"], _timestamp(row["reference_ts"]), set(evidence))
 
@@ -144,6 +164,8 @@ def _scan(files: dict[str, bytes], scan_date: date) -> tuple[dict[str, ScanAlert
         files["evidence_transactions.csv"], "alert_no", "alert_id", "rule_id", "transaction_id", "ts"
     ):
         aid, uid = row["alert_no"], int(row["transaction_id"])
+        if aid not in alerts:
+            raise SnapshotInvalid("ID_MISMATCH")
         alert = alerts[aid]
         ts = _timestamp(row["ts"])
         if (
@@ -153,10 +175,10 @@ def _scan(files: dict[str, bytes], scan_date: date) -> tuple[dict[str, ScanAlert
             or row["rule_id"] != alert.rule
             or times.setdefault(uid, ts) != ts
         ):
-            raise ValueError("evidence identity mismatch")
+            raise SnapshotInvalid("ID_MISMATCH")
         seen.add((aid, uid))
     if not alerts or len(seen) != sum(len(a.evidence) for a in alerts.values()):
-        raise ValueError("incomplete scan cohort")
+        raise SnapshotInvalid("ID_MISMATCH")
     return alerts, times
 
 
@@ -164,16 +186,18 @@ def _ml_scores(raw: bytes, alerts: dict[str, ScanAlert]) -> dict[str, tuple[floa
     scores = {}
     for row in _rows(raw, "alert_no", "alert_id", "rule_id", "score", "failure_code"):
         aid = row["alert_no"]
+        if aid not in alerts:
+            raise SnapshotInvalid("ID_MISMATCH")
         alert = alerts[aid]
         if aid in scores or int(row["alert_id"]) != alert.source_id or row["rule_id"] != alert.rule:
-            raise ValueError("ML alert identity mismatch")
+            raise SnapshotInvalid("ID_MISMATCH")
         failure = row["failure_code"] or None
         value = _score(row["score"]) if row["score"] else None
         if (value is None) != (failure is not None):
             raise ValueError("invalid ML success/failure record")
         scores[aid] = value, failure
     if scores.keys() != alerts.keys():
-        raise ValueError("incomplete ML cohort")
+        raise SnapshotInvalid("ID_MISMATCH")
     return scores
 
 
@@ -184,11 +208,11 @@ def _dl_scores(files: dict[str, bytes], times: dict[int, datetime]) -> dict[int,
         uid = int(row["transaction_id"])
         key = row["source_file"], int(row["source_row_number"])
         if uid in mapping or key in source_keys or not key[0] or key[1] <= 0:
-            raise ValueError("duplicate or invalid DL source key")
+            raise SnapshotInvalid("ID_MISMATCH")
         source_keys.add(key)
         mapping[uid] = key
     if mapping.keys() != times.keys():
-        raise ValueError("DL mapping identity mismatch")
+        raise SnapshotInvalid("ID_MISMATCH")
     scores = {}
     for row in _rows(
         files["dl.csv"],
@@ -202,10 +226,11 @@ def _dl_scores(files: dict[str, bytes], times: dict[int, datetime]) -> dict[int,
         minute = int(row["minute_since_2022_09_01"])
         if (
             uid in scores
+            or uid not in mapping
             or mapping[uid] != (row["source_file"], int(row["source_row_number"]))
             or minute != (times[uid] - _EPOCH) // _ONE_MINUTE
         ):
-            raise ValueError("DL score identity mismatch")
+            raise SnapshotInvalid("ID_MISMATCH")
         scores[uid] = minute, _score(row["score"])
     return scores
 
@@ -249,7 +274,7 @@ def _rank(scan_date: date, digest: str, files: dict[str, bytes]) -> ReviewRankin
         or worker_input["scan/evidence_transactions.csv"] != _digest(files["evidence_transactions.csv"])
         or worker_input["history/evidence_source_map.csv"] != _digest(files["evidence_source_map.csv"])
     ):
-        raise ValueError("producer snapshot or model mismatch")
+        raise SnapshotInvalid("PROVENANCE_MISMATCH")
 
     dl_by_alert = {}
     counts = {}
@@ -306,22 +331,71 @@ def _rank(scan_date: date, digest: str, files: dict[str, bytes]) -> ReviewRankin
     )
 
 
+def _verified_read(path: Path, expected_sha256: str) -> bytes:
+    raw = _read(path)
+    if not hmac.compare_digest(_digest(raw), expected_sha256):
+        raise SnapshotInvalid("HASH_MISMATCH")
+    return raw
+
+
+def _cached(key: CacheKey) -> CachedRanking | None:
+    with _cache_lock:
+        entry = _cache.get(key)
+        if entry is not None:
+            _cache.move_to_end(key)
+        return entry
+
+
+def _remember(key: CacheKey, entry: CachedRanking) -> None:
+    with _cache_lock:
+        _cache[key] = entry
+        _cache.move_to_end(key)
+        if len(_cache) > _MAX_CACHE_ENTRIES:
+            _cache.popitem(last=False)
+
+
+def _load(key: CacheKey) -> ReviewRanking:
+    path, expected_sha256, scan_date = key
+    raw = _verified_read(path, expected_sha256)
+    cached = _cached(key)
+    if cached is not None:
+        # 해시를 다시 검사해 파일 교체나 수정 시각을 원복한 변경도 감지한다.
+        for name, digest in cached.hashes.items():
+            _verified_read(path.parent / name, digest)
+        return cached.ranking
+
+    manifest = json.loads(raw)
+    if manifest["scan_date"] != scan_date.isoformat():
+        raise SnapshotInvalid("SCAN_MISMATCH")
+    hashes = manifest["files"]
+    if not isinstance(hashes, dict) or set(hashes) != SNAPSHOT_FILES:
+        raise SnapshotInvalid("INVALID_SNAPSHOT")
+    files = {name: _verified_read(path.parent / name, digest) for name, digest in hashes.items()}
+    ranking = _rank(scan_date, expected_sha256, files)
+    _remember(key, CachedRanking(hashes, ranking))
+    return ranking
+
+
 def load_review_ranking(scan_date: date, manifest_path: str, expected_sha256: str) -> ReviewRanking:
-    if not manifest_path or not expected_sha256:
-        raise RankingUnavailable("DL ranking is not configured")
+    """스캔 전체의 조사 순위를 읽고 검증한다."""
+    key = Path(manifest_path), expected_sha256.lower(), scan_date
     try:
-        path = Path(manifest_path)
-        raw = _read(path)
-        digest = _digest(raw)
-        if not hmac.compare_digest(digest, expected_sha256.lower()):
-            raise ValueError("manifest checksum mismatch")
-        manifest = json.loads(raw)
-        hashes = manifest["files"]
-        if manifest["scan_date"] != scan_date.isoformat() or set(hashes) != SNAPSHOT_FILES:
-            raise ValueError("wrong scan or file set")
-        files = {name: _read(path.parent / name) for name in SNAPSHOT_FILES}
-        if any(not hmac.compare_digest(_digest(blob), hashes[name]) for name, blob in files.items()):
-            raise ValueError("snapshot checksum mismatch")
-        return _rank(scan_date, digest, files)
+        if not manifest_path or not expected_sha256:
+            raise SnapshotInvalid("SETTINGS_MISSING")
+        return _load(key)
     except (OSError, ValueError, TypeError, KeyError, OverflowError, csv.Error) as exc:
-        raise RankingUnavailable("DL ranking snapshot is unavailable or invalid") from exc
+        with _cache_lock:
+            _cache.pop(key, None)
+        if isinstance(exc, SnapshotInvalid):
+            reason = exc.reason
+        elif isinstance(exc, FileNotFoundError):
+            reason = "FILE_MISSING"
+        elif isinstance(exc, OSError):
+            reason = "FILE_READ_ERROR"
+        else:
+            reason = "INVALID_SNAPSHOT"
+        raise RankingUnavailable(
+            "DL 조사 순위 스냅샷을 사용할 수 없습니다.",
+            reason_code=reason,
+            error_type=type(exc).__name__,
+        ) from None
