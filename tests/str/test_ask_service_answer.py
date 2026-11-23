@@ -1,6 +1,6 @@
-"""AskService 290-2 — 답 단계·코드 검사·근거·상태 3종 (SCRUM-290, 03 8~10 · 06 "질문 답변").
+"""AskService 290-2 — 답 단계·코드 검사·근거·상태 3종 (SCRUM-290 · SCRUM-362 자리표, 03 8~10 · 04 · 06 "질문 답변").
 
-가짜 LLM 은 응답 두 개(계획, 답)를 차례로 돌려준다. facts 는 `StubReader`(fan_in 숫자, 입금 3건·USD 42750.50).
+가짜 LLM 은 응답 두 개(계획, 답 — ask_answer_v3·v4 모양)를 차례로 돌려준다. facts 는 `StubReader`(fan_in 숫자, 입금 3건·USD 42750.50).
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ import pytest
 
 from aml_ai.shared.errors import LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.schemas.str import AskStatus
-from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT
+from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT, ASK_PLAN_PROMPT
 from tests.log_support import stdout_json_logging
 from tests.str.ask_service_support import StubLlm, answer_text, ask_request, build_service, plan_text
 
@@ -27,38 +27,35 @@ def _skip_end_read(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_answered_response_and_saved_row() -> None:
-    llm = StubLlm([FLOWS, answer_text(True, "입금 거래는 모두 3건이에요.", ["inbound.count"])])
+    raw = "이 케이스에는 {{inbound.count|이}} 있어요."
+    llm = StubLlm([FLOWS, answer_text(True, raw)])
     svc, repo = build_service(llm)
     res = svc.ask(ask_request(Q))
     assert res.status is AskStatus.ANSWERED and res.kind.value == "FACT"
     assert res.out_of_scope_reason is None
-    assert res.answer == "입금 거래는 모두 3건이에요." and res.cites == ["inbound.count"]
+    assert res.answer == "이 케이스에는 입금 거래 3건이 있어요." and res.cites == ["inbound.count"]
     assert res.evidence_ids == [104221, 104233, 104301]
-    assert [c.check.value for c in res.code_checks] == ["COUNT_MATCH", "EVIDENCE_IN_SCOPE"]
-    assert all(c.match for c in res.code_checks)
+    assert [(c.check.value, c.match) for c in res.code_checks] == [("EVIDENCE_IN_SCOPE", True)]
     meta = res.generation_meta
     assert (meta.prompt_version, meta.plan_prompt_version, meta.bundles) == (
         ASK_ANSWER_PROMPT,
-        "ask_plan_v1",
+        ASK_PLAN_PROMPT,
         ["flows"],
     )
     assert (meta.tokens_in, meta.tokens_out, meta.latency_ms) == (240, 60, 1800)  # 두 호출 합
-    assert [c["tag"] for c in llm.calls] == ["ask_plan_v1", ASK_ANSWER_PROMPT]
+    assert [c["tag"] for c in llm.calls] == [ASK_PLAN_PROMPT, ASK_ANSWER_PROMPT]
     (row,) = repo.saved
     assert row["status"] == "SUCCEEDED" and row["kind"] == "ASK"
     payload = row["response_payload"]
     assert payload["status"] == "ANSWERED"
     assert payload["plan"]["bundles"] == ["flows"]
-    assert payload["llm_answer"] == {
-        "answerable": True,
-        "answer": "입금 거래는 모두 3건이에요.",
-        "cites": ["inbound.count"],
-    }
+    assert payload["answer"] == "이 케이스에는 입금 거래 3건이 있어요."
+    assert payload["llm_answer"] == {"answerable": True, "answer": raw}  # 자리표 그대로인 원문
     assert row["meta"]["prompt_version"] == ASK_ANSWER_PROMPT
 
 
 def test_not_answerable_is_no_data_and_ignores_answer() -> None:
-    llm = StubLlm([FLOWS, answer_text(False, "무시될 문장 7건", ["inbound.count"])])
+    llm = StubLlm([FLOWS, answer_text(False, "무시될 문장 7건 {{inbound.count}}")])
     svc, repo = build_service(llm)
     res = svc.ask(ask_request(Q))
     assert res.status is AskStatus.NO_DATA and res.kind.value == "FACT"
@@ -67,20 +64,22 @@ def test_not_answerable_is_no_data_and_ignores_answer() -> None:
     assert repo.saved[0]["response_payload"]["llm_answer"]["answerable"] is False
 
 
-def test_wrong_number_is_unverified_without_answer_but_row_keeps_it() -> None:
-    wrong = "입금 거래는 모두 5건이에요."
-    llm = StubLlm([FLOWS, answer_text(True, wrong, ["inbound.count"])])
+def test_number_written_outside_slot_is_unverified_without_answer_but_row_keeps_it() -> None:
+    """06 2번 — LLM 이 직접 쓴 숫자(자리표 밖)는 맞든 틀리든 UNVERIFIED. 원문은 저장 행 llm_answer 에만."""
+    wrong = "입금 거래는 모두 5건이에요. {{inbound.count|이에요}}"
+    llm = StubLlm([FLOWS, answer_text(True, wrong)])
     svc, repo = build_service(llm)
     res = svc.ask(ask_request(Q))
     assert res.status is AskStatus.UNVERIFIED
     assert (res.answer, res.cites, res.evidence_ids) == (None, [], [])
-    assert any(not c.match for c in res.code_checks)
-    assert wrong not in res.model_dump_json()
+    (ev,) = res.code_checks
+    assert (ev.draft_value, ev.reason.value) == ("자리표 밖 숫자 1개", "UNPARSED")
+    assert "5건" not in res.model_dump_json()
     assert repo.saved[0]["response_payload"]["llm_answer"]["answer"] == wrong
 
 
 def test_cite_outside_bundle_is_unverified() -> None:
-    llm = StubLlm([FLOWS, answer_text(True, "입금 상대 계좌는 3개예요.", ["counterparties.count"])])
+    llm = StubLlm([FLOWS, answer_text(True, "{{counterparties.count|이에요}}")])
     svc, _ = build_service(llm)
     res = svc.ask(ask_request("입금 상대 계좌는 몇 개야?"))
     assert res.status is AskStatus.UNVERIFIED
@@ -88,29 +87,29 @@ def test_cite_outside_bundle_is_unverified() -> None:
     assert ev.check.value == "EVIDENCE_IN_SCOPE" and ev.draft_value == "인용 키 범위 밖 1개"
 
 
-def test_answer_sentence_in_cites_never_reaches_response() -> None:
-    """추가 검토 1 high — cites 에 답 문장 → UNVERIFIED, 응답 어디에도 본문 없음, 저장 행 llm_answer 에만."""
+def test_answer_sentence_as_slot_key_never_reaches_response() -> None:
+    """추가 검토 1 high(SCRUM-290)의 v3 꼴 — 자리표 키 자리에 문장 → 범위 밖, 응답 어디에도 본문 없음."""
     body = "입금 거래는 모두 5건이에요."
-    llm = StubLlm([FLOWS, answer_text(True, body, [body])])
+    llm = StubLlm([FLOWS, answer_text(True, "{{" + body + "}}")])
     svc, repo = build_service(llm)
     res = svc.ask(ask_request(Q))
     assert res.status is AskStatus.UNVERIFIED
+    assert res.code_checks[0].draft_value == "인용 키 범위 밖 1개"
     dumped = res.model_dump_json()
     assert body not in dumped and "모두 5건" not in dumped
     saved = repo.saved[0]["response_payload"]
     assert body not in json.dumps({k: v for k, v in saved.items() if k != "llm_answer"}, ensure_ascii=False)
-    assert saved["llm_answer"]["cites"] == [body]
 
 
 @pytest.mark.parametrize(
     "text",
     [
-        answer_text(True, "입금 거래는 3건이에요.", []),
-        answer_text(True, "가" * 401, ["inbound.count"]),
-        answer_text(True, "   ", ["inbound.count"]),
+        json.dumps({"answerable": True, "answer": "{{inbound.count}}", "cites": ["inbound.count"]}),
+        answer_text(True, "가" * 401),
+        answer_text(True, "   "),
         "not json",
     ],
-    ids=["no-cites", "401", "blank", "not-json"],
+    ids=["v2-cites-field", "401", "blank", "not-json"],
 )
 def test_answer_schema_violation_is_502_and_failed(text: str) -> None:
     llm = StubLlm([FLOWS, text, text])
@@ -129,7 +128,7 @@ def test_budget_short_before_answer_call_is_unavailable() -> None:
     svc, repo = build_service(llm, clock=lambda: next(ticks))
     with pytest.raises(LlmUnavailable):
         svc.ask(ask_request(Q))
-    assert [c["tag"] for c in llm.calls] == ["ask_plan_v1"]
+    assert [c["tag"] for c in llm.calls] == [ASK_PLAN_PROMPT]
     assert repo.saved[0]["status"] == "FAILED" and repo.saved[0]["error"].startswith("LLM_UNAVAILABLE")
 
 
@@ -162,7 +161,8 @@ def test_answer_prompt_has_masked_question_piece_and_keys() -> None:
     assert user.count("</question>") == 1
     assert "<facts>" in user and '"inbound"' in user and "104221" not in user  # 거래 ID 없음
     keys_block = user.split("<fact_keys>")[1].split("</fact_keys>")[0]
-    assert "inbound.count" in keys_block and "counterparties.count" not in keys_block
+    assert "inbound.count — 입금 거래" in keys_block.splitlines()  # 키 — 이름표(값 없이, 05 v3)
+    assert "counterparties.count" not in keys_block and "42,750.50" not in keys_block
     assert repo.saved[0]["request"]["question"] == q
 
 
@@ -176,7 +176,7 @@ def test_answer_prompt_template_placeholders_are_not_rescanned() -> None:
 
 
 def test_logs_have_no_answer_text(capsys: pytest.CaptureFixture[str]) -> None:
-    llm = StubLlm([FLOWS, answer_text(True, "비밀답문장 입금 거래는 모두 3건이에요.", ["inbound.count"])])
+    llm = StubLlm([FLOWS, answer_text(True, "비밀답문장 {{inbound.count|이에요}}")])
     svc, _ = build_service(llm)
     with stdout_json_logging():
         svc.ask(ask_request(Q))

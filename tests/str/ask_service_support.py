@@ -6,6 +6,8 @@ import json
 import time
 from dataclasses import dataclass, field
 
+from tools.ask_fixture_scope import fixture_scope
+
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.infrastructure.llm_client import LlmClient, LlmResult
 from aml_ai.shared.schemas.str import AskRequest, Facts
@@ -62,10 +64,10 @@ def plan_text(
 
 
 def answer_text(
-    answerable: bool = True, answer: str | None = "입금 거래는 모두 3건이에요.", cites=None
+    answerable: bool = True, answer: str | None = "이 케이스에는 {{inbound.count|이}} 있어요."
 ) -> str:
-    cites = ["inbound.count"] if cites is None and answerable else (cites or [])
-    return json.dumps({"answerable": answerable, "answer": answer, "cites": cites}, ensure_ascii=False)
+    """ask_answer_v3 출력 — answerable·answer 둘(v3·v4 같은 모양 — cites 는 코드가 자리표에서, SCRUM-362)."""
+    return json.dumps({"answerable": answerable, "answer": answer}, ensure_ascii=False)
 
 
 def ask_request(question: str = "이거 자금세탁 맞지?", *, rule_id: str | None = None) -> AskRequest:
@@ -75,8 +77,11 @@ def ask_request(question: str = "이거 자금세탁 맞지?", *, rule_id: str |
     return AskRequest.model_validate({**body, "question": question})
 
 
+FIXTURE = object()  # build_service 기본 — 픽스처에서 범위 계산
+
+
 def build_service(
-    llm: LlmClient, *, clock=None, facts: Facts | None = None
+    llm: LlmClient, *, clock=None, facts: Facts | None = None, scope: object = FIXTURE
 ) -> tuple[AskService, RecordingRepo]:
     """facts 를 주면 거래 읽기 대신 그 facts 로(평가 세트 픽스처 주입, 08)."""
     s = get_settings()
@@ -92,5 +97,6 @@ def build_service(
         clock=clk,
     )
     if facts is not None:
-        svc._load_facts = lambda _req: facts  # type: ignore[method-assign]
+        # 범위는 서비스와 같은 ask_scope 로 픽스처에서 셈(04 ★B8) — scope=None 이면 범위 모름 경로
+        svc._load_facts = lambda req: (facts, fixture_scope(facts, req) if scope is FIXTURE else scope)  # type: ignore[method-assign]
     return svc, repo

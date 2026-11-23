@@ -11,9 +11,30 @@ from collections.abc import Sequence
 
 from aml_ai.shared.schemas.str import CodeCheck
 from aml_ai.str.domain.constants import BANK_COUNT_UNITS, COUNT_UNITS_COUNT, COUNT_UNITS_SMALL, PATH_HOP_UNITS
-from aml_ai.str.domain.constants_ask import EVIDENCE_OUT_OF_SCOPE_MARK, OTHER_CASE_MARK
+from aml_ai.str.domain.constants_ask import (
+    COMPARE_MARK,
+    EVIDENCE_OUT_OF_SCOPE_MARK,
+    NO_SLOT_MARK,
+    OPPOSITE_DIRECTION_MARK,
+    OTHER_CASE_MARK,
+    OUTSIDE_NUMBER_MARK,
+    PREDICATE_MARK,
+    QUALIFIER_MARK,
+    SLOT_ERROR_MARK,
+    TOO_LONG_MARK,
+)
 
 MASK = "답 조각 가림"
+_SLOT_MARKS = (
+    SLOT_ERROR_MARK,
+    OUTSIDE_NUMBER_MARK,
+    COMPARE_MARK,
+    PREDICATE_MARK,
+    OPPOSITE_DIRECTION_MARK,
+    QUALIFIER_MARK,
+    NO_SLOT_MARK,
+    TOO_LONG_MARK,
+)
 
 _NUM = r"(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 _UNITS = "|".join(dict.fromkeys((*COUNT_UNITS_SMALL, *COUNT_UNITS_COUNT, *BANK_COUNT_UNITS, *PATH_HOP_UNITS)))
@@ -28,6 +49,7 @@ _ALLOWED = re.compile(
             r"\d{1,4}_[0-9A-Z*]{4,}|\*{4}[0-9A-Z]{4}|끝자리 ?[0-9A-Z]{4}",  # 계좌 모양
             re.escape(EVIDENCE_OUT_OF_SCOPE_MARK).replace(r"\{n\}", r"\d+"),  # 고정 표시
             re.escape(OTHER_CASE_MARK).replace(r"\{n\}", r"\d+"),  # 고정 표시(추가 검토 4 H6)
+            *(re.escape(m).replace(r"\{n\}", r"\d+") for m in _SLOT_MARKS),  # 자리표 표시(SCRUM-362)
         )
     )
 )

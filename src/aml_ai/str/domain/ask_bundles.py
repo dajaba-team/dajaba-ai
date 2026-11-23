@@ -14,6 +14,7 @@ from typing import Any
 from aml_ai.shared.schemas.str import Facts
 from aml_ai.shared.schemas.str.ask import ASK_BUNDLES_MAX
 from aml_ai.shared.schemas.str.ask_llm import AskBundle
+from aml_ai.str.domain.ask_scope import AskScope
 from aml_ai.str.domain.constants_ask import ASK_DIRECTION_WORDS
 from aml_ai.str.domain.display_labels_check import Labels
 from aml_ai.str.domain.fact_keys import fact_keys
@@ -51,7 +52,7 @@ _KEY_RULES: dict[AskBundle, tuple[tuple[str, ...], tuple[str, ...]]] = {
     B.SUBJECT: (("subject", "prior_alert_count"), ("subject.", "customer.")),
     B.FLOWS: (
         ("period", "direction"),
-        ("inbound.", "outbound.", "internal.", "amount_range.", "unmapped_currencies."),
+        ("inbound.", "outbound.", "internal.", "amount_range.", "unmapped_currencies.", "compare."),
     ),
     B.COUNTERPARTIES: ((), ("counterparties.", "counterparty_banks.", "counterparties_by_direction.")),
     B.FORMATS: (("payment_formats", "direction"), ("payment_format_counts.",)),
@@ -67,9 +68,13 @@ class AskPiece:
     bundles: tuple[str, ...]
     content: dict[str, Any]  # 답 프롬프트에 가는 조각(마스킹본) + labels
     keys: tuple[str, ...]  # 인용할 수 있는 fact 키
+    scope: AskScope | None = None  # 렌더링 전용(프롬프트에 안 감) — None = 범위 모름
+    non_external: int = 0  # 근거 중 내부·간접 거래 수 — 결제 방식 집계(입출금만) 범위 밖(추가 검토 3 H1)
 
 
-def extract(facts: Facts, rule_id: str, bundles: Sequence[str], labels: Labels) -> AskPiece:
+def extract(
+    facts: Facts, rule_id: str, bundles: Sequence[str], labels: Labels, *, scope: AskScope | None = None
+) -> AskPiece:
     """목록 밖 묶음 이름은 ValueError(AskBundle 변환). 같은 칸이 두 묶음에 걸려도 한 번만."""
     names = list(dict.fromkeys(AskBundle(b) for b in bundles))
     masked = mask_for_llm(facts)
@@ -88,7 +93,24 @@ def extract(facts: Facts, rule_id: str, bundles: Sequence[str], labels: Labels) 
     if picked_labels:
         content["labels"] = picked_labels
     keys = tuple(k for k in ask_fact_keys(facts) if any(_cites(k, n) for n in names))
-    return AskPiece(bundles=tuple(n.value for n in names), content=content, keys=keys)
+    return AskPiece(
+        bundles=tuple(n.value for n in names),
+        content=content,
+        keys=keys + _baseline_keys(content, names),
+        scope=scope,
+        non_external=facts.internal.count + facts.indirect.count,
+    )
+
+
+def _baseline_keys(content: dict[str, Any], names: list[AskBundle]) -> tuple[str, ...]:
+    """질문 답변 전용 `observations.<이름>.baseline` — score_reasons 조각에 기준값이 있을 때만(근거 거래 없음, 추가 검토 2 M2)."""
+    if B.SCORE_REASONS not in names:
+        return ()
+    obs = content.get("observations", [])
+    with_base = [o["name"] for o in obs if o.get("baseline") is not None]
+    return tuple(
+        k for n in with_base for k in (f"observations.{n}.baseline", f"observations.{n}.vs_baseline")
+    )
 
 
 def with_flows(bundles: Sequence[str], question: str) -> list[str]:
@@ -104,6 +126,7 @@ def with_flows(bundles: Sequence[str], question: str) -> list[str]:
 def ask_fact_keys(facts: Facts) -> dict[str, list[int]]:
     """질문 답변 인용 키 = 초안 `fact_keys` + `counterparties_by_direction.*`(칸이 있을 때) → 그 방향 거래 ID."""
     keys = dict(fact_keys(facts))
+    _add_compare_keys(keys, facts)
     if facts.counterparties_by_direction is None:
         return keys
     for side, flow in (("inbound", facts.inbound), ("outbound", facts.outbound)):
@@ -112,9 +135,23 @@ def ask_fact_keys(facts: Facts) -> dict[str, list[int]]:
     return keys
 
 
+def _add_compare_keys(keys: dict[str, list[int]], facts: Facts) -> None:
+    """질문 답변 전용 비교 자리표(원칙 (B), SCRUM-362 B1) — 근거 = 비교한 두 방향의 거래. 금액은 그 통화가 두 방향 다 있을 때만."""
+    keys["compare.count"] = sorted({*facts.inbound.transaction_ids, *facts.outbound.transaction_ids})
+    ins = {c.currency: c.transaction_ids for c in facts.inbound.by_currency}
+    for c in facts.outbound.by_currency:
+        if c.currency in ins:
+            keys[f"compare.amount.{c.currency}"] = sorted({*ins[c.currency], *c.transaction_ids})
+
+
 def _observations(items: list[dict[str, Any]], names: list[AskBundle]) -> list[dict[str, Any]]:
     keep = {f for n in names for f in _OBSERVATION_FIELDS.get(n, ())}
     return [{k: v for k, v in item.items() if k in keep} for item in items]
+
+
+def key_in_bundle(key: str, bundle: str) -> bool:
+    """키가 그 묶음의 인용 키 규칙에 드는지(위 `_KEY_RULES`) — 평가 판정용(SCRUM-362 복합 WHY)."""
+    return _cites(key, AskBundle(bundle))
 
 
 def _cites(key: str, name: AskBundle) -> bool:

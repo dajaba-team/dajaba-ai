@@ -107,9 +107,7 @@ def test_service_meta_bundles_include_added_flows_plan_row_keeps_llm_pick() -> N
     llm = StubLlm(
         responses=[
             plan_text("FACT", None, ["counterparties"]),
-            answer_text(
-                answer="입금 상대 계좌는 2개예요.", cites=["counterparties_by_direction.inbound.count"]
-            ),
+            answer_text(answer="이 케이스에는 {{counterparties_by_direction.inbound.count|이}} 있어요."),
         ]
     )
     svc, repo = build_service(llm, facts=_mixed())
@@ -121,15 +119,16 @@ def test_service_meta_bundles_include_added_flows_plan_row_keeps_llm_pick() -> N
 
 
 def test_service_wrong_direction_answer_is_unverified() -> None:
-    """346 발견 모양 — 전체 상대 수(4)를 입금 상대로 쓴 답은 UNVERIFIED."""
+    """346 발견 모양 — 입금 상대를 물었는데 출금 상대 키만 쓴 답은 UNVERIFIED(06 3번 — SCRUM-362 부터 키 이름으로)."""
     llm = StubLlm(
         responses=[
             plan_text("FACT", None, ["counterparties"]),
-            answer_text(answer="입금 상대는 계좌 4개로 보여요.", cites=["counterparties.count"]),
+            answer_text(answer="입금 상대는 {{counterparties_by_direction.outbound.count|으로}} 보여요."),
         ]
     )
     svc, _ = build_service(llm, facts=_mixed())
-    assert svc.ask(ask_request("입금 상대 계좌는 몇 개야?")).status is AskStatus.UNVERIFIED
+    res = svc.ask(ask_request("입금 상대 계좌는 몇 개야?"))
+    assert res.status is AskStatus.UNVERIFIED and res.code_checks[0].draft_value == "반대 방향 키만 1개"
 
 
 # ---------- 이어지는 질문 ----------

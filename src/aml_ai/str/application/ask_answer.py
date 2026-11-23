@@ -19,7 +19,9 @@ from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain import ask_checks
 from aml_ai.str.domain.ask_bundles import AskPiece
 from aml_ai.str.domain.ask_public import public_checks
+from aml_ai.str.domain.ask_slots import render
 from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT, ASK_NO_LLM_MODEL, ASK_PLAN_PROMPT
+from aml_ai.str.domain.display_labels_check import Labels
 from aml_ai.str.infrastructure.ask_llm import AnswerResult, PlanResult
 
 
@@ -68,14 +70,12 @@ def in_scope_response(
     piece: AskPiece,
     ans: AnswerResult,
     server_version: str,
+    labels: Labels,
 ) -> AskResponse:
-    """answerable=false → NO_DATA · 검사 하나라도 실패 → UNVERIFIED · 전부 통과 → ANSWERED (06)."""
+    """answerable=false → NO_DATA · 검사 실패 → UNVERIFIED · 통과 → ANSWERED(렌더링한 답·자리표 키 cites, 04·06)."""
     out = ans.out
-    checks = (
-        ask_checks.run(facts, out.answer, out.cites, piece.keys, req.question, req.case_no)
-        if out.answerable
-        else []
-    )
+    slots = render(out.answer or "", piece, labels) if out.answerable else None
+    checks = ask_checks.run(slots, req.question, req.case_no) if slots is not None else []
     if not out.answerable:
         status = AskStatus.NO_DATA
     elif all(c.match for c in checks):
@@ -90,11 +90,9 @@ def in_scope_response(
         status=status,
         kind=AskKind(plan.out.kind.value),
         out_of_scope_reason=None,
-        answer=out.answer if answered else None,
-        cites=list(out.cites) if answered else [],
-        evidence_ids=ask_checks.cited_evidence_ids(facts, out.cites, out.answer or "", req.question)
-        if answered
-        else [],
+        answer=slots.text if answered and slots else None,
+        cites=list(slots.keys) if answered and slots else [],
+        evidence_ids=ask_checks.cited_evidence_ids(facts, slots.keys) if answered and slots else [],
         code_checks=public_checks(checks),  # 06 7번 — 응답엔 허용 모양만, 원문은 저장 행 llm_answer
         generation_meta=_meta(plan, ans, piece, server_version),
     )

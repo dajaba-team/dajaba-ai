@@ -25,6 +25,7 @@ from aml_ai.str.application.ask_answer import follow_up_plan, in_scope_response,
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain.ask_bundles import extract, with_flows
 from aml_ai.str.domain.ask_question import blocked_before_plan, mask_question
+from aml_ai.str.domain.ask_scope import AskScope, ask_scope
 from aml_ai.str.domain.display_labels_check import Labels
 from aml_ai.str.domain.facts_direction import with_direction
 from aml_ai.str.infrastructure.ask_llm import AnswerResult, AskLlm, PlanResult
@@ -50,13 +51,14 @@ class AskService:
     def build(
         cls, session: Session, settings: Settings, *, clock: Callable[[], float] = time.monotonic
     ) -> AskService:
+        labels = load_display_labels()
         return cls(
             settings=settings,
             session=session,
             reader=TransactionReader(session),
-            llm=AskLlm(make_llm_client(settings), settings, clock=clock),
+            llm=AskLlm(make_llm_client(settings), settings, clock=clock, labels=labels),
             repo=SummaryRepository(session),
-            labels=load_display_labels(),
+            labels=labels,
             clock=clock,
         )
 
@@ -65,7 +67,7 @@ class AskService:
         deadline = self.clock() + self.settings.ask_budget_s
         generation_id = f"g-{uuid.uuid4().hex[:8]}"
         try:
-            facts = self._load_facts(req)
+            facts, scope = self._load_facts(req)
             end_read(self.session)  # SCRUM-122 — LLM 호출 전 연결 반납
             question = mask_question(req.question)  # 04 — LLM 에 가는 질문만, 저장은 원문
             follow_up = blocked_before_plan(
@@ -76,7 +78,7 @@ class AskService:
             if plan.out.kind is AskPlanKind.OUT_OF_SCOPE:
                 response = out_of_scope_response(req, generation_id, plan, self.settings.server_version)
             else:
-                response, ans = self._answer(req, generation_id, facts, plan, question, deadline)
+                response, ans = self._answer(req, generation_id, facts, plan, question, deadline, scope)
             self._save_success(req, generation_id, facts, response, plan, ans, deadline, by_code=follow_up)
         except Exception as exc:
             code = exc.code if isinstance(exc, AiError) else "INTERNAL"
@@ -91,13 +93,18 @@ class AskService:
         if not set(req.evidence_transaction_ids) <= set(req.alert.transaction_ids):
             raise InvalidRequest("evidence must be subset of alert.transaction_ids")
 
-    def _load_facts(self, req: AskRequest) -> Facts:
+    def _load_facts(self, req: AskRequest) -> tuple[Facts, AskScope]:
         inp = req.to_facts_input()
         txs = self.reader.load_transactions(inp.evidence_transaction_ids)
         if not facts_domain.has_reportable(txs):
             raise InvalidRequest("no reportable transactions")
         subject = self.reader.load_subject(inp.alert, txs)
-        return with_direction(facts_domain.build_facts(inp, txs, subject), txs)  # 04 — 질문 답변만 방향 칸
+        accounts = {req.alert.account_key} | {k for t in txs for k in (t.from_account_key, t.to_account_key)}
+        scope = ask_scope(
+            req.evidence_transaction_ids, req.alert.transaction_ids, accounts, subject.account_entities
+        )
+        facts = with_direction(facts_domain.build_facts(inp, txs, subject), txs)  # 04 — 질문 답변만 방향 칸
+        return facts, scope  # 범위 — 배타·부재 이름표용(추가 검토 3 H3)
 
     def _answer(
         self,
@@ -107,13 +114,14 @@ class AskService:
         plan: PlanResult,
         question: str,
         deadline: float,
+        scope: AskScope | None = None,
     ) -> tuple[AskResponse, AnswerResult]:
         """묶음 조각 → 답 LLM(1회) → 코드 검사·근거 (03 8·9)."""
         bundles = with_flows([b.value for b in plan.out.bundles], question)  # 04 "계획 보강" — meta ≤3
-        piece = extract(facts, req.alert.rule_id, bundles, self.labels)
+        piece = extract(facts, req.alert.rule_id, bundles, self.labels, scope=scope)
         ans = self.llm.answer(question, piece, deadline=deadline)
         sv = self.settings.server_version
-        return in_scope_response(req, generation_id, facts, plan, piece, ans, sv), ans
+        return in_scope_response(req, generation_id, facts, plan, piece, ans, sv, self.labels), ans
 
     def _save_success(
         self,
@@ -127,7 +135,7 @@ class AskService:
         *,
         by_code: bool = False,
     ) -> None:
-        """response = API 응답 + plan + llm_answer(답 호출 때만 — UNVERIFIED 본문은 여기에만, 06).
+        """response = API 응답 + plan + llm_answer(답 호출 때만 — 자리표 그대로인 원문, UNVERIFIED 본문은 여기에만, 06).
 
         남은 시간 안에서만 성공 저장(03 10단계): 남은 ≤ 0 이면 안 함, 문장·잠금 대기를 남은 시간으로, 커밋 직전 재확인.
         """

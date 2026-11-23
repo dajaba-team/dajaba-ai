@@ -1,138 +1,165 @@
-"""질문 답변 코드 검사·근거 (SCRUM-290 2/2, 정본 docs/str/06 "질문 답변에 도는 코드 검사")."""
+"""질문 답변 코드 검사·근거 — EVIDENCE_IN_SCOPE 1줄·고정 표시 순서 (SCRUM-290 · SCRUM-362, 정본 docs/str/06 "질문 답변")."""
 
 from __future__ import annotations
 
 import pytest
 
 from aml_ai.shared.schemas.str import CheckReason, CodeCheckName, Facts
-from aml_ai.str.domain.ask_checks import cited_evidence_ids, run
-from aml_ai.str.domain.fact_keys import fact_keys
+from aml_ai.str.domain.ask_bundles import extract
+from aml_ai.str.domain.ask_checks import cited_evidence_ids, opposite_direction_keys, question_side, run
+from aml_ai.str.domain.ask_slots import render
+from aml_ai.str.infrastructure.display_labels import load_display_labels
 from tests.conftest import FIXTURES, load_json
 
-FAN_IN = Facts.model_validate(load_json(FIXTURES / "facts_fan_in.json"))
-PIECE_KEYS = ("period", "inbound.count", "inbound.amount.USD", "direction")
+LABELS = load_display_labels()
+MIXED = Facts.model_validate(load_json(FIXTURES / "facts_ask_mixed.json"))
+PIECE = extract(MIXED, "R02_FAN_IN", ["flows", "counterparties"], LABELS)
+CASE = "CASE-2022-000057"
 
 
-def _names(checks) -> list[str]:
-    return [c.check.value for c in checks]
+def _check(answer: str, question: str = "이 케이스 거래 알려 줘"):
+    (c,) = run(render(answer, PIECE, LABELS), question, CASE)
+    assert c.check is CodeCheckName.EVIDENCE_IN_SCOPE and c.section is None and c.source_value is None
+    return c
 
 
-def test_cites_in_piece_add_one_matching_evidence_row() -> None:
-    checks = run(FAN_IN, "입금 거래는 모두 3건이에요.", ["inbound.count"], PIECE_KEYS)
-    assert _names(checks) == ["COUNT_MATCH", "EVIDENCE_IN_SCOPE"]
-    assert all(c.match for c in checks)
-    ev = checks[-1]
-    assert ev.draft_value is None and ev.reason is None
-
-
-def test_sentence_without_date_has_no_date_missing() -> None:
-    checks = run(FAN_IN, "입금 상대 계좌는 3개예요.", ["inbound.count"], PIECE_KEYS)
-    assert "DATE_MATCH" not in _names(checks)
-    assert all(c.section is None for c in checks)
-
-
-def test_answer_without_checked_numbers_still_gets_evidence_row() -> None:
-    checks = run(FAN_IN, "거래 방향은 입금 쪽이에요.", ["direction"], PIECE_KEYS)
-    assert _names(checks) == ["EVIDENCE_IN_SCOPE"]
-    assert checks[0].match is True
+def test_pass_is_one_matching_line() -> None:
+    c = _check("이 케이스에는 {{inbound.count|이}} 있어요.")
+    assert (c.match, c.reason, c.draft_value) == (True, None, None)
 
 
 @pytest.mark.parametrize(
-    "cites, bad",
+    ("answer", "mark", "reason"),
     [
-        (["inbound.count", "no.such.key"], "no.such.key"),  # fact 키 밖
-        (["inbound.count", "counterparties.count"], "counterparties.count"),  # fact 키 안·묶음 밖
+        ("{{paths.count}} {{customer.industry}}", "인용 키 범위 밖 2개", CheckReason.OUT_OF_SCOPE),
+        ("{{inbound.count", "자리표 오류 1개", CheckReason.UNPARSED),
+        ("{{inbound.count|만}}", "자리표 오류 1개", CheckReason.UNPARSED),
+        ("CASE-2022-000058 의 {{inbound.count|이에요}}", "다른 케이스 번호 1개", CheckReason.OUT_OF_SCOPE),
+        ("{{inbound.count|이에요}} 5건이에요.", "자리표 밖 숫자 1개", CheckReason.UNPARSED),
+        ("입금은 모두 다섯 건이에요.", "자리표 밖 숫자 1개", CheckReason.UNPARSED),
+        ("입금이 수천 달러예요.", "자리표 밖 숫자 1개", CheckReason.UNPARSED),
+        ("입금은 확인돼요.", "자리표 없음", CheckReason.MISSING),
+        (
+            "{{inbound.count|을}} 송금했어요.",
+            "자리표 밖 서술어 1개",
+            CheckReason.UNPARSED,
+        ),  # 추가 검토 3 허용 목록
+        (
+            "{{inbound.count|이에요}}" + " 확인돼요." * 100,
+            "답 길이 넘침",
+            CheckReason.UNPARSED,
+        ),  # 허용 끝맺음(추가 검토 3)
     ],
-    ids=["outside-facts", "outside-bundle"],
+    ids=[
+        "scope",
+        "no-close",
+        "particle",
+        "other-case",
+        "arabic",
+        "korean-numeral",
+        "rough",
+        "no-slot",
+        "predicate",
+        "long",
+    ],
 )
-def test_cites_outside_scope_fail_with_out_of_scope(cites: list[str], bad: str) -> None:
-    assert bad not in PIECE_KEYS
-    checks = run(FAN_IN, "입금 거래는 모두 3건이에요.", cites, PIECE_KEYS)
-    ev = checks[-1]
-    assert ev.check is CodeCheckName.EVIDENCE_IN_SCOPE
-    assert ev.match is False and ev.reason is CheckReason.OUT_OF_SCOPE
-    assert ev.draft_value == "인용 키 범위 밖 1개" and ev.section is None  # 모델 문자열 반사 안 함
+def test_failure_marks(answer: str, mark: str, reason: CheckReason) -> None:
+    c = _check(answer)
+    assert (c.match, c.draft_value, c.reason) == (False, mark, reason)
 
 
-def test_piece_key_missing_from_facts_is_out_of_scope() -> None:
-    """조각 키라도 이 케이스 fact 키 목록에 없으면 밖 — 교집합(06 2번)."""
-    checks = run(FAN_IN, "경로는 확인됐어요.", ["paths.count"], (*PIECE_KEYS, "paths.count"))
-    assert checks[-1].match is False and checks[-1].draft_value == "인용 키 범위 밖 1개"
+def test_order_scope_before_error_before_numbers() -> None:
+    assert _check("{{paths.count}} {{inbound.count 3건").draft_value == "인용 키 범위 밖 1개"
+    assert _check("{{inbound.count 3건").draft_value == "자리표 오류 1개"
 
 
-def test_free_text_cites_are_not_reflected_in_draft_value() -> None:
-    """추가 검토 1 high — cites 에 답 문장을 넣어도 draft_value 는 고정 표시(개수만)."""
-    sentence = "입금 거래는 모두 5건이에요."
-    ev = run(FAN_IN, sentence, [sentence, "no.such.key"], PIECE_KEYS)[-1]
-    assert ev.draft_value == "인용 키 범위 밖 2개"
-    assert sentence not in ev.model_dump_json()
+@pytest.mark.parametrize(
+    "answer",
+    [
+        "{{inbound.count|이에요}} 세 곳이에요.",
+        "{{inbound.count|이에요}} 한 번에 받았어요.",
+        "{{inbound.count|이에요}} 두 계좌예요.",
+        "{{inbound.count|이에요}} 2022-09-03 이에요.",
+        "{{inbound.count|이에요}} 10_****BD30 이에요.",
+        "{{inbound.count|이에요}} CASE-2022-000057 이에요.",  # 자기 케이스 번호도(★A 5)
+        "{{inbound.count|이에요}} R02 룰이에요.",
+        "{{inbound.count|이에요}} １２건이에요.",  # 전각 — NFKC 뒤
+    ],
+    ids=["se-got", "han-beon", "du-gyejwa", "date", "account", "own-case", "rule-id", "fullwidth"],
+)
+def test_outside_numbers_are_caught(answer: str) -> None:
+    assert _check(answer).draft_value.startswith("자리표 밖 숫자")
 
 
-def test_check_order_amount_date_count_account_evidence() -> None:
-    # 금액은 종류 표시가 있어야 함(06 질문 답변 8번, SCRUM-359 추가 검토 3) — `입금 합계`
-    text = (
-        "2022-09-02T00:14:00 부터 입금 3건, 입금 합계 42750.50 USD 가 대상 계좌 10_****BD30 으로 들어왔어요."
+@pytest.mark.parametrize(
+    "answer",
+    [
+        "{{inbound.count|이에요}} 두 방향 모두 있어요.",
+        "{{inbound.count|이에요}} 이 케이스 근거예요.",
+        "{{inbound.count|이에요}} 세부 내역은 없어요.",
+        "{{inbound.count|이에요}} 대한 건은 없어요.",  # '한 건' 앞이 한글 — 낱말 안
+    ],
+    ids=["du-banghyang", "i-case", "sebu", "daehan-geon"],
+)
+def test_words_without_unit_are_not_numbers(answer: str) -> None:
+    assert _check(answer).match
+
+
+@pytest.mark.parametrize(
+    ("question", "side"),
+    [
+        ("입금 상대 계좌는 몇 개야?", "inbound"),
+        ("보낸 돈은 얼마야?", "outbound"),
+        ("입출금 상대 계좌는 모두 몇 개야?", "both"),  # 추가 검토 2 H4 — 양방향도 검사(★B5 때 None)
+        ("입금과 출금은 각각 몇 건이야?", "both"),
+        ("출금 말고 입금만 몇 건이야?", "inbound"),
+        ("입금 전체 합계는?", "inbound"),
+        ("상대 계좌는 몇 개야?", None),
+    ],
+)
+def test_question_side(question: str, side: str | None) -> None:
+    assert question_side(question) == side
+
+
+def _opp(keys: list[str], q: str) -> int:
+    answer = " ".join("{{" + k + "}}." for k in keys)
+    return opposite_direction_keys(render(answer, PIECE, LABELS), q)
+
+
+def test_opposite_direction_keys_only() -> None:
+    q = "입금 상대 계좌는 몇 개야?"
+    assert _opp(["counterparties_by_direction.outbound.count"], q) == 1
+    assert _opp(["outbound.count", "counterparties_by_direction.outbound.count"], q) == 2
+    # 추가 검토 1 H3 — 지표가 다르면 덮지 못함(★B2 때는 0 = 통과였음, 구현을 따라 쓴 단언)
+    assert _opp(["counterparties_by_direction.inbound.count", "outbound.count"], q) == 1
+    assert (
+        _opp(["counterparties_by_direction.inbound.count", "counterparties_by_direction.outbound.count"], q)
+        == 0
     )
-    checks = run(FAN_IN, text, ["inbound.count", "inbound.amount.USD", "period"], PIECE_KEYS)
-    assert _names(checks) == [
-        "AMOUNT_MATCH",
-        "DATE_MATCH",
-        "COUNT_MATCH",
-        "ACCOUNT_ID_MATCH",
-        "EVIDENCE_IN_SCOPE",
-    ]
-    assert all(c.match for c in checks)
+    assert _opp(["counterparties.count"], q) == 0  # 방향 없는 키는 안 셈
+    # 추가 검토 2 H4 — 양방향 질문도 검사: 한쪽만 쓰면 실패(★B5 때는 0 = 건너뜀)
+    assert _opp(["outbound.count"], "입출금 상대는?") == 1
+    assert _opp(["outbound.count", "inbound.count"], "입출금 상대는?") == 0
 
 
-def test_wrong_count_is_mismatch() -> None:
-    checks = run(FAN_IN, "입금 거래는 모두 5건이에요.", ["inbound.count"], PIECE_KEYS)
-    count = checks[0]
-    assert count.check is CodeCheckName.COUNT_MATCH
-    assert count.match is False and count.reason is CheckReason.MISMATCH
+def test_opposite_direction_mark_and_premise_correction_passes() -> None:
+    c = _check("{{counterparties_by_direction.outbound.count|이에요}}", "입금 상대 계좌는 몇 개야?")
+    assert (c.match, c.draft_value, c.reason) == (False, "반대 방향 키만 1개", CheckReason.MISMATCH)
+    ok = _check(
+        "{{inbound.count|이라}}", "입금 상대 계좌는 몇 개야?"
+    )  # 모르는 조사 → 오류가 먼저(이고 는 ★B7-3 에 목록 안)
+    assert ok.draft_value == "자리표 오류 1개"
+    fixed = _check(
+        "이 케이스에는 {{counterparties_by_direction.inbound.count|이}} 있어요. "
+        "{{counterparties_by_direction.outbound.count|이에요}}",
+        "입금 상대 계좌는 몇 개야?",
+    )
+    assert fixed.match
 
 
-def test_cited_evidence_ids_union_and_keys_without_transactions() -> None:
-    keys = fact_keys(FAN_IN)
-    want = sorted(set(keys["inbound.count"]) | set(keys["period"]))
-    assert cited_evidence_ids(FAN_IN, ["inbound.count", "period"]) == want
-    assert cited_evidence_ids(FAN_IN, ["subject.entity_name"]) == []  # 거래 안 달리는 키
-    assert cited_evidence_ids(FAN_IN, ["no.such.key"]) == []
-
-
-# ───────── SCRUM-290 2/2 F3 회귀 — `거래 시작` 은 개설 단어가 아님 (06 · 09 2026-11-20) ─────────
-
-
-@pytest.mark.parametrize(
-    "text",
-    [
-        "거래 시작은 2022-09-02 00:14, 끝은 2022-09-02 22:51이에요.",
-        "거래 시작일시는 2022-09-02T00:14:00, 거래 종료일시는 2022-09-02T22:51:00으로 보여요.",
-    ],
-    ids=["space-time", "iso-t"],
-)
-def test_transaction_start_word_is_period_not_onboarding(text: str) -> None:
-    checks = run(FAN_IN, text, ["period"], PIECE_KEYS)
-    dates = [c for c in checks if c.check is CodeCheckName.DATE_MATCH]
-    assert len(dates) == 2 and all(c.match for c in dates)
-    assert all("period" in (c.source_value or "") for c in dates)
-
-
-@pytest.mark.parametrize("text", ["개설일은 2021-03-14 이에요.", "고객 등록일은 2021-03-14 이에요."])
-def test_onboarding_words_still_match_onboarded_at(text: str) -> None:
-    checks = run(FAN_IN, text, ["customer.onboarded_at"], ("customer.onboarded_at",))
-    (d,) = [c for c in checks if c.check is CodeCheckName.DATE_MATCH]
-    assert d.match and "onboarded_at" in (d.source_value or "")
-
-
-@pytest.mark.parametrize(
-    "text",
-    [
-        "입금 거래 개시일시는 2021-03-14, 거래 종료일시는 2022-09-02T22:51:00이에요.",
-        "당행 고객과의 첫 거래 시작일시는 2022-09-02T00:14:00이에요.",
-    ],
-    ids=["gaesi-ilsi", "customer-ilsi"],
-)
-def test_review2_start_wordings_do_not_pass(text: str) -> None:
-    """추가 검토 2 반례 — 질문 답변 경로에서도 통과(ANSWERED) 안 됨."""
-    checks = run(FAN_IN, text, ["period"], PIECE_KEYS)
-    assert not all(c.match for c in checks)
+def test_evidence_ids_are_union_of_slot_keys() -> None:
+    inbound = cited_evidence_ids(MIXED, ["counterparties_by_direction.inbound.count"])
+    assert inbound == sorted(MIXED.inbound.transaction_ids)
+    both = cited_evidence_ids(MIXED, ["inbound.count", "outbound.count", "typology", "no.such"])
+    assert both == sorted({*MIXED.inbound.transaction_ids, *MIXED.outbound.transaction_ids})
+    assert cited_evidence_ids(MIXED, ["prior_alert_count"]) == []
