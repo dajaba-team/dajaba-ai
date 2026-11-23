@@ -20,4 +20,10 @@ FROZEN_PROMPTS: dict[str, str] = {
     "ask_answer_v2": "56bc4d87c48e5b5e3058554786b8a181f89e462b96127b5b440e7206ec3f848d",  # SCRUM-358·359
     "rerank_v1": "fb0caf66661cc1668a2b55fce0dc8e9b56bd291b21614fd0f49329c3c73f7336",  # SCRUM-308-2
     "summary_v2": "d5d7eb5759ebbd7a6d7a56a39d2cb0c254934bb9a2052e8b8b5dea5c3dc3c7ba",  # SCRUM-340
+    "ask_answer_v3": "0ab1f6eab1b01981845aef87418b05c735967b9a853b1a7b8a1ac15e6dabdc7c",  # SCRUM-362 녹화 37
+    "ask_answer_v4": "6deab351525a0878197337e194e07512b90c852cd3734c131d8a6db816935a9c",  # SCRUM-362 녹화 38
+    "ask_plan_v2": "c6dcfc84386206ca8691980f54ba24678194c2849212db614a02fcf484b00b73",  # SCRUM-362 계획 녹화 44
+    "ask_plan_v3": "73c9c7bb56112dc22fb6c12ebe6895354e0aa578ec6fb117078ce827a7fbcaa3",  # SCRUM-362 계획 녹화 48
+    "ask_answer_v5": "5580cf878b2bd1ecd5487df12e9b2ac27c2bc5bd62792cb705b33d7a6f252b69",  # SCRUM-362 (B1) 답 녹화 42
+    "ask_answer_v6": "27337e6aeb95dcd004995f97314d88c3a8bd3c658acae6622f2a61be928467be",  # SCRUM-362 추가 검토 3 답 녹화 42
 }

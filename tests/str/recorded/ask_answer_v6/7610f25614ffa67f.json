@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"{{inbound.amount.EUR|과}} {{inbound.amount.USD|이}} 확인돼요. 통화별 합계가 확인되지 않는 {{unmapped_currencies.Peso Uruguay|이}} 있어요.\"}", "model": "gpt-6.1-sol"}

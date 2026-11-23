@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"입금액은 통화별로 EUR의 경우 {{amount_range.EUR.max}}, {{amount_range.EUR.min}}이고, USD의 경우 {{amount_range.USD.max}}, {{amount_range.USD.min}}이에요.\"}", "model": "gpt-6.1-sol"}
