@@ -1,0 +1,9 @@
+# Copy the values to the AI service environment. Keep credentials separate.
+AI_SCORING_MOCK=false
+# Compose container path. For local Python, use the approved absolute host path.
+AML_ML_MODEL_PATH=/models/r04_original.ubj
+# Compose interpolation only: absolute path of the approved host checkpoint.
+RC3_MODEL_HOST_PATH=
+# Required: verified coverage bounds as timezone-free ISO-8601 timestamps.
+AI_SCORING_HISTORY_START=
+AI_SCORING_HISTORY_END=

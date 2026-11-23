@@ -1,4 +1,4 @@
-"""공개 rc1 호출과 결과 검증. 모듈을 불러올 때는 모델을 읽지 않는다."""
+"""공개 ML 패키지 호출과 결과 검증. 서버 기동 시에는 모델을 읽지 않는다."""
 
 import json
 import logging
@@ -69,6 +69,21 @@ class AmlMlAdapter:
         except Exception as exc:
             raise ModelUnavailable(error_type=type(exc).__name__) from exc
         return cls(package, pandas, version)
+
+    def ensure_model_ready(self) -> None:
+        # The public rc3 loader authenticates the external checkpoint. Legacy packages
+        # without this hook retain their packaged-model behavior.
+        loader = getattr(self._package, "load_candidate", None)
+        if loader is None:
+            return
+        try:
+            loader()
+        except Exception as exc:
+            raise ModelUnavailable(
+                "scoring checkpoint could not be loaded",
+                error_type=type(exc).__name__,
+                package_version=self.version.package_version,
+            ) from exc
 
     def score(
         self,

@@ -1,19 +1,34 @@
-"""고정된 rc2 패키지의 성공·누락·입력 실패와 묶음 복구를 검증한다."""
+"""고정된 rc3 패키지의 성공·누락·입력 실패와 묶음 복구를 검증한다."""
 
 from datetime import datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
 from aml_ai.scoring.application.score_service import ScoreService
 from aml_ai.scoring.infrastructure.aml_ml_adapter import AmlMlAdapter
 from aml_ai.scoring.infrastructure.transaction_reader import HistoryCoverage
+from aml_ai.shared.errors import ModelUnavailable
 from aml_ai.shared.schemas.alerts import Alert
 from aml_ai.shared.schemas.scores import FailureCode
 from tests.conftest import EXAMPLES, load_json
 
 
-def test_rc2_respects_per_alert_outcomes() -> None:
+@pytest.mark.parametrize("wrong_hash", [False, True])
+def test_bad_rc3_checkpoint_is_request_unavailable(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, wrong_hash: bool
+) -> None:
+    monkeypatch.delenv("AML_ML_MODEL_PATH", raising=False)
+    if wrong_hash:
+        checkpoint = tmp_path / "checkpoint.ubj"
+        checkpoint.write_bytes(b"synthetic incorrect checkpoint")
+        monkeypatch.setenv("AML_ML_MODEL_PATH", str(checkpoint))
+    with pytest.raises(ModelUnavailable, match="scoring checkpoint could not be loaded"):
+        AmlMlAdapter.load().ensure_model_ready()
+
+
+def test_rc3_respects_per_alert_outcomes(synthetic_rc3_booster: None) -> None:
     reference = datetime(2030, 1, 10, 12)
     start = reference - timedelta(hours=96)
     history_start = reference - timedelta(hours=24)
@@ -52,11 +67,13 @@ def test_rc2_respects_per_alert_outcomes() -> None:
         template.model_copy(update={"alert_id": "ALT-20300110-000006", "window_start": history_start}),
     ]
     adapter = AmlMlAdapter.load()
-    assert adapter.version.package_version == "0.1.0rc2"
+    assert adapter.version.package_version == "0.1.0rc3"
+    assert adapter.version.model_version == "xgb-hi-medium-r04-event-c2-31-v1"
+    assert adapter.version.feature_version == "hi-medium-evidence31-96h-r04-event-v1"
     scores = ScoreService._score_batch(adapter, alerts, rows, [complete] * 4 + [partial, complete])
 
     assert [item.alert_id for item in scores] == [a.alert_id for a in alerts]
-    assert scores[0].score == 0.006362054497003555
+    assert scores[0].score == 0.625
     assert scores[0].prediction_id and scores[0].evidence_transaction_ids == template.transaction_ids
     assert [item.failure_code for item in scores] == [
         None,
@@ -69,7 +86,7 @@ def test_rc2_respects_per_alert_outcomes() -> None:
     assert all(item.score is item.prediction_id is None for item in scores[1:])
 
 
-def test_rc2_scores_all_six_rules_in_one_batch() -> None:
+def test_rc3_scores_all_six_rules_in_one_batch(synthetic_rc3_booster: None) -> None:
     reference = datetime(2030, 1, 10, 12)
     window_start = reference - timedelta(hours=96)
     history = HistoryCoverage(reference - timedelta(hours=24), reference, window_start, reference, "COMPLETE")

@@ -56,7 +56,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.13" },
-    { name = "aml-ml", git = "https://github.com/dajaba-team/dajaba-ml.git?rev=v0.1.0rc2" },
+    { name = "aml-ml", git = "https://github.com/dajaba-team/dajaba-ml.git?rev=v0.1.0rc3" },
     { name = "fastapi", specifier = ">=0.115,<1" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "httpx", marker = "extra == 'dev'" },
@@ -79,8 +79,8 @@ provides-extras = ["dev", "corpus"]
 
 [[package]]
 name = "aml-ml"
-version = "0.1.0rc2"
-source = { git = "https://github.com/dajaba-team/dajaba-ml.git?rev=v0.1.0rc2#783007f18a07d22169da92333495a8aab04fa76f" }
+version = "0.1.0rc3"
+source = { git = "https://github.com/dajaba-team/dajaba-ml.git?rev=v0.1.0rc3#af663dace6e77138478000d0aac0345e6168b868" }
 dependencies = [
     { name = "duckdb" },
     { name = "numpy" },

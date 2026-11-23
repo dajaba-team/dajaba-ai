@@ -23,7 +23,9 @@ pytestmark = pytest.mark.db
 REFERENCE = datetime(2030, 1, 10, 12)
 HEAD = "0006_serving_package_version"
 PREVIOUS = "0005_scoring_tables"
-PACKAGE = "0.1.0rc2"
+LEGACY_PACKAGE = "0.1.0rc2"
+PACKAGE = "0.1.0rc3"
+RC3_MODEL = "xgb-hi-medium-r04-event-c2-31-v1"
 HEADERS = {"X-Internal-Key": "test-key"}
 
 
@@ -64,17 +66,34 @@ def scoring_db(_pg_container) -> Iterator[Engine]:  # noqa: F811
 
 
 @pytest.fixture
-def scoring_client(scoring_db: Engine, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+def scoring_client(
+    scoring_db: Engine, monkeypatch: pytest.MonkeyPatch, synthetic_rc3_booster: None
+) -> Iterator[TestClient]:
     with scoring_db.begin() as conn:
         conn.execute(text("TRUNCATE ops.transactions, ai.predictions"))
+    apply_demo_sql(scoring_db, "switch_rc3.sql")
     monkeypatch.setattr(score_service, "get_engine", lambda: scoring_db)
     monkeypatch.setattr("aml_ai.main.db_ping", lambda _: "ok")
     monkeypatch.setattr(versioning, "_served_model", None)
     monkeypatch.setenv("AI_SCORING_MOCK", "false")
     monkeypatch.setenv("AI_SCORING_HISTORY_START", "2030-01-01T00:00:00")
     monkeypatch.setenv("AI_SCORING_HISTORY_END", "2030-02-01T00:00:00")
-    with TestClient(app) as client:
-        yield client
+    try:
+        with TestClient(app) as client:
+            yield client
+    finally:
+        apply_demo_sql(scoring_db, "restore_rc2.sql")
+        with scoring_db.begin() as conn:
+            conn.execute(text("TRUNCATE ai.predictions"))
+            conn.execute(
+                text("DELETE FROM ai.model_versions WHERE model_version = :model"), {"model": RC3_MODEL}
+            )
+
+
+def apply_demo_sql(engine: Engine, name: str) -> None:
+    script = (ROOT / "tools" / "demo" / name).read_text(encoding="utf-8")
+    with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+        conn.exec_driver_sql(script)
 
 
 def alert(index: int, rule: str, account: str, ids: list[int], facts: dict) -> dict:
@@ -189,7 +208,9 @@ def test_model_registry_mismatch_rejects_request(
     scoring_db: Engine, scoring_client: TestClient, change: str
 ) -> None:
     with scoring_db.begin() as conn:
-        conn.execute(text(f"UPDATE ai.model_versions SET {change}"))
+        conn.execute(
+            text(f"UPDATE ai.model_versions SET {change} WHERE model_version = :model"), {"model": RC3_MODEL}
+        )
     try:
         request = alert(1, "R02_FAN_IN", "TARGET", [1], {})
         response = post(scoring_client, [request])
@@ -203,8 +224,9 @@ def test_model_registry_mismatch_rejects_request(
                 text("""
                 UPDATE ai.model_versions
                    SET serving_package_version = :package, threshold = 0.5, is_serving = true
+                 WHERE model_version = :model
             """),
-                {"package": PACKAGE},
+                {"package": PACKAGE, "model": RC3_MODEL},
             )
 
 
@@ -277,7 +299,7 @@ def test_0006_round_trip_preserves_model_prediction_and_fk(scoring_db: Engine) -
         migrate(scoring_db, HEAD)
         with scoring_db.connect() as conn:
             upgraded = dict(conn.execute(text("SELECT * FROM ai.model_versions")).mappings().one())
-            assert upgraded.pop("serving_package_version") == PACKAGE
+            assert upgraded.pop("serving_package_version") == LEGACY_PACKAGE
             assert upgraded == model
             assert conn.execute(text("SELECT * FROM ai.predictions WHERE prediction_id='legacy'")).one() == (
                 prediction
