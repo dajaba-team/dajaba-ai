@@ -1,7 +1,8 @@
 """`/v1/cases/ask` HTTP → DB — 상태 4종 각각 저장 행 (SCRUM-290 2/2, 08 "HTTP→DB 4").
 
 흐름 — HTTP → AskService → ops 읽기(fan_in 시드) → facts → end_read → 녹화 재생(계획·답) → 검사 → generations(kind=ASK).
-ANSWERED = F1 녹화 · OUT_OF_SCOPE = O3 녹화 · NO_DATA·UNVERIFIED = F1 녹화를 읽어 바꾸는 래퍼(08, `recorded/` 는 실제 출력만).
+ANSWERED = F1 녹화(계획 v2·답 v4 — SCRUM-362 추가 검토 1: DB 로 만든 facts 도 같은 녹화 키) · OUT_OF_SCOPE = O3 녹화 ·
+NO_DATA·UNVERIFIED = F1 계획 녹화 + 답만 고정 원문(`FixedAnswer`, v4 모양). `recorded/` 는 실제 출력만.
 """
 
 from __future__ import annotations
@@ -15,13 +16,14 @@ from sqlalchemy import text
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.schemas.str import AskResponse
 from tests.conftest import EXAMPLES, load_json
-from tests.str.ask_recorded_support import AnswerRewrite, bump_first_count, item, not_answerable, recorded
+from tests.str.ask_recorded_support import FixedAnswer, item, recorded
 from tests.str.integration_support import INTEGRATION_INTERNAL_KEY
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 pytestmark = pytest.mark.db
+NOT_ANSWERABLE = object()  # answerable false
 
 
 def _body(question: str, case_no: str) -> dict:
@@ -42,10 +44,10 @@ def _body(question: str, case_no: str) -> dict:
 @pytest.mark.parametrize(
     "state, item_id, edit",
     [
-        ("ANSWERED", "F1", None),
+        ("ANSWERED", "F1", None),  # 추가 검토 1 — 계획 v2·답 v4 녹화 그대로
         ("OUT_OF_SCOPE", "O3", None),
-        ("NO_DATA", "F1", not_answerable),
-        ("UNVERIFIED", "F1", bump_first_count),
+        ("NO_DATA", "F1", NOT_ANSWERABLE),
+        ("UNVERIFIED", "F1", "입금 거래는 모두 5건이에요."),
     ],
     ids=["answered", "out_of_scope", "no_data", "unverified"],
 )
@@ -61,7 +63,8 @@ def test_ask_state_through_http_and_saved_row(
     if edit is not None:
         import aml_ai.str.application.ask_service as mod
 
-        monkeypatch.setattr(mod, "make_llm_client", lambda _s: AnswerRewrite(recorded(), edit))
+        answer = None if edit is NOT_ANSWERABLE else edit
+        monkeypatch.setattr(mod, "make_llm_client", lambda _s: FixedAnswer(recorded(), answer))
     body = _body(item(item_id)["question"], f"CASE-ASK-{state}")
     res = integration_client.post(
         "/v1/cases/ask", json=body, headers={"X-Internal-Key": INTEGRATION_INTERNAL_KEY}
@@ -78,3 +81,5 @@ def test_ask_state_through_http_and_saved_row(
     ).one()
     assert (row.kind, row.status, row.draft_id, row.rs) == ("ASK", "SUCCEEDED", None, state)
     assert (row.la is None) is (state == "OUT_OF_SCOPE")
+    if state == "ANSWERED":  # 렌더링한 답(자리표 없음) · cites = 자리표 키 · 저장 행 원문은 자리표 그대로
+        assert "{{" not in out.answer and out.cites and "{{" in row.la["answer"]

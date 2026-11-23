@@ -7,8 +7,7 @@ import json
 import pytest
 
 from aml_ai.shared.schemas.str import Facts
-from aml_ai.str.domain.ask_bundles import extract
-from aml_ai.str.domain.fact_keys import fact_keys
+from aml_ai.str.domain.ask_bundles import ask_fact_keys, extract
 from aml_ai.str.infrastructure.display_labels import load_display_labels
 from tests.conftest import FIXTURES, load_json
 
@@ -67,6 +66,7 @@ def test_flows_piece_and_keys(facts: Facts) -> None:
         "amount_range.USD.min",
         "amount_range.USD.max",
         "direction",
+        "compare.count",  # (B1) 비교 자리표 — 질문 답변 인용 키(USD 는 출금이 없어 금액 비교 없음)
     )
 
 
@@ -160,7 +160,7 @@ def test_never_includes_ids_indirect_self_transfer_or_alert_rule_facts(facts: Fa
 
 
 def test_keys_are_subset_of_fact_keys_in_order(facts: Facts) -> None:
-    all_keys = list(fact_keys(facts))
+    all_keys = list(ask_fact_keys(facts))  # 질문 답변 인용 키(초안 fact_keys + 방향·비교, SCRUM-358·362)
     p = _piece(facts, "subject", "flows", "counterparties")
     assert set(p.keys) <= set(all_keys)
 

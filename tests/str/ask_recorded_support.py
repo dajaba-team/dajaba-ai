@@ -1,6 +1,7 @@
 """질문 답변 녹화 재생 공용 — 평가 세트·픽스처 facts·오류 주입 래퍼 (SCRUM-290 2/2, 08).
 
-래퍼는 진짜 녹화(`recorded/<ASK_ANSWER_PROMPT>/`, 지금 ask_answer_v2)를 읽은 뒤 답만 바꾼다 — `recorded/` 에는 실제 LLM 출력만 둔다.
+래퍼는 진짜 녹화(`recorded/<ASK_ANSWER_PROMPT>/`)를 읽은 뒤 답만 바꾸거나(`AnswerRewrite`), 계획만 녹화로 두고 답을 고정 원문으로
+(`FixedAnswer`, SCRUM-362 — v3 답 녹화 전) 돌린다. `recorded/` 에는 실제 LLM 출력만 둔다.
 """
 
 from __future__ import annotations
@@ -69,3 +70,41 @@ def add_out_of_check_number(out: dict) -> dict:
 
 def not_answerable(_out: dict) -> dict:
     return {"answerable": False, "answer": None, "cites": []}
+
+
+@dataclass
+class FixedAnswer:
+    """계획은 녹화 그대로, 답 호출만 고정 원문(v3 모양 — None 이면 answerable false). 실제 LLM 출력이 아니다(SCRUM-362)."""
+
+    inner: RecordedLlmClient
+    answer: str | None
+
+    def complete_json(self, **kw) -> LlmResult:
+        if kw["tag"] != ASK_ANSWER_PROMPT:
+            return self.inner.complete_json(**kw)
+        out = {"answerable": self.answer is not None, "answer": self.answer}
+        return LlmResult(
+            text=json.dumps(out, ensure_ascii=False), model="fixed", tokens_in=0, tokens_out=0, latency_ms=0
+        )
+
+
+def replay_verdict(it: dict, llm=None) -> tuple[str, str]:  # noqa: ANN001
+    """(상태, 판정) — 녹화 도구와 같은 판정 함수(`tools.ask_judge_mark`). 답 문장은 돌려주지 않음."""
+    from tools.ask_judge_mark import mark
+
+    from aml_ai.str.domain.ask_bundles import extract
+    from aml_ai.str.infrastructure.display_labels import load_display_labels
+    from tests.str.ask_service_support import ask_request, build_service
+
+    svc, repo = build_service(llm or recorded(), facts=facts_for(it))
+    res = svc.ask(ask_request(it["question"], rule_id=it["rule_id"]))
+    raw = (repo.saved[0]["response_payload"].get("llm_answer") or {}).get("answer") or ""
+    labels = load_display_labels()
+    from tools.ask_fixture_scope import fixture_scope
+
+    req = ask_request(it["question"], rule_id=it["rule_id"])
+    facts = facts_for(it)
+    piece = extract(
+        facts, it["rule_id"], res.generation_meta.bundles, labels, scope=fixture_scope(facts, req)
+    )
+    return res.status.value, mark(it, res, raw, piece, labels)

@@ -1,4 +1,4 @@
-"""질문 답변 LLM 출력 — 계획(ask_plan_v1)·답(ask_answer_v1). 정본 docs/str/05 (SCRUM-290).
+"""질문 답변 LLM 출력 — 계획(ask_plan_v1)·답(ask_answer_v1·v2 `AskAnswerOut`, v3 `AskAnswerOutV3`). 정본 docs/str/05.
 
 규약 JSON(`ask.py`)이 아니라 LLM Structured Output 모양. 어긋나면 서비스가 `LLM_INVALID_OUTPUT`.
 """
@@ -73,4 +73,21 @@ class AskAnswerOut(StrictModel):
             raise ValueError(f"answer must be ≤{ASK_ANSWER_MAX} UTF-16 code units after NFC")
         if not self.cites:
             raise ValueError("answerable=true needs at least one cite")
+        return self
+
+
+class AskAnswerOutV3(StrictModel):
+    """ask_answer_v3·v4(SCRUM-362) — cites 없음(코드가 자리표 키에서 만듦, docs/str/04 "답 자리표")."""
+
+    answerable: bool
+    answer: Annotated[str, StringConstraints(strip_whitespace=False)] | None
+
+    @model_validator(mode="after")
+    def _answerable_needs_answer(self) -> AskAnswerOutV3:
+        if not self.answerable:
+            return self  # 서비스가 answer 를 무시하고 NO_DATA
+        if self.answer is None or not self.answer.strip():
+            raise ValueError("answerable=true needs a non-blank answer")
+        if utf16_len_nfc(self.answer) > ASK_ANSWER_MAX:
+            raise ValueError(f"answer must be ≤{ASK_ANSWER_MAX} UTF-16 code units after NFC")
         return self

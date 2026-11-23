@@ -1,4 +1,4 @@
-"""ask_answer_v1 녹화 — 평가 세트 범위 안 12개 → tests/str/recorded/ask_answer_v1/<key>.json + 평가 표 (SCRUM-290 2/2, 08).
+"""답 녹화(활성 `ASK_ANSWER_PROMPT`) — 평가 세트 범위 안 12개 → tests/str/recorded/<답 프롬프트>/<key>.json + 평가 표 (08).
 
     AI_LLM_MOCK=false uv run --frozen --extra dev python -m tools.record_ask_answer
 
@@ -38,6 +38,9 @@ from aml_ai.str.infrastructure.ask_llm import AskLlm
 from aml_ai.str.infrastructure.display_labels import load_display_labels
 from aml_ai.str.infrastructure.narrative_generator import PROMPTS_DIR
 from tools import ask_premise_judge as judge
+from tools.ask_fixture_scope import fixture_scope
+from tools.ask_judge_mark import mark as _mark  # 재생 테스트와 같은 판정(SCRUM-362)
+from tools.ask_plan_sig import _plan_sig  # 녹화·재기 도구가 같은 정의(SCRUM-362)
 from tools.record import FIXTURES, RECORDED, _save
 from tools.record_ask import EVAL_SET
 
@@ -74,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--premise", action="store_true", help="전제·방향 평가 세트 11개(SCRUM-358) = --set premise"
     )
-    p.add_argument("--set", choices=sorted(judge.SETS), help="판정 세트(premise 11 · gaps 16)")
+    p.add_argument("--set", choices=sorted(judge.SETS), help="판정 세트(premise 11 · gaps 16 · compound 4)")
     args = p.parse_args(argv)
     settings = get_settings()
     if settings.ai_llm_mock:
@@ -125,32 +128,26 @@ def _record_one(settings: Settings, item: dict, *, new_plan: bool = False) -> Ro
         plan = llm.plan(question, deadline=deadline)
         if not (new_plan and _save_plan_if_new(real.calls[-1])):
             saved_plan = AskLlm(RecordedLlmClient(RECORDED), settings).plan(question, deadline=float("inf"))
-            if _plan_sig(plan.out) != _plan_sig(saved_plan.out):
+            if _plan_sig(plan.out, question) != _plan_sig(saved_plan.out, question):
                 return Row(item["id"], "계획 다름", latency_ms=_ms(start))
         if plan.out.kind is AskPlanKind.OUT_OF_SCOPE:  # 서비스처럼 답 호출 없음(SCRUM-359)
             return Row(
                 item["id"], "OUT_OF_SCOPE", "", _ms(start), plan.tokens_in, plan.tokens_out, judge.OTHER
             )
         bundles = with_flows([b.value for b in plan.out.bundles], question)  # 서비스와 같음(04 "계획 보강")
-        piece = extract(facts, req.alert.rule_id, bundles, load_display_labels())
+        scope = fixture_scope(facts, req)  # 서비스와 같은 ask_scope(04 ★B8)
+        piece = extract(facts, req.alert.rule_id, bundles, labels := load_display_labels(), scope=scope)
         ans = llm.answer(question, piece, deadline=deadline)
     except AiError as exc:
         return Row(item["id"], f"ERROR {exc.code}", latency_ms=_ms(start))
     elapsed = _ms(start)
     kw, res = real.calls[-1]
     _save(recording_key(kw["system"], kw["user"]), res.text, res.model, ASK_ANSWER_PROMPT)
-    out = in_scope_response(req, "g-record", facts, plan, piece, ans, settings.server_version)
+    out = in_scope_response(req, "g-record", facts, plan, piece, ans, settings.server_version, labels)
     failed = ",".join(c.check.value for c in out.code_checks if not c.match)
-    mark = judge.verdict(item, out.status.value, ans.out.answer) if new_plan else ""
-    return Row(
-        item["id"],
-        out.status.value,
-        failed,
-        elapsed,
-        plan.tokens_in + ans.tokens_in,
-        plan.tokens_out + ans.tokens_out,
-        mark,
-    )
+    mark = _mark(item, out, ans.out.answer or "", piece, labels) if new_plan else ""
+    tokens = (plan.tokens_in + ans.tokens_in, plan.tokens_out + ans.tokens_out)
+    return Row(item["id"], out.status.value, failed, elapsed, *tokens, mark)
 
 
 def _save_plan_if_new(call: tuple[dict, LlmResult]) -> bool:
@@ -161,11 +158,6 @@ def _save_plan_if_new(call: tuple[dict, LlmResult]) -> bool:
         return False
     _save(key, res.text, res.model, ASK_PLAN_PROMPT)
     return True
-
-
-def _plan_sig(out) -> tuple:
-    """조각은 묶음 순서와 무관(키 순서는 fact_keys, 내용은 키 정렬 JSON) — 집합으로 비교."""
-    return out.kind, out.out_of_scope_reason, frozenset(out.bundles)
 
 
 def _ms(start: float) -> int:

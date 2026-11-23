@@ -158,7 +158,7 @@
 5  question_llm = domain.ask_question.mask_question(req.question)          (04 "질문 속 계좌") — LLM 에 가는 질문만. 저장은 원문
 5b domain.ask_question.blocked_before_plan(req.question, req.case_no) → 이어지는 질문·다른 케이스 번호면 OUT_OF_SCOPE·OUTSIDE_CASE 로 7 과 같은 응답 조립(SCRUM-359, 04 "이어지는 질문")
       계획·답 호출 0 — plan_prompt_version 은 그대로 싣고 llm_model="none"(ASK_NO_LLM_MODEL — 백엔드는 문자열만 봄)·tokens·latency 0. 저장 행 "plan" = {kind: OUT_OF_SCOPE, out_of_scope_reason: OUTSIDE_CASE, bundles: [], source: "code"}
-6  plan = ask_llm.plan(question_llm, deadline=deadline)                    ask_plan_v1, facts 값 안 줌
+6  plan = ask_llm.plan(question_llm, deadline=deadline)                    ask_plan_v3(SCRUM-362), facts 값 안 줌
       선체크: 남은 < ASK_LLM_TIMEOUT_S → LlmUnavailable(502). LLM 1회 — 재시도·재생성 없음
       호출 전체 제한 total = min(ASK_LLM_TIMEOUT_S, deadline − clock()) 를 complete_json(total_timeout_s=) 로 넘김(SCRUM-290 추가 검토 1):
         HttpLlmClient 가 이 호출만 비동기 클라이언트(호출마다 새로 만들고 닫음)로 보내고 total 이 지나면 요청 작업을 취소 —
@@ -172,15 +172,17 @@
 8  bundles = domain.ask_bundles.with_flows(plan.bundles, question_llm)   (SCRUM-358, 04 "계획 보강") — 방향 낱말이 있으면 flows 를 붙임.
       붙인 flows 는 LLM 묶음 1~3개에 안 셈. 계획이 이미 3개를 골랐으면 붙이지 않음(generation_meta.bundles ≤3 — 계약·백엔드 그대로)
    piece = domain.ask_bundles.extract(facts, rule_id, bundles)        (04 "질문 답변 묶음") — 마스킹 조각 + 인용 키 목록
-   ans = ask_llm.answer(question_llm, piece, deadline=deadline)       ask_answer_v2 (05) — 계획과 같은 선체크(남은 < ASK_LLM_TIMEOUT_S → 502)·
+   ans = ask_llm.answer(question_llm, piece, deadline=deadline)       ask_answer_v5 (05, SCRUM-362 — v3 와 같은 자리표 출력, 비교는 compare 자리표) — 계획과 같은 선체크(남은 < ASK_LLM_TIMEOUT_S → 502)·
       호출 전체 제한 min(ASK_LLM_TIMEOUT_S, 남은)·마감 뒤 도착 거부, 1회·재시도 없음
-      answerable=true + cites 빈 · answer 400자 초과·빈 문자열 → LlmInvalidOutput(502)
-9  answerable=false → NO_DATA (answer·cites 무시, code_checks=[])
-   answerable=true → code_checks = domain.ask_checks.run(facts, answer, cites, piece.keys)  (06 "질문 답변에 도는 코드 검사" — 상대 수·자행·타행은 10번 방향·근거 키, 금액은 8번 정확 값)
-      하나라도 match=false → UNVERIFIED (answer=null·cites=[]·evidence_ids=[]) / 전부 match → ANSWERED
-      evidence_ids = cites 의 fact 키 → 거래 ID 합집합(attach_evidence 와 같은 방식, 거래 없는 키는 기여 0)
+      출력 {answerable, answer} — answer 는 숫자 대신 자리표 {{키}} 를 쓴 원문(04 "답 자리표"). cites 칸 없음
+      answerable=true + answer 400자 초과·빈 문자열 → LlmInvalidOutput(502)
+9  answerable=false → NO_DATA (answer 무시, code_checks=[])
+   answerable=true → slots = domain.ask_slots.render(answer, piece, labels)  (04 "답 자리표") — 자리표 → 이름표 + 값(piece.content = 마스킹 조각에서만), cites = 자리표 키(답 순서·중복 제거)
+      code_checks = domain.ask_checks.run(slots, question_llm, req.case_no)  (06 "질문 답변에 도는 코드 검사") — EVIDENCE_IN_SCOPE 1줄
+      하나라도 match=false → UNVERIFIED (answer=null·cites=[]·evidence_ids=[]) / 전부 match → ANSWERED (answer = 렌더링한 문장)
+      evidence_ids = 자리표 키 → 거래 ID 합집합(ask_fact_keys, 거래 없는 키는 기여 0)
 10 generations 신규 행 (kind=ASK·draft_id=null·case_no·status=SUCCEEDED·request(질문 원문)·facts(원본)·
-      response = API 응답 + "plan"{kind, out_of_scope_reason, bundles} + "llm_answer"{answerable, answer, cites}(답 호출 때만)·
+      response = API 응답 + "plan"{kind, out_of_scope_reason, bundles} + "llm_answer"{answerable, answer}(답 호출 때만 — 자리표 그대로인 원문, v2 이전 행은 cites 도)·
       llm_model·prompt_version(답, OUT_OF_SCOPE 면 null)·tokens·latency = 두 호출 합)
    성공 저장 시간 제한(SCRUM-290 2/2 추가 검토 1): 남은 = deadline − clock() ≤ 0 이면 성공 저장 안 함 → LlmUnavailable(502).
       남았으면 같은 트랜잭션에 set_config(statement_timeout·lock_timeout = 남은 ms, 트랜잭션 한정) 뒤 INSERT·flush,

@@ -1,0 +1,1 @@
+{"text": "{\"answerable\":true,\"answer\":\"경보는 {{typology}} 유형으로 탐지된 것으로 보여요. 모델이 주목한 점: {{model_signals|이}} 확인되며, {{observations.inflow_outflow_ratio_2h.vs_baseline}}.\"}", "model": "gpt-6.1-sol"}

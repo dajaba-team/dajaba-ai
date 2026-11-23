@@ -39,6 +39,12 @@ def _check(draft: str | None, match: bool = False) -> CodeCheck:
         "****BD30",
         "끝자리 BD30",
         "인용 키 범위 밖 2개",
+        "다른 케이스 번호 1개",
+        "자리표 오류 3개",  # SCRUM-362 고정 표시
+        "자리표 밖 숫자 2개",
+        "반대 방향 키만 1개",
+        "자리표 없음",
+        "답 길이 넘침",
     ],
 )
 def test_allowed_shapes_are_kept(draft: str) -> None:

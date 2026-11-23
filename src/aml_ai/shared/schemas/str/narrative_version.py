@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from aml_ai.shared.schemas.str.ask_llm import AskAnswerOut, AskPlanOut
+from aml_ai.shared.schemas.str.ask_llm import AskAnswerOut, AskAnswerOutV3, AskPlanOut
 from aml_ai.shared.schemas.str.narrative import NarrativeOutV1, NarrativeOutV2
 from aml_ai.shared.schemas.str.rerank_llm import RerankOut
 from aml_ai.shared.schemas.str.summary import SummaryOut
@@ -27,8 +27,14 @@ _LLM_OUTPUT_MODELS: dict[str, type[BaseModel]] = {
     "summary_v2": SummaryOut,  # SCRUM-340 — 금액 표기만 다름, 스키마 같음
     "rewrite_v1": NarrativeOutV2,  # SCRUM-147 — 섹션 7개 재사용 (초안 안 고쳐 쓰기 전용)
     "ask_plan_v1": AskPlanOut,  # SCRUM-290 — 질문 답변 계획
+    "ask_plan_v2": AskPlanOut,  # SCRUM-362 — WHY 경계 두 줄만 다름, 스키마 같음
+    "ask_plan_v3": AskPlanOut,  # SCRUM-362 추가 검토 1 — WHY 기본값 좁힘·복합 허용, 스키마 같음
     "ask_answer_v1": AskAnswerOut,  # SCRUM-290 — 질문 답변 답
     "ask_answer_v2": AskAnswerOut,  # SCRUM-358·359 — 답 규칙 9·10 만 다름, 스키마 같음
+    "ask_answer_v3": AskAnswerOutV3,  # SCRUM-362 — 자리표, cites 없음
+    "ask_answer_v4": AskAnswerOutV3,  # SCRUM-362 — v3 규칙 5·9 만 다름, 스키마 같음
+    "ask_answer_v5": AskAnswerOutV3,  # SCRUM-362 (B1) — 비교 자리표 규칙만 다름, 스키마 같음
+    "ask_answer_v6": AskAnswerOutV3,  # SCRUM-362 추가 검토 3 — 끝맺음 허용 목록 규칙만 다름, 스키마 같음
     "rerank_v1": RerankOut,  # SCRUM-308-2 — 참고 사례 후보 재정렬(표지 순서만)
 }
 

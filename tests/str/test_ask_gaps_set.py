@@ -17,7 +17,7 @@ from tools import ask_premise_judge as judge
 from aml_ai.shared.config import get_settings
 from aml_ai.shared.infrastructure.llm_client import LlmResult
 from aml_ai.shared.schemas.str import Facts
-from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT
+from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT, ASK_PLAN_PROMPT
 from tests.conftest import FIXTURES, load_json
 
 ITEMS = load_json(judge.GAPS_SET)["items"]
@@ -138,7 +138,7 @@ def test_record_out_of_scope_plan_skips_answer(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(record_answer, "HttpLlmClient", _Fake)
     row = record_answer._record_one(get_settings(), _item("N1"), new_plan=True)
     assert (row.status, row.mark, row.tokens_in) == ("OUT_OF_SCOPE", judge.OTHER, 7)
-    assert len(list(tmp_path.glob("ask_plan_v1/*.json"))) == 1
+    assert len(list(tmp_path.glob(f"{ASK_PLAN_PROMPT}/*.json"))) == 1
     assert not list(tmp_path.glob(f"{ASK_ANSWER_PROMPT}/*.json"))
 
 

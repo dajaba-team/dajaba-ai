@@ -6,6 +6,7 @@ import pytest
 
 from aml_ai.shared.errors import InvalidRequest, LlmInvalidOutput, LlmUnavailable
 from aml_ai.shared.schemas.str import AskStatus
+from aml_ai.str.domain.constants_ask import ASK_PLAN_PROMPT
 from tests.log_support import stdout_json_logging
 from tests.str.ask_service_support import StubLlm, ask_request, build_service, plan_text
 
@@ -28,7 +29,7 @@ def test_out_of_scope_response_and_saved_row() -> None:
     assert res.kind is None and res.out_of_scope_reason.value == "JUDGMENT"
     assert res.answer is None and res.cites == [] and res.evidence_ids == [] and res.code_checks == []
     meta = res.generation_meta
-    assert meta.prompt_version is None and meta.plan_prompt_version == "ask_plan_v1" and meta.bundles == []
+    assert meta.prompt_version is None and meta.plan_prompt_version == ASK_PLAN_PROMPT and meta.bundles == []
     assert (meta.llm_model, meta.tokens_in, meta.tokens_out, meta.latency_ms) == ("stub-ask", 120, 30, 900)
     assert res.generation_id.startswith("g-") and res.case_no == req.case_no
     (row,) = repo.saved
@@ -52,7 +53,7 @@ def test_plan_call_uses_ask_timeout_and_tag() -> None:
     svc, _ = build_service(llm)
     svc.ask(ask_request())
     (call,) = llm.calls
-    assert call["tag"] == "ask_plan_v1"
+    assert call["tag"] == ASK_PLAN_PROMPT
     assert call["timeout_s"] == svc.settings.ask_llm_timeout_s
 
 

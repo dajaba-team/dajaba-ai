@@ -1,0 +1,77 @@
+{
+  "_doc": "SCRUM-362 추가 검토 1 M2 — 복합 WHY 질문 기대 계획(계획 프롬프트 고치기 전 고정, docs/str/08 \"계획 흔들림 재기\"). 묶음은 코드가 실제로 꺼낸 것(with_flows 뒤) 집합 이름순. kind 는 이유를 물으면 WHY(v1 정의). 결과를 본 뒤 고치지 않음.",
+  "items": [
+    {
+      "id": "K1",
+      "question": "이 경보가 왜 걸렸고 확인된 경로는 몇 개야?",
+      "facts_case": "ask_paths",
+      "rule_id": "R05_SCATTER_GATHER",
+      "expected": {
+        "kind": "WHY",
+        "out_of_scope_reason": null,
+        "bundles": [
+          "paths",
+          "rule_facts"
+        ]
+      },
+      "why": "룰 이유(rule_facts) + 경로 수 사실(paths)을 함께 물음 — rule_facts 하나로는 paths.count 를 못 씀",
+      "expected_kind": "WHY",
+      "expected_reason": null,
+      "expected_bundle": null
+    },
+    {
+      "id": "K2",
+      "question": "왜 이 룰에 걸렸는지랑 결제 방식도 알려 줘",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected": {
+        "kind": "WHY",
+        "out_of_scope_reason": null,
+        "bundles": [
+          "formats",
+          "rule_facts"
+        ]
+      },
+      "why": "룰 이유 + 결제 방식 사실 — 방향 낱말이 없어 계획 보강(flows)이 덮지 않음",
+      "expected_kind": "WHY",
+      "expected_reason": null,
+      "expected_bundle": null
+    },
+    {
+      "id": "K3",
+      "question": "모델이 점수를 높게 준 이유와 상대 계좌 수는?",
+      "facts_case": "fan_in",
+      "rule_id": "R02_FAN_IN",
+      "expected": {
+        "kind": "WHY",
+        "out_of_scope_reason": null,
+        "bundles": [
+          "counterparties",
+          "score_reasons"
+        ]
+      },
+      "why": "모델 이유(score_reasons) + 상대 수 사실(counterparties) — 기본값 rule_facts 가 붙으면 안 됨",
+      "expected_kind": "WHY",
+      "expected_reason": null,
+      "expected_bundle": null
+    },
+    {
+      "id": "K4",
+      "question": "이 경보가 탐지된 이유와 모델이 주목한 지표를 둘 다 알려 줘",
+      "facts_case": "ask_paths",
+      "rule_id": "R05_SCATTER_GATHER",
+      "expected": {
+        "kind": "WHY",
+        "out_of_scope_reason": null,
+        "bundles": [
+          "rule_facts",
+          "score_reasons"
+        ]
+      },
+      "why": "룰·모델 둘 다 물음 — 둘 다 고름(\"하나만\"이 아님)",
+      "expected_kind": "WHY",
+      "expected_reason": null,
+      "expected_bundle": null
+    }
+  ]
+}
