@@ -1,0 +1,347 @@
+{
+  "_doc": "SCRUM-362 ★B4 기대 계획 — ask_plan_v2 로 바꾸기 전 고정(report ★B4-3 표, docs/str/08 \"계획 흔들림 재기\"). 묶음은 코드가 실제로 꺼낸 것(범위 안은 with_flows 뒤, 범위 밖 []) 집합을 이름순으로. 결과를 본 뒤 고치지 않음. 362:K1~K4 = 복합 WHY(추가 검토 1 M2, ask_eval_plan_compound.json 과 같은 값 — 고치기 전 고정).",
+  "plans": {
+    "18:F1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "18:F2": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "18:F3": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "18:F4": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "18:F5": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "formats"
+      ]
+    },
+    "18:F6": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "subject"
+      ]
+    },
+    "18:F7": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows",
+        "paths"
+      ]
+    },
+    "18:F8": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "18:W1": {
+      "kind": "WHY",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "rule_facts"
+      ]
+    },
+    "18:W2": {
+      "kind": "WHY",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "rule_facts"
+      ]
+    },
+    "18:W3": {
+      "kind": "WHY",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "score_reasons"
+      ]
+    },
+    "18:W4": {
+      "kind": "WHY",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "score_reasons"
+      ]
+    },
+    "18:O1": {
+      "kind": "OUT_OF_SCOPE",
+      "out_of_scope_reason": "EDIT_REQUEST",
+      "bundles": []
+    },
+    "18:O2": {
+      "kind": "OUT_OF_SCOPE",
+      "out_of_scope_reason": "OUTSIDE_CASE",
+      "bundles": []
+    },
+    "18:O3": {
+      "kind": "OUT_OF_SCOPE",
+      "out_of_scope_reason": "JUDGMENT",
+      "bundles": []
+    },
+    "18:O4": {
+      "kind": "OUT_OF_SCOPE",
+      "out_of_scope_reason": "OUTSIDE_CASE",
+      "bundles": []
+    },
+    "18:O5": {
+      "kind": "OUT_OF_SCOPE",
+      "out_of_scope_reason": "OUTSIDE_CASE",
+      "bundles": []
+    },
+    "18:O6": {
+      "kind": "OUT_OF_SCOPE",
+      "out_of_scope_reason": "OUTSIDE_CASE",
+      "bundles": []
+    },
+    "358:P1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "358:P2": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "358:P3": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "358:P4": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "358:P5": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "358:P6": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "358:D1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "358:D2": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "358:D3": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "358:D4": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "358:D5": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "359:N1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows",
+        "formats"
+      ]
+    },
+    "359:N2": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "formats"
+      ]
+    },
+    "359:T1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "359:T2": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "359:T3": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "359:V1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "359:V2": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "359:V3": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows",
+        "formats"
+      ]
+    },
+    "359:X1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "359:X2": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "359:C1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "359:O1": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "359:O2": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "flows"
+      ]
+    },
+    "359:O3": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "359:O4": {
+      "kind": "FACT",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "flows"
+      ]
+    },
+    "362:K1": {
+      "kind": "WHY",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "paths",
+        "rule_facts"
+      ]
+    },
+    "362:K2": {
+      "kind": "WHY",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "formats",
+        "rule_facts"
+      ]
+    },
+    "362:K3": {
+      "kind": "WHY",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "counterparties",
+        "score_reasons"
+      ]
+    },
+    "362:K4": {
+      "kind": "WHY",
+      "out_of_scope_reason": null,
+      "bundles": [
+        "rule_facts",
+        "score_reasons"
+      ]
+    }
+  }
+}
