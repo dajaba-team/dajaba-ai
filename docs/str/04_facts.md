@@ -247,6 +247,54 @@ LLM에 가는 facts만 바꾼다(생성기와 평가자 **둘 다** 마스킹본
 - 이미 `flows` 가 있거나 범위 밖이면 그대로. **계획이 3개를 골랐으면 붙이지 않는다** — `generation_meta.bundles` 는 계약·백엔드 검사(`requireAskResponse`)가 1~3개라 4개가 되면 502
 - 붙인 `flows` 는 계획 프롬프트의 "묶음 1~3개"에 안 셈(계획 출력 뒤 코드) — `generation_meta.bundles` 에는 넣고(실제 꺼낸 묶음), 저장 행 `plan.bundles` 는 계획이 고른 그대로
 
+### 답 자리표 (`ask_slots.py`, SCRUM-362 — `ask_answer_v3`)
+
+답 LLM 은 숫자·금액·날짜·계좌·건수를 **직접 쓰지 않고 자리표만** 쓴다. 코드가 자리표를 **이름표 + 값**으로 바꾼다 — 숫자와 그 뜻(방향·종류)이 같은 키에서 나오므로 숫자 틀림·방향 어긋남이 구조적으로 없다(초안 v4 "숫자 문장은 코드" 원칙을 질문 답변으로 넓힘, 09 2026-11-23). 순수 함수 `render(answer, piece, labels) -> AskSlots`(렌더링한 문장 · 자리표 키 목록 · 오류 목록).
+
+- **모양**: `{{키}}` · 조사를 붙이면 `{{키|조사}}`. 키 글자는 fact 키 그대로(`[A-Za-z0-9_.]+` — 통화·결제 방식·관측 이름 포함). 홑중괄호 `{`·`}` 는 글자 그대로.
+- **허용 키 = `piece.keys`**(이 케이스 `ask_fact_keys` ∩ 이번 묶음의 인용 키 — 위 표). 값은 **`piece.content`(마스킹 조각)** 에서만 꺼낸다 — 계좌는 `10_****BD30`, 거래 ID 없음. 이름표 한글은 `labels`(표기 사전 전체, `display_labels_v1.json`).
+- **cites = 답에 나온 자리표 키**(나온 순서, 중복 제거) — LLM 은 cites 를 쓰지 않는다. 근거 거래 = 그 키들의 거래 ID 합집합(06).
+- 오류(전부 06 에서 UNVERIFIED — 502 아님): 허용 키 밖 · 닫힘 없음(`{{k`)·빈 키·중첩·목록 밖 조사 · 이름표·값을 못 찾는 키(예: 표기 사전에 없는 업종·결제 방식 코드) · 자리표 0개.
+- `<fact_keys>`(05 v3)는 같은 표의 **이름표만**(값 없이) — `키 — 이름표`. **값을 렌더링할 수 없는 키(빈 목록 등)는 목록에서 뺀다**(추가 검토 1 M1 — 써도 자리표 오류). 코드 `ask_slot_labels.slot` 이 (이름표, 값) 쌍을 한 번에 돌려줘 렌더링과 프롬프트가 같은 표를 쓴다.
+- 값 표기는 초안 v4 슬롯 도우미(`display_format`)를 그대로 쓴다 — 건수·계좌 수 천 단위 쉼표, 금액은 facts 문자열의 정수부에 쉼표만(소수 그대로), **통화는 ISO 코드**(`27,250.50 USD` — 질문 답변 v1·v2 와 같음), 날짜 `YYYY년 M월 D일`, 시각 `HH:MM`(초가 있으면 `:SS`). 합산·환산·반올림 없음(아래 "표시용 파생" 원칙).
+
+| 키 | 렌더링 (N = 값) |
+|---|---|
+| `inbound.count` · `outbound.count` · `internal.count` | 입금 거래 N건 · 출금 거래 N건 · 내부 거래 N건 |
+| `inbound.amount.<C>` · `outbound.amount.<C>` | 입금 합계 N C · 출금 합계 N C |
+| `amount_range.<C>.max` · `.min` | 입출금 중 최대 거래 금액 N C · 입출금 중 최소 거래 금액 N C (방향 없는 값이라 이름표에 범위) |
+| `counterparties.count` | 입출금 전체 상대 계좌 N개 |
+| `counterparty_banks.same_bank_accounts` · `.other_bank_accounts` | 입출금 전체 상대 중 자행 계좌 N개 · 타행 계좌 N개 |
+| `counterparties_by_direction.inbound.count` · `.outbound.count` | 입금 상대 계좌 N개 · 출금 상대 계좌 N개 |
+| `counterparties_by_direction.<방향>.same_bank_accounts` · `.other_bank_accounts` | 입금(출금) 상대 중 자행 계좌 N개 · 타행 계좌 N개 |
+| `payment_format_counts.<F>` | 결제 방식 한글(코드) N건 (입출금 합 — 결제 방식 건수는 방향 없음) |
+| `payment_formats` | 결제 방식 한글(코드), 한글(코드)… **(대외 거래 기준)** — 결제 방식 집계는 입금·출금 거래만이라 **근거에 내부·간접 거래가 있으면 값 없음**(케이스 전체 결제 방식을 확인 못 함 — 추가 검토 3 H1, `payment_format_counts.*` 도 같음) — **빈 목록(내부 거래만)이면 값 없음 → 자리표 오류, `<fact_keys>` 에서도 뺌**(추가 검토 1 M1) |
+| `direction` | **추가 검토 3 H3 — 배타·부재(`대외 입금만`·`대외 출금만`·`대외 입출금 없음`)는 근거가 경보 거래 전체이고(요청 `evidence_transaction_ids` = `alert.transaction_ids`) 경보 거래의 모든 계좌에 법인 매핑이 있을 때만**(서비스가 `AskScope` 로 넘김 — 녹화 도구·평가처럼 범위를 모르면 늘 아래 꼴). 그 밖에는 `입금 우세 (근거 거래 기준)`·`출금 우세 (근거 거래 기준)`·`입금·출금 모두`·`대외 입출금 확인 안 됨 (근거 거래 기준)` · 아래는 추가 검토 2 때 규칙: 거래 방향 **입금 우세 · 출금 우세** · 입금·출금 모두 · **대외 입출금 없음**(`INTERNAL` — 입출금 둘 다 0, 내부·간접만일 수도 있어 "내부 거래만"이라 하지 않음, 추가 검토 2 H1) · 반대 방향 0건이 확인되면 **대외 입금만·대외 출금만**(내부 거래는 범위 밖임을 이름표에) (`INBOUND`·`OUTBOUND`·`MIXED`·`INTERNAL` — `INBOUND` 는 입금이 출금의 2배 이상이라 출금이 있을 수 있음, 04 `_direction`). **반대 방향 0건이 조각의 `outbound.count`·`inbound.count` 로 확인될 때만 `입금만`·`출금만`**(추가 검토 1 H1 — 조각에 건수가 없는 `formats` 묶음은 늘 `우세`) |
+
+**집계 값의 범위 표시 (SCRUM-362 ★B8 — 추가 검토 4 N-1·N-2, 진희)** — 이름표 **제목은 안 바꿈**(제목은 `<fact_keys>` 줄로 프롬프트에 들어가 녹화 키를 만듦), **값 끝**에만 붙임:
+- **근거 범위(N-1)**: 서비스가 센 `AskScope.whole_alert` 가 참이 아니면(근거가 경보 일부 · 범위 모름 None) 근거 거래로 센 값 끝에 `(근거 거래 기준)` — 대상 키: `period` · `inbound.*`·`outbound.*`·`internal.*` · `counterparties.count`·`counterparty_banks.*`·`counterparties_by_direction.*` · `payment_formats`·`payment_format_counts.*` · `amount_range.*` · `compare.*`. 0건·부재가 경보 전체처럼 읽히는 것을 막음
+- **대외 범위(N-2)**: 근거에 내부·간접 거래가 있으면 대외 입출금(`flows`)만 센 값 끝에 `(대외 거래 기준)` — 대상: `inbound.*`·`outbound.*` · `counterparties.count`·`counterparty_banks.*`·`counterparties_by_direction.*` · `amount_range.*` · `compare.*`(결제 방식은 ★B7-1 대로 늘 대외 기준 표시 · 내부·간접 있으면 값 없음)
+- 둘 다면 `(근거 거래 · 대외 거래 기준)`. 방향(`direction`)은 위 행 규칙(배타·부재는 근거 = 경보 전체 + 소유 정보 있을 때만)
+- **평가·재생·녹화 도구도 같은 `ask_scope` 로 계산**(`tools/ask_fixture_scope.py`): 근거·경보 거래 ID 는 요청 예시에서, 소유 정보는 픽스처에 있는 만큼만(대상 계좌의 법인뿐 — 상대 계좌 매핑이 픽스처에 없어 `ownership_known` 거짓). 하드코딩 True/None 안 씀
+| `period` | 거래 기간 YYYY년 M월 D일 HH:MM ~ YYYY년 M월 D일 HH:MM |
+| `subject.account_key` | 대상 계좌 10_****BD30 |
+| `subject.entity_name` · `subject.entity_type` · `subject` | 보고 대상자 이름 · 대상자 유형 한글 · 보고 대상자 이름(유형 한글) — 유형이 없으면 이름만 |
+| `customer.industry` · `.risk_level` · `.account_purpose` | 업종 한글 · 고객 위험등급 한글 · 계좌 목적 한글 |
+| `customer.onboarded_at` · `.country_code` | 고객 등록일 YYYY년 M월 D일 · 고객 국가 코드 XX |
+| `prior_alert_count` | 과거 경보 N건 |
+| `typology` | 탐지 유형 한글(코드) |
+| `paths.count` · `.max_hops` · `.max_accounts` · `.kind` | 확인된 경로 N개 · 경로 최대 N단계 · 경로 하나가 거친 계좌 최대 N개 · 경로 형태 한글(코드) (`typology` 표기 사전 — `CYCLE`·`SCATTER_GATHER` 가 있음) |
+| `compare.count` | 거래 건수 비교 — 입금 N건, 출금 M건 · 입금이 더 많음 / 출금이 더 많음 / 같음 (코드가 대소 계산 — 원칙 (B), flows 조각에 입금·출금이 둘 다 있을 때, 근거 = 입금·출금 거래 합집합) |
+| `compare.amount.<C>` | <C> 합계 비교 — 입금 N C, 출금 M C · 입금이 더 많음 / 출금이 더 많음 / 같음 (**그 통화가 입금·출금 둘 다 있을 때만** — 한쪽만이면 키 없음, 근거 = 두 방향 그 통화 거래) |
+| `observations.<이름>.vs_baseline` | 관측 이름 한글 관측값 N · 평소 기준값 M · 기준값보다 높음 / 낮음 / 같음 (score_reasons 조각에 기준값이 있을 때만, 근거 거래 없음) |
+| `observations.<이름>.baseline` | 관측 이름 한글 평소 기준값 N — **`score_reasons` 조각에 baseline 이 null 이 아닐 때만** 인용 키(질문 답변 전용, 근거 거래 없음, 추가 검토 2 M2) |
+| `observations.<이름>` | 관측 이름 한글 관측값 N단위 — 관측 구간 양 끝이 있으면 뒤에 `(시작~끝 기준)`(초안 v4 GROUNDS 와 같은 표기: 값 `obs_value`, 단위 `observation_name_unit`, 없으면 `observation_unit`). **표기 사전에 없는 관측 이름은 코드값 그대로**(facts 값이라 참 — 평가 픽스처 `inflow_outflow_ratio_2h`, SCRUM-362 ★B2) |
+| `model_signals` | 모델이 주목한 지표 한글, 한글… (`observation_name` 표기, 없으면 코드값) |
+| `unmapped_currencies.<이름>` | <이름> 통화 거래 N건(대응 미확인) |
+
+- **조사** `{{키|조사}}` — 쌍 은/는 · 이/가 · 을/를 · 과/와 · 으로/로 · 이에요/예요 · **이며/며 · 이고/고**(연결 조사 — 사실 주장 없음, v6 규칙 13 끝맺음과 검사 어긋남 해소, SCRUM-362 ★B7-3 · 2026-11-23), **쌍의 어느 쪽을 써도 같은 쌍**. 렌더링한 말의 끝 글자로 고른다(`display_format` 과 같은 규칙 — 한글 받침 · 숫자 0·1·3·6·7·8 받침 · 영문 끝은 받침 없음(`USD가`) · ㄹ 받침은 `로`). **닫는 괄호·마침표 같은 문장부호로 끝나면 그 앞 마지막 한글 글자 기준**(`(대외 거래 기준)이며` · `자금 분산(FAN_OUT)은` — 괄호 안이 영문이면 괄호 앞 한글, ★B7-3 진희). 조사 없이 `{{키}}` 만 쓰고 뒤에 LLM 이 조사를 붙여도 막지 않음(어색할 수 있음 — 프롬프트로 `|조사` 권장, 05).
+- 자리표 밖 숫자·한 방향 질문·길이 판정은 06 "질문 답변" — 렌더링 결과에 대해 돈다.
+
 ## 표시용 파생은 facts 가 아니다 (SCRUM-228, 2026-11-17)
 
 narrative_v4 의 **표기 사전·슬롯 문장·derived 플래그·사유/종합의견 카탈로그 선택**(05 narrative_v4 절)은 facts 에서 **표시용으로 파생한 값**이다 — facts 스키마·`fact_keys`·응답 `facts` 에 넣지 않고, 검증(06)도 대조하지 않는다. 검증은 지금처럼 조립된 본문을 facts 원값과 대조한다. 파생 함수는 `str/domain/` 순수 함수로 facts(마스킹본)를 읽기만 하고, 새 숫자를 만들지 않는다(쉼표·날짜 형식만, 합산·환산·반올림 없음). 플래그는 bool 뿐.
