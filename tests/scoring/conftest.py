@@ -5,6 +5,7 @@ import pytest
 @pytest.fixture
 def synthetic_rc3_booster(monkeypatch: pytest.MonkeyPatch) -> None:
     """Exercise the installed rc3 feature and scoring contract without a private checkpoint."""
+    import aml_ml
     from aml_ml import FEATURE_NAMES, serving_candidate
 
     class FixedBooster:
@@ -15,3 +16,4 @@ def synthetic_rc3_booster(monkeypatch: pytest.MonkeyPatch) -> None:
             return np.zeros((rows, 32)) if pred_contribs else np.full(rows, 0.625)
 
     monkeypatch.setattr(serving_candidate, "load_candidate", FixedBooster)
+    monkeypatch.setattr(aml_ml, "load_candidate", FixedBooster)
