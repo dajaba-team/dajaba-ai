@@ -76,7 +76,7 @@ def features(
 
 ## 설치·버전
 
-- 시연 채점은 `aml-ml @ git+https://github.com/dajaba-team/dajaba-ml.git@v0.1.0rc3`를 잠금 커밋 `af663dace6e77138478000d0aac0345e6168b868`에 고정한다. rc2(`783007f18a07d22169da92333495a8aab04fa76f`)는 복구용으로 보존한다.
+- 11/24 SCRUM-385에서 시연 채점용 `aml-ml` 고정을 rc3 태그(`af663dace6e77138478000d0aac0345e6168b868`)에서 체크포인트 오류 처리가 반영된 ML `develop` 병합 커밋 `1bf584098d2dffc97e2575a97ce6b870449aa061`로 바꿨다. 두 설치본의 패키지 버전은 `0.1.0rc3`이다. DB의 `serving_package_version` 값이 같으므로 설치본의 Git 커밋은 `uv.lock`과 설치 메타데이터(`direct_url.json`)로 확인한다. 동일한 보존 입력과 승인 체크포인트로 9/7 경보 1,545건을 대조해 점수·등급·실패 코드가 모두 일치했다. rc2(`783007f18a07d22169da92333495a8aab04fa76f`)는 복구용으로 보존한다. [AI PR #106 검증 기록](https://github.com/dajaba-team/dajaba-ai/pull/106)
 - rc2는 R01~R06을 지원한다. 패키지 목록에 없는 룰은 `RULE_NOT_SUPPORTED`, 지원하는 룰의 근거 입력 오류는 `REQUIRED_INPUT_MISSING`으로 구분한다.
 - 최초 연결 PR #85에서 `python:3.12-slim`의 VCS 의존성 설치에 필요한 Git을 추가했다. 패키지 전환 시 `pyproject.toml`과 `uv.lock`을 함께 갱신하고, Docker 이미지에서 실제 설치 버전과 import를 확인한다.
 - **점수 모드 `/v1/health` `scoring_mode`** (SCRUM-130, 11/12) — 점수가 고정 점수인지 실제 모델인지 밖에서 보이게. 판단은 `shared/versioning.scoring_mode(settings)`:
@@ -89,7 +89,7 @@ def features(
 
   **기동 직후에는 mock이 꺼져도 `unavailable`**이다. `/v1/health`의 일반 `status=ok`는 채점 성공과 별개다. rc3 경보의 실제 점수 및 저장 성공 후 `scoring_mode=model`과 모델·피처 버전을 확인한다.
   시연 전에는 서버 재시작 → 정상 경보의 `/v1/scores` 채점·저장 성공 → `/v1/health`의 `scoring_mode=model` 확인 순서로 점검한다.
-- rc3 패키지에는 모델 파일이 없다. 각 실채점 요청에서 serving 등록 확인 뒤 rc3 로더가 `AML_ML_MODEL_PATH`의 체크포인트를 확인한다. 누락·해시 불일치·로드 실패는 요청 전체 `503 MODEL_UNAVAILABLE`이며 이후 `scoring_mode=unavailable`로 표시된다. 서버 기동 시 모델을 읽지 않는다.
+- rc3 패키지에는 모델 파일이 없다. 각 실채점 요청에서 serving 등록 확인 뒤 rc3 로더가 `AML_ML_MODEL_PATH`의 체크포인트를 확인한다. 누락·읽기 실패·해시 불일치·로드 실패는 요청 전체 `503 MODEL_UNAVAILABLE`이며 이후 `scoring_mode=unavailable`로 표시된다. 준비 확인을 통과한 뒤에도 실제 채점의 재검증에서 체크포인트 누락이나 읽기·해시 오류를 발견하면 같은 503을 반환한다. 앞 하위 묶음의 점수도 폐기하며 부분 점수 응답과 예측 저장은 모두 0건이다. 서버 기동 시 모델을 읽지 않는다.
 - `0005_scoring_tables`가 rc1 모델·피처 버전과 패키지의 `threshold`를 등록한다. 부분 유일 인덱스로 serving 행을 한 개만 허용한다. 로드한 모델과 serving 행이 일치하지 않으면 `MODEL_UNAVAILABLE`을 반환한다. `alert_features` 저장은 선택 사항이며, STR에서 저장 행을 읽는지 진희 님 확인 전에는 쓰지 않는다.
 - rc1과 rc2는 같은 모델·피처 버전을 쓰므로 `0006_serving_package_version`에서 기존 모델 행에 `serving_package_version=0.1.0rc2`를 기록한다. `0005_scoring_tables`, 모델 PK, 기존 예측의 FK, serving 플래그를 보존한다. 실채점은 설치 패키지 버전까지 serving 행과 일치해야 하며 누락 또는 불일치 시 `MODEL_UNAVAILABLE`(503)을 반환한다. 0005로 롤백하면 이 컬럼만 제거된다.
 - 같은 모델 행을 유지하는 근거는 모델 가중치 파일과 공통 룰 R01·R02·R04의 피처 계산이 동일하다는 점이다. 공개 rc1·rc2에 같은 v3 입력 25건(R01 10건·R02 5건·R04 10건)을 넣어 31개 피처 값과 점수가 모두 정확히 일치함을 확인했다.
