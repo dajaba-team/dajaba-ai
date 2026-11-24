@@ -76,7 +76,7 @@ def features(
 
 ## 설치·버전
 
-- 11/24 SCRUM-385에서 시연 채점용 `aml-ml` 고정을 rc3 태그(`af663dace6e77138478000d0aac0345e6168b868`)에서 체크포인트 오류 처리가 반영된 ML `develop` 병합 커밋 `1bf584098d2dffc97e2575a97ce6b870449aa061`로 바꿨다. 두 설치본의 패키지 버전은 `0.1.0rc3`이다. DB의 `serving_package_version` 값이 같으므로 설치본의 Git 커밋은 `uv.lock`과 설치 메타데이터(`direct_url.json`)로 확인한다. 동일한 보존 입력과 승인 체크포인트로 9/7 경보 1,545건을 대조해 점수·등급·실패 코드가 모두 일치했다. rc2(`783007f18a07d22169da92333495a8aab04fa76f`)는 복구용으로 보존한다. [AI PR #106 검증 기록](https://github.com/dajaba-team/dajaba-ai/pull/106)
+- 11/24 SCRUM-385에서 시연 채점용 `aml-ml` 고정을 rc3 태그(`af663dace6e77138478000d0aac0345e6168b868`)에서 체크포인트 오류 처리가 반영된 `v0.1.0rc3.post1` 태그(ML 병합 커밋 `1bf584098d2dffc97e2575a97ce6b870449aa061`)로 바꿨다. 두 설치본의 패키지 버전은 `0.1.0rc3`이다. DB의 `serving_package_version` 값이 같으므로 설치본의 Git 커밋은 `uv.lock`과 설치 메타데이터(`direct_url.json`)로 확인한다. 동일한 보존 입력과 승인 체크포인트로 9/7 경보 1,545건을 대조해 점수·등급·실패 코드가 모두 일치했다. rc2(`783007f18a07d22169da92333495a8aab04fa76f`)는 복구용으로 보존한다. [AI PR #106 검증 기록](https://github.com/dajaba-team/dajaba-ai/pull/106)
 - rc2는 R01~R06을 지원한다. 패키지 목록에 없는 룰은 `RULE_NOT_SUPPORTED`, 지원하는 룰의 근거 입력 오류는 `REQUIRED_INPUT_MISSING`으로 구분한다.
 - 최초 연결 PR #85에서 `python:3.12-slim`의 VCS 의존성 설치에 필요한 Git을 추가했다. 패키지 전환 시 `pyproject.toml`과 `uv.lock`을 함께 갱신하고, Docker 이미지에서 실제 설치 버전과 import를 확인한다.
 - **점수 모드 `/v1/health` `scoring_mode`** (SCRUM-130, 11/12) — 점수가 고정 점수인지 실제 모델인지 밖에서 보이게. 판단은 `shared/versioning.scoring_mode(settings)`:
