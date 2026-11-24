@@ -44,6 +44,7 @@
 
 | 항목 | 상태 | 날짜 | 비고 |
 |---|---|---|---|
+| SCRUM-385 — [AI] rc3 체크포인트 오류 처리 (BH-ML-01) | 검증 완료 · PR 검토 중 | 11/24 | 채점 중 체크포인트 오류도 요청 전체 503 · 앞 묶음 점수 폐기 · 예측 저장 0건. ML `v0.1.0rc3.post1` (`1bf5840`) 고정 · 기존 rc3와 9/7 경보 1,545건 점수·등급·실패 코드 일치. [ML 패키지 계약](shared/02_ml_package.md#설치버전) · [PR #106](https://github.com/dajaba-team/dajaba-ai/pull/106) |
 | `GET /v1/dl-rankings/{scan_date}` | 내부 조사 순위 조회 · 스냅샷 기반 · 백엔드/화면 연동 전 | — | [ML+DL 조사 순위](scoring/01_dl_investigation_ranking.md) |
 | SCRUM-412 — [AI] 질문 답변 기간 한정어 누락 — 숫자 날짜·상대 기간 질문에 기간 전체 숫자 통과(9/7 점검 BH-AI-01) | 완료 (★C — 기간 한정어 넓힘 · 질문 무관 답 전체 검사 · 기간 무관 키 허용 목록 · 추가 검토 3회(high 14 · medium 4 → 고침 17 · 알고 남김 1) · 녹화 49 변화 0 · 질문 답변 910 passed · 관문 10935 passed · 3 skipped) | 11/24 | md: `str/06` 질문 한정어 항목·남는 위험 ⑥ · `str/08` "기간 한정어 넓힘"·알고 남긴 한계 · `str/09` |
 | SCRUM-414 — [AI] DL 순위 응답 근거 신원 칸 + 스냅샷 검증 규격(9/7 점검 BH-DL-02·BH-DL-01) | 완료 (★C — 경보 항목 끝에 `reference_ts`(T 모양)·`evidence_digest`(원본 파일·행, 행번호 정수 정렬) · 번호 뒤 숫자 6~18자리·근거 1개 이상 아니면 `ID_MISMATCH` · 9/7 실제 스냅샷 1,545건 두 칸 채움·순위·점수 develop 과 diff 0 · DB 원본 행 목록과 digest 1,545건 일치 · 테스트 `.env` 격리 · 관문 10997 passed · 9 skipped(W4 3 · 작업 트리에 `corpus/pdf` 없음 6) · DB 159 passed skip 0) | 11/24 | md: `scoring/01` "근거 신원 칸"·"스냅샷 검증 조건" · `str/09` 결정 1줄. 코드 `scoring/domain/dl_evidence.py`(새) · `scoring/application/dl_ranking.py`. 테스트 `test_dl_evidence.py`·`test_dl_ranking_identity.py`(새) · `test_dl_ranking.py`(픽스처 번호 숫자화·`.env` 격리). 스냅샷·manifest 그대로. 백엔드 짝 SCRUM-415 |
