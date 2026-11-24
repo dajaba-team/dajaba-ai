@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from aml_ai.str.domain.ask_bundles import AskPiece
 from aml_ai.str.domain.ask_slot_labels import count_value, slot
-from aml_ai.str.domain.constants_ask import ASK_PARTICLES, SLOT_MARKER
+from aml_ai.str.domain.constants_ask import ASK_PARTICLES, ASK_SENTENCE_STOPS, SLOT_MARKER
 from aml_ai.str.domain.display_format import topic, with_ro
 from aml_ai.str.domain.display_labels_check import Labels
 
@@ -85,7 +85,8 @@ def render(answer: str, piece: AskPiece, labels: Labels) -> AskSlots:
 
 
 # 정정 절(06 3번) — 문장 끝 · `…고,`·`…며,` · `…지만`·`…는데` 뒤 · `대신`·`반면`·`그리고` 앞에서 끊음(추가 검토 2 H3)
-_END = re.compile(r"[.!?\n]|(?<=고|며),|(?<=지만)|(?<=는데)|(?=대신|반면|그리고)")
+_STOP = f"[{re.escape(ASK_SENTENCE_STOPS)}\\n]"  # 종결부호 상수 하나(SCRUM-412)
+_END = re.compile(rf"{_STOP}|(?<=고|며),|(?<=지만)|(?<=는데)|(?=대신|반면|그리고)")
 
 
 def _spans(answer: str, allowed: set[str]) -> tuple[tuple[str, int, str], ...]:
@@ -118,7 +119,7 @@ def _sentence_starts(answer: str, spans: tuple[tuple[str, int, str], ...]) -> tu
     return tuple(max([0, *(e for e in ends if e <= pos)]) for _, pos, _ in spans)
 
 
-_SENTENCE_END = re.compile(r"[.!?\n]")
+_SENTENCE_END = re.compile(_STOP)
 
 
 def evidence_scoped(piece: AskPiece) -> bool:

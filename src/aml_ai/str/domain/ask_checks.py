@@ -32,14 +32,13 @@ from aml_ai.str.domain.constants_ask import (
     OUTSIDE_NUMBER_MARK,
     PREDICATE_MARK,
     QUALIFIER_MARK,
-    RE_DATE_QUALIFIER,
     RE_EXCLUDED_DIRECTION,
-    RE_EXTREME_QUALIFIER,
     RE_OUTSIDE_COMPARE,
     RE_OUTSIDE_NUMBER,
     SLOT_ERROR_MARK,
     TOO_LONG_MARK,
 )
+from aml_ai.str.domain.constants_ask_qualifier import RE_DATE_QUALIFIER, RE_EXTREME_QUALIFIER
 
 R = CheckReason
 _SIDES = ("inbound", "outbound")
@@ -95,7 +94,7 @@ def qualifier_mismatch(slots: AskSlots, question: str) -> int:
     기간 조건과 극값 조건을 따로 세서 더함(★B8 D-1). 기간 예외는 자리표 출현마다(★B8 D-2).
     """
     q = unicodedata.normalize("NFKC", question)
-    period = period_mismatch(slots) if RE_DATE_QUALIFIER.search(q) else 0
+    period = period_mismatch(slots, asked=RE_DATE_QUALIFIER.search(q) is not None)
     side = question_side(question)
     return period + (
         extreme_mismatch(slots, side) if RE_EXTREME_QUALIFIER.search(q) and side in _SIDES else 0

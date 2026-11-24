@@ -11,6 +11,7 @@ import re
 
 from aml_ai.str.domain.ask_bundles import AskPiece
 from aml_ai.str.domain.ask_slot_labels import slot
+from aml_ai.str.domain.constants_ask import ASK_SENTENCE_STOPS
 from aml_ai.str.domain.display_labels_check import Labels
 
 _SLOT = re.compile(r"\{\{([^{}|]*)(?:\|([^{}]*))?\}\}")
@@ -19,7 +20,9 @@ _IN = ("입금", "들어온", "들어오", "받은", "받았", "송금인", "유
 _OUT = ("출금", "보낸", "보냈", "나간", "나가", "수취인", "유출")
 _BOTH = ("입출금", "입·출금", "입금과 출금", "입금·출금", "입금 및 출금", "양방향")
 # 절 끊기: 문장 끝 · `…고,`·`…며,` 뒤 · `…지만`·`…는데` 뒤 · `대신`·`반면`·`그리고` 앞(추가 검토 2 M1)
-_CLAUSE = re.compile(r"[.!?\n]|(?<=고|며),|(?<=지만)|(?<=는데)|(?=대신|반면|그리고)")
+_CLAUSE = re.compile(
+    rf"[{re.escape(ASK_SENTENCE_STOPS)}\n]|(?<=고|며),|(?<=지만)|(?<=는데)|(?=대신|반면|그리고)"
+)
 _BOTH_KEYS = ("payment_format_counts.", "counterparty_banks.", "amount_range.")
 _BOTH_EXACT = ("payment_formats", "counterparties.count")
 
