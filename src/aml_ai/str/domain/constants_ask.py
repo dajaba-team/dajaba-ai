@@ -178,19 +178,8 @@ RE_BLOCKED_QUANTITY = (
     )
 )
 PREDICATE_MARK = "자리표 밖 서술어 {n}개"
-# 06 질문 한정어 ↔ 자리표 집계 범위(추가 검토 3 H2) — facts 는 기간 전체 집계(일별·방향별 최대 없음)
-RE_DATE_QUALIFIER = re.compile(
-    r"\d+\s*(?:월|일|년)|\d+\s*시(?!간)|오전|오후|하루|당일|그날|주말|어제|오늘|지난달|이번\s*달"
-)
-RE_EXTREME_QUALIFIER = re.compile(r"최대|최소|최고|최저|(?:가장|제일)\s*(?:큰|작은)")
-ASK_PERIOD_AGG_PREFIXES: tuple[str, ...] = (
-    "inbound.",
-    "outbound.",
-    "internal.",
-    "compare.",
-    "counterparties",
-    "counterparty_banks.",
-    "payment_format_counts.",
-    "amount_range.",
+# 06 질문 한정어 ↔ 자리표 집계 범위 — 한정어 정규식·기간 무관 키는 constants_ask_qualifier.py(SCRUM-412)
+ASK_SENTENCE_STOPS = (
+    ".!?．！？。"  # 종결부호 — 문장 경계·절 나눔·끝맺음 검사가 같이 씀(SCRUM-412 추가 검토 2)
 )
 QUALIFIER_MARK = "질문 한정어와 다른 집계 {n}개"

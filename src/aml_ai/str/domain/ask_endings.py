@@ -12,6 +12,7 @@ from aml_ai.str.domain.constants_ask import (
     ASK_ALLOWED_ENDINGS,
     ASK_ALLOWED_PAIRS,
     ASK_COPULA_ENDINGS,
+    ASK_SENTENCE_STOPS,
     RE_BLOCKED_QUANTITY,
     SLOT_MARKER,
 )
@@ -21,7 +22,7 @@ def outside_predicates(marked: str) -> int:
     """자리표 밖 절 끝맺음이 허용 목록 밖인 수 + 막는 수량·경계 낱말 수(06 방향 전환 — 블록리스트가 아니라 허용 목록)."""
     text = unicodedata.normalize("NFKC", marked)
     bad = len(RE_BLOCKED_QUANTITY.findall(text))
-    for clause in re.split(r"[.!?\n,]", text):
+    for clause in re.split(f"[{re.escape(ASK_SENTENCE_STOPS)}\\n,]", text):
         words = [w.strip("'\"()·:") for w in clause.split()]
         words = [w for w in words if w]
         if words and not _allowed_end(words):
