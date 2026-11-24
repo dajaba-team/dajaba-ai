@@ -8,19 +8,17 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from sqlalchemy import func, text
+from sqlalchemy import func
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
+from aml_ai.shared.db import MS_PER_SECOND, SET_TIMEOUTS, is_timeout
 from aml_ai.shared.errors import LlmUnavailable
 from aml_ai.shared.logging import current_request_id
 from aml_ai.shared.schemas.str import Facts
 from aml_ai.str.infrastructure.orm import Generation
 
 _META_COLS = ("llm_model", "prompt_version", "few_shot_ids", "tokens_in", "tokens_out", "latency_ms")
-# 트랜잭션 한정 — commit·rollback 뒤엔 원래 값(SET LOCAL 과 같음). 값은 바인드 파라미터로
-_SET_TIMEOUTS = text("SELECT set_config('statement_timeout', :v, true), set_config('lock_timeout', :v, true)")
-_TIMEOUT_SQLSTATES = ("57014", "55P03")  # query_canceled · lock_not_available
 
 
 @dataclass
@@ -64,9 +62,14 @@ class SummaryRepository:
             finished_at=func.now(),
             **values,
         )
+        self._insert(row, timeout_s, before_commit)
+
+    def _insert(
+        self, row: Generation, timeout_s: float | None, before_commit: Callable[[], None] | None
+    ) -> None:
         try:
             if timeout_s is not None:
-                self.session.execute(_SET_TIMEOUTS, {"v": f"{max(1, int(timeout_s * 1000))}ms"})
+                self.session.execute(SET_TIMEOUTS, {"v": f"{max(1, int(timeout_s * MS_PER_SECOND))}ms"})
             self.session.add(row)
             self.session.flush()
             if before_commit is not None:
@@ -74,7 +77,7 @@ class SummaryRepository:
             self.session.commit()
         except DBAPIError as exc:
             self.session.rollback()
-            if timeout_s is not None and getattr(exc.orig, "sqlstate", None) in _TIMEOUT_SQLSTATES:
+            if timeout_s is not None and is_timeout(exc):
                 raise LlmUnavailable("ask save timed out") from None
             raise
         except Exception:

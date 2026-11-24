@@ -12,16 +12,21 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 from aml_ai.shared.config import Settings
-from aml_ai.shared.db import end_read
+from aml_ai.shared.db import end_read, is_timeout
 from aml_ai.shared.errors import AiError, InvalidRequest, LlmUnavailable
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
 from aml_ai.shared.schemas.str import AskRequest, AskResponse, Facts
 from aml_ai.shared.schemas.str.ask_llm import AskPlanKind
-from aml_ai.shared.text import utf16_len_nfc
-from aml_ai.str.application.ask_answer import follow_up_plan, in_scope_response, out_of_scope_response
+from aml_ai.str.application.ask_answer import (
+    done_log_fields,
+    follow_up_plan,
+    in_scope_response,
+    out_of_scope_response,
+)
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain.ask_bundles import extract, with_flows
 from aml_ai.str.domain.ask_question import blocked_before_plan, mask_question
@@ -67,7 +72,7 @@ class AskService:
         deadline = self.clock() + self.settings.ask_budget_s
         generation_id = f"g-{uuid.uuid4().hex[:8]}"
         try:
-            facts, scope = self._load_facts(req)
+            facts, scope = self._read_facts(req, deadline)
             end_read(self.session)  # SCRUM-122 — LLM 호출 전 연결 반납
             question = mask_question(req.question)  # 04 — LLM 에 가는 질문만, 저장은 원문
             follow_up = blocked_before_plan(
@@ -85,13 +90,26 @@ class AskService:
             message = exc.message if isinstance(exc, AiError) else "internal error"
             self._save_failure(req, generation_id, code, message)
             raise
-        self._log_done(req, response)
+        log.info("ask_done", extra=done_log_fields(req, response))
         return response
 
     def _validate(self, req: AskRequest) -> None:
         """evidence_transaction_ids ⊆ alert.transaction_ids — 요약과 같은 규칙(shared/01)."""
         if not set(req.evidence_transaction_ids) <= set(req.alert.transaction_ids):
             raise InvalidRequest("evidence must be subset of alert.transaction_ids")
+
+    def _read_facts(self, req: AskRequest, deadline: float) -> tuple[Facts, AskScope]:
+        try:
+            self.reader.bound_to_deadline(deadline, self.clock)
+            return self._load_facts(req)
+        except (LlmUnavailable, DBAPIError) as exc:
+            if isinstance(exc, DBAPIError) and not is_timeout(exc):
+                raise
+            if self.session is not None:
+                self.session.rollback()  # SCRUM-413 — 시간 초과만 롤백
+            if isinstance(exc, LlmUnavailable):
+                raise
+            raise LlmUnavailable("ask deadline passed") from None
 
     def _load_facts(self, req: AskRequest) -> tuple[Facts, AskScope]:
         inp = req.to_facts_input()
@@ -180,17 +198,3 @@ class AskService:
             )
         except Exception:
             log.warning("ask_save_failure_failed", extra={"generation_id": generation_id})
-
-    @staticmethod
-    def _log_done(req: AskRequest, response: AskResponse) -> None:
-        """NFR-COM-04 — 케이스 번호·상태·길이·시간만. 질문·답 본문은 찍지 않는다."""
-        log.info(
-            "ask_done",
-            extra={
-                "case_no": req.case_no,
-                "generation_id": response.generation_id,
-                "status": response.status.value,
-                "question_len": utf16_len_nfc(req.question),
-                "latency_ms": response.generation_meta.latency_ms,
-            },
-        )

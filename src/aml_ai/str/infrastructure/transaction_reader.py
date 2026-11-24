@@ -5,10 +5,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from aml_ai.shared.errors import InvalidRequest
+from aml_ai.shared.db import bound_to_deadline
+from aml_ai.shared.errors import InvalidRequest, LlmUnavailable
 from aml_ai.shared.schemas.alerts import Alert
 from aml_ai.str.domain.facts import currency_code
 from aml_ai.str.domain.models import Customer, Subject, Transaction
@@ -44,6 +47,10 @@ _CUSTOMER_SQL = text(
 class TransactionReader:
     def __init__(self, session: Session) -> None:
         self._s = session
+
+    def bound_to_deadline(self, deadline: float, clock: Callable[[], float]) -> None:
+        """SCRUM-413 — 질문 답변의 facts 조회에 남은 시간."""
+        bound_to_deadline(self._s, deadline, clock, lambda: LlmUnavailable("ask deadline passed"))
 
     def load_transactions(self, ids: list[int]) -> list[Transaction]:
         rows = self._s.execute(_TX_SQL, {"ids": ids}).mappings().all()
