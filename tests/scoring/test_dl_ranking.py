@@ -11,11 +11,14 @@ from fastapi.testclient import TestClient
 
 from aml_ai.main import app
 from aml_ai.scoring.application import dl_ranking
+from aml_ai.shared.config import Settings, get_settings
 from tests.conftest import EXAMPLES, load_json
 
 URL = "/v1/dl-rankings/2022-09-07"
 HEADERS = {"X-Internal-Key": "test-key"}
 PREFIX = "ALT-20220907-"
+# 경보 번호 오름차순은 B < C < Z — 동점 규칙 테스트가 이 순서에 기댄다.
+Z, B, C = PREFIX + "000009", PREFIX + "000002", PREFIX + "000003"
 
 
 def digest(raw: bytes) -> str:
@@ -23,16 +26,23 @@ def digest(raw: bytes) -> str:
 
 
 def write_snapshot(
-    monkeypatch, tmp_path: Path, *, partial: bool = False, mutate: str = "", boundary: bool = False
+    monkeypatch,
+    tmp_path: Path,
+    *,
+    partial: bool = False,
+    mutate: str = "",
+    boundary: bool = False,
+    c_number: str = "000003",
 ) -> Path:
+    no_evidence = mutate == "no-evidence"
     alerts = "alert_no,alert_id,rule_id,reference_ts,transaction_ids\n"
     evidence = "alert_no,alert_id,rule_id,transaction_id,ts\n"
     ml = "alert_no,alert_id,rule_id,score,failure_code\n"
-    for i, suffix, score in [(1, "Z", 0.9), (2, "B", 0.8), (3, "C", 0.7)]:
-        ids = (2, 4) if i == 2 else (i,)
+    for i, number, score in [(1, "000009", 0.9), (2, "000002", 0.8), (3, c_number, 0.7)]:
+        ids = (2, 4) if i == 2 else () if i == 3 and no_evidence else (i,)
         rule = f"R0{i}"
-        aid = PREFIX + suffix
-        alerts += f"{aid},{i},{rule},2022-09-07T01:00:00,{' '.join(map(str, ids))}\n"
+        aid = PREFIX + number
+        alerts += f"{aid},{i},{rule},2022-09-07 01:00:00,{' '.join(map(str, ids))}\n"
         evidence += "".join(f"{aid},{i},{rule},{j},2022-09-07T00:00:00\n" for j in ids)
         ml += f"{aid},{i},{rule},{score},\n"
     dl = "transaction_id,source_file,source_row_number,minute_since_2022_09_01,score\n"
@@ -44,8 +54,11 @@ def write_snapshot(
         evidence = evidence.replace(",4,2022-09-07T00:00:00", ",4,2022-09-07T01:00:00")
         dl = dl.replace("2,dataset.csv,20,8640", "2,dataset.csv,20,8699")
         dl = dl.replace("4,dataset.csv,40,8640", "4,dataset.csv,40,8700")
+    tx_ids = [i for i in range(1, 5) if not (no_evidence and i == 3)]
+    if no_evidence:
+        dl = dl.replace("3,dataset.csv,30,8640,0.9\n", "")
     mapping = "transaction_id,source_file,source_row_number\n"
-    mapping += "".join(f"{i},dataset.csv,{i * 10}\n" for i in range(1, 5))
+    mapping += "".join(f"{i},dataset.csv,{i * 10}\n" for i in tx_ids)
     scan_hashes = {
         "alerts.csv": digest(alerts.encode()),
         "evidence_transactions.csv": digest(evidence.encode()),
@@ -61,7 +74,7 @@ def write_snapshot(
     if mutate == "duplicate":
         dl += "1,dataset.csv,10,8640,0.2\n"
     if mutate == "wrong-alert-id":
-        ml = ml.replace(f"{PREFIX}Z,1", f"{PREFIX}Z,19")
+        ml = ml.replace(f"{Z},1", f"{Z},19")
     worker_raw = json.dumps(worker_input)
     payloads = {
         "alerts.csv": alerts,
@@ -89,8 +102,8 @@ def write_snapshot(
                 "model": "HI-Medium-B-GINe-counts-best-13",
                 "snapshot_manifest_sha256": digest(worker_raw.encode()),
                 "snapshot_alerts": 3,
-                "snapshot_transactions": 4,
-                "transactions": 3 if partial else 4,
+                "snapshot_transactions": len(tx_ids),
+                "transactions": len(tx_ids) - partial,
             }
         ),
     }
@@ -132,9 +145,9 @@ def test_partial_evidence_keeps_original_ml_slot(monkeypatch, tmp_path) -> None:
     assert (body["scored_transactions"], body["linked_alerts"], body["ml_only_alerts"]) == (3, 2, 1)
     rows = body["alerts"]
     assert [(x["alert_id"], x["ml_rank"], x["fused_rank"], x["ml_score"]) for x in rows] == [
-        (PREFIX + "C", 3, 1, 0.7),
-        (PREFIX + "B", 2, 2, 0.8),
-        (PREFIX + "Z", 1, 3, 0.9),
+        (C, 3, 1, 0.7),
+        (B, 2, 2, 0.8),
+        (Z, 1, 3, 0.9),
     ]
     assert rows[1]["dl_score"] is None
     assert rows[1]["fallback_reason"] == "INCOMPLETE_DL_EVIDENCE"
@@ -196,8 +209,8 @@ def test_fusion_tie_uses_ascending_alert_number(monkeypatch, tmp_path) -> None:
     rows = response.json()["alerts"]
     # Z는 ML 1위, C는 DL 1위라 둘의 결합값이 같다.
     assert [(row["alert_id"], row["ml_rank"], row["fused_rank"]) for row in rows[:2]] == [
-        (PREFIX + "C", 3, 1),
-        (PREFIX + "Z", 1, 2),
+        (C, 3, 1),
+        (Z, 1, 2),
     ]
 
 
@@ -210,11 +223,11 @@ def test_previous_minute_counts_and_reference_minute_keeps_ml_slot(monkeypatch, 
     rows = {row["alert_id"]: row for row in body["alerts"]}
     assert body["scored_transactions"] == 4
     assert body["linked_alerts"] == 2
-    b = rows[PREFIX + "B"]
+    b = rows[B]
     assert (b["dl_linked"], b["evidence_count"], b["dl_score"]) == (1, 2, None)
     assert b["fallback_reason"] == "INCOMPLETE_DL_EVIDENCE"
     assert (b["ml_rank"], b["fused_rank"]) == (2, 2)
-    assert (rows[PREFIX + "C"]["fused_rank"], rows[PREFIX + "Z"]["fused_rank"]) == (1, 3)
+    assert (rows[C]["fused_rank"], rows[Z]["fused_rank"]) == (1, 3)
 
 
 def test_valid_repeated_request_reuses_parsed_result(monkeypatch, tmp_path) -> None:
@@ -232,6 +245,8 @@ def test_valid_repeated_request_reuses_parsed_result(monkeypatch, tmp_path) -> N
 def test_missing_settings_warns_without_request_secrets(monkeypatch, caplog) -> None:
     monkeypatch.delenv("AI_DL_SNAPSHOT_MANIFEST", raising=False)
     monkeypatch.delenv("AI_DL_SNAPSHOT_SHA256", raising=False)
+    # 작업 트리의 .env 에 스냅샷 경로가 있어도 읽지 않게 설정 객체를 직접 만든다.
+    monkeypatch.setitem(app.dependency_overrides, get_settings, lambda: Settings(_env_file=None))
     with TestClient(app) as client:
         response = client.get(URL, headers=HEADERS)
         schema = client.get("/openapi.json").json()

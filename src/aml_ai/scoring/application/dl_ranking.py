@@ -7,6 +7,7 @@ import hashlib
 import hmac
 import io
 import json
+import re
 from collections import OrderedDict
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -18,11 +19,13 @@ from threading import Lock
 
 from pydantic import BaseModel
 
+from aml_ai.scoring.domain.dl_evidence import evidence_digest, reference_text
 from aml_ai.shared.errors import AiError
 
 _MAX_BYTES = 8 * 1024 * 1024
 _MAX_ALERTS = 20_000
 _MAX_CACHE_ENTRIES = 4
+_ALERT_NO_SUFFIX_PATTERN = r"[0-9]{6,18}"
 _EPOCH = datetime(2022, 9, 1)
 _ONE_MINUTE = timedelta(minutes=1)
 _ML_MODEL = "xgb-hi-medium-r04-event-c2-31-v1"
@@ -59,6 +62,8 @@ class RankedAlert(BaseModel):
     fallback_reason: str | None
     ml_rank: int | None
     fused_rank: int | None
+    reference_ts: str
+    evidence_digest: str
 
 
 class ReviewRanking(BaseModel):
@@ -139,18 +144,20 @@ def _timestamp(raw: str) -> datetime:
 def _scan(files: dict[str, bytes], scan_date: date) -> tuple[dict[str, ScanAlert], dict[int, datetime]]:
     alerts = {}
     source_ids = set()
+    alert_no_pattern = f"ALT-{scan_date:%Y%m%d}-{_ALERT_NO_SUFFIX_PATTERN}"
     for row in _rows(
         files["alerts.csv"], "alert_no", "alert_id", "rule_id", "reference_ts", "transaction_ids"
     ):
         aid, source_id = row["alert_no"], int(row["alert_id"])
         evidence = [int(uid) for uid in row["transaction_ids"].split()]
         if (
-            not aid.startswith(f"ALT-{scan_date:%Y%m%d}-")
+            not re.fullmatch(alert_no_pattern, aid)
             or aid in alerts
             or source_id <= 0
             or source_id in source_ids
             or not row["rule_id"]
             or len(alerts) >= _MAX_ALERTS
+            or not evidence
             or len(set(evidence)) != len(evidence)
             or any(uid <= 0 for uid in evidence)
         ):
@@ -201,7 +208,9 @@ def _ml_scores(raw: bytes, alerts: dict[str, ScanAlert]) -> dict[str, tuple[floa
     return scores
 
 
-def _dl_scores(files: dict[str, bytes], times: dict[int, datetime]) -> dict[int, tuple[int, float]]:
+def _dl_scores(
+    files: dict[str, bytes], times: dict[int, datetime]
+) -> tuple[dict[int, tuple[int, float]], dict[int, tuple[str, int]]]:
     mapping = {}
     source_keys = set()
     for row in _rows(files["evidence_source_map.csv"], "transaction_id", "source_file", "source_row_number"):
@@ -232,7 +241,7 @@ def _dl_scores(files: dict[str, bytes], times: dict[int, datetime]) -> dict[int,
         ):
             raise SnapshotInvalid("ID_MISMATCH")
         scores[uid] = minute, _score(row["score"])
-    return scores
+    return scores, mapping
 
 
 def _average_ranks(values: dict[str, float]) -> dict[str, float]:
@@ -248,7 +257,7 @@ def _average_ranks(values: dict[str, float]) -> dict[str, float]:
 def _rank(scan_date: date, digest: str, files: dict[str, bytes]) -> ReviewRanking:
     alerts, times = _scan(files, scan_date)
     ml = _ml_scores(files["ml.csv"], alerts)
-    dl = _dl_scores(files, times)
+    dl, mapping = _dl_scores(files, times)
     ml_meta, dl_meta, worker_input = (
         json.loads(files[name]) for name in ("ml-summary.json", "dl-summary.json", "worker-input.json")
     )
@@ -325,6 +334,8 @@ def _rank(scan_date: date, digest: str, files: dict[str, bytes]) -> ReviewRankin
                 ),
                 ml_rank=base_position.get(aid),
                 fused_rank=fused_position.get(aid),
+                reference_ts=reference_text(alerts[aid].reference),
+                evidence_digest=evidence_digest(mapping[uid] for uid in alerts[aid].evidence),
             )
             for aid in fused + sorted(alerts.keys() - ml_values.keys())
         ],
