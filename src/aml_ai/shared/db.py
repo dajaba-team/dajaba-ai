@@ -2,13 +2,38 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from functools import lru_cache
 
 from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from aml_ai.shared.config import Settings, get_settings
+
+# SCRUM-413 — 현재 트랜잭션의 문장·잠금 대기만 제한
+SET_TIMEOUTS = text("SELECT set_config('statement_timeout', :v, true), set_config('lock_timeout', :v, true)")
+TIMEOUT_SQLSTATES: tuple[str, ...] = ("57014", "55P03")  # query_canceled · lock_not_available
+MS_PER_SECOND = 1000
+
+
+def bound_to_deadline(
+    session: Session, deadline: float, clock: Callable[[], float], expired: Callable[[], Exception]
+) -> None:
+    """연결 대기 뒤 남은 시간을 설정하고, 설정 왕복 뒤에도 마감을 확인한다."""
+    session.connection()
+    now = clock()
+    if now >= deadline:
+        raise expired()
+    # 밀리초로 바꾼 뒤 빼서 100.3초와 100초 사이를 299ms로 자르지 않는다.
+    remaining_ms = max(1, int(deadline * MS_PER_SECOND - now * MS_PER_SECOND))
+    session.execute(SET_TIMEOUTS, {"v": f"{remaining_ms}ms"})
+    if clock() >= deadline:
+        raise expired()
+
+
+def is_timeout(exc: DBAPIError) -> bool:
+    return getattr(exc.orig, "sqlstate", None) in TIMEOUT_SQLSTATES
 
 
 class Base(DeclarativeBase):

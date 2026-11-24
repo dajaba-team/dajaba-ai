@@ -38,6 +38,9 @@ class StubLlm:
 class StubReader:
     """TransactionReader stub — fixtures/facts_fan_in.json 과 같은 숫자."""
 
+    def bound_to_deadline(self, deadline: float, clock) -> None:  # noqa: ANN001, ARG002 — SCRUM-413, DB 없음
+        return None
+
     def load_transactions(self, ids: list[int]) -> list[Transaction]:
         amounts = {104221: "12500.00", 104233: "14000.00", 104301: "16250.50"}
         return [

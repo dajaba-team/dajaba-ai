@@ -33,7 +33,11 @@
 4  facts_llm = domain.masking.mask_for_llm(facts)                            순수 (04) — 생성·평가자 공용
 5  examples = fewshot_store.pick_examples(facts.typology)                    (05) 같은 유형 1 + 다른 유형 2
    shared.db.end_read(session)                                               (SCRUM-122) 읽기 트랜잭션 닫고 연결 반납 — 임베딩 호출 전
-6  references = retriever.retrieve(facts)                                    (10) 0~3건. 임베딩은 외부 호출(연결 없음), _search 는 SCRUM-125에서 짧은 트랜잭션. RetrievalUnavailable → [] ※ 초안을 막지 않음
+6  references = retriever.retrieve(facts, deadline=deadline − LLM_TIMEOUT_S)  (10) 0~3건. 임베딩은 외부 호출(연결 없음), _search 는 SCRUM-125에서 짧은 트랜잭션. RetrievalUnavailable → [] ※ 초안을 막지 않음
+      검색 마감(SCRUM-413) = 요청 deadline − LLM_TIMEOUT_S — 생성 몫(7 선체크)을 남김. 벡터 조회(_candidates·_cosines, 한 번 찾기·채우기 2차 둘 다)마다
+      shared.db.bound_to_deadline: 연결을 얻은 뒤 남은 시간을 셈 → 0 이하면 벡터 SQL 0 · 남았으면 같은 트랜잭션에 statement_timeout·lock_timeout = 남은 ms(트랜잭션 한정)
+      → 설정 왕복 뒤 다시 확인(지났으면 벡터 SQL 0). 남은 ≤0·57014·55P03 → RetrievalUnavailable → [] 로 진행(지금 검색 실패와 같은 흐름).
+      deadline 없음(하네스·평가 도구) → 설정 SQL 0, 지금 동작 그대로. 풀 연결 대기 자체는 못 묶음(엔진 공통 pool_timeout — 09 알고 남김)
    shared.db.end_read(session)                                               (SCRUM-122) LLM 호출 바로 앞 — 지금 RAG 꺼져 no-op, 125에서 의미 생김
 7  gen = narrative_generator.generate(facts_llm, fact_keys(facts), examples, references, notes, deadline=deadline)   (05)
       선체크 — 남은 예산 < LLM_TIMEOUT_S(35초) 이면 LLM 안 부르고 LlmUnavailable (502, 아래 "예산 초과는 LlmUnavailable")
@@ -152,6 +156,12 @@
 0  요청 검증                  AskRequest 스키마(question 1~300 NFC·UTF-16, 공백만 거부) + evidence_transaction_ids ⊆ alert.transaction_ids → 400 INVALID_REQUEST
 1  deadline = clock() + ASK_BUDGET_S  (20초 — ASK_LLM_TIMEOUT_S 이상, 설정 불변식)
 2  transaction_reader.load_transactions·load_subject   요약과 같음, 없는 ID·보고 대상 거래 없음 → 400
+      조회 시간 제한(SCRUM-413): 조회 앞에 shared.db.bound_to_deadline(session, deadline) — 연결을 얻은 뒤 남은 = deadline − clock() 을 셈,
+      0 이하면 조회 SQL 0 → LlmUnavailable(502 LLM_UNAVAILABLE) · 남았으면 같은 트랜잭션에 statement_timeout·lock_timeout = 남은 ms(하한 1ms, 트랜잭션 한정)
+      → 설정 왕복 뒤 다시 확인(지났으면 조회 SQL 0, 502). 조회 중 57014·55P03 → LlmUnavailable(502). 4 의 end_read(commit)로 설정이 풀려
+      계획·답·성공 저장 쪽에 안 번짐. 시간 초과면 읽기 트랜잭션을 rollback 한 뒤 FAILED 저장(10 예외 — 지금 deadline 초과와 같은 응답·행).
+      시간 초과가 아닌 오류(400·DB 오류 500)는 rollback 없이 그대로 — FAILED 행은 지금과 같음(500 은 깨진 트랜잭션이라 행 없음)
+      풀 연결 대기 자체는 못 묶음 — 대기 뒤 마감이 지났으면 조회를 시작하지 않음(09 알고 남김)
 3  facts = domain.facts.build_facts(req.to_facts_input(), txs, subject)   요약과 같은 함수
    facts = domain.facts_direction.with_direction(facts, txs)               (04, SCRUM-358·359) 질문 답변만 방향 칸 — 저장 facts 엔 안 남음(exclude)
 4  shared.db.end_read(session)                                             (SCRUM-122) LLM 호출 앞
@@ -232,6 +242,7 @@
 | 초안 요청 전체(AI 안) | **80초** — 백엔드 타임아웃 90초보다 10초 짧게 | `DRAFT_BUDGET_S=80` |
 | 요약 요청 전체(AI 안) | **40초** — Jira SCRUM-129, 단 `LLM_TIMEOUT_S` 이상(기동 불변식) | `SUMMARY_BUDGET_S=40` |
 | 질문 답변 요청 전체(AI 안) | **20초** — 설계 문서 5.5(백엔드 전체 30초). `ASK_LLM_TIMEOUT_S` 이상(기동 불변식) | `ASK_BUDGET_S=20` |
+| 질문 답변 facts 조회 | 요청 deadline 남은 시간 안(SCRUM-413) — 연결을 얻은 뒤 셈, `statement_timeout`·`lock_timeout` = 남은 ms. 넘으면 502 `LLM_UNAVAILABLE` | `ASK_BUDGET_S` 공용 |
 | 질문 답변 LLM 1회(계획·답 각각) | **10초 — 호출 전체**(작업별이 아님). `min(10초, 요청 deadline 남은 시간)` 이 지나면 헤더 대기·본문 읽기 중 어디서든 연결을 끊고 `LlmUnavailable`(SCRUM-322). 호출 전 남은 < 10초면 부르지 않음. 재시도·재생성 0 | `ASK_LLM_TIMEOUT_S=10` · `complete_json(total_timeout_s=)` |
 | 죽은 PROCESSING 판정 | 예산 + 30초 = **110초** | `STALE_PROCESSING_S` |
 | LLM 호출 1회 | **35초** — 작업별(연결·읽기마다 다시 걸림), 호출 전체 마감 없음. 초안·검증·요약에 전체 마감을 거는 건 다음 결정(09 미결, SCRUM-322) | `LLM_TIMEOUT_S=35` |
@@ -239,7 +250,7 @@
 | 고쳐 쓰기 평가자 (SCRUM-147) | **≤ 35초**, 남은 ≥ `LLM_TIMEOUT_S` 일 때만. 아니면 `rewrite.skipped_reason="budget"` | `LLM_TIMEOUT_S` 공용 |
 | 고쳐 쓰기 재작성 (SCRUM-147) | **≤ 35초**, 평가자 뒤 남은 ≥ `LLM_TIMEOUT_S` 일 때만. 스키마 실패 재생성 **0회** → `skipped_reason="schema"` | `LLM_TIMEOUT_S` 공용 |
 | loader | 1초 | — |
-| retrieval (임베딩 1회 + pgvector) | 1~2초 | `RETRIEVAL_TIMEOUT_S=3` |
+| retrieval (임베딩 1회 + pgvector) | 1~2초 — pgvector 조회는 **요청 deadline − `LLM_TIMEOUT_S`** 안(SCRUM-413, `statement_timeout`·`lock_timeout`). 넘으면 `RetrievalUnavailable` → 참고자료 없이 | `LLM_TIMEOUT_S` 공용 (`RETRIEVAL_TIMEOUT_S=3` 은 코드·설정에 없음 — 가정값만) |
 | judge (verify) | 5~20초 | `LLM_TIMEOUT_S` 공용 |
 | verify 요청 전체(AI 안) | **80초** — 백엔드 공유 타임아웃 90초보다 10초 짧게 (SCRUM-92) | `VERIFY_BUDGET_S=80` |
 | judge 1회 재시도(스키마 실패만) | 남은 예산 **≥ `LLM_TIMEOUT_S`(35초)** 일 때만, `LlmUnavailable`·`BudgetExceeded` 는 재시도 없음 | `LLM_TIMEOUT_S` 공용 |

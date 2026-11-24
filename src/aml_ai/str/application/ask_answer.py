@@ -15,6 +15,7 @@ from aml_ai.shared.schemas.str import (
     OutOfScopeReason,
 )
 from aml_ai.shared.schemas.str.ask_llm import AskPlanKind, AskPlanOut
+from aml_ai.shared.text import utf16_len_nfc
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.str.domain import ask_checks
 from aml_ai.str.domain.ask_bundles import AskPiece
@@ -23,6 +24,17 @@ from aml_ai.str.domain.ask_slots import render
 from aml_ai.str.domain.constants_ask import ASK_ANSWER_PROMPT, ASK_NO_LLM_MODEL, ASK_PLAN_PROMPT
 from aml_ai.str.domain.display_labels_check import Labels
 from aml_ai.str.infrastructure.ask_llm import AnswerResult, PlanResult
+
+
+def done_log_fields(req: AskRequest, response: AskResponse) -> dict[str, str | int]:
+    """NFR-COM-04 — 케이스 번호·상태·길이·시간만. 질문·답 본문은 찍지 않는다."""
+    return {
+        "case_no": req.case_no,
+        "generation_id": response.generation_id,
+        "status": response.status.value,
+        "question_len": utf16_len_nfc(req.question),
+        "latency_ms": response.generation_meta.latency_ms,
+    }
 
 
 def follow_up_plan() -> PlanResult:

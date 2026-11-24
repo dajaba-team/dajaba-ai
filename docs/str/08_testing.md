@@ -1101,6 +1101,17 @@ v3·v4 녹화 중 계획 LLM 이 계획 녹화와 다른 묶음을 고른 일 3�
 - **녹화 재판정(★A, 결과 보기 전 조건 "바뀌는 건 날짜·상대 기간 문항뿐")**: 18 · 358 · 359 + 복합 4 = 49문항(`ask_plan_v3`·`ask_answer_v6` 재생) — 상태 바뀐 문항 **0**(ANSWERED 34 · NO_DATA 8 · OUT_OF_SCOPE 7 그대로). 새 표현에만 걸리는 질문이 세트에 없음(날짜 문항 P6·T1~T3·O6 은 기존 목록에 이미 걸림) · 녹화 답 LLM 글에도 새 표현만의 낱말 0. 효과는 새 단위 테스트로만 보임
 - 시연 질문에 숫자 날짜·상대 기간을 쓰면 `UNVERIFIED` 가 정상(facts 는 기간 전체 집계뿐)
 
+### facts·참고자료 DB 조회 시간 제한 (SCRUM-413, 2026-11-24 — 9/7 점검 BH-AI-02, LLM 0)
+
+질문 답변 facts 조회와 초안 벡터 조회가 요청 마감 밖에서 돌던 것(03 질문 답변 2 · 초안 6). 가짜 시계·가짜 세션 단위 테스트 + `-m db`(Docker, `pg_sleep`). 정상 경로 응답·저장 내용 diff 0.
+
+- 질문 답변 facts(단위): 남은 시간이 있으면 조회 **전에** 같은 세션에 `set_config(statement_timeout·lock_timeout)` = 남은 ms 한 번 · 연결 얻은 뒤 남은 ≤ 0 → `load_transactions` 0·502 `LLM_UNAVAILABLE`·FAILED `error="LLM_UNAVAILABLE: …"` · 설정 왕복 뒤 마감 지남 → 조회 SQL 0 · 남은 0.0004초 → `1ms` 하한 · 조회 중 57014·55P03 → `LlmUnavailable`, 다른 DB 오류는 그대로(500 `INTERNAL`) · `end_read` 뒤 설정 풀림(계획·답·성공 저장 쪽에 안 번짐)
+- 질문 답변 facts(`-m db`): `pg_sleep` 조회가 남은 시간(0.3초) + 여유 2초 안에 끊기고 `LlmUnavailable`, 같은 세션으로 FAILED 저장 성공 · 성공 뒤 `SHOW statement_timeout` = `0` · API 시간 초과 응답이 지금 LLM deadline 초과 응답과 같은 모양(502 `{"code":"LLM_UNAVAILABLE",…}`)
+- 초안 참고자료(단위): `retrieve(facts, deadline=…)` 가 `_candidates` 앞에 남은 ms 설정, 결과 그대로 · 남은 ≤ 0 → 벡터 SQL 0·`RetrievalUnavailable` → 초안 `references=[]` 로 진행 · 채우기 2차(`fill_session`)·`_cosines` 도 같은 마감 · `deadline=None`(하네스·평가) → 설정 SQL 0 · 검색 마감 = 요청 deadline − `LLM_TIMEOUT_S`(설정값을 바꿔 시험 — 숫자 35 에 기대지 않음)
+- 초안 참고자료(`-m db`): `pg_sleep` 이 남은 시간 뒤 끊기고 `RetrievalUnavailable`, savepoint 로 초안 세션 계속 사용 가능
+- FAILED 감사 행 회귀(`-m db`, `test_ask_facts_failed_rows_db.py`): 읽기 rollback 은 시간 초과에서만 — 400(없는 ID·보고 대상 거래 없음)은 develop 과 같은 FAILED 행, 시간 초과 아닌 DB 오류(500)는 develop 처럼 행 없음(깨진 트랜잭션이라 FAILED 저장 실패·경고 로그만)
+- 알고 남김: 풀 연결 대기 자체(엔진 공통 `pool_timeout` 30초 — 대기 뒤 만료면 조회를 시작하지 않을 뿐) · 실패 감사 저장(FAILED) 시간 제한 없음(09 2026-11-20) · 초안 facts 조회·선점·`finish`·`fail` 은 이번 범위 밖(같은 문제 — 새 이슈 후보) · 시간 초과 아닌 DB 오류(500)도 FAILED 감사 행을 남기는 건 감사 쪽 개선 후보(범위 밖 — develop 동작 유지)
+
 ## 녹화 (`recorded/`)
 
 `AI_LLM_MOCK=true`면 `shared/infrastructure/llm_client.RecordedLlmClient`가 호출 대신 `recorded/{prompt_version}/{key}.json`을 읽는다. **녹화 키**는 `shared/infrastructure/llm_client.recording_key(system, user)` = `sha256(stable_json({"s":system,"u":user}))[:16]` — 함수 하나, `record.py`와 `RecordedLlmClient`가 같은 걸 쓴다(이어 붙이기는 경계가 모호). 없으면 에러(조용히 지어내지 않음). 녹화 갱신은 `AI_LLM_MOCK=false NARRATIVE_PROMPT=narrative_vN uv run python -m tools.record --case fan_in`(활성 버전으로 조립·저장). 커밋 = 템플릿 동결 시점(`FROZEN_PROMPTS`). 백엔드가 로컬에서 AI를 붙여 볼 때 LLM 키 없이 돈다.

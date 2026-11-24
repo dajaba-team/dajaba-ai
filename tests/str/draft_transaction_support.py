@@ -53,7 +53,7 @@ class _FakeRetriever:
     session: Session
     embed_in_tx: list[bool] = field(default_factory=list)
 
-    def retrieve(self, facts):  # type: ignore[no-untyped-def]
+    def retrieve(self, facts, *, deadline=None):  # type: ignore[no-untyped-def]  # SCRUM-413 — 검색 마감
         self.embed_in_tx.append(self.session.in_transaction())
         return []
 

@@ -9,7 +9,6 @@ from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
 
-from aml_ai.shared import chunk_context_state
 from aml_ai.shared.config import Settings
 from aml_ai.shared.db import end_read
 from aml_ai.shared.errors import AiError, FencedOut, InvalidRequest, RetrievalUnavailable
@@ -18,20 +17,18 @@ from aml_ai.shared.infrastructure.llm_client import LlmClient, make_llm_client
 from aml_ai.shared.schemas.str import DraftRequest, DraftResponse, Facts, Reference
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.shared.versioning import generation_meta
+from aml_ai.str.application.draft_retriever import build_retriever
 from aml_ai.str.application.draft_rewrite import NarrativeRewriter, try_rewrite
 from aml_ai.str.domain import fact_keys as fact_keys_domain
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain import masking
-from aml_ai.str.domain.constants_rag_query import REFERENCE_CTX_TABLE, REFERENCE_TABLE
 from aml_ai.str.domain.request_hash import request_hash
 from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.generation_repository import ClaimReuse, GenerationRepository
 from aml_ai.str.infrastructure.judge import Judge
-from aml_ai.str.infrastructure.keyword_search import make_keyword_search
 from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
 from aml_ai.str.infrastructure.reference_snippet import prompt_references
 from aml_ai.str.infrastructure.retriever import Retriever
-from aml_ai.str.infrastructure.retriever_rerank import safe_reranker
 from aml_ai.str.infrastructure.transaction_reader import TransactionReader
 
 log = logging.getLogger(__name__)
@@ -60,7 +57,7 @@ class DraftService:
             session=session,
             reader=TransactionReader(session),
             fewshot=FewshotStore(session, prompt_name=settings.narrative_prompt),
-            retriever=_retriever(session, settings, llm),
+            retriever=_retriever(session, settings, llm, clock=clock),
             generator=NarrativeGenerator(llm, settings, settings.narrative_prompt, clock=clock),
             judge=Judge(llm, settings, clock=clock, schema_retry=0),  # SCRUM-147 — 초안 호출 상한 ≤4
             rewriter=NarrativeRewriter(llm, settings, clock=clock),
@@ -108,7 +105,7 @@ class DraftService:
         examples = self.fewshot.pick_examples(facts.typology)
         # SCRUM-122 — LLM/임베딩 호출 전 연결 반납. end_read 와 LLM 사이에 DB 읽기 금지.
         end_read(self.session)
-        references = self._references(facts)
+        references = self._references(facts, deadline)
         end_read(self.session)  # 지금은 RAG 꺼져 no-op, 125에서 _search 가 짧은 트랜잭션
         fact_keys = list(fact_keys_domain.fact_keys(facts).keys())
         gen = self.generator.generate(
@@ -169,30 +166,31 @@ class DraftService:
             verification=None,
         )
 
-    def _references(self, facts: Facts) -> list[Reference]:
+    def _references(self, facts: Facts, deadline: float | None = None) -> list[Reference]:
         """SCRUM-225 — v3 는 여기서 한 번 잘라 프롬프트와 generation_meta 가 같은 리스트를 씀."""
         try:
-            refs = self.retriever.retrieve(facts)
+            if deadline is None:
+                refs = self.retriever.retrieve(facts)
+            else:  # SCRUM-413 — 생성 LLM 한 번의 시간을 남김
+                refs = self.retriever.retrieve(facts, deadline=deadline - self.settings.llm_timeout_s)
         except RetrievalUnavailable:
             log.warning("retrieval_unavailable")
             return []
         return prompt_references(self.generator.prompt_version, refs)
 
 
-def _retriever(session: Session, settings: Settings, llm: LlmClient) -> Retriever:
+def _retriever(
+    session: Session, settings: Settings, llm: LlmClient, *, clock: Callable[[], float] = time.monotonic
+) -> Retriever:
     """SCRUM-275 — 빈칸 채우기는 스위치 켬 + v4 일 때만. release = end_read(외부 호출 전 연결 반납, SCRUM-122).
 
     채우기 PG 2차는 같은 엔진의 별도 짧은 세션 — 실패해도 초안 세션은 그대로(추가 검토 1 high).
     """
-    fill = settings.rag_gap_fill_active
-    return Retriever(
+    return build_retriever(
         session,
+        settings,
+        llm,
         make_embedding_client(settings),
-        enabled=settings.rag_enabled,
-        gap_fill=fill,
-        keyword=make_keyword_search(settings) if fill else None,
         release=lambda: end_read(session),
-        fill_session=lambda: Session(bind=session.get_bind(), expire_on_commit=False),
-        reranker=safe_reranker(settings, llm) if settings.rag_rerank_active else None,  # SCRUM-308-2 — v4 만
-        table=REFERENCE_CTX_TABLE if chunk_context_state.in_use(settings) else REFERENCE_TABLE,  # SCRUM-308-3
+        clock=clock,
     )
