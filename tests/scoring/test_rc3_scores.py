@@ -3,9 +3,13 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
+from fastapi.testclient import TestClient
 
+from aml_ai.main import app
+from aml_ai.scoring.application import score_service
 from aml_ai.scoring.application.score_service import ScoreService
 from aml_ai.scoring.infrastructure.aml_ml_adapter import AmlMlAdapter
 from aml_ai.scoring.infrastructure.transaction_reader import HistoryCoverage
@@ -26,6 +30,43 @@ def test_bad_rc3_checkpoint_is_request_unavailable(
         monkeypatch.setenv("AML_ML_MODEL_PATH", str(checkpoint))
     with pytest.raises(ModelUnavailable, match="scoring checkpoint could not be loaded"):
         AmlMlAdapter.load().ensure_model_ready()
+
+
+def test_checkpoint_error_after_readiness_returns_whole_request_503(monkeypatch: pytest.MonkeyPatch) -> None:
+    import aml_ml
+
+    request = load_json(EXAMPLES / "score_request.json")
+    alert = Alert.model_validate(request["alerts"][0])
+    request["alerts"].append({**request["alerts"][0], "alert_id": "ALT-20220903-000143"})
+    history = HistoryCoverage(
+        alert.reference_ts - timedelta(hours=24), alert.reference_ts, None, None, "COMPLETE"
+    )
+    load = MagicMock()
+    score = MagicMock(side_effect=aml_ml.CheckpointUnavailableError("checkpoint lost after readiness"))
+    save = MagicMock()
+    monkeypatch.setenv("AI_SCORING_MOCK", "false")
+    monkeypatch.setenv("AI_SCORING_HISTORY_START", "2022-09-01T00:00:00")
+    monkeypatch.setenv("AI_SCORING_HISTORY_END", "2022-09-19T00:00:00")
+    monkeypatch.setattr("aml_ai.main.db_ping", lambda _: "ok")
+    monkeypatch.setattr(aml_ml, "load_candidate", load)
+    monkeypatch.setattr(aml_ml, "score", score)
+    monkeypatch.setattr(score_service, "get_engine", MagicMock())
+    monkeypatch.setattr(score_service, "Session", MagicMock())
+    monkeypatch.setattr(score_service, "is_registered", lambda *args: True)
+    monkeypatch.setattr(
+        score_service,
+        "read_transactions",
+        lambda *args, **kwargs: ([{"transaction_id": i} for i in alert.transaction_ids], [history, history]),
+    )
+    monkeypatch.setattr(score_service, "save_predictions", save)
+
+    with TestClient(app) as client:
+        response = client.post("/v1/scores", headers={"X-Internal-Key": "test-key"}, json=request)
+    assert response.status_code == 503
+    assert response.json()["code"] == "MODEL_UNAVAILABLE"
+    load.assert_called_once_with()
+    score.assert_called_once()
+    save.assert_not_called()
 
 
 def test_rc3_respects_per_alert_outcomes(synthetic_rc3_booster: None) -> None:

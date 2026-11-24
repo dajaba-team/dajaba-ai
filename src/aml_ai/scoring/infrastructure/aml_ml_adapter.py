@@ -79,11 +79,14 @@ class AmlMlAdapter:
         try:
             loader()
         except Exception as exc:
-            raise ModelUnavailable(
-                "scoring checkpoint could not be loaded",
-                error_type=type(exc).__name__,
-                package_version=self.version.package_version,
-            ) from exc
+            raise self._checkpoint_unavailable(exc) from exc
+
+    def _checkpoint_unavailable(self, exc: Exception) -> ModelUnavailable:
+        return ModelUnavailable(
+            "scoring checkpoint could not be loaded",
+            error_type=type(exc).__name__,
+            package_version=self.version.package_version,
+        )
 
     def score(
         self,
@@ -124,6 +127,9 @@ class AmlMlAdapter:
             try:
                 results = self._package.score(inputs[start:end], frame, coverage=package_coverage[start:end])
             except Exception as exc:
+                # Checkpoint failures affect the whole request, including after readiness passed.
+                if isinstance(exc, getattr(self._package, "CheckpointUnavailableError", ())):
+                    raise self._checkpoint_unavailable(exc) from exc
                 details = {"error_type": type(exc).__name__, "batch_size": size}
                 if size == 1:
                     log.warning("scoring_alert_compute_error", extra=details)
