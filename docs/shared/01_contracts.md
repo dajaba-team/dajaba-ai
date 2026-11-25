@@ -71,6 +71,7 @@
 | 응답 `narrative[].cites: list[str]` | 추가 — LLM이 쓴 **fact 키**. `evidence_ids`는 코드가 cites에서 합친 것 |
 | 응답 `verification` | 항상 `null` (안건 17) — 타입은 `None` 고정 |
 | 응답 `generation_meta.references[].chunk_id: str \| None` | **추가 (SCRUM-125, 11/11)** — 청크 내용 해시 `sha256(doc_id + "\n" + page + "\n" + text_norm)`. 다시 적재해도 같은 값(평가 단위). 선택 칸·기본 `None` 이라 옛 저장 응답과 하위 호환 — 백엔드 `AiDtos` 는 `references` 안 읽음 |
+| 응답 `generation_meta.references[].excerpt: str \| None` | **추가 (SCRUM-425, 11/25)** — 화면 참고 사례 카드 hover "이 자료의 관련 구절". 그 청크에서 초안 유형(`facts.typology`)의 영문 패턴과 겹치는 문장 최대 2개(없으면 앞 300자 — `str/10`) → NFC → 공백 정리 → **NFC 뒤 UTF-16 코드 유닛 ≤ 300**(넘으면 299 + `…`, 대리쌍 안 가름). 본문이 없거나 결과가 빈 문자열이면 `null`. **맨 끝 칸**, 선택 칸·기본 `null` 이라 옛 저장 응답과 하위 호환. 원문 `text` 는 계속 응답에서 뺌 |
 | `facts.typology_source` | `RULE`만 (안건 8) |
 
 ### 검증 요청·응답 (규약 5.3)
@@ -122,7 +123,7 @@
 | 요청 `top_k` | 1~10, 기본 5 | `REFERENCE_TOP_K_MAX` |
 | 요청 `source_types` | 기본 `["PUBLIC"]`. `APPROVED_STR`(B 가 켜졌을 때만 — 이번엔 늘 400) · 빈 목록 · 중복 400 | `ReferenceSourceType` |
 | 응답 `status` 2종 | `FOUND`(결과 1~`top_k`, `score` 내림차순) · `EMPTY`(`results=[]`). 둘 다 200 | `ReferenceSearchStatus` |
-| 응답 `results[]` | `doc_id`·`doc_title`·`page`·`score`(cosine)·`chunk_id` 는 초안 `references[]` 와 같은 이름·뜻. 더해서 `publisher`·`year`(manifest 값 — 적재 때 DB 칸에 들어간 값, 없으면 `null`: `ffiec-redflags` year) · `typologies`(그 청크 태그 전부 — 요청 유형과 하나 이상 겹침) · `source_type`(`PUBLIC`). **본문 칸 없음** | `ReferenceResult` |
+| 응답 `results[]` | `doc_id`·`doc_title`·`page`·`score`(cosine)·`chunk_id` 는 초안 `references[]` 와 같은 이름·뜻. 더해서 `publisher`·`year`(manifest 값 — 적재 때 DB 칸에 들어간 값, 없으면 `null`: `ffiec-redflags` year) · `typologies`(그 청크 태그 전부 — 요청 유형과 하나 이상 겹침) · `source_type`(`PUBLIC`) · **`excerpt`(맨 끝, `str | null`, SCRUM-425)** — 초안 `references[].excerpt` 와 같은 규칙(NFC 뒤 UTF-16 ≤ 300 · 넘으면 299 + `…` · 없으면 `null`), 구절을 고르는 유형 = 요청 `typologies` 중 그 청크 태그에 있는 첫 번째(요청 순서). **원문 본문 칸 없음**(`text` 는 안 나감) | `ReferenceResult` |
 | 응답 `retrieval_version` | 꼬리 없는 `{EMBEDDING_MODEL}@{manifest_sha256[:8]}` — 초안 경로의 `+ctx`·`+rr`·`+fill` 꼬리는 붙이지 않음(이 입구는 셋 다 안 씀) | `base_retrieval_version` |
 | 응답 `search_meta` | `degraded`(ES 키워드 실패로 벡터만 — 이번엔 키워드를 안 써서 늘 false) · `candidates`(정리 전 벡터 후보 수) · `latency_ms` | `ReferenceSearchMeta` |
 | 응답 `produced_at` | `SystemTimestamp`(Z) | — |

@@ -190,7 +190,7 @@ def retrieve(facts: Facts, k: int = 3) -> list[Reference]:
 
 ## 프롬프트에서
 
-REFERENCES 자리에 `[n] {doc_title} p.{page}: {text}` 0~3줄, 없으면 `(없음)`(`05`). system 규칙 8 이 숫자·이름 반입 금지. 응답 `generation_meta.references = [{chunk_id, doc_id, doc_title, page, score}]` → 화면 "참고 유형 사례 N건(출처·쪽)". `generations.references jsonb` 에 같은 값(재현).
+REFERENCES 자리에 `[n] {doc_title} p.{page}: {text}` 0~3줄, 없으면 `(없음)`(`05`). system 규칙 8 이 숫자·이름 반입 금지. 응답 `generation_meta.references = [{chunk_id, doc_id, doc_title, page, score, excerpt}]` → 화면 "참고 유형 사례 N건(출처·쪽)" · 카드 hover "이 자료의 관련 구절" = `excerpt`(SCRUM-425 — `reference_snippet.snippet` 으로 고른 유형 패턴 문장 1~2개 또는 앞 300자 → NFC·공백 정리 → NFC 뒤 UTF-16 ≤ 300, 넘으면 299 + `…`, 없으면 `null`. 채우는 곳은 응답 직렬화 직전 `draft_service` 한 곳, 원문 `text` 는 계속 뺌 · 프롬프트·검색·녹화 키 영향 없음). 참고 사례 검색(`POST /v1/references/search`) 결과에도 같은 `excerpt`(유형 = 요청 유형 중 그 청크 태그에 있는 첫 번째 — 저장소 SQL 이 본문을 같이 읽음, 순위·필터 그대로). `generations.references jsonb` 에 같은 값(재현).
 
 **narrative_v4 (SCRUM-228, 11/18 기본값)** — 참고 사례는 **화면 표시만(본문 영향 없음)**: 검색은 돌고 응답 `generation_meta.references` 는 채워지지만 본문에는 안 씀(생성기 요청 기록엔 `reference_ids` 만, 아래 "다중 질의·합치기" 절).
 

@@ -62,6 +62,7 @@ class ReferenceSearchRepository:
                 r.page,
                 tuple(r.typologies),
                 float(r.score),
+                text=r.text,
             )
             for r in rows
             if r.score is not None

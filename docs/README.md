@@ -44,6 +44,7 @@
 
 | 항목 | 상태 | 날짜 | 비고 |
 |---|---|---|---|
+| SCRUM-425 — [AI] 참고 사례 관련 구절(`excerpt`) 응답에 싣기 — 초안 references · 참고 사례 검색 결과 | 완료 (★C — 검토 대기) | 11/25 | 두 곳 맨 끝 칸 `excerpt: str \| null` · 기존 `snippet` 고르기 → NFC·공백 정리 → NFC 뒤 UTF-16 ≤ 300(넘으면 299 + `…`) · 원문 `text` 는 계속 뺌 · 검색 SQL 이 본문을 같이 읽음(순위·필터 그대로). 짝: 백엔드 SCRUM-426 · 프론트 SCRUM-427. [계약](shared/01_contracts.md) · [RAG](str/10_rag.md) · [결정](str/09_decisions.md) |
 | 11/25 전체 점검 후속 — [AI] QA-AI-02 기간 한정어(시간대·요일·날수·답 쪽 `해당 기간`) · QA-AI-01 평가자 테스트 스텁 · QA-AI-03 요약 조회·저장 마감 | 완료 (★C — 검토 대기) | 11/25 | QA-AI-02: 한정어 목록 덧붙이기만 · 답 쪽 `해당 기간` 은 질문에 한정어가 있을 때만 막음, 새 테스트 56 · 실모델 6문항 상태 그대로. QA-AI-01: 평가자별 응답 스텁, 30회 반복 30 통과(전 21/30). QA-AI-03: 요약 거래 조회·성공 저장을 요청 마감 안으로(질문 답변과 같은 도구), 새 테스트 9. 정본 [06](str/06_verification.md) · [03](str/03_pipeline.md) · [08](str/08_testing.md) · [09](str/09_decisions.md) |
 | SCRUM-385 — [AI] rc3 체크포인트 오류 처리 (BH-ML-01) | 검증 완료 · PR 검토 중 | 11/24 | 채점 중 체크포인트 오류도 요청 전체 503 · 앞 묶음 점수 폐기 · 예측 저장 0건. ML `v0.1.0rc3.post1` (`1bf5840`) 고정 · 기존 rc3와 9/7 경보 1,545건 점수·등급·실패 코드 일치. [ML 패키지 계약](shared/02_ml_package.md#설치버전) · [PR #106](https://github.com/dajaba-team/dajaba-ai/pull/106) |
 | `GET /v1/dl-rankings/{scan_date}` | 내부 조사 순위 조회 · 스냅샷 기반 · 백엔드/화면 연동 전 | — | [ML+DL 조사 순위](scoring/01_dl_investigation_ranking.md) |

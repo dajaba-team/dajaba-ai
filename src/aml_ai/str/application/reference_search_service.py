@@ -32,10 +32,11 @@ from aml_ai.str.domain.constants_rag_query import (
     REFERENCE_PER_DOC_MAX,
     REFERENCE_QUERY_VERSION,
 )
-from aml_ai.str.domain.reference_search import Hit, arrange, masked_query, query_text
+from aml_ai.str.domain.reference_search import Hit, arrange, excerpt_typology, masked_query, query_text
 from aml_ai.str.infrastructure import reference_search_runtime as runtime
 from aml_ai.str.infrastructure.reference_embedding import embed_within
 from aml_ai.str.infrastructure.reference_search_repository import ReferenceSearchRepository
+from aml_ai.str.infrastructure.reference_snippet import reference_excerpt
 
 log = logging.getLogger(__name__)
 _MS = 1000
@@ -101,7 +102,7 @@ class ReferenceSearchService:
         self._remaining(deadline)  # DB 전(캐시 적중 포함)
         hits = self.repo.search(vec, typologies, self._model(), deadline=deadline, clock=self.clock)
         picked = arrange(hits, top_k=req.top_k, per_doc=REFERENCE_PER_DOC_MAX)
-        response = self._response(picked, len(hits), started)
+        response = self._response(picked, len(hits), started, typologies)
         try:
             self._remaining(deadline)  # 조립·검증 뒤, 성공 반환 직전 — 넘었으면 200 대신 502(검토 2)
         except LlmUnavailable:
@@ -138,7 +139,9 @@ class ReferenceSearchService:
             self.cache.put(key, vec)
         return vec, False
 
-    def _response(self, picked: list[Hit], candidates: int, started: float) -> ReferenceSearchResponse:
+    def _response(
+        self, picked: list[Hit], candidates: int, started: float, typologies: list[str]
+    ) -> ReferenceSearchResponse:
         return ReferenceSearchResponse(
             produced_at=utc_now(),
             status=ReferenceSearchStatus.FOUND if picked else ReferenceSearchStatus.EMPTY,
@@ -153,6 +156,7 @@ class ReferenceSearchService:
                     chunk_id=h.chunk_id,
                     typologies=list(h.typologies),
                     source_type=ReferenceSourceType.PUBLIC,
+                    excerpt=reference_excerpt(h.text, excerpt_typology(typologies, h.typologies)),
                 )
                 for h in picked
             ],  # fmt: skip

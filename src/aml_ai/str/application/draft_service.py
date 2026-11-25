@@ -27,7 +27,7 @@ from aml_ai.str.infrastructure.fewshot_store import FewshotStore
 from aml_ai.str.infrastructure.generation_repository import ClaimReuse, GenerationRepository
 from aml_ai.str.infrastructure.judge import Judge
 from aml_ai.str.infrastructure.narrative_generator import NarrativeGenerator
-from aml_ai.str.infrastructure.reference_snippet import prompt_references
+from aml_ai.str.infrastructure.reference_snippet import prompt_references, reference_excerpt
 from aml_ai.str.infrastructure.retriever import Retriever
 from aml_ai.str.infrastructure.transaction_reader import TransactionReader
 
@@ -145,12 +145,16 @@ class DraftService:
         )
 
     def _build_response(self, req, generation_id, facts, narrative, gen, examples, references, rewrite_meta):
+        tag = facts.typology.value if facts.typology else None
         meta = generation_meta(
             self.settings,
             llm_model=gen.llm_model,
             prompt_version=gen.prompt_version,
             few_shot_ids=[e.example_id for e in examples],
-            references=[r.model_dump(exclude={"text"}) for r in references],
+            references=[
+                r.model_copy(update={"excerpt": reference_excerpt(r.text, tag)}).model_dump(exclude={"text"})
+                for r in references
+            ],
             tokens_in=gen.tokens_in,
             tokens_out=gen.tokens_out,
             latency_ms=gen.latency_ms,

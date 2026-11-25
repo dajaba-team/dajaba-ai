@@ -17,6 +17,7 @@ from aml_ai.str.domain.constants_references import (
     REFERENCE_SNIPPET_STEM_CHARS,
     REFERENCES_PROMPT_MAX,
 )
+from aml_ai.str.domain.reference_excerpt import excerpt_of
 from aml_ai.str.infrastructure.retriever import TYPOLOGY_PATTERN_EN
 
 _SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
@@ -50,6 +51,10 @@ def snippet(text: str | None, typology: str | None) -> str:
     if not top:
         return fallback
     return " ".join(sentences[i] for _, i in sorted(top, key=lambda x: x[1]))
+
+
+def reference_excerpt(text: str | None, typology: str | None) -> str | None:
+    return excerpt_of(snippet(text, typology))
 
 
 def render_references(references: list[Reference], typology: str | None, *, snippet_mode: bool) -> str:

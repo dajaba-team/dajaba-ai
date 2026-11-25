@@ -11,3 +11,4 @@ REFERENCE_SNIPPET_SENTENCES = 2  # 청크에서 고르는 유형 패턴 문장 �
 REFERENCE_SNIPPET_FALLBACK_CHARS = 300  # 겹침 0·패턴 없음 → 앞부분
 REFERENCE_SNIPPET_MIN_WORD = 4  # 겹침 셈에 쓰는 영단어 최소 길이 (to·of·the 등 제외)
 REFERENCE_SNIPPET_STEM_CHARS = 5  # 단어 앞 5자로 비교 — deposit/deposits, account/accounts
+REFERENCE_EXCERPT_ELLIPSIS = "…"  # 응답 구절이 길 때 끝에 붙이는 말줄임표
