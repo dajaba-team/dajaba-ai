@@ -12,7 +12,9 @@ from aml_ai.shared.schemas.scores import Reason
 from aml_ai.shared.schemas.str.facts import Facts
 from aml_ai.shared.schemas.str.facts_input import FactsInput
 from aml_ai.shared.schemas.str.narrative import NarrativeSection, _each_section_once
+from aml_ai.shared.schemas.str.reference_search import REFERENCE_EXCERPT_MAX
 from aml_ai.shared.schemas.str.verify import LlmCheckName
+from aml_ai.shared.text import utf16_len_nfc
 
 INVESTIGATOR_NOTES_MAX = 2000  # AI 설계 7A 2번 — 메모 상한
 
@@ -36,6 +38,14 @@ class Reference(StrictModel):
     page: int
     score: float
     text: str | None = Field(default=None, max_length=600, description="프롬프트용. 응답에는 보통 생략")
+    excerpt: str | None = None
+
+    @field_validator("excerpt")
+    @classmethod
+    def _excerpt(cls, v: str | None) -> str | None:
+        if v is not None and utf16_len_nfc(v) > REFERENCE_EXCERPT_MAX:
+            raise ValueError(f"excerpt must be ≤{REFERENCE_EXCERPT_MAX} UTF-16 code units after NFC")
+        return v
 
 
 class RewriteMeta(StrictModel):

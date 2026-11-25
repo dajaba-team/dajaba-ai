@@ -11,7 +11,8 @@
       "score": 0.52,
       "chunk_id": "34be9b160cd475045c1334f957180e4947e328af50bb33bf14912c12e11dbe9d",
       "typologies": ["CYCLE", "GATHER_SCATTER"],
-      "source_type": "PUBLIC"
+      "source_type": "PUBLIC",
+      "excerpt": "Funds were moved through a chain of accounts and returned to the originating account."
     },
     {
       "doc_id": "ffiec-redflags",
@@ -22,7 +23,8 @@
       "score": 0.41,
       "chunk_id": "d994051861cbf0626d93ddce92d3af60ec5d69797774c1200b1df9a8adbd2234",
       "typologies": ["CYCLE"],
-      "source_type": "PUBLIC"
+      "source_type": "PUBLIC",
+      "excerpt": "Funds are transferred among related accounts and come back to the first account in a short period."
     }
   ],
   "retrieval_version": "text-embedding-3-small@36b5a2d5",

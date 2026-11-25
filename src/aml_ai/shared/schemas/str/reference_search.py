@@ -1,6 +1,6 @@
 """참고 사례 검색 `POST /v1/references/search` 요청·응답 (SCRUM-309, docs/shared/01 "참고 사례 검색").
 
-조회 전용 — 본문 칸 없음. 상태별 칸 규칙(FOUND ↔ 1건 이상 · EMPTY ↔ 0건 · score 내림차순)은 여기서 본다
+조회 전용 — 원문 본문 칸 없음, excerpt 만. 상태별 칸 규칙(FOUND ↔ 1건 이상 · EMPTY ↔ 0건 · score 내림차순)은 여기서 본다
 (백엔드 `requireReferenceSearchResponse` 와 같은 규칙). 결과 수 ≤ top_k · 태그 겹침은 요청을 아는 서비스가 지킴.
 """
 
@@ -15,6 +15,7 @@ from aml_ai.shared.schemas.common import StrictModel, SystemTimestamp, Typology
 from aml_ai.shared.text import utf16_len_nfc
 
 REFERENCE_QUERY_MAX = 200  # 설계 5.1 — NFC 뒤 UTF-16
+REFERENCE_EXCERPT_MAX = 300  # NFC 뒤 UTF-16 (SCRUM-425)
 REFERENCE_TOP_K_MAX = 10
 REFERENCE_TOP_K_DEFAULT = 5
 REFERENCE_TYPOLOGIES_MAX = 3
@@ -83,6 +84,14 @@ class ReferenceResult(StrictModel):
     chunk_id: str
     typologies: list[Typology] = Field(min_length=1)
     source_type: ReferenceSourceType
+    excerpt: str | None = None
+
+    @field_validator("excerpt")
+    @classmethod
+    def _excerpt(cls, v: str | None) -> str | None:
+        if v is not None and utf16_len_nfc(v) > REFERENCE_EXCERPT_MAX:
+            raise ValueError(f"excerpt must be ≤{REFERENCE_EXCERPT_MAX} UTF-16 code units after NFC")
+        return v
 
 
 class ReferenceSearchMeta(StrictModel):

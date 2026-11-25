@@ -45,6 +45,11 @@ class Hit:
     page: int
     typologies: tuple[str, ...]
     score: float
+    text: str | None = None
+
+
+def excerpt_typology(requested: list[str], tags: tuple[str, ...]) -> str | None:
+    return next((typology for typology in requested if typology in tags), None)
 
 
 def _mask_bank_key(m: re.Match[str]) -> str:
