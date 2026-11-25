@@ -8,13 +8,13 @@ from __future__ import annotations
 import unicodedata
 
 import pytest
-from aml_ai.str.domain.reference_excerpt import excerpt_of
 from pydantic import ValidationError
 
 from aml_ai.shared.schemas.str import Reference, ReferenceResult
 from aml_ai.shared.schemas.str.reference_search import REFERENCE_EXCERPT_MAX
 from aml_ai.shared.text import utf16_len_nfc
 from aml_ai.str.domain.constants_references import REFERENCE_EXCERPT_ELLIPSIS
+from aml_ai.str.domain.reference_excerpt import excerpt_of
 from aml_ai.str.domain.reference_search import excerpt_typology
 from aml_ai.str.infrastructure.reference_snippet import reference_excerpt
 
