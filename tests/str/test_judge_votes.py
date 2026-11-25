@@ -20,6 +20,7 @@ from aml_ai.str.domain.constants import JUDGE_VOTES
 from tests.str.judge_votes_support import (
     CHECK_NAMES,
     SECTIONS_V2,
+    PerVoterStub,
     ThreadSafeStub,
     VoteCall,
     dummy_narrative,
@@ -135,13 +136,10 @@ def test_schema_fail_counts_tokens_but_retries_once() -> None:
     """
     good = _v3_payload([5, 5, 5, 5, 5])
     bad = "not-judge-json"
-    stub = ThreadSafeStub([
-        VoteCall(text=bad, tokens_in=100, tokens_out=50),   # 호출 1 - 1차 스키마 실패
-        VoteCall(text=good, tokens_in=1000, tokens_out=400),  # 호출 1 - 2차 성공
-        VoteCall(text=bad, tokens_in=100, tokens_out=50),
-        VoteCall(text=good, tokens_in=1000, tokens_out=400),
-        VoteCall(text=bad, tokens_in=100, tokens_out=50),
-        VoteCall(text=good, tokens_in=1000, tokens_out=400),
+    # 평가자별 묶음 — 세 평가자가 동시에 돌아도 각자 1차 스키마 실패 → 2차 성공(11/25 전체 점검 QA-AI-01)
+    stub = PerVoterStub([
+        [VoteCall(text=bad, tokens_in=100, tokens_out=50), VoteCall(text=good, tokens_in=1000, tokens_out=400)]
+        for _ in range(3)
     ])  # fmt: skip
     judge = _make_judge(stub)
     result = judge.run(facts_masked={}, narrative=_dummy_narrative(), fact_keys=[])
