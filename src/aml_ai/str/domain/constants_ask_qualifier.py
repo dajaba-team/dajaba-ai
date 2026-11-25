@@ -31,8 +31,23 @@ _RELATIVE = (  # `달러` 의 `달` 은 아님
 )
 _YEAR = r"작년|올해|지난해|금년|전년"
 _EN = r"(?i:\b(?:yesterday|today|recent(?:ly)?|(?:last|this|past)\s+(?:week|month|\d+\s+days?))\b)"
+# 11/25 전체 점검 — 덧붙이기만
+_TIME_OF_DAY = (
+    r"새벽|아침|점심|저녁|밤낮?|심야|야간|자정|정오|한낮|대낮|낮\s*(?:에|시간|동안)"
+    r"|(?:근무|업무|영업)\s*시간"
+)
+_WEEKDAY = r"[월화수목금토일]?요일|평일|주중|공휴일|휴일|영업일"
+_DAYS = r"이틀|사흘|나흘|닷새|엿새|이레|여드레|아흐레|열흘|보름|하룻|전날|다음\s*날|이튿날|익일"
+_EN_TIME = (
+    r"(?i:\b(?:morning|afternoon|evening|night|midnight|weekend|weekdays?"
+    r"|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b)"
+)
 # 질문 쪽(`ask_checks.qualifier_mismatch`)과 절 쪽(`ask_qualifier.period_mismatch`)이 같은 목록
-RE_DATE_QUALIFIER = re.compile("|".join((_BASE, _YMD, _MD, _RELATIVE, _YEAR, _EN)))
+RE_DATE_QUALIFIER = re.compile(
+    "|".join((_BASE, _YMD, _MD, _RELATIVE, _YEAR, _EN, _TIME_OF_DAY, _WEEKDAY, _DAYS, _EN_TIME))
+)
+# 답 쪽 — 질문에 한정어가 있을 때만, 11/25 전체 점검
+RE_REFERRED_PERIOD = re.compile(r"해당\s*기간")
 # 기간과 무관한 키 허용 목록 — 그 밖(목록에 없는 새 키 포함)은 모두 기간 전체 집계(추가 검토 2, 목록 뒤집기)
 ASK_PERIOD_FREE_KEYS: tuple[str, ...] = ("period", "subject", "typology", "model_signals")
 ASK_PERIOD_FREE_PREFIXES: tuple[str, ...] = ("subject.", "customer.")

@@ -67,7 +67,7 @@ class ThreadSafeStub:
         with self._lock:
             idx = len(self.calls)
             self.calls.append({"idx": idx, "tag": tag, "model": model})
-            spec = self._specs[idx]
+            spec = self._next_spec(idx)
         if spec.wait_event is not None:
             spec.wait_event.wait(timeout=10.0)
         if spec.exc is not None:
@@ -80,6 +80,30 @@ class ThreadSafeStub:
             tokens_out=spec.tokens_out,
             latency_ms=spec.latency_ms,
         )
+
+    def _next_spec(self, idx: int) -> VoteCall:
+        return self._specs[idx]
+
+
+class PerVoterStub(ThreadSafeStub):
+    """평가자별 응답 묶음 — 평가자(스레드)가 첫 호출에 묶음 하나를 집고 재시도는 그 묶음에서 이어 씀(11/25 전체 점검 QA-AI-01).
+
+    `ThreadSafeStub` 은 호출 순서대로 꺼내 평가자 셋이 동시에 돌면 한 평가자가 다른 평가자의 재시도 응답을 가져갈 수 있다.
+    스레드가 재사용돼도 집은 묶음을 다 쓰면 다음 묶음을 집는다.
+    """
+
+    def __init__(self, scripts: list[list[VoteCall]]) -> None:
+        super().__init__([c for script in scripts for c in script])
+        self._scripts = [list(s) for s in scripts]
+        self._next_script = 0
+        self._local = threading.local()
+
+    def _next_spec(self, idx: int) -> VoteCall:  # noqa: ARG002 — 순서 대신 평가자별 묶음
+        script = getattr(self._local, "script", None)
+        if not script:
+            script = self._local.script = self._scripts[self._next_script]
+            self._next_script += 1
+        return script.pop(0)
 
 
 def make_judge(stub: ThreadSafeStub, *, votes: int = 3, schema_retry: int = 1) -> Judge:
