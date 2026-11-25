@@ -15,15 +15,11 @@ from aml_ai.shared.config import Settings
 from aml_ai.shared.db import end_read
 from aml_ai.shared.errors import AiError, InvalidRequest
 from aml_ai.shared.infrastructure.llm_client import make_llm_client
-from aml_ai.shared.schemas.str import (
-    CodeCheck,
-    Facts,
-    GenerationMeta,
-    SummaryRequest,
-    SummaryResponse,
-)
+from aml_ai.shared.schemas.str import CodeCheck, Facts, GenerationMeta, SummaryRequest, SummaryResponse
+from aml_ai.shared.schemas.str.facts_input import FactsInput
 from aml_ai.shared.time_utils import utc_now
 from aml_ai.shared.versioning import generation_meta
+from aml_ai.str.application import summary_deadline
 from aml_ai.str.domain import facts as facts_domain
 from aml_ai.str.domain.models import SummaryGenerationResult
 from aml_ai.str.domain.summary_amounts import uses_display_amounts
@@ -82,11 +78,11 @@ class SummaryService:
         deadline = self.clock() + self.settings.summary_budget_s
         generation_id = f"g-{uuid.uuid4().hex[:8]}"
         try:
-            facts, txs = self._load_facts(inp)
+            facts, txs = self._read_facts(inp, deadline)
             # SCRUM-122 — LLM 호출 전 연결 반납
             end_read(self.session)
             response = self._generate_and_check(req, generation_id, facts, deadline)
-            self._save_success(req, generation_id, facts, response)
+            self._save_success(req, generation_id, facts, response, deadline)
             return response
         except Exception as exc:
             code = exc.code if isinstance(exc, AiError) else "INTERNAL"
@@ -99,6 +95,11 @@ class SummaryService:
         if not set(req.evidence_transaction_ids) <= set(req.alert.transaction_ids):
             raise InvalidRequest("evidence must be subset of alert.transaction_ids")
 
+    def _read_facts(self, inp: FactsInput, deadline: float) -> tuple[Facts, list]:
+        with summary_deadline.rollback_on_read_timeout(self.session):
+            self.reader.bound_to_deadline(deadline, self.clock)
+            return self._load_facts(inp)
+
     def _load_facts(self, inp) -> tuple[Facts, list]:
         txs = self.reader.load_transactions(inp.evidence_transaction_ids)
         if not facts_domain.has_reportable(txs):
@@ -107,11 +108,7 @@ class SummaryService:
         return facts_domain.build_facts(inp, txs, subject), txs
 
     def _generate_and_check(
-        self,
-        req: SummaryRequest,
-        generation_id: str,
-        facts: Facts,
-        deadline: float,
+        self, req: SummaryRequest, generation_id: str, facts: Facts, deadline: float
     ) -> SummaryResponse:
         # SCRUM-340 — 버전별 입력(v2 만 LLM 복사본 금액 칸을 표기 문자열로). 검사는 원본 facts 로
         inp = self.generator.prepare(facts)
@@ -167,9 +164,16 @@ class SummaryService:
         )
 
     def _save_success(
-        self, req: SummaryRequest, generation_id: str, facts: Facts, response: SummaryResponse
+        self,
+        req: SummaryRequest,
+        generation_id: str,
+        facts: Facts,
+        response: SummaryResponse,
+        deadline: float,
     ) -> None:
         self.repo.save(
+            timeout_s=summary_deadline.remaining_before_save(deadline, self.clock()),
+            before_commit=lambda: summary_deadline.check_before_commit(deadline, self.clock()),
             generation_id=generation_id,
             case_no=req.case_no,
             request=req.model_dump(mode="json"),

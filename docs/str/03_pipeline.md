@@ -242,6 +242,7 @@
 | 초안 요청 전체(AI 안) | **80초** — 백엔드 타임아웃 90초보다 10초 짧게 | `DRAFT_BUDGET_S=80` |
 | 요약 요청 전체(AI 안) | **40초** — Jira SCRUM-129, 단 `LLM_TIMEOUT_S` 이상(기동 불변식) | `SUMMARY_BUDGET_S=40` |
 | 질문 답변 요청 전체(AI 안) | **20초** — 설계 문서 5.5(백엔드 전체 30초). `ASK_LLM_TIMEOUT_S` 이상(기동 불변식) | `ASK_BUDGET_S=20` |
+| 요약 거래 조회·성공 저장 | 요청 deadline 남은 시간 안(11/25 전체 점검) — 조회는 질문 답변 facts 조회와 같은 방식(연결 얻은 뒤 남은 ms 를 `statement_timeout`·`lock_timeout` 으로, 시간 초과만 rollback). 성공 저장은 남은 시간을 문장·잠금 대기로 걸고 커밋 직전 마감 재확인 — 남은 ≤ 0 이거나 넘으면 성공을 돌려주지 않고 502 `LLM_UNAVAILABLE`·FAILED 저장(실패 저장은 그대로) | `SUMMARY_BUDGET_S` 공용 |
 | 질문 답변 facts 조회 | 요청 deadline 남은 시간 안(SCRUM-413) — 연결을 얻은 뒤 셈, `statement_timeout`·`lock_timeout` = 남은 ms. 넘으면 502 `LLM_UNAVAILABLE` | `ASK_BUDGET_S` 공용 |
 | 질문 답변 LLM 1회(계획·답 각각) | **10초 — 호출 전체**(작업별이 아님). `min(10초, 요청 deadline 남은 시간)` 이 지나면 헤더 대기·본문 읽기 중 어디서든 연결을 끊고 `LlmUnavailable`(SCRUM-322). 호출 전 남은 < 10초면 부르지 않음. 재시도·재생성 0 | `ASK_LLM_TIMEOUT_S=10` · `complete_json(total_timeout_s=)` |
 | 죽은 PROCESSING 판정 | 예산 + 30초 = **110초** | `STALE_PROCESSING_S` |
