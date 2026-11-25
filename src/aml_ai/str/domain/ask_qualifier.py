@@ -13,6 +13,7 @@ from aml_ai.str.domain.constants_ask_qualifier import (
     ASK_PERIOD_FREE_KEYS,
     ASK_PERIOD_FREE_PREFIXES,
     RE_DATE_QUALIFIER,
+    RE_REFERRED_PERIOD,
 )
 
 
@@ -21,6 +22,7 @@ def period_mismatch(slots: AskSlots, asked: bool) -> int:
 
     답의 자리표 밖 글에 기간 낱말이 있으면(관측값만 있는 절 안은 빼고) 집계 자리표 전부(질문과 무관). 없고 질문에
     한정어가 있으면(`asked`) 같은 문장에 `period` 가 없거나 거래 기간에서 계산하지 않은 키(P6 꼴만 허용).
+    단, `asked`이고 답의 자리표 밖에 `해당 기간`이 있으면 집계 자리표 전부.
     """
     rows = list(zip(slots.spans, slots.sentences, strict=True))
     aggregates = [(key, sent) for (key, _, _), sent in rows if is_period_aggregate(key)]
@@ -30,6 +32,8 @@ def period_mismatch(slots: AskSlots, asked: bool) -> int:
         return len(aggregates)
     if not asked:
         return 0
+    if RE_REFERRED_PERIOD.search(unicodedata.normalize("NFKC", slots.outside)):
+        return len(aggregates)
     period_sentences = {sent for (key, _, _), sent in rows if key == "period"}
     return sum(
         sent not in period_sentences or key.startswith(ASK_NOT_PERIOD_DERIVED) for key, sent in aggregates
