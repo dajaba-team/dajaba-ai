@@ -1,0 +1,8 @@
+# AWS(EC2 + RDS) 배포용 덮어쓰기 파일. 로컬에서는 쓰지 않는다.
+#   docker compose -f compose.yaml -f compose.aws.yaml up -d --build
+# .env 에 RDS_HOST(RDS 엔드포인트 주소)가 있어야 한다. 백엔드 compose 를 먼저 띄운다(네트워크 dajaba_default).
+services:
+  ai:
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://app_ai@${RDS_HOST:?.env 에 RDS_HOST 가 없어요}:5432/aml
